@@ -1,1 +1,10 @@
-compilerOpts= -Isrc/nativeInterop/cinterop/libprivmx/include
+headers=privmx/endpoint/interface/endpoint.h Pson/pson.h
+#compilerOpts.
+compilerOpts= -Isrc/nativeInterop/cinterop/libprivmx/include \
+-Lsrc/nativeInterop/cinterop/libprivmx/lib/libgmp.a \
+-Lsrc/nativeInterop/cinterop/libprivmx/lib/libopenssl.a \
+-Lsrc/nativeInterop/cinterop/libprivmx/lib/libpmxend.a \
+-Lsrc/nativeInterop/cinterop/libprivmx/lib/libpoco.a \
+-Lsrc/nativeInterop/cinterop/libprivmx/lib/libpson.a
+
+---

@@ -5,7 +5,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
+//    alias(libs.plugins.androidLibrary)
     id("maven-publish")
 //    id("signing")
 //    alias(libs.plugins.vanniktech.mavenPublish)
@@ -39,35 +39,46 @@ kotlin {
 //            }                               // NL
 //        }
 //    }
-    androidNativeArm64{
-        compilations.getByName("main") {
-            cinterops {
+//    androidNativeArm64{
+//        compilations.getByName("main") {
+//            cinterops {
+//                val libprivmxendpoint by creating
+//            }
+//        }
+//    }
+//    androidTarget {
+//        publishLibraryVariants("release")
+//    }
+
+    jvm()
+////    androidTarget {
+////        publishLibraryVariants("release")
+////        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+////        compilerOptions {
+////            jvmTarget.set(JvmTarget.JVM_1_8)
+////        }
+////    }
+//
+//    iosX64()
+//    iosArm64() {
+////        compilations.getByName("main"){
+////            cinterops{
+////                val libprivmxendpoint by creating     // NL
+////            }
+////        }
+//    }
+//    iosSimulatorArm64()
+    listOf(
+        iosSimulatorArm64(),
+        iosX64(),
+        iosArm64(),
+    ).forEach {
+        it.compilations.getByName("main") {
+            cinterops{
                 val libprivmxendpoint by creating
             }
         }
     }
-    androidTarget {
-        publishLibraryVariants("release")
-    }
-
-    jvm()
-    androidTarget {
-        publishLibraryVariants("release")
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_1_8)
-        }
-    }
-
-    iosX64()
-    iosArm64() {
-//        compilations.getByName("main"){
-//            cinterops{
-//                val libprivmxendpoint by creating     // NL
-//            }
-//        }
-    }
-    iosSimulatorArm64()
 //    linuxX64()
 
     sourceSets {
@@ -84,13 +95,13 @@ kotlin {
     }
 }
 
-android {
-    namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
-    }
-}
+//android {
+//    namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
+//    compileSdk = libs.versions.android.compileSdk.get().toInt()
+//    defaultConfig {
+//        minSdk = libs.versions.android.minSdk.get().toInt()
+//    }
+//}
 
 publishing {
     afterEvaluate {

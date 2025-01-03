@@ -5,10 +5,9 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidApplication)
-//    id("maven-publish")
-//    id("signing")
-//    alias(libs.plugins.vanniktech.mavenPublish)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.composeCompiler)
+//    alias(libs.plugins.androidLibrary)
 }
 
 group = "com.simplito.kotlin"
@@ -23,15 +22,34 @@ kotlin {
 //            jvmTarget.set(JvmTarget.JVM_1_8)
 //        }
 //    }
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
+
+//    iosX64()
+//    iosArm64()
+//    iosSimulatorArm64()
+//    jvm()
 //    linuxX64()
+
+    listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "ComposeApp"
+            isStatic = true
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                //put your multiplatform dependencies here
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material)
+                implementation(compose.ui)
+//                @OptIn(ExperimentalComposeLibrary::class)
+                implementation(compose.components.resources)
+                implementation(project(":library"))
             }
         }
         val commonTest by getting {
@@ -40,76 +58,16 @@ kotlin {
             }
         }
     }
-
-    androidTarget{
-
-    }
+//    androidTarget{
+//
+//    }
 }
 
-android {
-    namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
-    }
-}
-
-//publishing {
-//afterEvaluate {
-//    publications.withType<MavenPublication>().onEach {
-//        it.artifactId = it.artifactId.replace("library","privmx-endpoint")
-//    }
-//    publications.forEach {
-//        println("Publication: ${it.name}")
-//    }
-//}
-//
-//    val properties = Properties()
-//    properties.load(file(rootDir.absolutePath + "/local.properties").inputStream())
-//    val repositoryURL: String = properties.getProperty("repositoryURL")
-//    repositories {
-//        maven {
-//            name = "localFiles"
-//            url = uri(repositoryURL)
-//        }
+//android {
+//    namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
+//    compileSdk = libs.versions.android.compileSdk.get().toInt()
+//    defaultConfig {
+//        minSdk = libs.versions.android.minSdk.get().toInt()
 //    }
 //}
 
-//mavenPublishing {
-//    val properties = Properties()
-//    properties.load(file(rootDir.absolutePath + "/local.properties").inputStream())
-//    val repositoryURL: String = properties.getProperty("repositoryURL")
-//    publishToMavenCentral("")
-//    publishToMavenCentral(repositoryURL)
-////    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-//
-//    signAllPublications()
-//
-//    coordinates(group.toString(), "library", version.toString())
-//
-//    pom {
-//        name = ""
-//        description = "A library."
-//        inceptionYear = "2024"
-//        url = "https://github.com/kotlin/multiplatform-library-template/"
-//        licenses {
-//            license {
-//                name = "XXX"
-//                url = "YYY"
-//                distribution = "ZZZ"
-//            }
-//        }
-//        developers {
-//            developer {
-//                id = "XXX"
-//                name = "YYY"
-//                url = "ZZZ"
-//            }
-//        }
-//        scm {
-//            url = "XXX"
-//            connection = "YYY"
-//            developerConnection = "ZZZ"
-//        }
-//    }
-//}
