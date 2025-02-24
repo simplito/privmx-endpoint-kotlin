@@ -1,4 +1,4 @@
-package io.github.kotlin.fibonacci
+package com.simplito.java.privmx_endpoint
 
 class LibLoader {
 

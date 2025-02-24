@@ -5,7 +5,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-//    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.androidLibrary)
     id("maven-publish")
 //    id("signing")
 //    alias(libs.plugins.vanniktech.mavenPublish)
@@ -51,13 +51,13 @@ kotlin {
 //    }
 
     jvm()
-////    androidTarget {
-////        publishLibraryVariants("release")
-////        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-////        compilerOptions {
-////            jvmTarget.set(JvmTarget.JVM_1_8)
-////        }
-////    }
+    androidTarget {
+        publishLibraryVariants("release")
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
+        }
+    }
 //
 //    iosX64()
 //    iosArm64() {
@@ -74,7 +74,7 @@ kotlin {
         iosArm64(),
     ).forEach {
         it.compilations.getByName("main") {
-            cinterops{
+            cinterops {
                 val libprivmxendpoint by creating
             }
         }
@@ -82,6 +82,24 @@ kotlin {
 //    linuxX64()
 
     sourceSets {
+//        iosNativeSources.forEach {
+//            it.dependsOn(iosMain.get())
+//        }
+
+        listOf(
+            iosSimulatorArm64Main.get(),
+            iosArm64Main.get(),
+            iosX64Main.get()
+        ).forEach {
+            it.dependsOn(iosMain.get())
+        }
+        val iosMain by getting {
+            dependsOn(commonMain.get())
+        }
+        val androidMain by getting{
+            dependsOn(jvmMain.get())
+        }
+
         val commonMain by getting {
             dependencies {
                 //put your multiplatform dependencies here
@@ -95,13 +113,13 @@ kotlin {
     }
 }
 
-//android {
-//    namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
-//    compileSdk = libs.versions.android.compileSdk.get().toInt()
-//    defaultConfig {
-//        minSdk = libs.versions.android.minSdk.get().toInt()
-//    }
-//}
+android {
+    namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    defaultConfig {
+        minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+}
 
 publishing {
     afterEvaluate {

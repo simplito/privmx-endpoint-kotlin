@@ -1,10 +1,10 @@
 headers=privmx/endpoint/interface/endpoint.h Pson/pson.h
-#compilerOpts.
-compilerOpts= -Isrc/nativeInterop/cinterop/libprivmx/include \
--Lsrc/nativeInterop/cinterop/libprivmx/lib/libgmp.a \
--Lsrc/nativeInterop/cinterop/libprivmx/lib/libopenssl.a \
--Lsrc/nativeInterop/cinterop/libprivmx/lib/libpmxend.a \
--Lsrc/nativeInterop/cinterop/libprivmx/lib/libpoco.a \
--Lsrc/nativeInterop/cinterop/libprivmx/lib/libpson.a
-
+staticLibraries = libgmp.a libopenssl.a libpmxend.a libpoco.a libpson.a libprivmxendpointinterface.a
+libraryPaths = src/nativeInterop/cinterop/libprivmx/lib/
+compilerOpts= -Isrc/nativeInterop/cinterop/libprivmx/include
+linkerOpts= -v
 ---
+
+#include <Pson/pson.h>
+
+typedef struct pson_value pson_value;

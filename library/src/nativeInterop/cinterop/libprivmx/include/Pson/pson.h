@@ -8,8 +8,8 @@
 extern "C" {
 #endif
 
-typedef struct pson_value pson_value;
-typedef struct pson_object_iterator pson_object_iterator;
+typedef struct pson_value {} pson_value;
+typedef struct pson_object_iterator {} pson_object_iterator;
 
 enum pson_type {
     PSON_NULL,

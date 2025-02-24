@@ -1,4 +1,5 @@
 import com.vanniktech.maven.publish.SonatypeHost
+import org.gradle.kotlin.dsl.implementation
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
@@ -7,7 +8,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-//    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.androidApplication)
 }
 
 group = "com.simplito.kotlin"
@@ -15,13 +16,13 @@ version = "1.0.0"
 
 kotlin {
 
-//    androidTarget {
+    androidTarget {
 //        publishLibraryVariants("release")
-//        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-//        compilerOptions {
-//            jvmTarget.set(JvmTarget.JVM_1_8)
-//        }
-//    }
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
+        }
+    }
 
 //    iosX64()
 //    iosArm64()
@@ -30,8 +31,8 @@ kotlin {
 //    linuxX64()
 
     listOf(
-        iosX64(),
-        iosArm64(),
+//        iosX64(),
+//        iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
@@ -41,6 +42,13 @@ kotlin {
     }
 
     sourceSets {
+        val androidMain by getting{
+            dependencies{
+                implementation(libs.androidx.activity.compose)
+                //TODO: should be debug implementation
+                implementation(libs.androidx.ui.tooling)
+            }
+        }
         val commonMain by getting {
             dependencies {
                 implementation(compose.runtime)
@@ -63,11 +71,17 @@ kotlin {
 //    }
 }
 
-//android {
-//    namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
-//    compileSdk = libs.versions.android.compileSdk.get().toInt()
-//    defaultConfig {
-//        minSdk = libs.versions.android.minSdk.get().toInt()
-//    }
-//}
+android {
+    namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    defaultConfig {
+        minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+    sourceSets{
+        get("main").jni.srcDirs("src/androidMain/jniLibs")
+    }
+}
+dependencies {
+    implementation(libs.activity.ktx)
+}
 
