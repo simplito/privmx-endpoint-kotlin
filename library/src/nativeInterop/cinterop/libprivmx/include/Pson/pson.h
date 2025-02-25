@@ -58,7 +58,7 @@ pson_value* pson_new_int64(int64_t val);
 pson_value* pson_new_float32(float val);
 pson_value* pson_new_float64(double val);
 pson_value* pson_new_string(const char* val);
-pson_value* pson_new_binary(const char* data, size_t size);
+pson_value* pson_new_binary(char* data, size_t size);
 pson_value* pson_new_array();
 int pson_add_array_value(pson_value* array, pson_value* value);
 pson_value* pson_new_object();
