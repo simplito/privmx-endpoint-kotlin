@@ -7,8 +7,6 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     id("maven-publish")
-//    id("signing")
-//    alias(libs.plugins.vanniktech.mavenPublish)
 }
 
 group = "com.simplito.kotlin"
@@ -17,39 +15,6 @@ version = "1.0.0"
 //TODO: How to load jni wrapper?
 //TODO: All implementations for non jvm in nativeTarget
 kotlin {
-
-//    val hostOs = System.getProperty("os.name")
-//    val isArm64 = System.getProperty("os.arch") == "aarch64"
-//    val isMingwX64 = hostOs.startsWith("Windows")
-//    val isAndroid = 0 //TODO: Is Android?
-//
-//    val nativeJVMTarget = when {
-//        hostOs == "Mac OS X" && isArm64 -> macosArm64("native")
-//        hostOs == "Mac OS X" && !isArm64 -> macosX64("native")
-//        hostOs == "Linux" && isArm64 -> linuxArm64("native")
-//        hostOs == "Linux" && !isArm64 -> linuxX64("native")
-//        isMingwX64 -> mingwX64("native")
-//        else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
-//    }
-//
-//    nativeJVMTarget.apply {
-//        compilations.getByName("main") {    // NL
-//            cinterops {                     // NL
-//                val libprivmxendpoint by creating     // NL
-//            }                               // NL
-//        }
-//    }
-//    androidNativeArm64{
-//        compilations.getByName("main") {
-//            cinterops {
-//                val libprivmxendpoint by creating
-//            }
-//        }
-//    }
-//    androidTarget {
-//        publishLibraryVariants("release")
-//    }
-
     jvm()
     androidTarget {
         publishLibraryVariants("release")
@@ -58,16 +23,6 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_1_8)
         }
     }
-//
-//    iosX64()
-//    iosArm64() {
-////        compilations.getByName("main"){
-////            cinterops{
-////                val libprivmxendpoint by creating     // NL
-////            }
-////        }
-//    }
-//    iosSimulatorArm64()
     listOf(
         iosSimulatorArm64(),
         iosX64(),
@@ -79,13 +34,8 @@ kotlin {
             }
         }
     }
-//    linuxX64()
 
     sourceSets {
-//        iosNativeSources.forEach {
-//            it.dependsOn(iosMain.get())
-//        }
-
         listOf(
             iosSimulatorArm64Main.get(),
             iosArm64Main.get(),
