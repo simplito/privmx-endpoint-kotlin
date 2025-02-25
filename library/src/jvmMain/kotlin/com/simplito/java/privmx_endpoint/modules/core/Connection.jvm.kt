@@ -4,14 +4,9 @@ import com.simplito.java.privmx_endpoint.model.Context
 import com.simplito.java.privmx_endpoint.model.PagingList
 
 actual class Connection(private val api: Long?,private val connectionId: Long?) : AutoCloseable {
-    init{
-        println("Connection class name: ${Connection::class.java.name}")
-    }
     actual companion object{
         init {
             System.loadLibrary("privmx-endpoint-java")
-            System.loadLibrary("crypto")
-            System.loadLibrary("ssl")
         }
 
         @JvmStatic
@@ -21,12 +16,6 @@ actual class Connection(private val api: Long?,private val connectionId: Long?) 
             host: String,
         ): Connection
     }
-
-//    private fun init();
-
-//    actual companion object {
-
-//    }
 
     private external fun  deinit();
 
