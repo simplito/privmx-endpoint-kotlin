@@ -3,8 +3,8 @@ package com.simplito.java.privmx_endpoint.modules.core
 import com.simplito.java.privmx_endpoint.model.Context
 import com.simplito.java.privmx_endpoint.model.PagingList
 import com.simplito.java.privmx_endpoint.utils.PsonValue
-import com.simplito.java.privmx_endpoint.utils.psonMapper
 import com.simplito.java.privmx_endpoint.utils.PsonResponse
+import com.simplito.java.privmx_endpoint.utils.psonMapper
 import kotlinx.cinterop.*
 import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.ptr
@@ -83,6 +83,5 @@ actual class Connection() : AutoCloseable {
 
     actual override fun close() {
         disconnect()
-        privmx_endpoint_freeConnection(nativeConnection.value)
     }
 }
