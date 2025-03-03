@@ -1,19 +1,22 @@
 package com.simplito.java.privmx_endpoint.modules.thread
 
 import com.simplito.java.privmx_endpoint.model.ContainerPolicy
-import com.simplito.java.privmx_endpoint.model.ItemPolicy
 import com.simplito.java.privmx_endpoint.model.Message
 import com.simplito.java.privmx_endpoint.model.PagingList
-import com.simplito.java.privmx_endpoint.model.ServerMessageInfo
 import com.simplito.java.privmx_endpoint.model.Thread
 import com.simplito.java.privmx_endpoint.model.UserWithPubKey
 import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.java.privmx_endpoint.modules.core.Connection
-import com.simplito.java.privmx_endpoint.utils.PsonResponse
+import com.simplito.java.privmx_endpoint.utils.KPSON_NULL
 import com.simplito.java.privmx_endpoint.utils.PsonValue
+import com.simplito.java.privmx_endpoint.utils.asResponse
 import com.simplito.java.privmx_endpoint.utils.makeArgs
-import com.simplito.java.privmx_endpoint.utils.psonMapper
+import com.simplito.java.privmx_endpoint.utils.pson
+import com.simplito.java.privmx_endpoint.utils.toMessage
+import com.simplito.java.privmx_endpoint.utils.toPagingList
+import com.simplito.java.privmx_endpoint.utils.toThread
+import com.simplito.java.privmx_endpoint.utils.typedValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.memScoped
@@ -21,6 +24,7 @@ import kotlinx.cinterop.nativeHeap
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
 import libprivmxendpoint.*
+
 
 @OptIn(ExperimentalForeignApi::class)
 actual class ThreadApi actual constructor(connection: Connection) : AutoCloseable {
@@ -31,8 +35,8 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         memScoped {
             val args = pson_new_array()
             val pson_result = allocPointerTo<pson_value>()
-            //TODO: Check exception
             privmx_endpoint_execThreadApi(nativeThreadApi.value, 0, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
         }
     }
 
@@ -47,15 +51,15 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
     ): String? = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
-            PsonValue.PsonString(contextId!!),
-            PsonValue.PsonArray<PsonValue.PsonObject>(users!!.map { parseUserWithPubKey2Pson(it!!) }),
-            PsonValue.PsonArray<PsonValue.PsonObject>(managers!!.map { parseUserWithPubKey2Pson(it!!) }),
-            PsonValue.PsonBinary(publicMeta!!),
-            PsonValue.PsonBinary(privateMeta!!),
-            policies?.let { parseContainerPolicy2Pson(policies) } ?: PsonValue.PsonNull()
+            contextId?.pson,
+            users?.map { it!!.pson }?.pson,
+            managers?.map { it!!.pson }?.pson,
+            publicMeta?.pson,
+            privateMeta?.pson,
+            policies?.pson ?: KPSON_NULL
         )
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 1, args, pson_result.ptr)
-        (PsonResponse(psonMapper(pson_result.value!!) as PsonValue.PsonObject).getResultOrThrow() as PsonValue.PsonString).getValue()
+        pson_result.value?.asResponse?.getResultOrThrow()?.typedValue<String>()
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
@@ -72,29 +76,29 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
     ) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
-            PsonValue.PsonString(threadId!!),
-            PsonValue.PsonArray<PsonValue.PsonObject>(users!!.map { parseUserWithPubKey2Pson(it!!) }),
-            PsonValue.PsonArray<PsonValue.PsonObject>(managers!!.map { parseUserWithPubKey2Pson(it!!) }),
-            PsonValue.PsonBinary(publicMeta!!),
-            PsonValue.PsonBinary(privateMeta!!),
-            PsonValue.PsonLong(version),
-            PsonValue.PsonBoolean(force),
-            PsonValue.PsonBoolean(forceGenerateNewKey),
-            policies?.let { parseContainerPolicy2Pson(policies) }
+            threadId?.pson,
+            threadId?.pson,
+            users!!.map { it!!.pson }.pson,
+            managers!!.map { it!!.pson }.pson,
+            publicMeta!!.pson,
+            privateMeta!!.pson,
+            version.pson,
+            force.pson,
+            forceGenerateNewKey.pson,
+            policies?.pson ?: KPSON_NULL,
         )
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 2, args, pson_result.ptr)
-        PsonResponse(psonMapper(pson_result.value!!) as PsonValue.PsonObject).getResultOrThrow()
+        pson_result.value!!.asResponse?.getResultOrThrow()
         Unit
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getThread(threadId: String?): Thread? = memScoped {
         val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(PsonValue.PsonString(threadId!!))
+        val args = makeArgs(threadId?.pson)
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 4, args, pson_result.ptr)
-        val result =
-            PsonResponse(psonMapper(pson_result.value!!) as PsonValue.PsonObject).getResultOrThrow() as PsonValue.PsonObject
-        parseThread(result)
+        val result = pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+        result.toThread()
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
@@ -107,35 +111,26 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
     ): PagingList<Thread?>? = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
-            PsonValue.PsonString(contextId!!),
-            PsonValue.PsonObject(
-                mapOfWithNulls(
-                    "skip" to PsonValue.PsonLong(skip),
-                    "limit" to PsonValue.PsonLong(limit),
-                    "sortOrder" to PsonValue.PsonString(sortOrder!!),
-                    lastId?.let { "lastId" to PsonValue.PsonString(lastId) }
-                ))
+            contextId!!.pson,
+            mapOfWithNulls(
+                "skip" to skip.pson,
+                "limit" to limit.pson,
+                "sortOrder" to sortOrder!!.pson,
+                lastId?.let { "lastId" to lastId.pson }
+            ).pson
         )
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 5, args, pson_result.ptr)
-        val pagingList =
-            PsonResponse(psonMapper(pson_result.value!!) as PsonValue.PsonObject).getResultOrThrow() as PsonValue.PsonObject
-        PagingList(
-            (pagingList["totalAvailable"] as PsonValue.PsonLong).getValue(),
-            (pagingList["readItems"] as PsonValue.PsonArray<PsonValue.PsonObject>).getValue()
-                .map { thread ->
-                    parseThread(thread)
-                }
-        )
+        val pagingList = pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+        pagingList.toPagingList(PsonValue.PsonObject::toThread)
     }
-
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun deleteThread(threadId: String?) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(PsonValue.PsonString(threadId!!))
+        val args = makeArgs(threadId!!.pson)
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 3, args, pson_result.ptr)
-        val result =
-            PsonResponse(psonMapper(pson_result.value!!) as PsonValue.PsonObject).getResultOrThrow()
+        pson_result.value!!.asResponse?.getResultOrThrow()
+        Unit
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
@@ -147,13 +142,13 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
     ): String? = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
-            PsonValue.PsonString(threadId!!),
-            PsonValue.PsonBinary(publicMeta!!),
-            PsonValue.PsonBinary(privateMeta!!),
-            PsonValue.PsonBinary(data!!),
+            threadId?.pson,
+            publicMeta?.pson,
+            privateMeta?.pson,
+            data?.pson,
         )
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 8, args, pson_result.ptr)
-        (PsonResponse(psonMapper(pson_result.value!!) as PsonValue.PsonObject).getResultOrThrow() as PsonValue.PsonString).getValue()
+        pson_result.value!!.asResponse?.getResultOrThrow()?.typedValue<String>()
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
@@ -161,8 +156,8 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(PsonValue.PsonString(messageId!!))
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 6, args, pson_result.ptr)
-        val psonObject = PsonResponse(psonMapper(pson_result.value!!) as PsonValue.PsonObject).getResultOrThrow() as PsonValue.PsonObject
-        parseMessage(psonObject)
+        val psonObject = pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+        psonObject.toMessage()
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
@@ -175,25 +170,17 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
     ): PagingList<Message?>? = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
-            PsonValue.PsonString(threadId!!),
-            PsonValue.PsonObject(
-                mapOfWithNulls(
-                    "skip" to PsonValue.PsonLong(skip),
-                    "limit" to PsonValue.PsonLong(limit),
-                    "sortOrder" to PsonValue.PsonString(sortOrder!!),
-                    lastId?.let { "lastId" to PsonValue.PsonString(lastId) }
-                ))
+            threadId!!.pson,
+            mapOfWithNulls(
+                "skip" to skip.pson,
+                "limit" to limit.pson,
+                "sortOrder" to sortOrder!!.pson,
+                lastId?.let { "lastId" to lastId.pson }
+            ).pson
         )
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 7, args, pson_result.ptr)
-        val pagingList =
-            PsonResponse(psonMapper(pson_result.value!!) as PsonValue.PsonObject).getResultOrThrow() as PsonValue.PsonObject
-        PagingList(
-            (pagingList["totalAvailable"] as PsonValue.PsonLong).getValue(),
-            (pagingList["readItems"] as PsonValue.PsonArray<PsonValue.PsonObject>).getValue()
-                .map { message ->
-                    parseMessage(message)
-                }
-        )
+        val pagingList = pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+        pagingList.toPagingList(PsonValue.PsonObject::toMessage)
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
@@ -201,7 +188,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(PsonValue.PsonString(messageId!!))
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 9, args, pson_result.ptr)
-        PsonResponse(psonMapper(pson_result.value!!) as PsonValue.PsonObject).getResultOrThrow()
+        pson_result.value!!.asResponse?.getResultOrThrow()
         Unit
     }
 
@@ -211,7 +198,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         publicMeta: ByteArray?,
         privateMeta: ByteArray?,
         data: ByteArray?
-    ) = memScoped{
+    ) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             PsonValue.PsonString(messageId!!),
@@ -220,7 +207,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
             PsonValue.PsonBinary(data!!)
         )
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 10, args, pson_result.ptr)
-        PsonResponse(psonMapper(pson_result.value!!) as PsonValue.PsonObject).getResultOrThrow()
+        pson_result.value!!.asResponse?.getResultOrThrow()
         Unit
     }
 
@@ -229,7 +216,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 11, args, pson_result.ptr)
-        PsonResponse(psonMapper(pson_result.value!!) as PsonValue.PsonObject).getResultOrThrow()
+        pson_result.value!!.asResponse?.getResultOrThrow()
         Unit
     }
 
@@ -238,7 +225,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 12, args, pson_result.ptr)
-        PsonResponse(psonMapper(pson_result.value!!) as PsonValue.PsonObject).getResultOrThrow()
+        pson_result.value!!.asResponse?.getResultOrThrow()
         Unit
     }
 
@@ -249,7 +236,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
             PsonValue.PsonString(threadId!!)
         )
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 12, args, pson_result.ptr)
-        PsonResponse(psonMapper(pson_result.value!!) as PsonValue.PsonObject).getResultOrThrow()
+        pson_result.value!!.asResponse?.getResultOrThrow()
         Unit
     }
 
@@ -260,109 +247,17 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
             PsonValue.PsonString(threadId!!)
         )
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 12, args, pson_result.ptr)
-        PsonResponse(psonMapper(pson_result.value!!) as PsonValue.PsonObject).getResultOrThrow()
+        pson_result.value!!.asResponse?.getResultOrThrow()
         Unit
     }
 
 
     actual override fun close() {
+        if(nativeThreadApi.value == null) return
         privmx_endpoint_freeThreadApi(nativeThreadApi.value)
+        nativeHeap.free(nativeThreadApi.rawPtr)
+        nativeThreadApi.value = null
     }
-
-    private fun parseContainerPolicy(policy: PsonValue.PsonObject): ContainerPolicy =
-        ContainerPolicy(
-            (policy["get"] as PsonValue.PsonString?)?.getValue(),
-            (policy["update"] as PsonValue.PsonString?)?.getValue(),
-            (policy["delete"] as PsonValue.PsonString?)?.getValue(),
-            (policy["updatePolicy"] as PsonValue.PsonString?)?.getValue(),
-            (policy["updaterCanBeRemovedFromManagers"] as PsonValue.PsonString?)?.getValue(),
-            (policy["ownerCanBeRemovedFromManagers"] as PsonValue.PsonString?)?.getValue(),
-            (policy["item"] as PsonValue.PsonObject?)?.let { parseItemPolicy(it) }
-        )
-
-    private fun parseItemPolicy(policy: PsonValue.PsonObject): ItemPolicy = ItemPolicy(
-        (policy["get"] as PsonValue.PsonString?)?.getValue(),
-        (policy["listMy"] as PsonValue.PsonString?)?.getValue(),
-        (policy["listAll"] as PsonValue.PsonString?)?.getValue(),
-        (policy["create"] as PsonValue.PsonString?)?.getValue(),
-        (policy["update"] as PsonValue.PsonString?)?.getValue(),
-        (policy["delete"] as PsonValue.PsonString?)?.getValue()
-    )
-
-    private fun parseThread(thread: PsonValue.PsonObject) = Thread(
-        (thread["contextId"] as PsonValue.PsonString).getValue(),
-        (thread["threadId"] as PsonValue.PsonString).getValue(),
-        (thread["createDate"] as PsonValue.PsonLong).getValue(),
-        (thread["creator"] as PsonValue.PsonString).getValue(),
-        (thread["lastModificationDate"] as PsonValue.PsonLong).getValue(),
-        (thread["lastModifier"] as PsonValue.PsonString).getValue(),
-        (thread["users"] as PsonValue.PsonArray<PsonValue.PsonString>).getValue()
-            .map { it.getValue() },
-        (thread["managers"] as PsonValue.PsonArray<PsonValue.PsonString>).getValue()
-            .map { it.getValue() },
-        (thread["version"] as PsonValue.PsonLong).getValue(),
-        (thread["lastMsgDate"] as PsonValue.PsonLong).getValue(),
-        (thread["publicMeta"] as PsonValue.PsonBinary).getValue(),
-        (thread["privateMeta"] as PsonValue.PsonBinary).getValue(),
-        (thread["policy"] as PsonValue.PsonObject?)?.let { parseContainerPolicy(it) },
-        (thread["messagesCount"] as PsonValue.PsonLong).getValue(),
-        (thread["statusCode"] as PsonValue.PsonLong).getValue(),
-    )
-
-    private fun parseMessage(message: PsonValue.PsonObject) = Message(
-        parseServerMessageInfo(message["info"] as PsonValue.PsonObject),
-        (message["publicMeta"] as PsonValue.PsonBinary).getValue(),
-        (message["privateMeta"] as PsonValue.PsonBinary).getValue(),
-        (message["data"] as PsonValue.PsonBinary).getValue(),
-        (message["authorPubKey"] as PsonValue.PsonString).getValue(),
-        (message["statusCode"] as PsonValue.PsonLong).getValue()
-    )
-
-    private fun parseServerMessageInfo(message: PsonValue.PsonObject) = ServerMessageInfo(
-        (message["threadId"] as PsonValue.PsonString).getValue(),
-        (message["messageId"] as PsonValue.PsonString).getValue(),
-        (message["createDate"] as PsonValue.PsonLong).getValue(),
-        (message["author"] as PsonValue.PsonString).getValue()
-    )
-
-    private fun parseUserWithPubKey2Pson(userWithPubKey: UserWithPubKey) = PsonValue.PsonObject(
-        mapOfWithNulls(
-            "userId" to PsonValue.PsonString(userWithPubKey.userId!!),
-            "pubKey" to PsonValue.PsonString(userWithPubKey.pubKey!!),
-        )
-    )
-
-    private fun parseContainerPolicy2Pson(policies: ContainerPolicy) = PsonValue.PsonObject(
-        mapOfWithNulls(
-            policies.get?.let { "get" to PsonValue.PsonString(policies.get) },
-            policies.update?.let { "update" to PsonValue.PsonString(policies.update) },
-            policies.delete?.let { "delete" to PsonValue.PsonString(policies.delete) },
-            policies.updatePolicy?.let { "updatePolicy" to PsonValue.PsonString(policies.updatePolicy) },
-            policies.updaterCanBeRemovedFromManagers?.let {
-                "updaterCanBeRemovedFromManagers" to PsonValue.PsonString(
-                    policies.updaterCanBeRemovedFromManagers
-                )
-            },
-            policies.ownerCanBeRemovedFromManagers?.let {
-                "ownerCanBeRemovedFromManagers" to PsonValue.PsonString(
-                    policies.ownerCanBeRemovedFromManagers
-                )
-            },
-            policies.item?.let { "item" to parseItemPolicy2Pson(policies.item) }
-        )
-    )
-
-    private fun parseItemPolicy2Pson(policies: ItemPolicy) = PsonValue.PsonObject(
-        mapOfWithNulls(
-            policies.get?.let { "get" to PsonValue.PsonString(policies.get) },
-            policies.listMy?.let { "listMy" to PsonValue.PsonString(policies.listMy) },
-            policies.listAll?.let { "listAll" to PsonValue.PsonString(policies.listAll) },
-            policies.create?.let { "create" to PsonValue.PsonString(policies.create) },
-            policies.update?.let { "update" to PsonValue.PsonString(policies.update) },
-            policies.delete?.let { "delete" to PsonValue.PsonString(policies.delete) },
-        )
-    )
-
 }
 
 fun <K, V> mapOfWithNulls(vararg pairs: Pair<K, V>?): Map<K, V> =
