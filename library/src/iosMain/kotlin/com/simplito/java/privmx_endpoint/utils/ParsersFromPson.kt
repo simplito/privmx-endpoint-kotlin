@@ -3,6 +3,7 @@ package com.simplito.java.privmx_endpoint.utils
 import com.simplito.java.privmx_endpoint.model.ContainerPolicy
 import com.simplito.java.privmx_endpoint.model.ItemPolicy
 import com.simplito.java.privmx_endpoint.model.Message
+import com.simplito.java.privmx_endpoint.model.PagingList
 import com.simplito.java.privmx_endpoint.model.ServerMessageInfo
 import com.simplito.java.privmx_endpoint.model.Thread
 import com.simplito.java.privmx_endpoint.utils.PsonValue.PsonObject
@@ -21,7 +22,7 @@ internal fun PsonObject.toThread(): Thread = Thread(
     this["lastMsgDate"]?.typedValue(),
     this["publicMeta"]?.typedValue(),
     this["privateMeta"]?.typedValue(),
-    this["policy"]?.typedObject()?.toContainerPolicy(),
+    (this["policy"] as PsonObject?)?.toContainerPolicy(),
     this["messagesCount"]?.typedValue(),
     this["statusCode"]?.typedValue(),
 )
@@ -34,7 +35,7 @@ internal fun PsonObject.toContainerPolicy(): ContainerPolicy =
         this["updatePolicy"]?.typedValue(),
         this["updaterCanBeRemovedFromManagers"]?.typedValue(),
         this["ownerCanBeRemovedFromManagers"]?.typedValue(),
-        this["item"]?.typedObject()?.toItemPolicy()
+        (this["item"] as PsonObject?)?.toItemPolicy()
     )
 
 internal fun PsonObject.toItemPolicy(): ItemPolicy = ItemPolicy(
@@ -47,7 +48,7 @@ internal fun PsonObject.toItemPolicy(): ItemPolicy = ItemPolicy(
 )
 
 internal fun PsonObject.toMessage() = Message(
-    this["info"]?.typedObject()?.toServerMessageInfo(),
+    (this["info"] as PsonObject?)?.toServerMessageInfo(),
     this["publicMeta"]?.typedValue(),
     this["privateMeta"]?.typedValue(),
     this["data"]?.typedValue(),
@@ -62,6 +63,11 @@ internal fun PsonObject.toServerMessageInfo() = ServerMessageInfo(
     this["author"]?.typedValue()
 )
 
+internal fun <T> PsonObject.toPagingList(mapper: PsonObject.() -> T) = PagingList(
+    this["totalAvailable"]?.typedValue(),
+    this["readItems"]?.typedList()?.map { (it as PsonObject).mapper() }
+)
+
 @Throws(ClassCastException::class)
 internal inline fun <reified T : Any> PsonValue<Any>.typedValue(): T {
     return getValue() as T
@@ -71,10 +77,3 @@ internal inline fun <reified T : Any> PsonValue<Any>.typedValue(): T {
 @Throws(ClassCastException::class)
 @Suppress("UNCHECKED_CAST")
 internal fun PsonValue<Any>.typedList() = getValue() as List<PsonValue<Any>>
-
-@Throws(ClassCastException::class)
-@Suppress("UNCHECKED_CAST")
-internal fun PsonValue<Any>.typedObject() = getValue() as PsonObject
-
-
-
