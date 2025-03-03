@@ -30,9 +30,12 @@ import kotlinx.cinterop.toKStringFromUtf8
 import kotlinx.cinterop.usePinned
 import kotlinx.cinterop.value
 import libprivmxendpoint.*
+import kotlin.reflect.KClass
+
+internal typealias KPSON_NULL = PsonValue.PsonNull
 
 @OptIn(ExperimentalForeignApi::class)
-internal fun psonMapper(psonValue: CPointer<pson_value>): PsonValue<out Any>? = memScoped {
+internal fun psonMapper(psonValue: CPointer<pson_value>): PsonValue<Any>? = memScoped {
     when (pson_value_type(psonValue)) {
         PSON_BOOL -> {
             val psonBool = alloc<IntVar>()
@@ -106,6 +109,7 @@ internal fun psonMapper(psonValue: CPointer<pson_value>): PsonValue<out Any>? = 
                     }
                 }
             }
+            @Suppress("UNCHECKED_CAST")
             return PsonObject(objectMap as Map<String, PsonValue<Any>>)
         }
     }
@@ -125,7 +129,7 @@ internal class PsonResponse(
         PrivmxException::class,
         NativeException::class
     )
-    internal fun getResultOrThrow(): PsonValue<*>? {
+    internal fun getResultOrThrow(): PsonValue<Any>? {
         if (error == null && status.getValue()) {
             return result
         } else if (error != null && !status.getValue()) {
@@ -146,7 +150,7 @@ internal class PsonResponse(
     }
 }
 
-internal sealed class PsonValue<T> {
+internal sealed class PsonValue<out T> {
     protected abstract val value: T
 
     //TODO: remove redundant getValue
@@ -159,20 +163,20 @@ internal sealed class PsonValue<T> {
     class PsonFloat internal constructor(override val value: Float) : PsonValue<Float>()
     class PsonBinary internal constructor(override val value: ByteArray) : PsonValue<ByteArray>()
     class PsonString internal constructor(override val value: String) : PsonValue<String>()
-    class PsonNull internal constructor(): PsonValue<Unit>(){
+    data object PsonNull: PsonValue<Unit>(){
         override val value = Unit
     }
-    class PsonArray<T : PsonValue<out Any>> internal constructor(override val value: List<T>) :
+    class PsonArray<T : PsonValue<Any>> internal constructor(override val value: List<T>) :
         PsonValue<List<T>>() {
         operator fun get(index: Int): T = this.value[index]
     }
 
-    class PsonObject internal constructor(override val value: Map<String, PsonValue<out Any>>) :
-        PsonValue<Map<String, PsonValue<out Any>>>() {
-        operator fun get(key: String): PsonValue<out Any>? = this.value[key]
+    class PsonObject internal constructor(override val value: Map<String, PsonValue<Any>>) :
+        PsonValue<Map<String, PsonValue<Any>>>() {
+        operator fun get(key: String): PsonValue<Any>? = this.value[key]
         internal fun getDebugString() = value.entries.joinToString(",") { entry ->
             "${entry.key}: ${
-                entry.value?.getValue().toString()
+                entry.value.getValue()
             }"
         }
 
@@ -192,7 +196,7 @@ internal fun makeArgs(vararg args: PsonValue<out Any>?): CPointer<pson_value> = 
 
 @OptIn(ExperimentalForeignApi::class)
 @Throws(IllegalArgumentException::class)
-private fun convertToPson(value: PsonValue<out Any>): CPointer<pson_value> = memScoped {
+private fun convertToPson(value: PsonValue<Any>): CPointer<pson_value> = memScoped {
     val psonValue: CPointer<pson_value>? = when (value) {
         is PsonBoolean -> pson_new_bool(if (value.getValue()) 1 else 0)
         is PsonLong -> pson_new_int64(value.getValue())
@@ -225,3 +229,7 @@ private fun convertToPson(value: PsonValue<out Any>): CPointer<pson_value> = mem
     }
     psonValue!!
 }
+
+@OptIn(ExperimentalForeignApi::class)
+internal val CPointer<pson_value>.asResponse: PsonResponse?
+    get() = (psonMapper(this) as? PsonObject)?.let { PsonResponse(it) }
