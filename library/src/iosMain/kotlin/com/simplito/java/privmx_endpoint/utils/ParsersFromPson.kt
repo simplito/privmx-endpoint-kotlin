@@ -1,10 +1,13 @@
 package com.simplito.java.privmx_endpoint.utils
 
 import com.simplito.java.privmx_endpoint.model.ContainerPolicy
+import com.simplito.java.privmx_endpoint.model.File
 import com.simplito.java.privmx_endpoint.model.ItemPolicy
 import com.simplito.java.privmx_endpoint.model.Message
 import com.simplito.java.privmx_endpoint.model.PagingList
+import com.simplito.java.privmx_endpoint.model.ServerFileInfo
 import com.simplito.java.privmx_endpoint.model.ServerMessageInfo
+import com.simplito.java.privmx_endpoint.model.Store
 import com.simplito.java.privmx_endpoint.model.Thread
 import com.simplito.java.privmx_endpoint.utils.PsonValue.PsonObject
 
@@ -25,6 +28,24 @@ internal fun PsonObject.toThread(): Thread = Thread(
     (this["policy"] as PsonObject?)?.toContainerPolicy(),
     this["messagesCount"]?.typedValue(),
     this["statusCode"]?.typedValue(),
+)
+
+internal fun PsonObject.toStore(): Store = Store(
+    this["storeId"]?.typedValue(),
+    this["contextId"]?.typedValue(),
+    this["createDate"]?.typedValue(),
+    this["creator"]?.typedValue(),
+    this["lastModificationDate"]?.typedValue(),
+    this["lastFileDate"]?.typedValue(),
+    this["lastModifier"]?.typedValue(),
+    this["users"]?.typedList()?.map { it.typedValue() },
+    this["managers"]?.typedList()?.map { it.typedValue() },
+    this["version"]?.typedValue(),
+    this["publicMeta"]?.typedValue(),
+    this["privateMeta"]?.typedValue(),
+    (this["policy"] as PsonObject?)?.toContainerPolicy(),
+    this["filesCount"]?.typedValue(),
+    this["statusCode"]?.typedValue()
 )
 
 internal fun PsonObject.toContainerPolicy(): ContainerPolicy =
@@ -56,9 +77,25 @@ internal fun PsonObject.toMessage() = Message(
     this["statusCode"]?.typedValue()
 )
 
+internal fun PsonObject.toFile() = File(
+    (this["info"] as PsonObject?)?.toServerFileInfo(),
+    this["publicMeta"]?.typedValue(),
+    this["privateMeta"]?.typedValue(),
+    this["size"]?.typedValue(),
+    this["authorPubKey"]?.typedValue(),
+    this["statusCode"]?.typedValue()
+)
+
 internal fun PsonObject.toServerMessageInfo() = ServerMessageInfo(
     this["threadId"]?.typedValue(),
     this["messageId"]?.typedValue(),
+    this["createDate"]?.typedValue(),
+    this["author"]?.typedValue()
+)
+
+internal fun PsonObject.toServerFileInfo() = ServerFileInfo(
+    this["storeId"]?.typedValue(),
+    this["fileId"]?.typedValue(),
     this["createDate"]?.typedValue(),
     this["author"]?.typedValue()
 )
