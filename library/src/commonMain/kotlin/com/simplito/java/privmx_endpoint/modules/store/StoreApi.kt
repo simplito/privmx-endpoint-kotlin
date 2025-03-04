@@ -130,7 +130,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         skip: Long,
         limit: Long,
         sortOrder: String?,
-        lastId: String?
+        lastId: String? = null
     ): PagingList<Store?>?
 
     /**
@@ -292,7 +292,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         skip: Long,
         limit: Long,
         sortOrder: String?,
-        lastId: String?
+        lastId: String? = null
     ): PagingList<File?>?
 
     /**
