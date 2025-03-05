@@ -35,6 +35,8 @@ actual class StoreApi actual constructor(connection: Connection) :
     AutoCloseable {
     private val nativeStoreApi = nativeHeap.allocPointerTo<libprivmxendpoint.StoreApi>()
 
+    internal fun getStorePtr() = nativeStoreApi.value
+
     init {
         privmx_endpoint_newStoreApi(connection.getConnectionPtr(), nativeStoreApi.ptr)
         memScoped {
