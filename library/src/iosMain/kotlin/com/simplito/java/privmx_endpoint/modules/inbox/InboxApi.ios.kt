@@ -31,7 +31,11 @@ import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
 import libprivmxendpoint.privmx_endpoint_execInboxApi
 import libprivmxendpoint.privmx_endpoint_freeInboxApi
+import libprivmxendpoint.privmx_endpoint_freeStoreApi
+import libprivmxendpoint.privmx_endpoint_freeThreadApi
 import libprivmxendpoint.privmx_endpoint_newInboxApi
+import libprivmxendpoint.privmx_endpoint_newStoreApi
+import libprivmxendpoint.privmx_endpoint_newThreadApi
 import libprivmxendpoint.pson_new_array
 import libprivmxendpoint.pson_value
 
@@ -42,6 +46,28 @@ actual class InboxApi actual constructor(
     private val nativeInboxApi = nativeHeap.allocPointerTo<libprivmxendpoint.InboxApi>()
 
     init {
+        val tmpThreadApi = if (threadApi == null) {
+            memScoped {
+                allocPointerTo<libprivmxendpoint.ThreadApi>().apply {
+                    privmx_endpoint_newThreadApi(
+                        connection.getConnectionPtr(),
+                        ptr,
+                    )
+                }
+            }
+        } else null
+
+        val tmpStoreApi = if (storeApi == null) {
+            memScoped {
+                allocPointerTo<libprivmxendpoint.StoreApi>().apply {
+                    privmx_endpoint_newStoreApi(
+                        connection.getConnectionPtr(),
+                        ptr,
+                    )
+                }
+            }
+        } else null
+
         privmx_endpoint_newInboxApi(
             connection.getConnectionPtr(),
             threadApi?.getThreadPtr(),
@@ -54,6 +80,9 @@ actual class InboxApi actual constructor(
             privmx_endpoint_execInboxApi(nativeInboxApi.value, 0, args, pson_result.ptr)
             pson_result.value!!.asResponse?.getResultOrThrow()
         }
+
+        tmpThreadApi?.let { privmx_endpoint_freeThreadApi(it.value)}
+        tmpStoreApi ?.let { privmx_endpoint_freeStoreApi(it.value) }
     }
 
     @Throws(
