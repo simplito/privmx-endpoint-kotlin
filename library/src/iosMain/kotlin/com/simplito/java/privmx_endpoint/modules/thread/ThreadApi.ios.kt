@@ -30,6 +30,8 @@ import libprivmxendpoint.*
 actual class ThreadApi actual constructor(connection: Connection) : AutoCloseable {
     private val nativeThreadApi = nativeHeap.allocPointerTo<libprivmxendpoint.ThreadApi>()
 
+    internal fun getThreadPtr() = nativeThreadApi.value
+
     init {
         privmx_endpoint_newThreadApi(connection.getConnectionPtr(), nativeThreadApi.ptr)
         memScoped {
@@ -250,7 +252,6 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         pson_result.value!!.asResponse?.getResultOrThrow()
         Unit
     }
-
 
     actual override fun close() {
         if(nativeThreadApi.value == null) return

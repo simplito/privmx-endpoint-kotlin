@@ -2,6 +2,10 @@ package com.simplito.java.privmx_endpoint.utils
 
 import com.simplito.java.privmx_endpoint.model.ContainerPolicy
 import com.simplito.java.privmx_endpoint.model.File
+import com.simplito.java.privmx_endpoint.model.FilesConfig
+import com.simplito.java.privmx_endpoint.model.Inbox
+import com.simplito.java.privmx_endpoint.model.InboxEntry
+import com.simplito.java.privmx_endpoint.model.InboxPublicView
 import com.simplito.java.privmx_endpoint.model.ItemPolicy
 import com.simplito.java.privmx_endpoint.model.Message
 import com.simplito.java.privmx_endpoint.model.PagingList
@@ -48,6 +52,40 @@ internal fun PsonObject.toStore(): Store = Store(
     this["statusCode"]?.typedValue()
 )
 
+internal fun PsonObject.toInbox(): Inbox = Inbox(
+    this["inboxId"]?.typedValue(),
+    this["contextId"]?.typedValue(),
+    this["createDate"]?.typedValue(),
+    this["creator"]?.typedValue(),
+    this["lastModificationDate"]?.typedValue(),
+    this["lastModifier"]?.typedValue(),
+    this["users"]?.typedList()?.map { it.typedValue() },
+    this["managers"]?.typedList()?.map { it.typedValue() },
+    this["version"]?.typedValue(),
+    this["publicMeta"]?.typedValue(),
+    this["privateMeta"]?.typedValue(),
+    (this["filesConfig"] as PsonObject?)?.toFilesConfig(),
+    (this["policy"] as PsonObject?)?.toContainerPolicy(),
+    this["statusCode"]?.typedValue()
+)
+
+internal fun PsonObject.toInboxPublicView(): InboxPublicView =
+    InboxPublicView(
+        this["inboxId"]?.typedValue(),
+        this["version"]?.typedValue(),
+        this["publicMeta"]?.typedValue()
+    )
+
+internal fun PsonObject.toInboxEntry(): InboxEntry = InboxEntry(
+    this["entryId"]?.typedValue(),
+    this["inboxId"]?.typedValue(),
+    this["data"]?.typedValue(),
+    this["files"]?.typedList()?.map { (it as PsonObject).toFile() },
+    this["authorPubKey"]?.typedValue(),
+    this["createDate"]?.typedValue(),
+    this["statusCode"]?.typedValue(),
+)
+
 internal fun PsonObject.toContainerPolicy(): ContainerPolicy =
     ContainerPolicy(
         this["get"]?.typedValue(),
@@ -57,6 +95,14 @@ internal fun PsonObject.toContainerPolicy(): ContainerPolicy =
         this["updaterCanBeRemovedFromManagers"]?.typedValue(),
         this["ownerCanBeRemovedFromManagers"]?.typedValue(),
         (this["item"] as PsonObject?)?.toItemPolicy()
+    )
+
+internal fun PsonObject.toFilesConfig(): FilesConfig =
+    FilesConfig(
+        this["minCount"]?.typedValue(),
+        this["maxCount"]?.typedValue(),
+        this["maxFileSize"]?.typedValue(),
+        this["maxWholeUploadSize"]?.typedValue()
     )
 
 internal fun PsonObject.toItemPolicy(): ItemPolicy = ItemPolicy(
