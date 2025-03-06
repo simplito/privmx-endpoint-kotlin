@@ -1,6 +1,7 @@
 package com.simplito.java.privmx_endpoint.utils
 
 import com.simplito.java.privmx_endpoint.model.ContainerPolicy
+import com.simplito.java.privmx_endpoint.model.Event
 import com.simplito.java.privmx_endpoint.model.File
 import com.simplito.java.privmx_endpoint.model.FilesConfig
 import com.simplito.java.privmx_endpoint.model.Inbox
@@ -13,6 +14,14 @@ import com.simplito.java.privmx_endpoint.model.ServerFileInfo
 import com.simplito.java.privmx_endpoint.model.ServerMessageInfo
 import com.simplito.java.privmx_endpoint.model.Store
 import com.simplito.java.privmx_endpoint.model.Thread
+import com.simplito.java.privmx_endpoint.model.events.InboxDeletedEventData
+import com.simplito.java.privmx_endpoint.model.events.InboxEntryDeletedEventData
+import com.simplito.java.privmx_endpoint.model.events.StoreDeletedEventData
+import com.simplito.java.privmx_endpoint.model.events.StoreFileDeletedEventData
+import com.simplito.java.privmx_endpoint.model.events.StoreStatsChangedEventData
+import com.simplito.java.privmx_endpoint.model.events.ThreadDeletedEventData
+import com.simplito.java.privmx_endpoint.model.events.ThreadDeletedMessageEventData
+import com.simplito.java.privmx_endpoint.model.events.ThreadStatsEventData
 import com.simplito.java.privmx_endpoint.utils.PsonValue.PsonObject
 
 
@@ -150,6 +159,80 @@ internal fun <T> PsonObject.toPagingList(mapper: PsonObject.() -> T) = PagingLis
     this["totalAvailable"]?.typedValue(),
     this["readItems"]?.typedList()?.map { (it as PsonObject).mapper() }
 )
+
+internal fun PsonObject.toEvent(): Event<*> = Event(
+    this["type"]?.typedValue(),
+    this["channel"]?.typedValue(),
+    this["connectionId"]?.typedValue(),
+    (this["data"] as PsonObject?)?.let {
+        println(it.type)
+        EventDataMappers[it.type]?.invoke(it)
+    } ?: Unit
+)
+
+internal fun PsonObject.toInboxDeletedEventData() = InboxDeletedEventData(
+    this["inboxId"]?.typedValue()
+)
+
+internal fun PsonObject.toInboxEntryDeletedEventData() = InboxEntryDeletedEventData(
+    this["inboxId"]?.typedValue(),
+    this["entryId"]?.typedValue()
+)
+
+internal fun PsonObject.toStoreDeletedEventData() = StoreDeletedEventData(
+    this["storeId"]?.typedValue(),
+)
+
+internal fun PsonObject.toStoreFileDeletedEventData() = StoreFileDeletedEventData(
+    this["fileId"]?.typedValue(),
+    this["contextId"]?.typedValue(),
+    this["storeId"]?.typedValue(),
+)
+
+internal fun PsonObject.toStoreStatsChangedEventData() = StoreStatsChangedEventData(
+    this["storeId"]?.typedValue(),
+    this["contextId"]?.typedValue(),
+    this["lastFileDate"]?.typedValue(),
+    this["filesCount"]?.typedValue(),
+)
+
+internal fun PsonObject.toThreadDeletedEventData() = ThreadDeletedEventData(
+    this["threadId"]?.typedValue()
+)
+
+internal fun PsonObject.toThreadDeletedMessageEventData() = ThreadDeletedMessageEventData(
+    this["threadId"]?.typedValue(),
+    this["messageId"]?.typedValue(),
+)
+
+internal fun PsonObject.toThreadStatsEventData() = ThreadStatsEventData(
+    this["threadId"]?.typedValue(),
+    this["lastMsgDate"]?.typedValue(),
+    this["messagesCount"]?.typedValue(),
+)
+
+private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
+    "thread\$Thread" to PsonObject::toThread,
+    "thread\$Thread" to PsonObject::toThread,
+    "thread\$ThreadDeletedEventData" to PsonObject::toThreadDeletedEventData,
+    "thread\$ThreadStatsEventData" to PsonObject::toThreadStatsEventData,
+    "thread\$Message" to PsonObject::toMessage,
+    "thread\$Message" to PsonObject::toMessage,
+    "thread\$ThreadDeletedMessageEventData" to PsonObject::toThreadDeletedMessageEventData,
+    "store\$Store" to PsonObject::toStore,
+    "store\$Store" to PsonObject::toStore,
+    "store\$StoreDeletedEventData" to PsonObject::toStoreDeletedEventData,
+    "store\$StoreStatsChangedEventData" to PsonObject::toStoreStatsChangedEventData,
+    "store\$File" to PsonObject::toFile,
+    "store\$File" to PsonObject::toFile,
+    "store\$StoreFileDeletedEventData" to PsonObject::toStoreFileDeletedEventData,
+    "inbox\$InboxEntryDeletedEventData" to PsonObject::toInboxEntryDeletedEventData,
+    "inbox\$InboxDeletedEventData" to PsonObject::toInboxDeletedEventData,
+    "inbox\$InboxEntry" to PsonObject::toInboxEntry,
+    "inbox\$Inbox" to PsonObject::toInbox,
+    "inbox\$Inbox" to PsonObject::toInbox,
+)
+
 
 @Throws(ClassCastException::class)
 internal inline fun <reified T : Any> PsonValue<Any>.typedValue(): T {
