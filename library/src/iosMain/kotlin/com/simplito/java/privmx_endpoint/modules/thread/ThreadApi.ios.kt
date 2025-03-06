@@ -237,7 +237,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         val args = makeArgs(
             PsonValue.PsonString(threadId!!)
         )
-        privmx_endpoint_execThreadApi(nativeThreadApi.value, 12, args, pson_result.ptr)
+        privmx_endpoint_execThreadApi(nativeThreadApi.value, 13, args, pson_result.ptr)
         pson_result.value!!.asResponse?.getResultOrThrow()
         Unit
     }
@@ -248,7 +248,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         val args = makeArgs(
             PsonValue.PsonString(threadId!!)
         )
-        privmx_endpoint_execThreadApi(nativeThreadApi.value, 12, args, pson_result.ptr)
+        privmx_endpoint_execThreadApi(nativeThreadApi.value, 14, args, pson_result.ptr)
         pson_result.value!!.asResponse?.getResultOrThrow()
         Unit
     }
@@ -256,7 +256,6 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
     actual override fun close() {
         if(nativeThreadApi.value == null) return
         privmx_endpoint_freeThreadApi(nativeThreadApi.value)
-        nativeHeap.free(nativeThreadApi.rawPtr)
         nativeThreadApi.value = null
     }
 }
