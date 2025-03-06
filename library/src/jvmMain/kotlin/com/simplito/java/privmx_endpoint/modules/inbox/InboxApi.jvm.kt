@@ -18,16 +18,19 @@ actual class InboxApi actual constructor(
     connection: Connection, threadApi: ThreadApi?, storeApi: StoreApi?
 ) : AutoCloseable {
     private var api: Long? = null
-    private val tmpStoreApi = if (storeApi == null) StoreApi(connection) else null
-    private val tmpThreadApi = if (threadApi == null) ThreadApi(connection) else null
-
 
     init {
+        val tmpThreadApi = if(threadApi == null) ThreadApi(connection) else null
+        val tmpStoreApi = if(storeApi == null) StoreApi(connection) else null
+
         api = init(
             connection,
-            Optional.ofNullable(threadApi).orElse(tmpThreadApi),
-            Optional.ofNullable(storeApi).orElse(tmpStoreApi)
+            threadApi ?: tmpThreadApi!!,
+            storeApi ?: tmpStoreApi!!
         )
+
+        tmpThreadApi?.close()
+        tmpStoreApi?.close()
     }
 
     @Throws(
