@@ -7,7 +7,10 @@ import com.simplito.java.privmx_endpoint.model.PagingList
 expect class Connection: AutoCloseable{
     override fun close()
     companion object {
-        fun connect(userPrivKey: String, solutionId: String, host: String): Connection
+        fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String): Connection
+        fun connectPublic(solutionId: String, bridgeUrl: String): Connection
+
+        fun setCertsPath(certsPath: String?)
     }
 
     fun listContexts(
@@ -16,6 +19,8 @@ expect class Connection: AutoCloseable{
         sortOrder: String,
         lastId: String? = null
     ): PagingList<Context>
+
+    fun getConnectionId(): Long?
 
     fun disconnect()
 

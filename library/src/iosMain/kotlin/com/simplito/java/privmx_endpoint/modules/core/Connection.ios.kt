@@ -4,7 +4,11 @@ import com.simplito.java.privmx_endpoint.model.Context
 import com.simplito.java.privmx_endpoint.model.PagingList
 import com.simplito.java.privmx_endpoint.utils.PsonValue
 import com.simplito.java.privmx_endpoint.utils.PsonResponse
+import com.simplito.java.privmx_endpoint.utils.asResponse
+import com.simplito.java.privmx_endpoint.utils.makeArgs
+import com.simplito.java.privmx_endpoint.utils.pson
 import com.simplito.java.privmx_endpoint.utils.psonMapper
+import com.simplito.java.privmx_endpoint.utils.typedValue
 import kotlinx.cinterop.*
 import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.ptr
@@ -18,7 +22,7 @@ actual class Connection() : AutoCloseable {
     internal fun getConnectionPtr() = nativeConnection.value
 
     actual companion object {
-        actual fun connect(userPrivKey: String, solutionId: String, host: String): Connection =
+        actual fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String): Connection =
             Connection().apply {
                 memScoped {
                     val args = pson_new_array()
@@ -28,12 +32,33 @@ actual class Connection() : AutoCloseable {
 
                     pson_add_array_value(args, pson_new_string(userPrivKey))
                     pson_add_array_value(args, pson_new_string(solutionId))
-                    pson_add_array_value(args, pson_new_string(host))
+                    pson_add_array_value(args, pson_new_string(bridgeUrl))
                     privmx_endpoint_newConnection(nativeConnection.ptr)
                     privmx_endpoint_execConnection(nativeConnection.value, 0, args, result.ptr)
                     PsonResponse(psonMapper(result.value!!) as PsonValue.PsonObject).getResultOrThrow()
                 }
             }
+
+        actual external fun connectPublic(
+            solutionId: String,
+            bridgeUrl: String,
+        ): Connection = Connection().apply {
+            memScoped {
+                val result = allocPointerTo<pson_value>()
+                val args = makeArgs(
+                    solutionId.pson,
+                    bridgeUrl.pson
+                )
+                privmx_endpoint_newConnection(nativeConnection.ptr)
+                privmx_endpoint_execConnection(nativeConnection.value, 1, args, result.ptr)
+                result.value!!.asResponse?.getResultOrThrow()
+            }
+        }
+
+        actual external fun setCertsPath(certsPath: String?): Unit = memScoped {
+            privmx_endpoint_setCertsPath(certsPath)
+        }
+
     }
 
     actual fun listContexts(
@@ -57,15 +82,16 @@ actual class Connection() : AutoCloseable {
         privmx_endpoint_execConnection(nativeConnection.value, 3, args, result.ptr)
         return PsonResponse(psonMapper(result.value!!) as PsonValue.PsonObject).getResultOrThrow()
             .let { result ->
-                (result as PsonValue.PsonObject).let { pagingList->
+                (result as PsonValue.PsonObject).let { pagingList ->
                     PagingList(
                         (pagingList["totalAvailable"] as PsonValue.PsonLong).getValue(),
-                        (pagingList["readItems"] as PsonValue.PsonArray<PsonValue.PsonObject>).getValue().map { context->
-                            Context(
-                                (context["userId"] as PsonValue.PsonString ).getValue(),
-                                (context["contextId"] as PsonValue.PsonString ).getValue(),
-                            )
-                        }
+                        (pagingList["readItems"] as PsonValue.PsonArray<PsonValue.PsonObject>).getValue()
+                            .map { context ->
+                                Context(
+                                    (context["userId"] as PsonValue.PsonString).getValue(),
+                                    (context["contextId"] as PsonValue.PsonString).getValue(),
+                                )
+                            }
                     )
                 }
             }
@@ -77,11 +103,17 @@ actual class Connection() : AutoCloseable {
             value = pson_new_object()
         }
         privmx_endpoint_execConnection(nativeConnection.value, 4, args, result.ptr)
-        privmx_endpoint_freeConnection(nativeConnection.value)
         Unit
     }
 
     actual override fun close() {
         disconnect()
+        privmx_endpoint_freeConnection(nativeConnection.value)
+    }
+
+    actual fun getConnectionId(): Long? = memScoped {
+        val result = allocPointerTo<pson_value>()
+        privmx_endpoint_execConnection(nativeConnection.value, 2, makeArgs(), result.ptr)
+        result.value!!.asResponse?.getResultOrThrow()?.typedValue()
     }
 }
