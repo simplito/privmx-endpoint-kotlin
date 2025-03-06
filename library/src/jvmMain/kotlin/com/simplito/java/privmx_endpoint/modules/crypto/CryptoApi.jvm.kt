@@ -15,12 +15,10 @@ import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
 import java.lang.AutoCloseable
 import kotlin.Boolean
 import kotlin.ByteArray
-import kotlin.Deprecated
 import kotlin.Exception
 import kotlin.IllegalStateException
 import kotlin.Long
 import kotlin.String
-import kotlin.Throws
 
 /**
  * Defines cryptographic methods.
