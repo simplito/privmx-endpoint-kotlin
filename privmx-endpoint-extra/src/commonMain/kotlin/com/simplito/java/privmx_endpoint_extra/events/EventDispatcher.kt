@@ -1,0 +1,123 @@
+//
+// PrivMX Endpoint Java Extra.
+// Copyright © 2024 Simplito sp. z o.o.
+//
+// This file is part of the PrivMX Platform (https://privmx.dev).
+// This software is Licensed under the MIT License.
+//
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+package com.simplito.java.privmx_endpoint_extra.events
+
+
+import com.simplito.java.privmx_endpoint.model.Event
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+
+typealias EventCallback = (event: Event<out Any>) -> Unit
+
+/**
+ * Implements a list of registered event callbacks.
+ *
+ * @category core
+ */
+class EventDispatcher(
+    private val onRemoveEntryKey: (removedKey: String) -> Unit
+) {
+    private val map: MutableMap<String, MutableList<Pair>> = mutableMapOf()
+    private val mapMutex = Mutex()
+    private fun getFormattedType(channel: String, type: String): String {
+        return channel.toString() + "_" + type
+    }
+
+    /**
+     * Registers new event callback.
+     *
+     * @param channel  channel of registered event
+     * @param type     type of registered event
+     * @param context  ID of registered callback
+     * @param callback block of code to call when the specified event has been caught
+     * @return `true` if the channel is not already subscribed
+     */
+    fun register(
+        channel: String,
+        type: String,
+        context: Any,
+        callback: EventCallback
+    ): Boolean {
+        val needSubscribe = channelHasNoCallbacks(channel)
+        getCallbacks(getFormattedType(channel, type)).add(Pair(context, callback))
+        return needSubscribe
+    }
+
+    /**
+     * Emits specified event. It should only be called by event loops.
+     *
+     * @param <T>   type of event data
+     * @param event event data to emit
+    </T> */
+    fun emit(event: Event<out Any>) {
+        val callbacks = getCallbacks(getFormattedType(event.channel!!, event.type!!))
+        for (p in callbacks) {
+            try {
+                try {
+                    p.callback(event)
+                } catch (ignored: Exception) {
+                }
+            } catch (e: ClassCastException) {
+                println("Cannot process event: issue with cast event data")
+            }
+        }
+    }
+
+    private fun channelHasNoCallbacks(channel: String?): Boolean {
+        return map
+            .entries
+            .filter { it -> it.key.substringBefore("_") == channel }
+            .sumOf { it -> it.value.size } == 0
+    }
+
+    /**
+     * Removes all callbacks registered by [.register]. It's identified by given Context.
+     *
+     * @param context callback identifier
+     */
+    fun unbind(context: Any) = runBlocking{
+        map.entries
+            .mapTo(mutableSetOf()) { it.key.substringBefore("_") to it.value }
+            .filter { it.second.isNotEmpty() }
+            .forEach{
+                val (key,value) = it
+                mapMutex.withLock {
+                    value.removeAll { it.context == context }
+                }
+                if (channelHasNoCallbacks(key)) {
+                    onRemoveEntryKey(key)
+                }
+            }
+
+    }
+
+    /**
+     * Removes all callbacks.
+     */
+    fun unbindAll() = runBlocking {
+        map.keys
+            .map { it -> it.substringBefore("_") }
+            .forEach(onRemoveEntryKey::invoke)
+
+        mapMutex.withLock {
+            map.clear()
+        }
+    }
+
+    private fun getCallbacks(type: String): MutableList<Pair> = runBlocking {
+        mapMutex.withLock {
+            map.getOrPut(type) { mutableListOf() }
+        }
+    }
+
+    private data class Pair(val context: Any, val callback: EventCallback)
+}
