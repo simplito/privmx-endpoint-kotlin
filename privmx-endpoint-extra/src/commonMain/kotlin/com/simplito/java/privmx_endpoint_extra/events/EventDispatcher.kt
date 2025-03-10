@@ -41,7 +41,7 @@ class EventDispatcher(
      * @param callback block of code to call when the specified event has been caught
      * @return `true` if the channel is not already subscribed
      */
-    fun register(
+    suspend fun register(
         channel: String,
         type: String,
         context: Any,
@@ -58,7 +58,7 @@ class EventDispatcher(
      * @param <T>   type of event data
      * @param event event data to emit
     </T> */
-    fun emit(event: Event<out Any>) {
+    suspend fun emit(event: Event<out Any>) {
         val callbacks = getCallbacks(getFormattedType(event.channel!!, event.type!!))
         for (p in callbacks) {
             try {
@@ -84,40 +84,34 @@ class EventDispatcher(
      *
      * @param context callback identifier
      */
-    fun unbind(context: Any) = runBlocking{
-        map.entries
-            .mapTo(mutableSetOf()) { it.key.substringBefore("_") to it.value }
-            .filter { it.second.isNotEmpty() }
-            .forEach{
-                val (key,value) = it
-                mapMutex.withLock {
-                    value.removeAll { it.context == context }
-                }
-                if (channelHasNoCallbacks(key)) {
-                    onRemoveEntryKey(key)
-                }
+    suspend fun unbind(context: Any) = map.entries
+        .mapTo(mutableSetOf()) { it.key.substringBefore("_") to it.value }
+        .filter { it.second.isNotEmpty() }
+        .forEach {
+            val (key, value) = it
+            mapMutex.withLock {
+                value.removeAll { it.context == context }
             }
-
-    }
+            if (channelHasNoCallbacks(key)) {
+                onRemoveEntryKey(key)
+            }
+        }
 
     /**
      * Removes all callbacks.
      */
-    fun unbindAll() = runBlocking {
+    suspend fun unbindAll() = mapMutex.withLock {
         map.keys
             .map { it -> it.substringBefore("_") }
             .forEach(onRemoveEntryKey::invoke)
-
-        mapMutex.withLock {
-            map.clear()
-        }
+        map.clear()
     }
 
-    private fun getCallbacks(type: String): MutableList<Pair> = runBlocking {
-        mapMutex.withLock {
-            map.getOrPut(type) { mutableListOf() }
-        }
+
+    private suspend fun getCallbacks(type: String): MutableList<Pair> = mapMutex.withLock {
+        map.getOrPut(type) { mutableListOf() }
     }
+
 
     private data class Pair(val context: Any, val callback: EventCallback)
 }
