@@ -22,6 +22,7 @@ actual class Connection private constructor(private val api: Long?,private val c
             bridgeUrl: String,
         ): Connection
 
+        @JvmStatic
         actual external fun setCertsPath(certsPath: String?)
     }
 
