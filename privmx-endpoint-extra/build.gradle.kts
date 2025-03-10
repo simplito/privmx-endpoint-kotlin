@@ -30,6 +30,7 @@ kotlin {
             dependencies {
                 implementation(project(":library"))
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.6.0")
                 //put your multiplatform dependencies here
             }
         }
