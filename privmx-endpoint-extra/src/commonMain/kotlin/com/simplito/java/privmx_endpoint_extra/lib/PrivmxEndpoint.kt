@@ -10,7 +10,6 @@
 //
 package com.simplito.java.privmx_endpoint_extra.lib
 
-//import com.simplito.java.privmx_endpoint.model.Event
 import com.simplito.java.privmx_endpoint.model.Event
 import com.simplito.java.privmx_endpoint_extra.events.EventCallback
 import com.simplito.java.privmx_endpoint_extra.events.EventDispatcher
@@ -62,10 +61,10 @@ class PrivmxEndpoint
      * @throws RuntimeException thrown when method encounters an exception during subscribing on channel.
     </T> */
     @Throws(RuntimeException::class)
-    fun <T> registerCallback(
+    suspend fun <T> registerCallback(
         context: Any,
-        eventType: EventType<Any>,
-        callback: EventCallback
+        eventType: EventType<T>,
+        callback: EventCallback<T>
     ) {
         if (eventDispatcher.register(eventType.channel, eventType.eventType, context, callback)) {
             try {
@@ -81,14 +80,14 @@ class PrivmxEndpoint
      *
      * @param context an object that identifies callbacks in the list.
      */
-    fun unregisterCallbacks(context: Any) {
+    suspend fun unregisterCallbacks(context: Any) {
         eventDispatcher.unbind(context)
     }
 
     /**
      * Unregisters all callbacks registered by [.registerCallback].
      */
-    fun unregisterAll() {
+    suspend fun unregisterAll() {
         eventDispatcher.unbindAll()
     }
 
@@ -97,7 +96,7 @@ class PrivmxEndpoint
      *
      * @param event event to handle
      */
-    fun handleEvent(event: Event<out Any>) {
+    suspend fun handleEvent(event: Event<out Any>) {
         eventDispatcher.emit(event)
     }
 
