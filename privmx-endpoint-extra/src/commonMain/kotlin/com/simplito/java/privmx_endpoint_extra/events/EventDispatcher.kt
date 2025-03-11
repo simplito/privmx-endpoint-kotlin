@@ -16,7 +16,12 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-typealias EventCallback = (event: Event<out Any>) -> Unit
+//TODO: Try to use function type instead of SAM/functional interface
+fun interface EventCallback<T>{
+    operator fun invoke(event: Event<out T>)
+}
+
+//typealias EventCallback<T>  = (event: Event<out T>) -> Unit
 
 /**
  * Implements a list of registered event callbacks.
@@ -45,7 +50,7 @@ class EventDispatcher(
         channel: String,
         type: String,
         context: Any,
-        callback: EventCallback
+        callback: EventCallback<*>
     ): Boolean {
         val needSubscribe = channelHasNoCallbacks(channel)
         getCallbacks(getFormattedType(channel, type)).add(Pair(context, callback))
@@ -58,12 +63,12 @@ class EventDispatcher(
      * @param <T>   type of event data
      * @param event event data to emit
     </T> */
-    suspend fun emit(event: Event<out Any>) {
+    suspend fun <T> emit(event: Event<out T>) {
         val callbacks = getCallbacks(getFormattedType(event.channel!!, event.type!!))
         for (p in callbacks) {
             try {
                 try {
-                    p.callback(event)
+                    (p.callback as EventCallback<T>)(event)
                 } catch (ignored: Exception) {
                 }
             } catch (e: ClassCastException) {
@@ -113,5 +118,5 @@ class EventDispatcher(
     }
 
 
-    private data class Pair(val context: Any, val callback: EventCallback)
+    private data class Pair(val context: Any, val callback: EventCallback<*>)
 }
