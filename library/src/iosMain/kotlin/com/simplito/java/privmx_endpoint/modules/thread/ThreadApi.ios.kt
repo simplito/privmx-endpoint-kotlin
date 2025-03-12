@@ -24,11 +24,12 @@ import kotlinx.cinterop.nativeHeap
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
 import libprivmxendpoint.*
+import cnames.structs.pson_value
 
 
 @OptIn(ExperimentalForeignApi::class)
 actual class ThreadApi actual constructor(connection: Connection) : AutoCloseable {
-    private val nativeThreadApi = nativeHeap.allocPointerTo<libprivmxendpoint.ThreadApi>()
+    private val nativeThreadApi = nativeHeap.allocPointerTo<cnames.structs.ThreadApi>()
 
     internal fun getThreadPtr() = nativeThreadApi.value
 

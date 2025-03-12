@@ -1,23 +1,26 @@
 package com.simplito.java.privmx_endpoint.modules.core
 
+import cnames.structs.pson_value
 import com.simplito.java.privmx_endpoint.model.Context
 import com.simplito.java.privmx_endpoint.model.PagingList
-import com.simplito.java.privmx_endpoint.utils.PsonValue
 import com.simplito.java.privmx_endpoint.utils.PsonResponse
+import com.simplito.java.privmx_endpoint.utils.PsonValue
 import com.simplito.java.privmx_endpoint.utils.asResponse
 import com.simplito.java.privmx_endpoint.utils.makeArgs
 import com.simplito.java.privmx_endpoint.utils.pson
 import com.simplito.java.privmx_endpoint.utils.psonMapper
 import com.simplito.java.privmx_endpoint.utils.typedValue
-import kotlinx.cinterop.*
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.allocPointerTo
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.nativeHeap
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
 import libprivmxendpoint.*
 
 @OptIn(ExperimentalForeignApi::class)
 actual class Connection() : AutoCloseable {
-    private val nativeConnection = nativeHeap.allocPointerTo<libprivmxendpoint.Connection>()
+    private val nativeConnection = nativeHeap.allocPointerTo<cnames.structs.Connection>()
 
     internal fun getConnectionPtr() = nativeConnection.value
 
@@ -39,7 +42,7 @@ actual class Connection() : AutoCloseable {
                 }
             }
 
-        actual external fun connectPublic(
+        actual fun connectPublic(
             solutionId: String,
             bridgeUrl: String,
         ): Connection = Connection().apply {
@@ -55,7 +58,7 @@ actual class Connection() : AutoCloseable {
             }
         }
 
-        actual external fun setCertsPath(certsPath: String?): Unit = memScoped {
+        actual fun setCertsPath(certsPath: String?): Unit = memScoped {
             privmx_endpoint_setCertsPath(certsPath)
         }
 

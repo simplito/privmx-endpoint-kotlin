@@ -1,5 +1,6 @@
 package com.simplito.java.privmx_endpoint.modules.crypto
 
+import cnames.structs.pson_value
 import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.java.privmx_endpoint.utils.asResponse
@@ -12,7 +13,9 @@ import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.nativeHeap
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
-import libprivmxendpoint.*
+import libprivmxendpoint.privmx_endpoint_execCryptoApi
+import libprivmxendpoint.privmx_endpoint_freeCryptoApi
+import libprivmxendpoint.privmx_endpoint_newCryptoApi
 
 /**
  * Defines cryptographic methods.
@@ -21,7 +24,7 @@ import libprivmxendpoint.*
  */
 @OptIn(ExperimentalForeignApi::class)
 actual class CryptoApi : AutoCloseable {
-    private val nativeCryptoApi = nativeHeap.allocPointerTo<libprivmxendpoint.CryptoApi>()
+    private val nativeCryptoApi = nativeHeap.allocPointerTo<cnames.structs.CryptoApi>()
 
     init {
         privmx_endpoint_newCryptoApi(nativeCryptoApi.ptr)
@@ -61,7 +64,7 @@ actual class CryptoApi : AutoCloseable {
      */
     @Deprecated("Use {@link CryptoApi#derivePrivateKey2(String, String)} instead.")
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun derivePrivateKey(password: String?, salt: String?): String? = memScoped {
+    actual fun derivePrivateKey(password: String?, salt: String?): String? = memScoped {
         allocPointerTo<pson_value>().apply {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
@@ -85,7 +88,7 @@ actual class CryptoApi : AutoCloseable {
      * @return generated ECC key in WIF format
      */
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun derivePrivateKey2(password: String?, salt: String?): String? = memScoped {
+    actual fun derivePrivateKey2(password: String?, salt: String?): String? = memScoped {
         allocPointerTo<pson_value>().apply {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
@@ -105,7 +108,7 @@ actual class CryptoApi : AutoCloseable {
      * @return Generated ECC key in BASE58DER format
      */
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun derivePublicKey(privateKey: String?): String? = memScoped {
+    actual fun derivePublicKey(privateKey: String?): String? = memScoped {
         allocPointerTo<pson_value>().apply {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
@@ -126,7 +129,7 @@ actual class CryptoApi : AutoCloseable {
      * @return Encrypted data buffer
      */
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun encryptDataSymmetric(
+    actual fun encryptDataSymmetric(
         data: ByteArray?,
         symmetricKey: ByteArray?
     ): ByteArray? = memScoped {
@@ -150,7 +153,7 @@ actual class CryptoApi : AutoCloseable {
      * @return Plain (decrypted) data buffer
      */
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun decryptDataSymmetric(
+    actual fun decryptDataSymmetric(
         data: ByteArray?,
         symmetricKey: ByteArray?
     ): ByteArray? = memScoped {
@@ -174,7 +177,7 @@ actual class CryptoApi : AutoCloseable {
      * @return Signature of data
      */
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun signData(data: ByteArray?, privateKey: String?): ByteArray? = memScoped {
+    actual fun signData(data: ByteArray?, privateKey: String?): ByteArray? = memScoped {
         allocPointerTo<pson_value>().apply {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
@@ -195,7 +198,7 @@ actual class CryptoApi : AutoCloseable {
      * @param publicKey public ECC key in BASE58DER format used to validate data
      * @return data validation result
      */
-    actual external fun verifySignature(
+    actual fun verifySignature(
         data: ByteArray?,
         signature: ByteArray?,
         publicKey: String?
@@ -219,7 +222,7 @@ actual class CryptoApi : AutoCloseable {
      * @return Private key in WIF format
      */
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun convertPEMKeyToWIFKey(pemKey: String?): String? = memScoped {
+    actual fun convertPEMKeyToWIFKey(pemKey: String?): String? = memScoped {
         allocPointerTo<pson_value>().apply {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
@@ -237,7 +240,7 @@ actual class CryptoApi : AutoCloseable {
      *
      * @return Generated key
      */
-    actual external fun generateKeySymmetric(): ByteArray? = memScoped {
+    actual fun generateKeySymmetric(): ByteArray? = memScoped {
         allocPointerTo<pson_value>().apply {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
@@ -251,7 +254,7 @@ actual class CryptoApi : AutoCloseable {
     }
 
     actual override fun close() {
-        if(nativeCryptoApi.value == null) return
+        if (nativeCryptoApi.value == null) return
         privmx_endpoint_freeCryptoApi(nativeCryptoApi.value)
         nativeCryptoApi.value = null
     }
