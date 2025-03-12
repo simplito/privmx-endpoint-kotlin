@@ -8,8 +8,8 @@
 extern "C" {
 #endif
 
-typedef struct pson_value {} pson_value;
-typedef struct pson_object_iterator {} pson_object_iterator;
+typedef struct pson_value pson_value;
+typedef struct pson_object_iterator pson_object_iterator;
 
 enum pson_type {
     PSON_NULL,
@@ -50,6 +50,7 @@ pson_value* pson_get_array_value(pson_value* array, size_t offset);
 int  pson_open_object_iterator(pson_value* value, pson_object_iterator** iterator);
 int  pson_object_iterator_next(pson_object_iterator* iterator, const char** key, pson_value** val);
 void pson_close_object_iterator(pson_object_iterator* iterator);
+int pson_object_get_value_or_null_as_copy(pson_value* obj, const char* key, pson_value** result);
 
 pson_value* pson_new_null();
 pson_value* pson_new_bool(int val);
@@ -58,7 +59,7 @@ pson_value* pson_new_int64(int64_t val);
 pson_value* pson_new_float32(float val);
 pson_value* pson_new_float64(double val);
 pson_value* pson_new_string(const char* val);
-pson_value* pson_new_binary(char* data, size_t size);
+pson_value* pson_new_binary(const char* data, size_t size);
 pson_value* pson_new_array();
 int pson_add_array_value(pson_value* array, pson_value* value);
 pson_value* pson_new_object();
