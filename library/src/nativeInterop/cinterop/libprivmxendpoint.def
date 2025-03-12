@@ -3,4 +3,5 @@ staticLibraries = libgmp.a libopenssl.a libpmxend.a libpoco.a libpson.a libprivm
 libraryPaths = src/nativeInterop/cinterop/libprivmx/lib/
 compilerOpts= -Isrc/nativeInterop/cinterop/libprivmx/include
 noStringConversion= pson_new_binary pson_inspect_binary
+strictEnums= pson_type
 linkerOpts= -v
