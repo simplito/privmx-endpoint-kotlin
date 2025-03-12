@@ -17,13 +17,17 @@ import com.simplito.java.privmx_endpoint.utils.PsonValue
 import com.simplito.java.privmx_endpoint.utils.asResponse
 import com.simplito.java.privmx_endpoint.utils.makeArgs
 import com.simplito.java.privmx_endpoint.utils.toEvent
+import kotlinx.cinterop.CPointerVar
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.nativeHeap
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
-import libprivmxendpoint.*
+import libprivmxendpoint.privmx_endpoint_execEventQueue
+import libprivmxendpoint.privmx_endpoint_newEventQueue
+import libprivmxendpoint.pson_free_result
+import libprivmxendpoint.pson_value
 
 /**
  * Defines methods to working with Events queue.
@@ -45,9 +49,14 @@ actual object EventQueue {
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun emitBreakEvent() = memScoped {
-        val result = allocPointerTo<pson_value>()
-        privmx_endpoint_execEventQueue(nativeEventQueue.value, 2, makeArgs(), result.ptr)
-        result.value!!.asResponse?.getResultOrThrow()
+        val result: CPointerVar<pson_value>
+        result = allocPointerTo<pson_value>()
+        try {
+            privmx_endpoint_execEventQueue(nativeEventQueue.value, 2, makeArgs(), result.ptr)
+            result.value!!.asResponse?.getResultOrThrow()
+        } finally {
+            pson_free_result(result.value)
+        }
         Unit
     }
 
@@ -59,21 +68,30 @@ actual object EventQueue {
      * @throws NativeException thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class)
-    actual fun waitEvent(): Event<*>? = memScoped{
+    actual fun waitEvent(): Event<*>? = memScoped {
         val result = allocPointerTo<pson_value>()
-        privmx_endpoint_execEventQueue(nativeEventQueue.value, 0, makeArgs(), result.ptr)
-        val native_event = result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
-        native_event.toEvent()
+        try {
+            privmx_endpoint_execEventQueue(nativeEventQueue.value, 0, makeArgs(), result.ptr)
+            val native_event = result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+            native_event.toEvent()
+        } finally {
+            pson_free_result(result.value)
+        }
     }
 
     @Throws(
         PrivmxException::class,
         NativeException::class
     )
-    actual fun getEvent(): Event<*>? = memScoped{
+    actual fun getEvent(): Event<*>? = memScoped {
         val result = allocPointerTo<pson_value>()
-        privmx_endpoint_execEventQueue(nativeEventQueue.value, 1, makeArgs(), result.ptr)
-        val native_event = result.value!!.asResponse?.getResultOrThrow() as? PsonValue.PsonObject
-        native_event?.toEvent()
+        try {
+            privmx_endpoint_execEventQueue(nativeEventQueue.value, 1, makeArgs(), result.ptr)
+            val native_event =
+                result.value!!.asResponse?.getResultOrThrow() as? PsonValue.PsonObject
+            native_event?.toEvent()
+        } finally {
+            pson_free_result(result.value)
+        }
     }
 }
