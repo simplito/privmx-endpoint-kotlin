@@ -15,6 +15,7 @@ import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.java.privmx_endpoint.modules.core.Connection
 import com.simplito.java.privmx_endpoint.modules.core.EventQueue
+import com.simplito.java.privmx_endpoint.modules.crypto.CryptoApi
 import com.simplito.java.privmx_endpoint_extra.events.EventType
 import com.simplito.java.privmx_endpoint_extra.model.Modules
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -28,7 +29,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.io.buffered
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 
@@ -46,7 +46,7 @@ class PrivmxEndpointContainer : AutoCloseable {
     /**
      * Instance of [CryptoApi].
      */
-//    val cryptoApi: CryptoApi = CryptoApi()
+    val cryptoApi: CryptoApi = CryptoApi()
     private val containerScope =
         CoroutineScope(Dispatchers.Default + CoroutineName("EndpointContainer") + CoroutineExceptionHandler { context, exception ->
             println("${exception.message}")
@@ -142,7 +142,7 @@ class PrivmxEndpointContainer : AutoCloseable {
         )
         containerScope.launch {
             connectionsMutex.withLock {
-                privmxEndpoints.put(privmxEndpoint.connection.getConnectionId()!!, privmxEndpoint)
+                privmxEndpoints[privmxEndpoint.connection.getConnectionId()!!] = privmxEndpoint
             }
         }
         return privmxEndpoint
@@ -184,7 +184,7 @@ class PrivmxEndpointContainer : AutoCloseable {
      * Starts event handling Thread.
      */
     fun startListening() {
-        if(eventLoopJob.isCompleted || eventLoopJob.isCancelled) {
+        if (!eventLoopJob.isActive) {
             eventLoopJob.start()
         }
     }
