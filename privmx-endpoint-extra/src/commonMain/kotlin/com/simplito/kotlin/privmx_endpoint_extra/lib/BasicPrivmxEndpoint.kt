@@ -8,14 +8,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.simplito.java.privmx_endpoint_extra.lib
+package com.simplito.kotlin.privmx_endpoint_extra.lib
 
-import com.simplito.java.privmx_endpoint.modules.core.Connection
-import com.simplito.java.privmx_endpoint.modules.inbox.InboxApi
-//import com.simplito.java.privmx_endpoint.modules.inbox.InboxApi
-import com.simplito.java.privmx_endpoint.modules.store.StoreApi
-import com.simplito.java.privmx_endpoint.modules.thread.ThreadApi
-import com.simplito.java.privmx_endpoint_extra.model.Modules
+import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.modules.inbox.InboxApi
+import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
+import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
+import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
 
 /**
  * A collection of all PrivMX Endpoint modules. It represents a single connection to PrivMX Bridge.

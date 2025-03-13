@@ -8,24 +8,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.simplito.java.privmx_endpoint_extra.events
+package com.simplito.kotlin.privmx_endpoint_extra.events
 
-import com.simplito.java.privmx_endpoint.model.File
-import com.simplito.java.privmx_endpoint.model.Inbox
-import com.simplito.java.privmx_endpoint.model.InboxEntry
-//import com.simplito.java.privmx_endpoint.model.Inbox
-//import com.simplito.java.privmx_endpoint.model.InboxEntry
-import com.simplito.java.privmx_endpoint.model.Message
-import com.simplito.java.privmx_endpoint.model.Store
-import com.simplito.java.privmx_endpoint.model.Thread
-import com.simplito.java.privmx_endpoint.model.events.InboxDeletedEventData
-import com.simplito.java.privmx_endpoint.model.events.InboxEntryDeletedEventData
-import com.simplito.java.privmx_endpoint.model.events.StoreDeletedEventData
-import com.simplito.java.privmx_endpoint.model.events.StoreFileDeletedEventData
-import com.simplito.java.privmx_endpoint.model.events.StoreStatsChangedEventData
-import com.simplito.java.privmx_endpoint.model.events.ThreadDeletedEventData
-import com.simplito.java.privmx_endpoint.model.events.ThreadDeletedMessageEventData
-import com.simplito.java.privmx_endpoint.model.events.ThreadStatsEventData
+import com.simplito.kotlin.privmx_endpoint.model.File
+import com.simplito.kotlin.privmx_endpoint.model.Inbox
+import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
+import com.simplito.kotlin.privmx_endpoint.model.Message
+import com.simplito.kotlin.privmx_endpoint.model.Store
+import com.simplito.kotlin.privmx_endpoint.model.Thread
+import com.simplito.kotlin.privmx_endpoint.model.events.InboxDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.InboxEntryDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.StoreDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.StoreFileDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.StoreStatsChangedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
 
 /**
  * Defines the structure to register PrivMX Bridge event callbacks using [PrivmxEndpoint.registerCallback].

@@ -8,16 +8,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.simplito.java.privmx_endpoint_extra.lib
+package com.simplito.kotlin.privmx_endpoint_extra.lib
 
-import com.simplito.java.privmx_endpoint.model.Event
-import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
-import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
-import com.simplito.java.privmx_endpoint.modules.core.Connection
-import com.simplito.java.privmx_endpoint.modules.core.EventQueue
-import com.simplito.java.privmx_endpoint.modules.crypto.CryptoApi
-import com.simplito.java.privmx_endpoint_extra.events.EventType
-import com.simplito.java.privmx_endpoint_extra.model.Modules
+import com.simplito.kotlin.privmx_endpoint.model.Event
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.modules.core.EventQueue
+import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
+import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
+import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -31,6 +31,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
+import kotlin.collections.get
 
 /**
  * Manages certificates, Platform sessions, and active connections.

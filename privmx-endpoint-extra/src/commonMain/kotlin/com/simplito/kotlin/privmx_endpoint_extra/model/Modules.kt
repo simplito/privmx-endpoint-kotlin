@@ -8,22 +8,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.simplito.java.privmx_endpoint_extra.model
-
+package com.simplito.kotlin.privmx_endpoint_extra.model
 
 /**
- * Constant values for sort order to use in PrivmxEndpoint lists methods.
+ * Available modules for PrivMX Endpoint.
  *
  * @category core
  */
-object SortOrder {
+enum class Modules {
     /**
-     * Value for ascending sort order.
+     * Thread module case.
      */
-    const val ASC: String = "asc"
+    THREAD,
 
     /**
-     * Value for descending sort order.
+     * Store module case.
      */
-    const val DESC: String = "desc"
+    STORE,
+
+    /**
+     * Inbox module case.
+     */
+    INBOX,
 }
