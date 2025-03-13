@@ -84,7 +84,6 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             threadId?.pson,
-            threadId?.pson,
             users!!.map { it!!.pson }.pson,
             managers!!.map { it!!.pson }.pson,
             publicMeta!!.pson,
