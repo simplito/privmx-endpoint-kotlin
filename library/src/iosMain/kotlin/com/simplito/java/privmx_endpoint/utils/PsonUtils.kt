@@ -31,7 +31,6 @@ import kotlinx.cinterop.toKStringFromUtf8
 import kotlinx.cinterop.usePinned
 import kotlinx.cinterop.value
 import libprivmxendpoint.*
-import libprivmxendpoint.pson_value_type
 
 internal typealias KPSON_NULL = PsonValue.PsonNull
 
