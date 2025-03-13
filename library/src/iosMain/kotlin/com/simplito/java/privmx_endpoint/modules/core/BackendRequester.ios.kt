@@ -20,98 +20,97 @@ import libprivmxendpoint.pson_free_value
 
 @OptIn(ExperimentalForeignApi::class)
 actual class BackendRequester {
-    actual companion object {
-        private val nativeBackendRequester =
-            nativeHeap.allocPointerTo<cnames.structs.BackendRequester>()
+    private val nativeBackendRequester =
+        nativeHeap.allocPointerTo<cnames.structs.BackendRequester>()
 
-        init {
-            privmx_endpoint_newBackendRequester(nativeBackendRequester.ptr)
-        }
+    init {
+        privmx_endpoint_newBackendRequester(nativeBackendRequester.ptr)
+    }
 
-        @Throws(PrivmxException::class, NativeException::class)
-        actual fun backendRequest(
-            serverUrl: String,
-            accessToken: String,
-            method: String,
-            paramsAsJson: String
-        ): String? = memScoped {
-            val result = allocPointerTo<pson_value>()
-            val args = makeArgs(
-                serverUrl.pson,
-                accessToken.pson,
-                method.pson,
-                paramsAsJson.pson,
+    @Throws(PrivmxException::class, NativeException::class)
+    actual fun backendRequest(
+        serverUrl: String,
+        accessToken: String,
+        method: String,
+        paramsAsJson: String
+    ): String? = memScoped {
+        val result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            serverUrl.pson,
+            accessToken.pson,
+            method.pson,
+            paramsAsJson.pson,
+        )
+        try {
+            privmx_endpoint_execBackendRequester(
+                nativeBackendRequester.value,
+                0,
+                args,
+                result.ptr
             )
-            try {
-                privmx_endpoint_execBackendRequester(
-                    nativeBackendRequester.value,
-                    0,
-                    args,
-                    result.ptr
-                )
-                result.value!!.asResponse?.getResultOrThrow()?.typedValue()
-            } finally {
-                pson_free_result(result.value)
-                pson_free_value(args)
-            }
+            result.value!!.asResponse?.getResultOrThrow()?.typedValue()
+        } finally {
+            pson_free_result(result.value)
+            pson_free_value(args)
+        }
+    }
+
+    @Throws(PrivmxException::class, NativeException::class)
+    actual fun backendRequest(
+        serverUrl: String,
+        method: String,
+        paramsAsJson: String
+    ): String? = memScoped {
+        val result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            serverUrl.pson,
+            method.pson,
+            paramsAsJson.pson,
+        )
+        try {
+            privmx_endpoint_execBackendRequester(
+                nativeBackendRequester.value,
+                0,
+                args,
+                result.ptr
+            )
+            result.value!!.asResponse?.getResultOrThrow()?.typedValue()
+        } finally {
+            pson_free_result(result.value)
+            pson_free_value(args)
+        }
+    }
+
+    @Throws(PrivmxException::class, NativeException::class)
+    actual fun backendRequest(
+        serverUrl: String,
+        apiKeyId: String,
+        apiKeySecret: String,
+        mode: Long,
+        method: String,
+        paramsAsJson: String
+    ): String? = memScoped {
+        val result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            serverUrl.pson,
+            apiKeyId.pson,
+            apiKeySecret.pson,
+            mode.pson,
+            method.pson,
+            paramsAsJson.pson,
+        )
+        try {
+            privmx_endpoint_execBackendRequester(
+                nativeBackendRequester.value,
+                0,
+                args,
+                result.ptr
+            )
+            result.value!!.asResponse?.getResultOrThrow()?.typedValue()
+        } finally {
+            pson_free_result(result.value)
+            pson_free_value(args)
         }
 
-        @Throws(PrivmxException::class, NativeException::class)
-        actual fun backendRequest(
-            serverUrl: String,
-            method: String,
-            paramsAsJson: String
-        ): String? = memScoped {
-            val result = allocPointerTo<pson_value>()
-            val args = makeArgs(
-                serverUrl.pson,
-                method.pson,
-                paramsAsJson.pson,
-            )
-            try {
-                privmx_endpoint_execBackendRequester(
-                    nativeBackendRequester.value,
-                    0,
-                    args,
-                    result.ptr
-                )
-                result.value!!.asResponse?.getResultOrThrow()?.typedValue()
-            } finally {
-                pson_free_result(result.value)
-                pson_free_value(args)
-            }
-        }
-
-        @Throws(PrivmxException::class, NativeException::class)
-        actual fun backendRequest(
-            serverUrl: String,
-            apiKeyId: String,
-            apiKeySecret: String,
-            mode: Long,
-            method: String,
-            paramsAsJson: String
-        ): String? = memScoped {
-            val result = allocPointerTo<pson_value>()
-            val args = makeArgs(
-                serverUrl.pson,
-                apiKeyId.pson,
-                apiKeySecret.pson,
-                mode.pson,
-                method.pson,
-                paramsAsJson.pson,
-            )
-            try {
-                privmx_endpoint_execBackendRequester(
-                    nativeBackendRequester.value,
-                    0,
-                    args,
-                    result.ptr
-                )
-                result.value!!.asResponse?.getResultOrThrow()?.typedValue()
-            } finally {
-                pson_free_result(result.value)
-                pson_free_value(args)
-            }
-        }
     }
 }
