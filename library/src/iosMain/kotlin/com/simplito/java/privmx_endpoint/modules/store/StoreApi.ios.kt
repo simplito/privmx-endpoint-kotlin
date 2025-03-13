@@ -1,5 +1,6 @@
 package com.simplito.java.privmx_endpoint.modules.store
 
+import cnames.structs.pson_value
 import com.simplito.java.privmx_endpoint.model.ContainerPolicy
 import com.simplito.java.privmx_endpoint.model.File
 import com.simplito.java.privmx_endpoint.model.PagingList
@@ -28,12 +29,11 @@ import libprivmxendpoint.privmx_endpoint_execStoreApi
 import libprivmxendpoint.privmx_endpoint_freeStoreApi
 import libprivmxendpoint.privmx_endpoint_newStoreApi
 import libprivmxendpoint.pson_new_array
-import libprivmxendpoint.pson_value
 
 @OptIn(ExperimentalForeignApi::class)
 actual class StoreApi actual constructor(connection: Connection) :
     AutoCloseable {
-    private val nativeStoreApi = nativeHeap.allocPointerTo<libprivmxendpoint.StoreApi>()
+    private val nativeStoreApi = nativeHeap.allocPointerTo<cnames.structs.StoreApi>()
 
     internal fun getStorePtr() = nativeStoreApi.value
 

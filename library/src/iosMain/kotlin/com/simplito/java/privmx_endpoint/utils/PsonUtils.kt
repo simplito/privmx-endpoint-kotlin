@@ -1,5 +1,9 @@
+@file:Suppress("MISSING_DEPENDENCY_CLASS_IN_EXPRESSION_TYPE")
+
 package com.simplito.java.privmx_endpoint.utils
 
+import cnames.structs.pson_object_iterator
+import cnames.structs.pson_value
 import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.java.privmx_endpoint.utils.PsonValue.PsonArray
@@ -22,7 +26,6 @@ import kotlinx.cinterop.ULongVar
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocPointerTo
-import kotlinx.cinterop.cstr
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.readBytes
@@ -30,7 +33,6 @@ import kotlinx.cinterop.toKStringFromUtf8
 import kotlinx.cinterop.usePinned
 import kotlinx.cinterop.value
 import libprivmxendpoint.*
-import kotlin.reflect.KClass
 
 internal typealias KPSON_NULL = PsonValue.PsonNull
 
@@ -163,9 +165,10 @@ internal sealed class PsonValue<out T> {
     class PsonFloat internal constructor(override val value: Float) : PsonValue<Float>()
     class PsonBinary internal constructor(override val value: ByteArray) : PsonValue<ByteArray>()
     class PsonString internal constructor(override val value: String) : PsonValue<String>()
-    data object PsonNull: PsonValue<Unit>(){
+    data object PsonNull : PsonValue<Unit>() {
         override val value = Unit
     }
+
     class PsonArray<T : PsonValue<Any>> internal constructor(override val value: List<T>) :
         PsonValue<List<T>>() {
         operator fun get(index: Int): T = this.value[index]
@@ -176,6 +179,7 @@ internal sealed class PsonValue<out T> {
         operator fun get(key: String): PsonValue<Any>? = this.value[key]
         val type: String?
             get() = (get("__type") as? PsonString?)?.typedValue()
+
         internal fun getDebugString() = value.entries.joinToString(",") { entry ->
             "${entry.key}: ${
                 entry.value.getValue()
@@ -190,7 +194,7 @@ internal sealed class PsonValue<out T> {
 internal fun makeArgs(vararg args: PsonValue<out Any>?): CPointer<pson_value> = memScoped {
     pson_new_array()!!.run {
         args.filterNotNull().forEach { arg ->
-            pson_add_array_value(this,convertToPson(arg))
+            pson_add_array_value(this, convertToPson(arg))
         }
         this
     }

@@ -24,13 +24,14 @@ import kotlinx.cinterop.nativeHeap
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
 import libprivmxendpoint.*
+import cnames.structs.pson_value
 
 /**
  * Defines methods to working with Events queue.
  */
 @OptIn(ExperimentalForeignApi::class)
 actual object EventQueue {
-    private val nativeEventQueue = nativeHeap.allocPointerTo<libprivmxendpoint.EventQueue>()
+    private val nativeEventQueue = nativeHeap.allocPointerTo<cnames.structs.EventQueue>()
 
     init {
         privmx_endpoint_newEventQueue(nativeEventQueue.ptr)

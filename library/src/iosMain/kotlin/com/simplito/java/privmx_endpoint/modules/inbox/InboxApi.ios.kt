@@ -37,18 +37,18 @@ import libprivmxendpoint.privmx_endpoint_newInboxApi
 import libprivmxendpoint.privmx_endpoint_newStoreApi
 import libprivmxendpoint.privmx_endpoint_newThreadApi
 import libprivmxendpoint.pson_new_array
-import libprivmxendpoint.pson_value
+import cnames.structs.pson_value
 
 @OptIn(ExperimentalForeignApi::class)
 actual class InboxApi actual constructor(
     connection: Connection, threadApi: ThreadApi?, storeApi: StoreApi?
 ) : AutoCloseable {
-    private val nativeInboxApi = nativeHeap.allocPointerTo<libprivmxendpoint.InboxApi>()
+    private val nativeInboxApi = nativeHeap.allocPointerTo<cnames.structs.InboxApi>()
 
     init {
         val tmpThreadApi = if (threadApi == null) {
             memScoped {
-                allocPointerTo<libprivmxendpoint.ThreadApi>().apply {
+                allocPointerTo<cnames.structs.ThreadApi>().apply {
                     privmx_endpoint_newThreadApi(
                         connection.getConnectionPtr(),
                         ptr,
@@ -59,7 +59,7 @@ actual class InboxApi actual constructor(
 
         val tmpStoreApi = if (storeApi == null) {
             memScoped {
-                allocPointerTo<libprivmxendpoint.StoreApi>().apply {
+                allocPointerTo<cnames.structs.StoreApi>().apply {
                     privmx_endpoint_newStoreApi(
                         connection.getConnectionPtr(),
                         ptr,
