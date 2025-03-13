@@ -174,6 +174,8 @@ internal sealed class PsonValue<out T> {
     class PsonObject internal constructor(override val value: Map<String, PsonValue<Any>>) :
         PsonValue<Map<String, PsonValue<Any>>>() {
         operator fun get(key: String): PsonValue<Any>? = this.value[key]
+        val type: String?
+            get() = (get("__type") as? PsonString?)?.typedValue()
         internal fun getDebugString() = value.entries.joinToString(",") { entry ->
             "${entry.key}: ${
                 entry.value.getValue()
@@ -236,3 +238,13 @@ internal val CPointer<pson_value>.asResponse: PsonResponse?
 
 internal fun <K, V> mapOfWithNulls(vararg pairs: Pair<K, V>?): Map<K, V> =
     mapOf(*(pairs.filterNotNull().toTypedArray()))
+
+internal fun PsonObject.debugString(): String{
+    return getValue().entries.joinToString(prefix = "{", separator = ",\n", postfix = "}"){
+        when(it.value){
+            is PsonObject -> "${it.key}: ${(it.value as PsonObject).debugString()}"
+            is PsonArray<*> -> "${it.key}: List"
+            else -> "${it.key}: ${it.value.getValue()}"
+        }
+    }
+}
