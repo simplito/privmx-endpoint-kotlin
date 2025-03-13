@@ -236,7 +236,8 @@ private fun convertToPson(value: PsonValue<Any>): CPointer<pson_value> = memScop
 internal val CPointer<pson_value>.asResponse: PsonResponse?
     get() = (psonMapper(this) as? PsonObject)?.let { PsonResponse(it) }
 
-
+internal fun <K, V> mapOfWithNulls(vararg pairs: Pair<K, V>?): Map<K, V> =
+    mapOf(*(pairs.filterNotNull().toTypedArray()))
 
 internal fun PsonObject.debugString(): String{
     return getValue().entries.joinToString(prefix = "{", separator = ",\n", postfix = "}"){

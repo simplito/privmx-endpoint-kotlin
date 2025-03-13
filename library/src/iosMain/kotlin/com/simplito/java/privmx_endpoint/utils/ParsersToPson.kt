@@ -5,7 +5,6 @@ import com.simplito.java.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.java.privmx_endpoint.model.FilesConfig
 import com.simplito.java.privmx_endpoint.model.ItemPolicy
 import com.simplito.java.privmx_endpoint.model.UserWithPubKey
-import com.simplito.java.privmx_endpoint.modules.thread.mapOfWithNulls
 
 internal val ItemPolicy.pson: PsonValue.PsonObject
     get() = mapOfWithNulls(

@@ -12,11 +12,11 @@ import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.java.privmx_endpoint.modules.core.Connection
 import com.simplito.java.privmx_endpoint.modules.store.StoreApi
 import com.simplito.java.privmx_endpoint.modules.thread.ThreadApi
-import com.simplito.java.privmx_endpoint.modules.thread.mapOfWithNulls
 import com.simplito.java.privmx_endpoint.utils.KPSON_NULL
 import com.simplito.java.privmx_endpoint.utils.PsonValue
 import com.simplito.java.privmx_endpoint.utils.asResponse
 import com.simplito.java.privmx_endpoint.utils.makeArgs
+import com.simplito.java.privmx_endpoint.utils.mapOfWithNulls
 import com.simplito.java.privmx_endpoint.utils.pson
 import com.simplito.java.privmx_endpoint.utils.toInbox
 import com.simplito.java.privmx_endpoint.utils.toInboxEntry
@@ -81,8 +81,8 @@ actual class InboxApi actual constructor(
             pson_result.value!!.asResponse?.getResultOrThrow()
         }
 
-        tmpThreadApi?.let { privmx_endpoint_freeThreadApi(it.value)}
-        tmpStoreApi ?.let { privmx_endpoint_freeStoreApi(it.value) }
+        tmpThreadApi?.let { privmx_endpoint_freeThreadApi(it.value) }
+        tmpStoreApi?.let { privmx_endpoint_freeStoreApi(it.value) }
     }
 
     @Throws(
