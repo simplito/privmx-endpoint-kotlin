@@ -1,3 +1,5 @@
+@file:Suppress("MISSING_DEPENDENCY_CLASS_IN_EXPRESSION_TYPE")
+
 package com.simplito.java.privmx_endpoint.utils
 
 import cnames.structs.pson_object_iterator
