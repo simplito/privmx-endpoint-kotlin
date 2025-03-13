@@ -12,6 +12,7 @@ import com.simplito.java.privmx_endpoint.utils.KPSON_NULL
 import com.simplito.java.privmx_endpoint.utils.PsonValue
 import com.simplito.java.privmx_endpoint.utils.asResponse
 import com.simplito.java.privmx_endpoint.utils.makeArgs
+import com.simplito.java.privmx_endpoint.utils.mapOfWithNulls
 import com.simplito.java.privmx_endpoint.utils.pson
 import com.simplito.java.privmx_endpoint.utils.toMessage
 import com.simplito.java.privmx_endpoint.utils.toPagingList
@@ -79,7 +80,6 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
     ) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
-            threadId?.pson,
             threadId?.pson,
             users!!.map { it!!.pson }.pson,
             managers!!.map { it!!.pson }.pson,
@@ -255,11 +255,9 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
     }
 
     actual override fun close() {
-        if(nativeThreadApi.value == null) return
+        if (nativeThreadApi.value == null) return
         privmx_endpoint_freeThreadApi(nativeThreadApi.value)
         nativeThreadApi.value = null
     }
 }
 
-fun <K, V> mapOfWithNulls(vararg pairs: Pair<K, V>?): Map<K, V> =
-    mapOf(*(pairs.filterNotNull().toTypedArray()))

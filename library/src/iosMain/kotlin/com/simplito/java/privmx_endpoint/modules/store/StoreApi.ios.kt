@@ -9,11 +9,11 @@ import com.simplito.java.privmx_endpoint.model.UserWithPubKey
 import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.java.privmx_endpoint.modules.core.Connection
-import com.simplito.java.privmx_endpoint.modules.thread.mapOfWithNulls
 import com.simplito.java.privmx_endpoint.utils.KPSON_NULL
 import com.simplito.java.privmx_endpoint.utils.PsonValue
 import com.simplito.java.privmx_endpoint.utils.asResponse
 import com.simplito.java.privmx_endpoint.utils.makeArgs
+import com.simplito.java.privmx_endpoint.utils.mapOfWithNulls
 import com.simplito.java.privmx_endpoint.utils.pson
 import com.simplito.java.privmx_endpoint.utils.toFile
 import com.simplito.java.privmx_endpoint.utils.toPagingList

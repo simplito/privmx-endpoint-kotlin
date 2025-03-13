@@ -18,7 +18,7 @@ import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
  *
  * @category crypto
  */
-expect class CryptoApi : AutoCloseable {
+expect class CryptoApi() : AutoCloseable {
 
     /**
      * Generates a new private ECC key.
