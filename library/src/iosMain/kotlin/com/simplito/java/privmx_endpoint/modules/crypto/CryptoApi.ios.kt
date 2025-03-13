@@ -16,6 +16,7 @@ import libprivmxendpoint.privmx_endpoint_execCryptoApi
 import libprivmxendpoint.privmx_endpoint_freeCryptoApi
 import libprivmxendpoint.privmx_endpoint_newCryptoApi
 import libprivmxendpoint.pson_free_result
+import libprivmxendpoint.pson_free_value
 import libprivmxendpoint.pson_value
 
 /**
@@ -30,9 +31,15 @@ actual class CryptoApi : AutoCloseable {
     init {
         privmx_endpoint_newCryptoApi(nativeCryptoApi.ptr)
         memScoped {
-            allocPointerTo<pson_value>().apply {
-                privmx_endpoint_execCryptoApi(nativeCryptoApi.value, 0, makeArgs(), ptr)
-            }.value!!.asResponse?.getResultOrThrow()
+            val args = makeArgs()
+            val result = allocPointerTo<pson_value>()
+            try{
+                privmx_endpoint_execCryptoApi(nativeCryptoApi.value, 0, args, result.ptr)
+                result.value!!.asResponse?.getResultOrThrow()
+            }finally{
+                pson_free_result(result.value)
+                pson_free_value(args)
+            }
         }
     }
 
@@ -45,20 +52,20 @@ actual class CryptoApi : AutoCloseable {
     @Throws(PrivmxException::class, NativeException::class)
     actual fun generatePrivateKey(randomSeed: String?): String? = memScoped {
         val result = allocPointerTo<pson_value>()
-
+        val args = makeArgs(randomSeed!!.pson)
         try {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
                 2,
-                makeArgs(randomSeed!!.pson),
+                args,
                 result.ptr
             )
-
             return result.value!!.asResponse
                 ?.getResultOrThrow()
                 ?.typedValue()
         } finally {
             pson_free_result(result.value)
+            pson_free_value(args)
         }
     }
 
@@ -73,12 +80,12 @@ actual class CryptoApi : AutoCloseable {
     @Throws(PrivmxException::class, NativeException::class)
     actual fun derivePrivateKey(password: String?, salt: String?): String? = memScoped {
         val result = allocPointerTo<pson_value>()
-
+        val args = makeArgs(password!!.pson, salt!!.pson)
         try {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
                 3,
-                makeArgs(password!!.pson, salt!!.pson),
+                args,
                 result.ptr
             )
             result.value!!.asResponse
@@ -86,6 +93,7 @@ actual class CryptoApi : AutoCloseable {
                 ?.typedValue()
         } finally {
             pson_free_result(result.value)
+            pson_free_value(args)
         }
     }
 
@@ -102,12 +110,12 @@ actual class CryptoApi : AutoCloseable {
     @Throws(PrivmxException::class, NativeException::class)
     actual fun derivePrivateKey2(password: String?, salt: String?): String? = memScoped {
         val result = allocPointerTo<pson_value>()
-
+        val args = makeArgs(password!!.pson, salt!!.pson)
         try {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
                 4,
-                makeArgs(password!!.pson, salt!!.pson),
+                args,
                 result.ptr
             )
             result.value!!.asResponse
@@ -115,6 +123,7 @@ actual class CryptoApi : AutoCloseable {
                 ?.typedValue()
         } finally {
             pson_free_result(result.value)
+            pson_free_value(args)
         }
     }
 
@@ -127,12 +136,12 @@ actual class CryptoApi : AutoCloseable {
     @Throws(PrivmxException::class, NativeException::class)
     actual fun derivePublicKey(privateKey: String?): String? = memScoped {
         val result = allocPointerTo<pson_value>()
-
+        val args = makeArgs(privateKey!!.pson)
         try {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
                 5,
-                makeArgs(privateKey!!.pson),
+                args,
                 result.ptr
             )
             result.value!!.asResponse
@@ -140,6 +149,7 @@ actual class CryptoApi : AutoCloseable {
                 ?.typedValue()
         } finally {
             pson_free_result(result.value)
+            pson_free_value(args)
         }
     }
 
@@ -156,12 +166,12 @@ actual class CryptoApi : AutoCloseable {
         symmetricKey: ByteArray?
     ): ByteArray? = memScoped {
         val result = allocPointerTo<pson_value>()
-
+        val args = makeArgs(data!!.pson, symmetricKey!!.pson)
         try {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
                 7,
-                makeArgs(data!!.pson, symmetricKey!!.pson),
+                args,
                 result.ptr
             )
             result.value!!.asResponse
@@ -169,6 +179,7 @@ actual class CryptoApi : AutoCloseable {
                 ?.typedValue()
         } finally {
             pson_free_result(result.value)
+            pson_free_value(args)
         }
     }
 
@@ -185,12 +196,12 @@ actual class CryptoApi : AutoCloseable {
         symmetricKey: ByteArray?
     ): ByteArray? = memScoped {
         val result = allocPointerTo<pson_value>()
-
+        val args = makeArgs(data!!.pson, symmetricKey!!.pson)
         try {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
                 8,
-                makeArgs(data!!.pson, symmetricKey!!.pson),
+                args,
                 result.ptr
             )
             result.value!!.asResponse
@@ -198,6 +209,7 @@ actual class CryptoApi : AutoCloseable {
                 ?.typedValue()
         } finally {
             pson_free_result(result.value)
+            pson_free_value(args)
         }
     }
 
@@ -211,12 +223,12 @@ actual class CryptoApi : AutoCloseable {
     @Throws(PrivmxException::class, NativeException::class)
     actual fun signData(data: ByteArray?, privateKey: String?): ByteArray? = memScoped {
         val result = allocPointerTo<pson_value>()
-
+        val args = makeArgs(data!!.pson, privateKey!!.pson)
         try {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
                 1,
-                makeArgs(data!!.pson, privateKey!!.pson),
+                args,
                 result.ptr
             )
             result.value!!.asResponse
@@ -224,6 +236,7 @@ actual class CryptoApi : AutoCloseable {
                 ?.typedValue()
         } finally {
             pson_free_result(result.value)
+            pson_free_value(args)
         }
     }
 
@@ -241,12 +254,12 @@ actual class CryptoApi : AutoCloseable {
         publicKey: String?
     ): Boolean = memScoped {
         val result = allocPointerTo<pson_value>()
-
+        val args = makeArgs(data!!.pson, signature!!.pson, publicKey!!.pson)
         try {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
                 10,
-                makeArgs(data!!.pson, signature!!.pson, publicKey!!.pson),
+                args,
                 result.ptr
             )
             result.value!!.asResponse
@@ -254,6 +267,7 @@ actual class CryptoApi : AutoCloseable {
                 ?.typedValue<Boolean>() == true
         } finally {
             pson_free_result(result.value)
+            pson_free_value(args)
         }
     }
 
@@ -266,12 +280,12 @@ actual class CryptoApi : AutoCloseable {
     @Throws(PrivmxException::class, NativeException::class)
     actual fun convertPEMKeyToWIFKey(pemKey: String?): String? = memScoped {
         val result = allocPointerTo<pson_value>()
-
+        val args = makeArgs(pemKey!!.pson)
         try {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
                 9,
-                makeArgs(pemKey!!.pson),
+                args,
                 result.ptr
             )
             result.value!!.asResponse
@@ -279,6 +293,7 @@ actual class CryptoApi : AutoCloseable {
                 ?.typedValue()
         } finally {
             pson_free_result(result.value)
+            pson_free_value(args)
         }
     }
 
@@ -289,11 +304,12 @@ actual class CryptoApi : AutoCloseable {
      */
     actual fun generateKeySymmetric(): ByteArray? = memScoped {
         val result = allocPointerTo<pson_value>()
+        val args = makeArgs()
         try {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
                 6,
-                makeArgs(),
+                args,
                 result.ptr
             )
             result.value!!.asResponse
@@ -301,6 +317,7 @@ actual class CryptoApi : AutoCloseable {
                 ?.typedValue()
         } finally {
             pson_free_result(result.value)
+            pson_free_value(args)
         }
     }
 

@@ -43,8 +43,13 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         memScoped {
             val args = pson_new_array()
             val pson_result = allocPointerTo<pson_value>()
-            privmx_endpoint_execThreadApi(nativeThreadApi.value, 0, args, pson_result.ptr)
-            pson_result.value!!.asResponse?.getResultOrThrow()
+            try{
+                privmx_endpoint_execThreadApi(nativeThreadApi.value, 0, args, pson_result.ptr)
+                pson_result.value!!.asResponse?.getResultOrThrow()
+            } finally {
+                pson_free_value(args)
+                pson_free_result(pson_result.value)
+            }
         }
     }
 
@@ -100,11 +105,14 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
             forceGenerateNewKey.pson,
             policies?.pson ?: KPSON_NULL,
         )
-        privmx_endpoint_execThreadApi(nativeThreadApi.value, 2, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execThreadApi(nativeThreadApi.value, 2, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
@@ -154,12 +162,14 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
     actual fun deleteThread(threadId: String?) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(threadId!!.pson)
-
-        privmx_endpoint_execThreadApi(nativeThreadApi.value, 3, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execThreadApi(nativeThreadApi.value, 3, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
@@ -233,11 +243,14 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
     actual fun deleteMessage(messageId: String?) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(PsonValue.PsonString(messageId!!))
-        privmx_endpoint_execThreadApi(nativeThreadApi.value, 9, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execThreadApi(nativeThreadApi.value, 9, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
@@ -254,33 +267,42 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
             PsonValue.PsonBinary(privateMeta!!),
             PsonValue.PsonBinary(data!!)
         )
-        privmx_endpoint_execThreadApi(nativeThreadApi.value, 10, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execThreadApi(nativeThreadApi.value, 10, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun subscribeForThreadEvents() = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
-        privmx_endpoint_execThreadApi(nativeThreadApi.value, 11, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execThreadApi(nativeThreadApi.value, 11, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun unsubscribeFromThreadEvents() = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
-        privmx_endpoint_execThreadApi(nativeThreadApi.value, 12, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execThreadApi(nativeThreadApi.value, 12, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
@@ -289,24 +311,28 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         val args = makeArgs(
             PsonValue.PsonString(threadId!!)
         )
-        privmx_endpoint_execThreadApi(nativeThreadApi.value, 13, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execThreadApi(nativeThreadApi.value, 13, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun unsubscribeFromMessageEvents(threadId: String?) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(
-            PsonValue.PsonString(threadId!!)
-        )
-        privmx_endpoint_execThreadApi(nativeThreadApi.value, 14, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        val args = makeArgs(PsonValue.PsonString(threadId!!))
+        try {
+            privmx_endpoint_execThreadApi(nativeThreadApi.value, 14, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     actual override fun close() {

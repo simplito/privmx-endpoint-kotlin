@@ -80,15 +80,16 @@ actual class InboxApi actual constructor(
         memScoped {
             val args = pson_new_array()
             val pson_result = allocPointerTo<pson_value>()
-            privmx_endpoint_execInboxApi(nativeInboxApi.value, 0, args, pson_result.ptr)
-            pson_result.value!!.asResponse?.getResultOrThrow()
-
-            pson_free_value(args)
-            pson_free_result(pson_result.value)
+            try {
+                privmx_endpoint_execInboxApi(nativeInboxApi.value, 0, args, pson_result.ptr)
+                pson_result.value!!.asResponse?.getResultOrThrow()
+            } finally {
+                pson_free_value(args)
+                pson_free_result(pson_result.value)
+                tmpThreadApi?.let { privmx_endpoint_freeThreadApi(it.value) }
+                tmpStoreApi?.let { privmx_endpoint_freeStoreApi(it.value) }
+            }
         }
-
-        tmpThreadApi?.let { privmx_endpoint_freeThreadApi(it.value) }
-        tmpStoreApi?.let { privmx_endpoint_freeStoreApi(it.value) }
     }
 
     @Throws(
@@ -115,7 +116,7 @@ actual class InboxApi actual constructor(
         )
         try {
             privmx_endpoint_execInboxApi(nativeInboxApi.value, 1, args, pson_result.ptr)
-            pson_result.value?.asResponse?.getResultOrThrow()?.typedValue<String>()
+            pson_result.value?.asResponse?.getResultOrThrow()?.typedValue()
         } finally {
             pson_free_result(pson_result.value)
             pson_free_value(args)
@@ -153,11 +154,11 @@ actual class InboxApi actual constructor(
         try {
             privmx_endpoint_execInboxApi(nativeInboxApi.value, 2, args, pson_result.ptr)
             pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
         } finally {
             pson_free_value(args)
             pson_free_result(pson_result.value)
         }
-        Unit
     }
 
     @Throws(
@@ -224,12 +225,14 @@ actual class InboxApi actual constructor(
     actual fun deleteInbox(inboxId: String?) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(inboxId!!.pson)
-
-        privmx_endpoint_execInboxApi(nativeInboxApi.value, 6, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execInboxApi(nativeInboxApi.value, 6, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
 
@@ -262,11 +265,14 @@ actual class InboxApi actual constructor(
     actual fun sendEntry(inboxHandle: Long) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(inboxHandle.pson)
-        privmx_endpoint_execInboxApi(nativeInboxApi.value, 8, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execInboxApi(nativeInboxApi.value, 8, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(
@@ -313,14 +319,14 @@ actual class InboxApi actual constructor(
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    actual fun deleteEntry(inboxEntryId: String?) = memScoped{
+    actual fun deleteEntry(inboxEntryId: String?) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(inboxEntryId?.pson)
-            privmx_endpoint_execInboxApi(nativeInboxApi.value, 11, args, pson_result.ptr)
-            pson_result.value?.asResponse?.getResultOrThrow()
+        privmx_endpoint_execInboxApi(nativeInboxApi.value, 11, args, pson_result.ptr)
+        pson_result.value?.asResponse?.getResultOrThrow()
 
-            pson_free_result(pson_result.value)
-            pson_free_value(args)
+        pson_free_result(pson_result.value)
+        pson_free_value(args)
     }
 
     @Throws(
@@ -401,11 +407,14 @@ actual class InboxApi actual constructor(
         val args = makeArgs(
             fileHandle.pson, position.pson
         )
-        privmx_endpoint_execInboxApi(nativeInboxApi.value, 16, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execInboxApi(nativeInboxApi.value, 16, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(
@@ -431,11 +440,14 @@ actual class InboxApi actual constructor(
     actual fun subscribeForInboxEvents() = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
-        privmx_endpoint_execInboxApi(nativeInboxApi.value, 18, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execInboxApi(nativeInboxApi.value, 18, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(
@@ -444,11 +456,14 @@ actual class InboxApi actual constructor(
     actual fun unsubscribeFromInboxEvents() = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
-        privmx_endpoint_execInboxApi(nativeInboxApi.value, 19, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execInboxApi(nativeInboxApi.value, 19, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(
@@ -459,11 +474,14 @@ actual class InboxApi actual constructor(
         val args = makeArgs(
             inboxId?.pson
         )
-        privmx_endpoint_execInboxApi(nativeInboxApi.value, 20, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execInboxApi(nativeInboxApi.value, 20, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(
@@ -471,14 +489,15 @@ actual class InboxApi actual constructor(
     )
     actual fun unsubscribeFromEntryEvents(inboxId: String?) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(
-            inboxId?.pson
-        )
-        privmx_endpoint_execInboxApi(nativeInboxApi.value, 21, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        val args = makeArgs(inboxId?.pson)
+        try {
+            privmx_endpoint_execInboxApi(nativeInboxApi.value, 21, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     actual override fun close() {

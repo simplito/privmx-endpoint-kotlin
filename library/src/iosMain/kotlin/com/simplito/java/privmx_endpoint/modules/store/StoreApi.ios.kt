@@ -108,11 +108,14 @@ actual class StoreApi actual constructor(connection: Connection) :
             forceGenerateNewKey.pson,
             policies?.pson ?: KPSON_NULL
         )
-        privmx_endpoint_execStoreApi(nativeStoreApi.value, 2, args, pson_result.ptr)
-        pson_result.value?.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execStoreApi(nativeStoreApi.value, 2, args, pson_result.ptr)
+            pson_result.value?.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(
@@ -170,11 +173,14 @@ actual class StoreApi actual constructor(connection: Connection) :
     actual fun deleteStore(storeId: String?) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(storeId!!.pson)
-        privmx_endpoint_execStoreApi(nativeStoreApi.value, 3, args, pson_result.ptr)
-        pson_result.value?.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execStoreApi(nativeStoreApi.value, 3, args, pson_result.ptr)
+            pson_result.value?.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(
@@ -247,11 +253,14 @@ actual class StoreApi actual constructor(connection: Connection) :
             publicMeta?.pson,
             privateMeta?.pson,
         )
-        privmx_endpoint_execStoreApi(nativeStoreApi.value, 8, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execStoreApi(nativeStoreApi.value, 8, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(
@@ -265,11 +274,14 @@ actual class StoreApi actual constructor(connection: Connection) :
             fileHandle.pson,
             dataChunk?.pson
         )
-        privmx_endpoint_execStoreApi(nativeStoreApi.value, 9, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execStoreApi(nativeStoreApi.value, 9, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(
@@ -282,11 +294,14 @@ actual class StoreApi actual constructor(connection: Connection) :
         val args = makeArgs(
             fileId!!.pson
         )
-        privmx_endpoint_execStoreApi(nativeStoreApi.value, 10, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execStoreApi(nativeStoreApi.value, 10, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(
@@ -392,11 +407,14 @@ actual class StoreApi actual constructor(connection: Connection) :
             fileHandle.pson,
             position.pson
         )
-        privmx_endpoint_execStoreApi(nativeStoreApi.value, 15, args, pson_result.ptr)
-        pson_result.value?.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execStoreApi(nativeStoreApi.value, 15, args, pson_result.ptr)
+            pson_result.value?.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(
@@ -426,11 +444,14 @@ actual class StoreApi actual constructor(connection: Connection) :
     actual fun subscribeForStoreEvents() = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
-        privmx_endpoint_execStoreApi(nativeStoreApi.value, 17, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execStoreApi(nativeStoreApi.value, 17, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(
@@ -441,11 +462,14 @@ actual class StoreApi actual constructor(connection: Connection) :
     actual fun unsubscribeFromStoreEvents() = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
-        privmx_endpoint_execStoreApi(nativeStoreApi.value, 18, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execStoreApi(nativeStoreApi.value, 18, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(
@@ -458,11 +482,14 @@ actual class StoreApi actual constructor(connection: Connection) :
         val args = makeArgs(
             storeId?.pson
         )
-        privmx_endpoint_execStoreApi(nativeStoreApi.value, 19, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
+        try {
+            privmx_endpoint_execStoreApi(nativeStoreApi.value, 19, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     @Throws(
@@ -475,12 +502,14 @@ actual class StoreApi actual constructor(connection: Connection) :
         val args = makeArgs(
             storeId?.pson
         )
-        privmx_endpoint_execStoreApi(nativeStoreApi.value, 20, args, pson_result.ptr)
-        pson_result.value!!.asResponse?.getResultOrThrow()
-
-        pson_free_value(args)
-        pson_free_result(pson_result.value)
-        Unit
+        try {
+            privmx_endpoint_execStoreApi(nativeStoreApi.value, 20, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     actual override fun close() {

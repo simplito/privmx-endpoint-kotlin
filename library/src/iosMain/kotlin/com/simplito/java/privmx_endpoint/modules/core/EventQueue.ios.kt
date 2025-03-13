@@ -17,7 +17,6 @@ import com.simplito.java.privmx_endpoint.utils.PsonValue
 import com.simplito.java.privmx_endpoint.utils.asResponse
 import com.simplito.java.privmx_endpoint.utils.makeArgs
 import com.simplito.java.privmx_endpoint.utils.toEvent
-import kotlinx.cinterop.CPointerVar
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.memScoped
@@ -27,6 +26,7 @@ import kotlinx.cinterop.value
 import libprivmxendpoint.privmx_endpoint_execEventQueue
 import libprivmxendpoint.privmx_endpoint_newEventQueue
 import libprivmxendpoint.pson_free_result
+import libprivmxendpoint.pson_free_value
 import libprivmxendpoint.pson_value
 
 /**
@@ -49,15 +49,16 @@ actual object EventQueue {
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun emitBreakEvent() = memScoped {
-        val result: CPointerVar<pson_value>
-        result = allocPointerTo<pson_value>()
+        val result = allocPointerTo<pson_value>()
+        val args = makeArgs()
         try {
-            privmx_endpoint_execEventQueue(nativeEventQueue.value, 2, makeArgs(), result.ptr)
+            privmx_endpoint_execEventQueue(nativeEventQueue.value, 2, args, result.ptr)
             result.value!!.asResponse?.getResultOrThrow()
+            Unit
         } finally {
             pson_free_result(result.value)
+            pson_free_value(args)
         }
-        Unit
     }
 
     /**
@@ -70,28 +71,29 @@ actual object EventQueue {
     @Throws(PrivmxException::class, NativeException::class)
     actual fun waitEvent(): Event<*>? = memScoped {
         val result = allocPointerTo<pson_value>()
+        val args = makeArgs()
         try {
-            privmx_endpoint_execEventQueue(nativeEventQueue.value, 0, makeArgs(), result.ptr)
+            privmx_endpoint_execEventQueue(nativeEventQueue.value, 0, args, result.ptr)
             val native_event = result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
             native_event.toEvent()
         } finally {
             pson_free_result(result.value)
+            pson_free_value(args)
         }
     }
 
-    @Throws(
-        PrivmxException::class,
-        NativeException::class
-    )
+    @Throws(PrivmxException::class, NativeException::class)
     actual fun getEvent(): Event<*>? = memScoped {
         val result = allocPointerTo<pson_value>()
+        val args = makeArgs()
         try {
-            privmx_endpoint_execEventQueue(nativeEventQueue.value, 1, makeArgs(), result.ptr)
+            privmx_endpoint_execEventQueue(nativeEventQueue.value, 1, args, result.ptr)
             val native_event =
                 result.value!!.asResponse?.getResultOrThrow() as? PsonValue.PsonObject
             native_event?.toEvent()
         } finally {
             pson_free_result(result.value)
+            pson_free_value(args)
         }
     }
 }
