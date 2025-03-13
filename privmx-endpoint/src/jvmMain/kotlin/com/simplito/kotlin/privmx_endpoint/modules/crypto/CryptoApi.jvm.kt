@@ -29,7 +29,7 @@ actual class CryptoApi : AutoCloseable {
 
     companion object{
         init {
-            System.loadLibrary("privmx-endpoint-java")
+            System.loadLibrary("privmx-endpoint-kotlin")
         }
     }
 
