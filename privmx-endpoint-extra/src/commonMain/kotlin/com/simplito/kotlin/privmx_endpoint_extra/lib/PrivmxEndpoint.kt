@@ -8,13 +8,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.simplito.java.privmx_endpoint_extra.lib
+package com.simplito.kotlin.privmx_endpoint_extra.lib
 
-import com.simplito.java.privmx_endpoint.model.Event
-import com.simplito.java.privmx_endpoint_extra.events.EventCallback
-import com.simplito.java.privmx_endpoint_extra.events.EventDispatcher
-import com.simplito.java.privmx_endpoint_extra.events.EventType
-import com.simplito.java.privmx_endpoint_extra.model.Modules
+import com.simplito.kotlin.privmx_endpoint.model.Event
+import com.simplito.kotlin.privmx_endpoint_extra.events.EventCallback
+import com.simplito.kotlin.privmx_endpoint_extra.events.EventDispatcher
+import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
+import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
 
 /**
  * Extends [BasicPrivmxEndpoint] with event callbacks dispatcher.

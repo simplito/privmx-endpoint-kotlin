@@ -8,11 +8,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.simplito.java.privmx_endpoint_extra.events
+package com.simplito.kotlin.privmx_endpoint_extra.events
 
 
-import com.simplito.java.privmx_endpoint.model.Event
-import kotlinx.coroutines.runBlocking
+import com.simplito.kotlin.privmx_endpoint.model.Event
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
