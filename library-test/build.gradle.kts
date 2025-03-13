@@ -57,7 +57,7 @@ kotlin {
                 implementation(compose.ui)
 //                @OptIn(ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
-                implementation(project(":library"))
+                implementation(project(":privmx-endpoint"))
             }
         }
         val commonTest by getting {
