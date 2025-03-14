@@ -14,6 +14,7 @@ import com.simplito.java.privmx_endpoint.model.ContainerPolicy
 import com.simplito.java.privmx_endpoint.model.File
 import com.simplito.java.privmx_endpoint.model.PagingList
 import com.simplito.java.privmx_endpoint.model.Store
+import com.simplito.java.privmx_endpoint.model.Thread
 import com.simplito.java.privmx_endpoint.model.UserWithPubKey
 import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
@@ -48,13 +49,13 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         IllegalStateException::class
     )
     fun createStore(
-        contextId: String?,
-        users: List<UserWithPubKey?>?,
-        managers: List<UserWithPubKey?>?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
+        contextId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
         policies: ContainerPolicy? = null
-    ): String?
+    ): String
 
     /**
      * Updates an existing Store.
@@ -80,14 +81,14 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         IllegalStateException::class
     )
     fun updateStore(
-        storeId: String?,
-        users: List<UserWithPubKey?>?,
-        managers: List<UserWithPubKey?>?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
+        storeId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
         version: Long,
         force: Boolean,
-        forceGenerateNewKey: Boolean = false,
+        forceGenerateNewKey: Boolean,
         policies: ContainerPolicy? = null
     )
 
@@ -105,7 +106,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         NativeException::class,
         IllegalStateException::class
     )
-    fun getStore(storeId: String?): Store?
+    fun getStore(storeId: String): Store
 
     /**
      * Gets a list of Stores in given Context.
@@ -126,12 +127,12 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         IllegalStateException::class
     )
     fun listStores(
-        contextId: String?,
+        contextId: String,
         skip: Long,
         limit: Long,
-        sortOrder: String?,
+        sortOrder: String = "desc",
         lastId: String? = null
-    ): PagingList<Store?>?
+    ): PagingList<Store>
 
     /**
      * Deletes a Store by given Store ID.
@@ -149,7 +150,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         NativeException::class,
         IllegalStateException::class
     )
-    fun deleteStore(storeId: String?)
+    fun deleteStore(storeId: String)
 
     /**
      * Creates a new file in a Store.
@@ -169,11 +170,11 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         IllegalStateException::class
     )
     fun createFile(
-        storeId: String?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
+        storeId: String,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
         size: Long
-    ): Long?
+    ): Long
 
     /**
      * Updates an existing file in a Store.
@@ -193,11 +194,11 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         IllegalStateException::class
     )
     fun updateFile(
-        fileId: String?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
+        fileId: String,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
         size: Long
-    ): Long?
+    ): Long
 
     /**
      * Updates metadata of an existing file in a Store.
@@ -217,7 +218,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         NativeException::class,
         IllegalStateException::class
     )
-    fun updateFileMeta(fileId: String?, publicMeta: ByteArray?, privateMeta: ByteArray?)
+    fun updateFileMeta(fileId: String, publicMeta: ByteArray, privateMeta: ByteArray)
 
     /**
      * Writes a file data.
@@ -233,7 +234,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         NativeException::class,
         IllegalStateException::class
     )
-    fun writeToFile(fileHandle: Long, dataChunk: ByteArray?)
+    fun writeToFile(fileHandle: Long, dataChunk: ByteArray)
 
     /**
      * Deletes a file by given ID.
@@ -251,7 +252,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         NativeException::class,
         IllegalStateException::class
     )
-    fun deleteFile(fileId: String?)
+    fun deleteFile(fileId: String)
 
     /**
      * Gets a single file by the given file ID.
@@ -267,7 +268,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         NativeException::class,
         IllegalStateException::class
     )
-    fun getFile(fileId: String?): File?
+    fun getFile(fileId: String): File
 
     /**
      * Gets a list of files in given Store.
@@ -288,12 +289,12 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         IllegalStateException::class
     )
     fun listFiles(
-        storeId: String?,
+        storeId: String,
         skip: Long,
         limit: Long,
-        sortOrder: String?,
+        sortOrder: String = "desc",
         lastId: String? = null
-    ): PagingList<File?>?
+    ): PagingList<File>
 
     /**
      * Opens a file to read.
@@ -309,7 +310,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         NativeException::class,
         IllegalStateException::class
     )
-    fun openFile(fileId: String?): Long?
+    fun openFile(fileId: String): Long
 
     /**
      * Reads file data.
@@ -326,7 +327,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         NativeException::class,
         IllegalStateException::class
     )
-    fun readFromFile(fileHandle: Long, length: Long): ByteArray?
+    fun readFromFile(fileHandle: Long, length: Long): ByteArray
 
     /**
      * Moves read cursor.
@@ -367,7 +368,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         NativeException::class,
         IllegalStateException::class
     )
-    fun closeFile(fileHandle: Long): String?
+    fun closeFile(fileHandle: Long): String
 
     /**
      * Subscribes for the Store module main events.
@@ -410,7 +411,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         NativeException::class,
         IllegalStateException::class
     )
-    fun subscribeForFileEvents(storeId: String?)
+    fun subscribeForFileEvents(storeId: String)
 
     /**
      * Unsubscribes from events in given Store.
@@ -425,7 +426,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         NativeException::class,
         IllegalStateException::class
     )
-    fun unsubscribeFromFileEvents(storeId: String?)
+    fun unsubscribeFromFileEvents(storeId: String)
 
     /**
      * Frees memory.

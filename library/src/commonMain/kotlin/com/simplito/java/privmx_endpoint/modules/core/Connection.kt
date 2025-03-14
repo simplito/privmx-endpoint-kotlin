@@ -10,13 +10,13 @@ expect class Connection: AutoCloseable{
         fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String): Connection
         fun connectPublic(solutionId: String, bridgeUrl: String): Connection
 
-        fun setCertsPath(certsPath: String?)
+        fun setCertsPath(certsPath: String? = null)
     }
 
     fun listContexts(
         skip: Long,
         limit: Long,
-        sortOrder: String,
+        sortOrder: String = "desc",
         lastId: String? = null
     ): PagingList<Context>
 

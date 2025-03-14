@@ -19,78 +19,82 @@ actual class ThreadApi actual constructor(connection: Connection): AutoCloseable
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun createThread(
-        contextId: String?,
-        users: List<UserWithPubKey?>?,
-        managers: List<UserWithPubKey?>?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
+        contextId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
         policies: ContainerPolicy?
-    ): String?
+    ): String
+
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun updateThread(
-        threadId: String?,
-        users: List<UserWithPubKey?>?,
-        managers: List<UserWithPubKey?>?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
+        threadId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
         version: Long,
         force: Boolean,
         forceGenerateNewKey: Boolean,
         policies: ContainerPolicy?
     )
+
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun getThread(threadId: String?): com.simplito.java.privmx_endpoint.model.Thread?
+    actual external fun getThread(threadId: String): Thread
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun listThreads(
-        contextId: String?,
+        contextId: String,
         skip: Long,
         limit: Long,
-        sortOrder: String?,
+        sortOrder: String,
         lastId: String?
-    ): PagingList<Thread?>?
+    ): PagingList<Thread>
+
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun deleteThread(threadId: String?)
+    actual external fun deleteThread(threadId: String)
+
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun sendMessage(
-        threadId: String?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
-        data: ByteArray?
-    ): String?
+        threadId: String,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
+        data: ByteArray
+    ): String
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun getMessage(messageId: String?): Message?
+    actual external fun getMessage(messageId: String): Message
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun listMessages(
-        threadId: String?,
+        threadId: String,
         skip: Long,
         limit: Long,
-        sortOrder: String?,
+        sortOrder: String,
         lastId: String?
-    ): PagingList<Message?>?
+    ): PagingList<Message>
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun deleteMessage(messageId: String?)
+    actual external fun deleteMessage(messageId: String)
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun updateMessage(
-        messageId: String?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
-        data: ByteArray?
+        messageId: String,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
+        data: ByteArray
     )
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun subscribeForThreadEvents()
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun unsubscribeFromThreadEvents()
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun subscribeForMessageEvents(threadId: String?)
+    actual external fun subscribeForMessageEvents(threadId: String)
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun unsubscribeFromMessageEvents(threadId: String?)
+    actual external fun unsubscribeFromMessageEvents(threadId: String)
 
     @Throws(IllegalStateException::class)
-    private external fun init(connection: Connection?): Long?
+    private external fun init(connection: Connection): Long
 
     @Throws(IllegalStateException::class)
     private external fun deinit()
