@@ -31,7 +31,7 @@ import kotlin.jvm.JvmOverloads
  */
 expect class InboxApi(
     connection: Connection,
-    threadApi: ThreadApi? ,
+    threadApi: ThreadApi?,
     storeApi: StoreApi?
 ) :
     AutoCloseable {
@@ -186,7 +186,6 @@ expect class InboxApi(
      * @throws NativeException       thrown when method encounters an unknown exception.
      * @throws IllegalStateException thrown when instance is closed.
      */
-    @JvmOverloads
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
@@ -249,7 +248,7 @@ expect class InboxApi(
         skip: Long,
         limit: Long,
         sortOrder: String = "desc",
-        lastId: String?
+        lastId: String? = null
     ): PagingList<InboxEntry>
 
     /**
