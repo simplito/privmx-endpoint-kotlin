@@ -24,6 +24,13 @@ actual class Connection() : AutoCloseable {
 
     internal fun getConnectionPtr() = nativeConnection.value
 
+    private fun checkInstance()
+    {
+        if(nativeConnection.value == null){
+            throw IllegalStateException("Connection has been closed.")
+        }
+    }
+
     actual companion object {
         actual fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String): Connection =
             Connection().apply {
@@ -58,18 +65,21 @@ actual class Connection() : AutoCloseable {
             }
         }
 
+        @Throws(IllegalStateException::class)
         actual fun setCertsPath(certsPath: String?): Unit = memScoped {
             privmx_endpoint_setCertsPath(certsPath)
         }
 
     }
 
+    @Throws(IllegalStateException::class)
     actual fun listContexts(
         skip: Long,
         limit: Long,
         sortOrder: String,
         lastId: String?
     ): PagingList<Context> = memScoped {
+        checkInstance()
         val args = pson_new_array()
         val result = allocPointerTo<pson_value>()
         val pagingQuery = pson_new_object();
@@ -98,14 +108,18 @@ actual class Connection() : AutoCloseable {
                     )
                 }
             }
-    }
 
+
+    }
+    @Throws(IllegalStateException::class)
     actual fun disconnect() = memScoped {
+        checkInstance()
         val args = pson_new_object()
         val result = allocPointerTo<pson_value>().apply {
             value = pson_new_object()
         }
         privmx_endpoint_execConnection(nativeConnection.value, 4, args, result.ptr)
+        nativeConnection.value = null;
         Unit
     }
 
@@ -114,9 +128,12 @@ actual class Connection() : AutoCloseable {
         privmx_endpoint_freeConnection(nativeConnection.value)
     }
 
+    @Throws(IllegalStateException::class)
     actual fun getConnectionId(): Long? = memScoped {
+        checkInstance()
         val result = allocPointerTo<pson_value>()
         privmx_endpoint_execConnection(nativeConnection.value, 2, makeArgs(), result.ptr)
+        nativeConnection.value = null
         result.value!!.asResponse?.getResultOrThrow()?.typedValue()
     }
 }

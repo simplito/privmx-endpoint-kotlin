@@ -45,6 +45,13 @@ actual class InboxApi actual constructor(
 ) : AutoCloseable {
     private val nativeInboxApi = nativeHeap.allocPointerTo<cnames.structs.InboxApi>()
 
+    private fun checkInstance()
+    {
+        if(nativeInboxApi.value == null){
+            throw IllegalStateException("ThreadApi has been closed.")
+        }
+    }
+
     init {
         val tmpThreadApi = if (threadApi == null) {
             memScoped {
@@ -97,6 +104,7 @@ actual class InboxApi actual constructor(
         filesConfig: FilesConfig?,
         policies: ContainerPolicyWithoutItem?
     ): String? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             contextId?.pson,
@@ -126,6 +134,7 @@ actual class InboxApi actual constructor(
         forceGenerateNewKey: Boolean,
         policies: ContainerPolicyWithoutItem?
     ) = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             inboxId?.pson,
@@ -148,6 +157,7 @@ actual class InboxApi actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun getInbox(inboxId: String?): Inbox? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(inboxId?.pson)
         privmx_endpoint_execInboxApi(nativeInboxApi.value, 3, args, pson_result.ptr)
@@ -161,6 +171,7 @@ actual class InboxApi actual constructor(
     actual fun listInboxes(
         contextId: String?, skip: Long, limit: Long, sortOrder: String?, lastId: String?
     ): PagingList<Inbox?>? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             contextId!!.pson, mapOfWithNulls(
@@ -178,6 +189,7 @@ actual class InboxApi actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun getInboxPublicView(inboxId: String?): InboxPublicView? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(inboxId!!.pson)
         privmx_endpoint_execInboxApi(nativeInboxApi.value, 5, args, pson_result.ptr)
@@ -190,6 +202,7 @@ actual class InboxApi actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun deleteInbox(inboxId: String?) = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(inboxId!!.pson)
         privmx_endpoint_execInboxApi(nativeInboxApi.value, 6, args, pson_result.ptr)
@@ -204,6 +217,7 @@ actual class InboxApi actual constructor(
     actual fun prepareEntry(
         inboxId: String?, data: ByteArray?, inboxFileHandles: List<Long?>?, userPrivKey: String?
     ): Long? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             inboxId?.pson,
@@ -220,6 +234,7 @@ actual class InboxApi actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun sendEntry(inboxHandle: Long) = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(inboxHandle.pson)
         privmx_endpoint_execInboxApi(nativeInboxApi.value, 8, args, pson_result.ptr)
@@ -231,6 +246,7 @@ actual class InboxApi actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun readEntry(inboxEntryId: String?): InboxEntry? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(inboxEntryId!!.pson)
         privmx_endpoint_execInboxApi(nativeInboxApi.value, 9, args, pson_result.ptr)
@@ -244,6 +260,7 @@ actual class InboxApi actual constructor(
     actual fun listEntries(
         inboxId: String?, skip: Long, limit: Long, sortOrder: String?, lastId: String?
     ): PagingList<InboxEntry?>? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             inboxId!!.pson, mapOfWithNulls(
@@ -269,6 +286,7 @@ actual class InboxApi actual constructor(
     actual fun createFileHandle(
         publicMeta: ByteArray?, privateMeta: ByteArray?, fileSize: Long
     ): Long? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             publicMeta?.pson, privateMeta?.pson, fileSize.pson
@@ -283,6 +301,7 @@ actual class InboxApi actual constructor(
     actual fun writeToFile(
         inboxHandle: Long, inboxFileHandle: Long, dataChunk: ByteArray?
     ) = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             inboxHandle.pson, inboxFileHandle.pson, dataChunk?.pson
@@ -296,6 +315,7 @@ actual class InboxApi actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun openFile(fileId: String?): Long? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileId?.pson
@@ -308,6 +328,7 @@ actual class InboxApi actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun readFromFile(fileHandle: Long, length: Long): ByteArray? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileHandle.pson, length.pson
@@ -320,6 +341,7 @@ actual class InboxApi actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun seekInFile(fileHandle: Long, position: Long) = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileHandle.pson, position.pson
@@ -333,6 +355,7 @@ actual class InboxApi actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun closeFile(fileHandle: Long): String? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileHandle.pson
@@ -345,6 +368,7 @@ actual class InboxApi actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun subscribeForInboxEvents() = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
         privmx_endpoint_execInboxApi(nativeInboxApi.value, 18, args, pson_result.ptr)
@@ -356,6 +380,7 @@ actual class InboxApi actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun unsubscribeFromInboxEvents() = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
         privmx_endpoint_execInboxApi(nativeInboxApi.value, 19, args, pson_result.ptr)
@@ -367,6 +392,7 @@ actual class InboxApi actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun subscribeForEntryEvents(inboxId: String?) = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             inboxId?.pson
@@ -380,6 +406,7 @@ actual class InboxApi actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun unsubscribeFromEntryEvents(inboxId: String?) = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             inboxId?.pson

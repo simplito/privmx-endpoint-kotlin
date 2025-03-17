@@ -34,6 +34,13 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
 
     internal fun getThreadPtr() = nativeThreadApi.value
 
+    private fun checkInstance()
+    {
+        if(nativeThreadApi.value == null){
+            throw IllegalStateException("ThreadApi has been closed.")
+        }
+    }
+
     init {
         privmx_endpoint_newThreadApi(connection.getConnectionPtr(), nativeThreadApi.ptr)
         memScoped {
@@ -53,6 +60,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         privateMeta: ByteArray?,
         policies: ContainerPolicy?
     ): String? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             contextId?.pson,
@@ -78,6 +86,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         forceGenerateNewKey: Boolean,
         policies: ContainerPolicy?
     ) = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             threadId?.pson,
@@ -97,6 +106,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getThread(threadId: String?): Thread? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(threadId?.pson)
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 4, args, pson_result.ptr)
@@ -112,6 +122,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         sortOrder: String?,
         lastId: String?
     ): PagingList<Thread?>? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             contextId!!.pson,
@@ -129,6 +140,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun deleteThread(threadId: String?) = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(threadId!!.pson)
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 3, args, pson_result.ptr)
@@ -143,6 +155,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         privateMeta: ByteArray?,
         data: ByteArray?
     ): String? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             threadId?.pson,
@@ -156,6 +169,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getMessage(messageId: String?): Message? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(PsonValue.PsonString(messageId!!))
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 6, args, pson_result.ptr)
@@ -171,6 +185,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         sortOrder: String?,
         lastId: String?
     ): PagingList<Message?>? = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             threadId!!.pson,
@@ -188,6 +203,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun deleteMessage(messageId: String?) = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(PsonValue.PsonString(messageId!!))
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 9, args, pson_result.ptr)
@@ -202,6 +218,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         privateMeta: ByteArray?,
         data: ByteArray?
     ) = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             PsonValue.PsonString(messageId!!),
@@ -216,6 +233,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun subscribeForThreadEvents() = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 11, args, pson_result.ptr)
@@ -225,6 +243,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun unsubscribeFromThreadEvents() = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
         privmx_endpoint_execThreadApi(nativeThreadApi.value, 12, args, pson_result.ptr)
@@ -234,6 +253,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun subscribeForMessageEvents(threadId: String?) = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             PsonValue.PsonString(threadId!!)
@@ -245,6 +265,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun unsubscribeFromMessageEvents(threadId: String?) = memScoped {
+        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             PsonValue.PsonString(threadId!!)
