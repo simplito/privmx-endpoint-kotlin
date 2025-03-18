@@ -52,3 +52,6 @@ open class ContainerPolicyWithoutItem
      */
     val ownerCanBeRemovedFromManagers: String?
 )
+{
+     companion object 
+}

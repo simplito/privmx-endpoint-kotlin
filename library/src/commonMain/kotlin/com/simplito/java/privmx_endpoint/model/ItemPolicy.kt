@@ -51,4 +51,6 @@ class ItemPolicy
      * Determines who can delete an item.
      */
     val delete: String?
-)
+){
+     companion object
+ }

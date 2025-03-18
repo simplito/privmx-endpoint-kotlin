@@ -32,6 +32,7 @@ class ContainerPolicy(
     updaterCanBeRemovedFromManagers,
     ownerCanBeRemovedFromManagers
 ) {
+    companion object
     /**
      * Policy for container's items.
      */
