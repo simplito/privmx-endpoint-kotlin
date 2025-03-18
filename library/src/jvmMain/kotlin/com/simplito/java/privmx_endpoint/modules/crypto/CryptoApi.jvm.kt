@@ -26,13 +26,6 @@ import kotlin.String
  * @category crypto
  */
 actual class CryptoApi : AutoCloseable {
-
-    companion object{
-        init {
-            System.loadLibrary("privmx-endpoint-java")
-        }
-    }
-
     private val api: Long? = init()
 
     private external fun init(): Long?

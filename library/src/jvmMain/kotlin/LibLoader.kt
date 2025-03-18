@@ -1,5 +1,7 @@
 package com.simplito.java.privmx_endpoint
 
-class LibLoader {
-
+object LibLoader {
+    fun loadLibrary(){
+        System.loadLibrary("privmx-endpoint-java")
+    }
 }

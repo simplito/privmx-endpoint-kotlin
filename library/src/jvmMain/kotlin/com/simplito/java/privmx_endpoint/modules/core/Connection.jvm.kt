@@ -5,10 +5,6 @@ import com.simplito.java.privmx_endpoint.model.PagingList
 
 actual class Connection private constructor(private val api: Long?,private val connectionId: Long?) : AutoCloseable {
     actual companion object{
-        init {
-            System.loadLibrary("privmx-endpoint-java")
-        }
-
         @JvmStatic
         actual external fun connect(
             userPrivKey: String,
