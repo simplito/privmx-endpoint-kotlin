@@ -10,7 +10,7 @@ expect class Connection: AutoCloseable{
         fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String): Connection
         fun connectPublic(solutionId: String, bridgeUrl: String): Connection
 
-        fun setCertsPath(certsPath: String?)
+        fun setCertsPath(certsPath: String)
     }
 
     fun listContexts(

@@ -29,7 +29,7 @@ import kotlin.jvm.JvmOverloads
  *
  * @category inbox
  */
-expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: StoreApi?) :
+expect class InboxApi(connection: Connection, threadApi: ThreadApi? = null, storeApi: StoreApi? = null) :
     AutoCloseable {
     /**
      * Creates a new Inbox.
@@ -54,14 +54,14 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     fun createInbox(
-        contextId: String?,
-        users: List<UserWithPubKey?>?,
-        managers: List<UserWithPubKey?>?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
-        filesConfig: FilesConfig?,
+        contextId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
+        filesConfig: FilesConfig? = null,
         policies: ContainerPolicyWithoutItem? = null
-    ): String?
+    ): String
 
     /**
      * Updates an existing Inbox.
@@ -88,16 +88,16 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     fun updateInbox(
-        inboxId: String?,
-        users: List<UserWithPubKey?>?,
-        managers: List<UserWithPubKey?>?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
-        filesConfig: FilesConfig?,
+        inboxId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
+        filesConfig: FilesConfig?= null,
         version: Long,
-        force: Boolean,
-        forceGenerateNewKey: Boolean,
-        policies: ContainerPolicyWithoutItem?
+        force: Boolean = false,
+        forceGenerateNewKey: Boolean = false,
+        policies: ContainerPolicyWithoutItem? = null
     )
 
     /**
@@ -112,7 +112,7 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    fun getInbox(inboxId: String?): Inbox?
+    fun getInbox(inboxId: String): Inbox
 
     /**
      * Gets s list of Inboxes in given Context.
@@ -131,8 +131,8 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     fun listInboxes(
-        contextId: String?, skip: Long, limit: Long, sortOrder: String?, lastId: String? = null
-    ): PagingList<Inbox?>?
+        contextId: String, skip: Long, limit: Long, sortOrder: String, lastId: String? = null
+    ): PagingList<Inbox>
 
 
     /**
@@ -148,7 +148,7 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    fun getInboxPublicView(inboxId: String?): InboxPublicView?
+    fun getInboxPublicView(inboxId: String): InboxPublicView
 
     /**
      * Deletes an Inbox by given Inbox ID.
@@ -164,7 +164,7 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    fun deleteInbox(inboxId: String?)
+    fun deleteInbox(inboxId: String)
 
     /**
      * Prepares a request to send data to an Inbox.
@@ -183,11 +183,11 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     fun prepareEntry(
-        inboxId: String?,
-        data: ByteArray?,
-        inboxFileHandles: List<Long?>? = emptyList<Long>(),
+        inboxId: String,
+        data: ByteArray,
+        inboxFileHandles: List<Long> = emptyList<Long>(),
         userPrivKey: String? = null
-    ): Long?
+    ): Long
 
     /**
      * Sends data to an Inbox.
@@ -218,7 +218,7 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    fun readEntry(inboxEntryId: String?): InboxEntry?
+    fun readEntry(inboxEntryId: String): InboxEntry
 
     /**
      * Gets list of entries of given Inbox.
@@ -237,8 +237,8 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     fun listEntries(
-        inboxId: String?, skip: Long, limit: Long, sortOrder: String?, lastId: String?
-    ): PagingList<InboxEntry?>?
+        inboxId: String, skip: Long, limit: Long, sortOrder: String, lastId: String? = null
+    ): PagingList<InboxEntry>
 
     /**
      * Deletes an entry from an Inbox.
@@ -254,7 +254,7 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    fun deleteEntry(inboxEntryId: String?)
+    fun deleteEntry(inboxEntryId: String)
 
     /**
      * Creates a file handle to send a file to an Inbox.
@@ -272,8 +272,8 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     fun /*inboxFileHandle*/createFileHandle(
-        publicMeta: ByteArray?, privateMeta: ByteArray?, fileSize: Long
-    ): Long?
+        publicMeta: ByteArray, privateMeta: ByteArray, fileSize: Long
+    ): Long
 
     /**
      * Sends a file's data chunk to an Inbox.
@@ -291,7 +291,7 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     fun writeToFile(
-        inboxHandle: Long, inboxFileHandle: Long, dataChunk: ByteArray?
+        inboxHandle: Long, inboxFileHandle: Long, dataChunk: ByteArray
     )
 
 
@@ -307,7 +307,7 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    fun openFile(fileId: String?): Long?
+    fun openFile(fileId: String): Long
 
     /**
      * Reads file data.
@@ -322,7 +322,7 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    fun readFromFile(fileHandle: Long, length: Long): ByteArray?
+    fun readFromFile(fileHandle: Long, length: Long): ByteArray
 
     /**
      * Moves file's read cursor.
@@ -350,7 +350,7 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    fun closeFile(fileHandle: Long): String?
+    fun closeFile(fileHandle: Long): String
 
     /**
      * Subscribes for the Inbox module main events.
@@ -387,7 +387,7 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    fun subscribeForEntryEvents(inboxId: String?)
+    fun subscribeForEntryEvents(inboxId: String)
 
     /**
      * Unsubscribes from events in given Inbox.
@@ -400,7 +400,7 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi?, storeApi: S
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    fun unsubscribeFromEntryEvents(inboxId: String?)
+    fun unsubscribeFromEntryEvents(inboxId: String)
 
     /**
      * Frees memory.

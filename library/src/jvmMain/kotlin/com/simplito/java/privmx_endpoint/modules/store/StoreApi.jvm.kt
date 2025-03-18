@@ -22,13 +22,13 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         IllegalStateException::class
     )
     actual external fun createStore(
-        contextId: String?,
-        users: List<UserWithPubKey?>?,
-        managers: List<UserWithPubKey?>?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
+        contextId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
         policies: ContainerPolicy?
-    ): String?
+    ): String
 
     @Throws(
         PrivmxException::class,
@@ -36,11 +36,11 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         IllegalStateException::class
     )
     actual external fun updateStore(
-        storeId: String?,
-        users: List<UserWithPubKey?>?,
-        managers: List<UserWithPubKey?>?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
+        storeId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
         version: Long,
         force: Boolean,
         forceGenerateNewKey: Boolean,
@@ -52,7 +52,7 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         NativeException::class,
         IllegalStateException::class
     )
-    actual external fun getStore(storeId: String?): Store?
+    actual external fun getStore(storeId: String): Store
 
     @Throws(
         PrivmxException::class,
@@ -60,19 +60,19 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         IllegalStateException::class
     )
     actual external fun listStores(
-        contextId: String?,
+        contextId: String,
         skip: Long,
         limit: Long,
-        sortOrder: String?,
+        sortOrder: String,
         lastId: String?
-    ): PagingList<Store?>?
+    ): PagingList<Store>
 
     @Throws(
         PrivmxException::class,
         NativeException::class,
         IllegalStateException::class
     )
-    actual external fun deleteStore(storeId: String?)
+    actual external fun deleteStore(storeId: String)
 
     @Throws(
         PrivmxException::class,
@@ -80,11 +80,11 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         IllegalStateException::class
     )
     actual external fun createFile(
-        storeId: String?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
+        storeId: String,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
         size: Long
-    ): Long?
+    ): Long
 
     @Throws(
         PrivmxException::class,
@@ -92,11 +92,11 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         IllegalStateException::class
     )
     actual external fun updateFile(
-        fileId: String?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
+        fileId: String,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
         size: Long
-    ): Long?
+    ): Long
 
     @Throws(
         PrivmxException::class,
@@ -104,9 +104,9 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         IllegalStateException::class
     )
     actual external fun updateFileMeta(
-        fileId: String?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?
+        fileId: String,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray
     )
 
     @Throws(
@@ -114,21 +114,21 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         NativeException::class,
         IllegalStateException::class
     )
-    actual external fun writeToFile(fileHandle: Long, dataChunk: ByteArray?)
+    actual external fun writeToFile(fileHandle: Long, dataChunk: ByteArray)
 
     @Throws(
         PrivmxException::class,
         NativeException::class,
         IllegalStateException::class
     )
-    actual external fun deleteFile(fileId: String?)
+    actual external fun deleteFile(fileId: String)
 
     @Throws(
         PrivmxException::class,
         NativeException::class,
         IllegalStateException::class
     )
-    actual external fun getFile(fileId: String?): File?
+    actual external fun getFile(fileId: String): File
 
     @Throws(
         PrivmxException::class,
@@ -136,26 +136,26 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         IllegalStateException::class
     )
     actual external fun listFiles(
-        storeId: String?,
+        storeId: String,
         skip: Long,
         limit: Long,
-        sortOrder: String?,
+        sortOrder: String,
         lastId: String?
-    ): PagingList<File?>?
+    ): PagingList<File>
 
     @Throws(
         PrivmxException::class,
         NativeException::class,
         IllegalStateException::class
     )
-    actual external fun openFile(fileId: String?): Long?
+    actual external fun openFile(fileId: String): Long
 
     @Throws(
         PrivmxException::class,
         NativeException::class,
         IllegalStateException::class
     )
-    actual external fun readFromFile(fileHandle: Long, length: Long): ByteArray?
+    actual external fun readFromFile(fileHandle: Long, length: Long): ByteArray
 
     @Throws(
         PrivmxException::class,
@@ -169,7 +169,7 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         NativeException::class,
         IllegalStateException::class
     )
-    actual external fun closeFile(fileHandle: Long): String?
+    actual external fun closeFile(fileHandle: Long): String
 
     @Throws(
         PrivmxException::class,
@@ -191,14 +191,14 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         NativeException::class,
         IllegalStateException::class
     )
-    actual external fun subscribeForFileEvents(storeId: String?)
+    actual external fun subscribeForFileEvents(storeId: String)
 
     @Throws(
         PrivmxException::class,
         NativeException::class,
         IllegalStateException::class
     )
-    actual external fun unsubscribeFromFileEvents(storeId: String?)
+    actual external fun unsubscribeFromFileEvents(storeId: String)
 
     @Throws(IllegalStateException::class)
     private external fun init(connection: Connection?): Long?

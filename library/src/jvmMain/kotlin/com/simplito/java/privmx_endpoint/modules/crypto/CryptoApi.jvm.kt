@@ -47,7 +47,7 @@ actual class CryptoApi : AutoCloseable {
      * @return Generated ECC key in WIF format
      */
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun generatePrivateKey(randomSeed: String?): String?
+    actual external fun generatePrivateKey(randomSeed: String): String
 
     /**
      * Generates a new private ECC key from a password using pbkdf2.
@@ -57,7 +57,7 @@ actual class CryptoApi : AutoCloseable {
      * @return Generated ECC key in WIF format
      */
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun derivePrivateKey(password: String?, salt: String?): String?
+    actual external fun derivePrivateKey(password: String, salt: String): String
 
     /**
      * Generates a new private ECC key from a password using pbkdf2.
@@ -70,7 +70,7 @@ actual class CryptoApi : AutoCloseable {
      * @return generated ECC key in WIF format
      */
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun derivePrivateKey2(password: String?, salt: String?): String?
+    actual external fun derivePrivateKey2(password: String, salt: String): String
 
     /**
      * Generates a new public ECC key as a pair for an existing private key.
@@ -79,7 +79,7 @@ actual class CryptoApi : AutoCloseable {
      * @return Generated ECC key in BASE58DER format
      */
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun derivePublicKey(privateKey: String?): String?
+    actual external fun derivePublicKey(privateKey: String): String
 
     /**
      * Encrypts buffer with a given key using AES.
@@ -89,7 +89,7 @@ actual class CryptoApi : AutoCloseable {
      * @return Encrypted data buffer
      */
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun encryptDataSymmetric(data: ByteArray?, symmetricKey: ByteArray?): ByteArray?
+    actual external fun encryptDataSymmetric(data: ByteArray, symmetricKey: ByteArray): ByteArray
 
     /**
      * Decrypts buffer with a given key using AES.
@@ -99,7 +99,7 @@ actual class CryptoApi : AutoCloseable {
      * @return Plain (decrypted) data buffer
      */
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun decryptDataSymmetric(data: ByteArray?, symmetricKey: ByteArray?): ByteArray?
+    actual external fun decryptDataSymmetric(data: ByteArray, symmetricKey: ByteArray): ByteArray
 
     /**
      * Creates a signature of data using given key.
@@ -109,7 +109,7 @@ actual class CryptoApi : AutoCloseable {
      * @return Signature of data
      */
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun signData(data: ByteArray?, privateKey: String?): ByteArray?
+    actual external fun signData(data: ByteArray, privateKey: String): ByteArray
 
     /**
      * Validate a signature of data using given key.
@@ -120,9 +120,9 @@ actual class CryptoApi : AutoCloseable {
      * @return data validation result
      */
     actual external fun verifySignature(
-        data: ByteArray?,
-        signature: ByteArray?,
-        publicKey: String?
+        data: ByteArray,
+        signature: ByteArray,
+        publicKey: String
     ): Boolean
 
     /**
@@ -132,14 +132,14 @@ actual class CryptoApi : AutoCloseable {
      * @return Private key in WIF format
      */
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun convertPEMKeyToWIFKey(pemKey: String?): String?
+    actual external fun convertPEMKeyToWIFKey(pemKey: String): String
 
     /**
      * Generates a new symmetric key.
      *
      * @return Generated key
      */
-    actual external fun generateKeySymmetric(): ByteArray?
+    actual external fun generateKeySymmetric(): ByteArray
 
     @Throws(Exception::class)
     actual override fun close() {
