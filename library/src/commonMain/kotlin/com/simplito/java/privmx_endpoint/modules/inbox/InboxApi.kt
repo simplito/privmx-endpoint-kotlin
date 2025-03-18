@@ -29,7 +29,11 @@ import kotlin.jvm.JvmOverloads
  *
  * @category inbox
  */
-expect class InboxApi(connection: Connection, threadApi: ThreadApi? = null, storeApi: StoreApi? = null) :
+expect class InboxApi(
+    connection: Connection,
+    threadApi: ThreadApi? = null,
+    storeApi: StoreApi? = null
+) :
     AutoCloseable {
     /**
      * Creates a new Inbox.
@@ -93,7 +97,7 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi? = null, stor
         managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        filesConfig: FilesConfig?= null,
+        filesConfig: FilesConfig? = null,
         version: Long,
         force: Boolean = false,
         forceGenerateNewKey: Boolean = false,
@@ -131,7 +135,11 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi? = null, stor
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     fun listInboxes(
-        contextId: String, skip: Long, limit: Long, sortOrder: String, lastId: String? = null
+        contextId: String,
+        skip: Long,
+        limit: Long,
+        sortOrder: String = "desc",
+        lastId: String? = null
     ): PagingList<Inbox>
 
 
@@ -237,7 +245,11 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi? = null, stor
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     fun listEntries(
-        inboxId: String, skip: Long, limit: Long, sortOrder: String, lastId: String? = null
+        inboxId: String,
+        skip: Long,
+        limit: Long,
+        sortOrder: String = "desc",
+        lastId: String? = null
     ): PagingList<InboxEntry>
 
     /**
@@ -272,7 +284,9 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi? = null, stor
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     fun /*inboxFileHandle*/createFileHandle(
-        publicMeta: ByteArray, privateMeta: ByteArray, fileSize: Long
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
+        fileSize: Long
     ): Long
 
     /**
@@ -291,7 +305,9 @@ expect class InboxApi(connection: Connection, threadApi: ThreadApi? = null, stor
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     fun writeToFile(
-        inboxHandle: Long, inboxFileHandle: Long, dataChunk: ByteArray
+        inboxHandle: Long,
+        inboxFileHandle: Long,
+        dataChunk: ByteArray
     )
 
 

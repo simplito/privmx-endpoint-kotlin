@@ -82,7 +82,7 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         version: Long,
-        force: Boolean,
+        force: Boolean = false,
         forceGenerateNewKey: Boolean = false,
         policies: ContainerPolicy? = null
     )
@@ -117,7 +117,7 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
         contextId: String,
         skip: Long,
         limit: Long,
-        sortOrder: String,
+        sortOrder: String = "desc",
         lastId: String? = null
     ): PagingList<Thread>
 
@@ -191,8 +191,8 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
         threadId: String,
         skip: Long,
         limit: Long,
-        sortOrder: String,
-        lastId: String?
+        sortOrder: String = "desc",
+        lastId: String? = null
     ): PagingList<Message>
 
 

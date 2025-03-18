@@ -38,12 +38,12 @@ actual object EventQueue {
      */
     @Throws(PrivmxException::class, NativeException::class)
     @JvmStatic
-    actual external fun waitEvent(): Event<*>?
+    actual external fun waitEvent(): Event<*>
 
     @Throws(
         PrivmxException::class,
         NativeException::class
     )
     @JvmStatic
-    actual external fun getEvent(): Event<*>?
+    actual external fun getEvent(): Event<*>
 }

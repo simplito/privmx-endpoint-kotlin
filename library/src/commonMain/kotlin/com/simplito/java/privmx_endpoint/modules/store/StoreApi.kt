@@ -86,7 +86,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         version: Long,
-        force: Boolean,
+        force: Boolean = false,
         forceGenerateNewKey: Boolean = false,
         policies: ContainerPolicy? = null
     )
@@ -129,7 +129,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         contextId: String,
         skip: Long,
         limit: Long,
-        sortOrder: String,
+        sortOrder: String = "desc",
         lastId: String? = null
     ): PagingList<Store>
 
@@ -291,7 +291,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         storeId: String,
         skip: Long,
         limit: Long,
-        sortOrder: String,
+        sortOrder: String = "desc",
         lastId: String? = null
     ): PagingList<File>
 
