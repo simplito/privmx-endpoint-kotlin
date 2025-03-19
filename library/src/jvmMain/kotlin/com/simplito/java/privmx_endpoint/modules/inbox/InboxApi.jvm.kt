@@ -168,7 +168,7 @@ actual class InboxApi actual constructor(
     actual external fun unsubscribeFromEntryEvents(inboxId: String)
 
     @Throws(IllegalStateException::class)
-    private external fun init(connection: Connection?, orElse: ThreadApi, orElse1: StoreApi): Long?
+    private external fun init(connection: Connection, threadApi: ThreadApi, storeApi: StoreApi): Long?
 
     @Throws(IllegalStateException::class)
     private external fun deinit()

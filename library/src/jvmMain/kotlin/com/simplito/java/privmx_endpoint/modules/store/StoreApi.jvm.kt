@@ -201,7 +201,7 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
     actual external fun unsubscribeFromFileEvents(storeId: String)
 
     @Throws(IllegalStateException::class)
-    private external fun init(connection: Connection?): Long?
+    private external fun init(connection: Connection): Long?
 
     @Throws(IllegalStateException::class)
     private external fun deinit()
