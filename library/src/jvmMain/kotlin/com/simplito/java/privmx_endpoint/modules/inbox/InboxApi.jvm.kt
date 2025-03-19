@@ -14,7 +14,7 @@ import com.simplito.java.privmx_endpoint.modules.store.StoreApi
 import com.simplito.java.privmx_endpoint.modules.thread.ThreadApi
 import java.util.Optional
 
-actual class InboxApi actual constructor(
+actual class InboxApi @JvmOverloads actual constructor(
     connection: Connection, threadApi: ThreadApi?, storeApi: StoreApi?
 ) : AutoCloseable {
     private var api: Long? = null
@@ -36,6 +36,7 @@ actual class InboxApi actual constructor(
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
+    @JvmOverloads
     actual external fun createInbox(
         contextId: String,
         users: List<UserWithPubKey>,
@@ -49,6 +50,7 @@ actual class InboxApi actual constructor(
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
+    @JvmOverloads
     actual external fun updateInbox(
         inboxId: String,
         users: List<UserWithPubKey>,
@@ -70,6 +72,7 @@ actual class InboxApi actual constructor(
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
+    @JvmOverloads
     actual external fun listInboxes(
         contextId: String, skip: Long, limit: Long, sortOrder: String, lastId: String?
     ): PagingList<Inbox>
@@ -87,6 +90,7 @@ actual class InboxApi actual constructor(
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
+    @JvmOverloads
     actual external fun prepareEntry(
         inboxId: String, data: ByteArray, inboxFileHandles: List<Long>, userPrivKey: String?
     ): Long
@@ -104,6 +108,7 @@ actual class InboxApi actual constructor(
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
+    @JvmOverloads
     actual external fun listEntries(
         inboxId: String, skip: Long, limit: Long, sortOrder: String, lastId: String?
     ): PagingList<InboxEntry>

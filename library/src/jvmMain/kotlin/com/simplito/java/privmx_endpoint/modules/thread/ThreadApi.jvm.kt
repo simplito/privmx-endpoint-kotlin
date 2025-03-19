@@ -18,6 +18,7 @@ actual class ThreadApi actual constructor(connection: Connection): AutoCloseable
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     actual external fun createThread(
         contextId: String,
         users: List<UserWithPubKey>,
@@ -27,6 +28,7 @@ actual class ThreadApi actual constructor(connection: Connection): AutoCloseable
         policies: ContainerPolicy?
     ): String
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     actual external fun updateThread(
         threadId: String,
         users: List<UserWithPubKey>,
@@ -39,9 +41,10 @@ actual class ThreadApi actual constructor(connection: Connection): AutoCloseable
         policies: ContainerPolicy?
     )
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun getThread(threadId: String): com.simplito.java.privmx_endpoint.model.Thread
+    actual external fun getThread(threadId: String): Thread
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     actual external fun listThreads(
         contextId: String,
         skip: Long,
@@ -62,6 +65,7 @@ actual class ThreadApi actual constructor(connection: Connection): AutoCloseable
     actual external fun getMessage(messageId: String): Message
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     actual external fun listMessages(
         threadId: String,
         skip: Long,
