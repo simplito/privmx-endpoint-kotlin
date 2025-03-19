@@ -58,7 +58,7 @@ actual class Connection() : AutoCloseable {
             }
         }
 
-        actual fun setCertsPath(certsPath: String?): Unit = memScoped {
+        actual fun setCertsPath(certsPath: String): Unit = memScoped {
             privmx_endpoint_setCertsPath(certsPath)
         }
 
