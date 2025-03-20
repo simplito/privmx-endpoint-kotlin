@@ -1,4 +1,6 @@
-import com.vanniktech.maven.publish.SonatypeHost
+import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.DokkaBaseConfiguration
+import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
@@ -7,6 +9,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     id("maven-publish")
+    id("org.jetbrains.dokka") version "2.0.0"
 }
 
 group = "com.simplito.kotlin"
@@ -46,9 +49,6 @@ kotlin {
         val iosMain by getting {
             dependsOn(commonMain.get())
         }
-        val androidMain by getting{
-            dependsOn(jvmMain.get())
-        }
 
         val commonMain by getting {
             dependencies {
@@ -63,6 +63,27 @@ kotlin {
     }
 }
 
+buildscript {
+    dependencies {
+        classpath("org.jetbrains.dokka:dokka-base:2.0.0")
+    }
+}
+
+tasks.register<DokkaTask>("customHtml") {
+    outputDirectory.set(file(layout.buildDirectory.file("customHtml")))
+
+    pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
+        templatesDir = file(layout.projectDirectory.file("src/docs/templates"))
+        customAssets = listOf(
+            file(layout.projectDirectory.file("src/docs/fonts/Manrope-VariableFont_wght.ttf"))
+        )
+        customStyleSheets = listOf(
+            file(layout.projectDirectory.file("src/docs/styles/style.css")),
+            file(layout.projectDirectory.file("src/docs/styles/main.css")),
+            file(layout.projectDirectory.file("src/docs/styles/font-jb-sans-auto.css"))
+        )
+    }
+}
 android {
     namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
