@@ -1,4 +1,4 @@
-package com.simplito.java.privmx_endpoint
+package com.simplito.kotlin.privmx_endpoint
 
 object LibLoader {
     fun loadLibrary(){
