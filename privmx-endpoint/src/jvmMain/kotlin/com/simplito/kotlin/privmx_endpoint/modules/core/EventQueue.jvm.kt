@@ -10,6 +10,7 @@
 //
 package com.simplito.kotlin.privmx_endpoint.modules.core
 
+import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.Event
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
@@ -18,6 +19,9 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
  * Defines methods to working with Events queue.
  */
 actual object EventQueue {
+    init {
+        LibLoader.load()
+    }
     /**
      * Puts the break event on the events queue.
      * You can use it to break the [.waitEvent].

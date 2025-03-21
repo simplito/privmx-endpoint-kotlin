@@ -1,5 +1,8 @@
-package com.simplito.kotlin.privmx_endpoint.com.simplito.kotlin.privmx_endpoint
+package com.simplito.kotlin.privmx_endpoint
 
-class LibLoader {
 
+internal object LibLoader {
+    fun load() {
+        System.loadLibrary("privmx-endpoint-kotlin")
+    }
 }
