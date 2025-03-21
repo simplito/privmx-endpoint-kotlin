@@ -173,7 +173,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         size: Long
-    ): Long
+    ): Long?
 
     /**
      * Updates an existing file in a Store.
@@ -197,7 +197,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         size: Long
-    ): Long
+    ): Long?
 
     /**
      * Updates metadata of an existing file in a Store.
@@ -309,7 +309,7 @@ expect class StoreApi(connection: Connection) : AutoCloseable {
         NativeException::class,
         IllegalStateException::class
     )
-    fun openFile(fileId: String): Long
+    fun openFile(fileId: String): Long?
 
     /**
      * Reads file data.

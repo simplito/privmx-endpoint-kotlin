@@ -89,7 +89,7 @@ actual class InboxApi actual constructor(
     )
     actual external fun prepareEntry(
         inboxId: String, data: ByteArray, inboxFileHandles: List<Long>, userPrivKey: String?
-    ): Long
+    ): Long?
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -118,7 +118,7 @@ actual class InboxApi actual constructor(
     )
     actual external fun /*inboxFileHandle*/createFileHandle(
         publicMeta: ByteArray, privateMeta: ByteArray, fileSize: Long
-    ): Long
+    ): Long?
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -130,7 +130,7 @@ actual class InboxApi actual constructor(
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    actual external fun openFile(fileId: String): Long
+    actual external fun openFile(fileId: String): Long?
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class

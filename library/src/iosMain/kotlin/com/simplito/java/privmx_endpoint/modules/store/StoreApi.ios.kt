@@ -165,7 +165,7 @@ actual class StoreApi actual constructor(connection: Connection) :
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         size: Long
-    ): Long = memScoped {
+    ): Long? = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             storeId.pson,
@@ -187,7 +187,7 @@ actual class StoreApi actual constructor(connection: Connection) :
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         size: Long
-    ): Long = memScoped {
+    ): Long? = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileId.pson,
@@ -298,7 +298,7 @@ actual class StoreApi actual constructor(connection: Connection) :
         NativeException::class,
         IllegalStateException::class
     )
-    actual fun openFile(fileId: String): Long = memScoped {
+    actual fun openFile(fileId: String): Long? = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileId.pson

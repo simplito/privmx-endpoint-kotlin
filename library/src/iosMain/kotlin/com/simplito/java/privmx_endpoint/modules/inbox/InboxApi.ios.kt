@@ -204,7 +204,7 @@ actual class InboxApi actual constructor(
     )
     actual fun prepareEntry(
         inboxId: String, data: ByteArray, inboxFileHandles: List<Long>, userPrivKey: String?
-    ): Long = memScoped {
+    ): Long? = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             inboxId.pson,
@@ -269,7 +269,7 @@ actual class InboxApi actual constructor(
     )
     actual fun createFileHandle(
         publicMeta: ByteArray, privateMeta: ByteArray, fileSize: Long
-    ): Long = memScoped {
+    ): Long? = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             publicMeta.pson, privateMeta.pson, fileSize.pson

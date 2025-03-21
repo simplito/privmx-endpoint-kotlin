@@ -195,7 +195,7 @@ expect class InboxApi(
         data: ByteArray,
         inboxFileHandles: List<Long> = emptyList<Long>(),
         userPrivKey: String? = null
-    ): Long
+    ): Long?
 
     /**
      * Sends data to an Inbox.
@@ -287,7 +287,7 @@ expect class InboxApi(
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         fileSize: Long
-    ): Long
+    ): Long?
 
     /**
      * Sends a file's data chunk to an Inbox.
@@ -323,7 +323,7 @@ expect class InboxApi(
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    fun openFile(fileId: String): Long
+    fun openFile(fileId: String): Long?
 
     /**
      * Reads file data.

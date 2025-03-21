@@ -84,7 +84,7 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         size: Long
-    ): Long
+    ): Long?
 
     @Throws(
         PrivmxException::class,
@@ -96,7 +96,7 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         size: Long
-    ): Long
+    ): Long?
 
     @Throws(
         PrivmxException::class,
@@ -148,7 +148,7 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         NativeException::class,
         IllegalStateException::class
     )
-    actual external fun openFile(fileId: String): Long
+    actual external fun openFile(fileId: String): Long?
 
     @Throws(
         PrivmxException::class,

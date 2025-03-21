@@ -5,7 +5,6 @@ import com.simplito.java.privmx_endpoint.model.PagingList
 
 
 expect class Connection: AutoCloseable{
-    override fun close()
     companion object {
         fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String): Connection
         fun connectPublic(solutionId: String, bridgeUrl: String): Connection
@@ -24,4 +23,5 @@ expect class Connection: AutoCloseable{
 
     fun disconnect()
 
+    override fun close()
 }
