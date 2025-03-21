@@ -1,0 +1,159 @@
+//
+// PrivMX Endpoint Java Extra.
+// Copyright © 2024 Simplito sp. z o.o.
+//
+// This file is part of the PrivMX Platform (https://privmx.dev).
+// This software is Licensed under the MIT License.
+//
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+package com.simplito.java.privmx_endpoint_extra.storeFileStream
+
+import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
+import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.java.privmx_endpoint.modules.store.StoreApi
+import kotlinx.io.IOException
+import kotlinx.io.Sink
+import kotlinx.io.buffered
+
+/**
+ * Manages handle for file reading.
+ *
+ * @category store
+ */
+class StoreFileStreamReader private constructor(
+    handle: Long,
+    api: StoreApi
+) : StoreFileStream(handle, api) {
+    /**
+     * Reads file data and moves the cursor. If read data size is less than length, then EOF.
+     *
+     * @param size size of data to read (the recommended size is [StoreFileStream.OPTIMAL_SEND_SIZE])
+     * @return Read data
+     * @throws IOException           when `this` is closed
+     * @throws PrivmxException       when method encounters an exception
+     * @throws NativeException       when method encounters an unknown exception
+     * @throws IllegalStateException when [.storeApi] is closed
+     */
+    @Throws(
+        IOException::class,
+        PrivmxException::class,
+        NativeException::class,
+        IllegalStateException::class
+    )
+    fun read(size: Long): ByteArray {
+        if (isClosed) throw IOException("File handle is closed")
+        val result: ByteArray = storeApi.readFromFile(handle, size)
+        callChunkProcessed(result.size.toLong())
+        return result
+    }
+
+    /**
+     * Moves read cursor.
+     *
+     * @param position new cursor position
+     * @throws IllegalStateException if `storeApi` is not initialized or connected
+     * @throws PrivmxException       if there is an error while seeking
+     * @throws NativeException       if there is an unknown error while seeking
+     */
+    @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
+    fun seek(position: Long) {
+        storeApi.seekInFile(handle, position)
+    }
+
+    companion object {
+        /**
+         * Opens Store file.
+         *
+         * @param api    reference to Store API
+         * @param fileId ID of the file to open
+         * @return Instance ready to read from the Store file
+         * @throws IllegalStateException when `storeApi` is not initialized or there's no connection
+         * @throws PrivmxException       if there is an error while opening Store file
+         * @throws NativeException       if there is an unknown error while opening Store file
+         */
+        @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
+        fun openFile(
+            api: StoreApi,
+            fileId: String
+        ): StoreFileStreamReader {
+            return StoreFileStreamReader(
+                api.openFile(fileId)!!,
+                api
+            )
+        }
+
+        /**
+         * Opens Store file and writes it into [OutputStream].
+         *
+         * @param api          reference to Store API
+         * @param fileId       ID of the file to open
+         * @param outputStream stream to write downloaded data with optimized chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
+         * @return ID of the read file
+         * @throws IOException           if there is an error while writing the stream
+         * @throws IllegalStateException when storeApi is not initialized or there's no connection
+         * @throws PrivmxException       if there is an error while opening Store file
+         * @throws NativeException       if there is an unknown error while opening Store file
+         */
+        @Throws(
+            IOException::class,
+            IllegalStateException::class,
+            PrivmxException::class,
+            NativeException::class
+        )
+        fun openFile(
+            api: StoreApi,
+            fileId: String,
+            outputStream: Sink
+        ): String {
+            return openFile(api, fileId, outputStream, null)
+        }
+
+        /**
+         * Opens Store file and writes it into [OutputStream].
+         *
+         * @param api              reference to Store API
+         * @param fileId           ID of the file to open
+         * @param outputStream     stream to write downloaded data with optimized chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
+         * @param streamController controls the process of reading file
+         * @return ID of the read file
+         * @throws IOException           if there is an error while writing stream
+         * @throws IllegalStateException when storeApi is not initialized or there's no connection
+         * @throws PrivmxException       if there is an error while reading Store file
+         * @throws NativeException       if there is an unknown error while reading Store file
+         */
+        @Throws(
+            IOException::class,
+            IllegalStateException::class,
+            PrivmxException::class,
+            NativeException::class
+        )
+        fun openFile(
+            api: StoreApi,
+            fileId: String,
+            outputStream: Sink,
+            streamController: Controller?
+        ): String {
+            val input: StoreFileStreamReader = openFile(api, fileId)
+            val output = outputStream.buffered()
+            var chunk: ByteArray
+
+            if (streamController != null) {
+                input.setProgressListener(streamController)
+            }
+
+            do {
+                if (streamController != null && streamController.isStopped()) {
+                    break  // return input.close()
+                }
+                chunk = input.read(OPTIMAL_SEND_SIZE)
+                output.write(chunk)
+                output.flush()
+            } while (chunk.size.toLong() == OPTIMAL_SEND_SIZE)
+
+            return input.close()
+        }
+    }
+}
+
