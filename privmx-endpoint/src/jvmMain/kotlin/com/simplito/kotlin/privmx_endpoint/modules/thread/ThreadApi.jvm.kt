@@ -1,5 +1,6 @@
 package com.simplito.kotlin.privmx_endpoint.modules.thread
 
+import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.Message
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
@@ -11,6 +12,11 @@ import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import java.lang.AutoCloseable
 
 actual class ThreadApi actual constructor(connection: Connection): AutoCloseable {
+    companion object {
+        init {
+            LibLoader.load()
+        }
+    }
     private var api: Long? = null
 
     init {

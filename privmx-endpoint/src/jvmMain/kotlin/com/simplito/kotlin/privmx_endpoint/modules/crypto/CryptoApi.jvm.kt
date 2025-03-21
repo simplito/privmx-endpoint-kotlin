@@ -10,6 +10,7 @@
 //
 package com.simplito.kotlin.privmx_endpoint.modules.crypto
 
+import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import java.lang.AutoCloseable
@@ -29,7 +30,7 @@ actual class CryptoApi : AutoCloseable {
 
     companion object{
         init {
-            System.loadLibrary("privmx-endpoint-kotlin")
+            LibLoader.load()
         }
     }
 

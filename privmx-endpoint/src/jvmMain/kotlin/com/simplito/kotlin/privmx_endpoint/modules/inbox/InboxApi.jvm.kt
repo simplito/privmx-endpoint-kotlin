@@ -1,5 +1,6 @@
 package com.simplito.kotlin.privmx_endpoint.modules.inbox
 
+import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
 import com.simplito.kotlin.privmx_endpoint.model.Inbox
@@ -16,6 +17,12 @@ import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
 actual class InboxApi actual constructor(
     connection: Connection, threadApi: ThreadApi?, storeApi: StoreApi?
 ) : AutoCloseable {
+    companion object {
+        init {
+            LibLoader.load()
+        }
+    }
+
     private var api: Long? = null
 
     init {
