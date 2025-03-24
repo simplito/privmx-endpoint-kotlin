@@ -14,20 +14,33 @@ import com.simplito.java.privmx_endpoint.model.ContainerPolicy
 import com.simplito.java.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.java.privmx_endpoint.model.ItemPolicy
 import com.simplito.java.privmx_endpoint_extra.policies.ContainerPolicyValue
+import com.simplito.java.privmx_endpoint_extra.policies.ContainerPolicyValues
 import com.simplito.java.privmx_endpoint_extra.policies.SpecialPolicyValue
-import kotlin.math.cbrt
+
+interface ContainerPolicyWithoutItemBuilderScope {
+    fun get(policyValue: ContainerPolicyValue): ContainerPolicyBuilder
+    fun update(policyValue: ContainerPolicyValue): ContainerPolicyBuilder
+    fun delete(policyValue: ContainerPolicyValue): ContainerPolicyBuilder
+    fun updatePolicy(policyValue: ContainerPolicyValue): ContainerPolicyBuilder
+    fun updaterCanBeRemovedFromManagers(policyValue: SpecialPolicyValue): ContainerPolicyBuilder
+    fun ownerCanBeRemovedFromManagers(policyValue: SpecialPolicyValue): ContainerPolicyBuilder
+}
+
+interface ContainerPolicyBuilderScope : ContainerPolicyWithoutItemBuilderScope {
+    fun item(item: ItemPolicy): ContainerPolicyBuilder
+}
 
 /**
  * Builder for creating instances of [ContainerPolicyWithoutItem] and [ContainerPolicy].
  */
-class ContainerPolicyBuilder {
-    internal var get: String? = null
-    internal var update: String? = null
-    internal var delete: String? = null
-    internal var updatePolicy: String? = null
-    internal var updaterCanBeRemovedFromManagers: String? = null
-    internal var ownerCanBeRemovedFromManagers: String? = null
-    internal var item: ItemPolicy? = null
+class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
+    private var get: String? = null
+    private var update: String? = null
+    private var delete: String? = null
+    private var updatePolicy: String? = null
+    private var updaterCanBeRemovedFromManagers: String? = null
+    private var ownerCanBeRemovedFromManagers: String? = null
+    private var item: ItemPolicy? = null
 
     /**
      * Creates instance of [ContainerPolicyBuilder] initialized with Bridge's default policy values.
@@ -67,19 +80,25 @@ class ContainerPolicyBuilder {
             containerPolicyWithoutItem.ownerCanBeRemovedFromManagers
     }
 
-//    fun ContainerPolicyBuilder(containerPolicy: ContainerPolicyBuilder.() -> Unit): ContainerPolicyWithoutItem
-//    {
-//        return ContainerPolicyBuilder().apply(containerPolicy).buildWithoutItem()
-//    }
+    companion object {
+        fun containerPolicy(
+            containerPolicy: ContainerPolicy? = null,
+            buildBlock: ContainerPolicyBuilderScope.() -> Unit
+        ): ContainerPolicy {
+            if (containerPolicy == null) {
+                return ContainerPolicyBuilder().apply(buildBlock).build()
+            } else {
+                return ContainerPolicyBuilder(containerPolicy).apply(buildBlock).build()
+            }
+        }
 
-    fun setContainerPolicy(containerPolicy: ContainerPolicyBuilder.() -> Unit): ContainerPolicy =
-        ContainerPolicyBuilder().apply(containerPolicy).build()
 
-
-    fun setContainerPolicyWithoutItem(containerPolicy: ContainerPolicyBuilder.() -> Unit): ContainerPolicyWithoutItem =
-        ContainerPolicyBuilder().apply(containerPolicy).buildWithoutItem()
-
-
+        fun containerPolicyWithoutItem(
+            containerPolicyWithoutItem: ContainerPolicyWithoutItem? = null,
+            buildBlock: ContainerPolicyWithoutItemBuilderScope.() -> Unit
+        ): ContainerPolicyWithoutItem =
+            ContainerPolicyBuilder().apply(buildBlock).buildWithoutItem()
+    }
 
     /**
      * Sets [ContainerPolicyWithoutItem.get] policy value.
@@ -87,7 +106,7 @@ class ContainerPolicyBuilder {
      * @param policyValue policy value to set
      * @return [ContainerPolicyBuilder] instance to allow for method chaining.
      */
-    infix fun get(policyValue: ContainerPolicyValue): ContainerPolicyBuilder {
+    override fun get(policyValue: ContainerPolicyValue): ContainerPolicyBuilder {
         this.get = policyValue.value
         return this
     }
@@ -98,7 +117,7 @@ class ContainerPolicyBuilder {
      * @param policyValue policy value to set
      * @return [ContainerPolicyBuilder] instance to allow for method chaining.
      */
-    infix fun update(policyValue: ContainerPolicyValue): ContainerPolicyBuilder {
+    override fun update(policyValue: ContainerPolicyValue): ContainerPolicyBuilder {
         this.update = policyValue.value
         return this
     }
@@ -109,7 +128,7 @@ class ContainerPolicyBuilder {
      * @param policyValue policy value to set
      * @return [ContainerPolicyBuilder] instance to allow for method chaining.
      */
-    infix fun delete(policyValue: ContainerPolicyValue): ContainerPolicyBuilder {
+    override fun delete(policyValue: ContainerPolicyValue): ContainerPolicyBuilder {
         this.delete = policyValue.value
         return this
     }
@@ -120,7 +139,7 @@ class ContainerPolicyBuilder {
      * @param policyValue policy value to set
      * @return [ContainerPolicyBuilder] instance to allow for method chaining.
      */
-    infix fun updatePolicy(policyValue: ContainerPolicyValue): ContainerPolicyBuilder {
+    override fun updatePolicy(policyValue: ContainerPolicyValue): ContainerPolicyBuilder {
         this.updatePolicy = policyValue.value
         return this
     }
@@ -131,7 +150,7 @@ class ContainerPolicyBuilder {
      * @param policyValue policy value to set
      * @return [ContainerPolicyBuilder] instance to allow for method chaining.
      */
-    infix fun updaterCanBeRemovedFromManagers(policyValue: SpecialPolicyValue): ContainerPolicyBuilder {
+    override fun updaterCanBeRemovedFromManagers(policyValue: SpecialPolicyValue): ContainerPolicyBuilder {
         this.updaterCanBeRemovedFromManagers = policyValue.value
         return this
     }
@@ -142,7 +161,7 @@ class ContainerPolicyBuilder {
      * @param policyValue policy value to set
      * @return [ContainerPolicyBuilder] instance to allow for method chaining.
      */
-    infix fun ownerCanBeRemovedFromManagers(policyValue: SpecialPolicyValue): ContainerPolicyBuilder {
+    override fun ownerCanBeRemovedFromManagers(policyValue: SpecialPolicyValue): ContainerPolicyBuilder {
         this.ownerCanBeRemovedFromManagers = policyValue.value
         return this
     }
@@ -153,7 +172,7 @@ class ContainerPolicyBuilder {
      * @param item policy value to set
      * @return [ContainerPolicyBuilder] instance to allow for method chaining.
      */
-    infix fun item(item: ItemPolicy?): ContainerPolicyBuilder {
+    override fun item(item: ItemPolicy): ContainerPolicyBuilder {
         this.item = item
         return this
     }
@@ -191,16 +210,3 @@ class ContainerPolicyBuilder {
         )
     }
 }
-
-fun ContainerPolicy.Companion.build(block: ContainerPolicyBuilder.() -> Unit): ContainerPolicy =
-    ContainerPolicyBuilder().apply(block).build()
-
-fun ContainerPolicyWithoutItem.Companion.build(block: ContainerPolicyBuilder.() -> Unit): ContainerPolicyWithoutItem =
-    ContainerPolicyBuilder().apply(block).buildWithoutItem()
-
-
-fun ContainerPolicy.update(block: ContainerPolicyBuilder.() -> Unit): ContainerPolicy =
-    ContainerPolicyBuilder(this).apply(block).build()
-
-fun ContainerPolicyWithoutItem.update(block: ContainerPolicyBuilder.() -> Unit): ContainerPolicyWithoutItem =
-    ContainerPolicyBuilder(this).apply(block).buildWithoutItem()
