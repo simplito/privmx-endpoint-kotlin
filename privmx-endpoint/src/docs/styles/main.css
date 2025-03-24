@@ -477,4 +477,8 @@ html, .app-root {
     z-index: 8
 }
 
+.custom-header-icons{
+    color: var(--color-text-dt);
+}
+
 /*# sourceMappingURL=main.css.map*/
