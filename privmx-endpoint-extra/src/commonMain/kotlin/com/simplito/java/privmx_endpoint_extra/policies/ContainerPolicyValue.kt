@@ -19,4 +19,4 @@ open class ContainerPolicyValue
  *
  * @param value raw policy value
  */
-internal constructor(override var value: String) : PolicyValue
+internal constructor(override val value: String) : PolicyValue

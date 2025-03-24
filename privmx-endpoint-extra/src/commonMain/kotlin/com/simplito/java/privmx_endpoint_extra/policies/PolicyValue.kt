@@ -16,5 +16,5 @@ package com.simplito.java.privmx_endpoint_extra.policies
 
 interface PolicyValue
 {
-    var value: String
+    val value: String
 }

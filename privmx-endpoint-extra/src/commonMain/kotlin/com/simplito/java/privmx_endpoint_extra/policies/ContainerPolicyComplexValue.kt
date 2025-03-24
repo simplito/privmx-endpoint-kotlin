@@ -27,7 +27,7 @@ internal constructor(value: String) : ContainerPolicyValue(value) {
      * @param policy the policy to combine with this policy using OR.
      * @return A new [ContainerPolicyComplexValue] representing the combined policy.
      */
-    infix fun OR(policy: ContainerPolicyComplexValue): ContainerPolicyComplexValue =
+    infix fun OR(policy: ContainerPolicyComplexValue) =
         ContainerPolicyComplexValue(value + "," + policy.value)
 
     /**
@@ -36,6 +36,6 @@ internal constructor(value: String) : ContainerPolicyValue(value) {
      * @param policy the policy to combine with this policy using AND.
      * @return A new [ContainerPolicyComplexValue] representing the combined policy.
      */
-    infix fun AND(policy: ContainerPolicyComplexValue): ContainerPolicyComplexValue =
+    infix fun AND(policy: ContainerPolicyComplexValue) =
         ContainerPolicyComplexValue(value + "&" + policy.value)
 }

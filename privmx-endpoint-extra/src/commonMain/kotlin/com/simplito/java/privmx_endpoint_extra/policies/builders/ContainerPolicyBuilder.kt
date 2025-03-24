@@ -171,14 +171,14 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
 }
 
 fun containerPolicy(
-    containerPolicy: ContainerPolicy? = null,
+    currentPolicy: ContainerPolicy? = null,
     buildBlock: ContainerPolicyBuilderScope.() -> Unit
-) = containerPolicy.buildContainer().apply(buildBlock).build()
+) = currentPolicy.builder().apply(buildBlock).build()
 
 fun containerPolicyWithoutItem(
-    containerPolicyWithoutItem: ContainerPolicyWithoutItem? = null,
+    currentPolicy: ContainerPolicyWithoutItem? = null,
     buildBlock: ContainerPolicyWithoutItemBuilderScope.() -> Unit
-) = containerPolicyWithoutItem.buildContainer().apply(buildBlock).buildWithoutItem()
+) = currentPolicy.builder().apply(buildBlock).buildWithoutItem()
 
-private fun <T : ContainerPolicyWithoutItem> T?.buildContainer() =
+private fun <T : ContainerPolicyWithoutItem> T?.builder() =
     this?.let { ContainerPolicyBuilder(it) } ?: ContainerPolicyBuilder()

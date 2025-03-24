@@ -16,7 +16,7 @@ package com.simplito.java.privmx_endpoint_extra.policies
  *
  * @param value raw policy value
  */
-enum class SpecialPolicyValue(override var value: String) : PolicyValue {
+enum class SpecialPolicyValue(override val value: String) : PolicyValue {
     /**
      * Uses the default value provided by the Bridge.
      */
