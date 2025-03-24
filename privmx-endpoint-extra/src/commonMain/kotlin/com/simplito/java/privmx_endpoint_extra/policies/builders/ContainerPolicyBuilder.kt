@@ -14,7 +14,6 @@ import com.simplito.java.privmx_endpoint.model.ContainerPolicy
 import com.simplito.java.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.java.privmx_endpoint.model.ItemPolicy
 import com.simplito.java.privmx_endpoint_extra.policies.ContainerPolicyValue
-import com.simplito.java.privmx_endpoint_extra.policies.ContainerPolicyValues
 import com.simplito.java.privmx_endpoint_extra.policies.SpecialPolicyValue
 
 interface ContainerPolicyWithoutItemBuilderScope {
@@ -80,36 +79,13 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
             containerPolicyWithoutItem.ownerCanBeRemovedFromManagers
     }
 
-    companion object {
-        fun containerPolicy(
-            containerPolicy: ContainerPolicy? = null,
-            buildBlock: ContainerPolicyBuilderScope.() -> Unit
-        ): ContainerPolicy {
-            if (containerPolicy == null) {
-                return ContainerPolicyBuilder().apply(buildBlock).build()
-            } else {
-                return ContainerPolicyBuilder(containerPolicy).apply(buildBlock).build()
-            }
-        }
-
-
-        fun containerPolicyWithoutItem(
-            containerPolicyWithoutItem: ContainerPolicyWithoutItem? = null,
-            buildBlock: ContainerPolicyWithoutItemBuilderScope.() -> Unit
-        ): ContainerPolicyWithoutItem =
-            ContainerPolicyBuilder().apply(buildBlock).buildWithoutItem()
-    }
-
     /**
      * Sets [ContainerPolicyWithoutItem.get] policy value.
      *
      * @param policyValue policy value to set
      * @return [ContainerPolicyBuilder] instance to allow for method chaining.
      */
-    override fun get(policyValue: ContainerPolicyValue): ContainerPolicyBuilder {
-        this.get = policyValue.value
-        return this
-    }
+    override fun get(policyValue: ContainerPolicyValue) = apply { this.get = policyValue.value }
 
     /**
      * Sets [ContainerPolicyWithoutItem.update] policy value.
@@ -117,10 +93,8 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
      * @param policyValue policy value to set
      * @return [ContainerPolicyBuilder] instance to allow for method chaining.
      */
-    override fun update(policyValue: ContainerPolicyValue): ContainerPolicyBuilder {
-        this.update = policyValue.value
-        return this
-    }
+    override fun update(policyValue: ContainerPolicyValue) =
+        apply { this.update = policyValue.value }
 
     /**
      * Sets [ContainerPolicyWithoutItem.delete] policy value.
@@ -128,10 +102,8 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
      * @param policyValue policy value to set
      * @return [ContainerPolicyBuilder] instance to allow for method chaining.
      */
-    override fun delete(policyValue: ContainerPolicyValue): ContainerPolicyBuilder {
-        this.delete = policyValue.value
-        return this
-    }
+    override fun delete(policyValue: ContainerPolicyValue) =
+        apply { this.delete = policyValue.value }
 
     /**
      * Sets [ContainerPolicyWithoutItem.updatePolicy] policy value.
@@ -139,10 +111,8 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
      * @param policyValue policy value to set
      * @return [ContainerPolicyBuilder] instance to allow for method chaining.
      */
-    override fun updatePolicy(policyValue: ContainerPolicyValue): ContainerPolicyBuilder {
-        this.updatePolicy = policyValue.value
-        return this
-    }
+    override fun updatePolicy(policyValue: ContainerPolicyValue) =
+        apply { this.updatePolicy = policyValue.value }
 
     /**
      * Sets [ContainerPolicyWithoutItem.updaterCanBeRemovedFromManagers] policy value.
@@ -150,10 +120,8 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
      * @param policyValue policy value to set
      * @return [ContainerPolicyBuilder] instance to allow for method chaining.
      */
-    override fun updaterCanBeRemovedFromManagers(policyValue: SpecialPolicyValue): ContainerPolicyBuilder {
-        this.updaterCanBeRemovedFromManagers = policyValue.value
-        return this
-    }
+    override fun updaterCanBeRemovedFromManagers(policyValue: SpecialPolicyValue) =
+        apply { this.updaterCanBeRemovedFromManagers = policyValue.value }
 
     /**
      * Sets [ContainerPolicyWithoutItem.ownerCanBeRemovedFromManagers] policy value.
@@ -161,10 +129,8 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
      * @param policyValue policy value to set
      * @return [ContainerPolicyBuilder] instance to allow for method chaining.
      */
-    override fun ownerCanBeRemovedFromManagers(policyValue: SpecialPolicyValue): ContainerPolicyBuilder {
-        this.ownerCanBeRemovedFromManagers = policyValue.value
-        return this
-    }
+    override fun ownerCanBeRemovedFromManagers(policyValue: SpecialPolicyValue) =
+        apply { this.ownerCanBeRemovedFromManagers = policyValue.value }
 
     /**
      * Sets [ContainerPolicy.item] items policy value.
@@ -172,41 +138,56 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
      * @param item policy value to set
      * @return [ContainerPolicyBuilder] instance to allow for method chaining.
      */
-    override fun item(item: ItemPolicy): ContainerPolicyBuilder {
-        this.item = item
-        return this
-    }
+    override fun item(item: ItemPolicy) = apply { this.item = item }
 
     /**
      * Creates [ContainerPolicyWithoutItem] from current state.
      *
      * @return new [ContainerPolicyWithoutItem] instance created from this builder policies.
      */
-    fun buildWithoutItem(): ContainerPolicyWithoutItem {
-        return ContainerPolicyWithoutItem(
-            get,
-            update,
-            delete,
-            updatePolicy,
-            updaterCanBeRemovedFromManagers,
-            ownerCanBeRemovedFromManagers
-        )
-    }
+    fun buildWithoutItem() = ContainerPolicyWithoutItem(
+        get,
+        update,
+        delete,
+        updatePolicy,
+        updaterCanBeRemovedFromManagers,
+        ownerCanBeRemovedFromManagers
+    )
 
     /**
      * Creates [ContainerPolicy] from current state.
      *
      * @return new [ContainerPolicy] instance created from this builder policies.
      */
-    fun build(): ContainerPolicy {
-        return ContainerPolicy(
-            get,
-            update,
-            delete,
-            updatePolicy,
-            updaterCanBeRemovedFromManagers,
-            ownerCanBeRemovedFromManagers,
-            item
-        )
+    fun build(): ContainerPolicy = ContainerPolicy(
+        get,
+        update,
+        delete,
+        updatePolicy,
+        updaterCanBeRemovedFromManagers,
+        ownerCanBeRemovedFromManagers,
+        item
+    )
+}
+
+fun containerPolicy(
+    containerPolicy: ContainerPolicy? = null,
+    buildBlock: ContainerPolicyBuilderScope.() -> Unit
+): ContainerPolicy {
+    return if (containerPolicy == null) {
+        ContainerPolicyBuilder().apply(buildBlock).build()
+    } else {
+        ContainerPolicyBuilder(containerPolicy).apply(buildBlock).build()
+    }
+}
+
+fun containerPolicyWithoutItem(
+    containerPolicyWithoutItem: ContainerPolicyWithoutItem? = null,
+    buildBlock: ContainerPolicyWithoutItemBuilderScope.() -> Unit
+): ContainerPolicyWithoutItem {
+    return if (containerPolicyWithoutItem == null) {
+        ContainerPolicyBuilder().apply(buildBlock).build()
+    } else {
+        ContainerPolicyBuilder(containerPolicyWithoutItem).apply(buildBlock).build()
     }
 }

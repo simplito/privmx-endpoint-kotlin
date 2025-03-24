@@ -12,33 +12,28 @@ package com.simplito.java.privmx_endpoint_extra.policies
 
 /**
  * Contains special policies values.
- */
-class SpecialPolicyValue
-/**
  * Creates instance of [SpecialPolicyValue].
  *
  * @param value raw policy value
  */
-internal constructor(value: String) : PolicyValue(value) {
-    companion object {
-        /**
-         * Uses the default value provided by the Bridge.
-         */
-        val DEFAULT: SpecialPolicyValue = SpecialPolicyValue("default")
+enum class SpecialPolicyValue(override var value: String) : PolicyValue {
+    /**
+     * Uses the default value provided by the Bridge.
+     */
+    DEFAULT("default"),
 
-        /**
-         * Uses the inherited value.
-         */
-        val INHERIT: SpecialPolicyValue = SpecialPolicyValue("inherit")
+    /**
+     * Uses the inherited value.
+     */
+    INHERIT("inherit"),
 
-        /**
-         * Allows to perform an action.
-         */
-        val YES: SpecialPolicyValue = SpecialPolicyValue("yes")
+    /**
+     * Allows to perform an action.
+     */
+    YES("yes"),
 
-        /**
-         * Denies to perform an action.
-         */
-        val NO: SpecialPolicyValue = SpecialPolicyValue("no")
-    }
+    /**
+     * Denies to perform an action.
+     */
+    NO("no")
 }

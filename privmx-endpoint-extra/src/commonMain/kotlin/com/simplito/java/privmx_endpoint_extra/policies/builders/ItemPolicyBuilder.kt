@@ -43,21 +43,13 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
         this.update = itemPolicy.update
     }
 
-    companion object {
-        fun itemPolicy(buildBlock: ItemPolicyBuilderScope.() -> Unit): ItemPolicy =
-            ItemPolicyBuilder().apply(buildBlock).build()
-    }
-
     /**
      * Sets {@link ItemPolicy#get} policy value.
      *
      * @param policyValue policy value to set
      * @return {@link ItemPolicyBuilder} instance to allow for method chaining.
      */
-    override fun get(policyValue: ItemPolicyValue): ItemPolicyBuilder {
-        this.get = policyValue.value
-        return this
-    }
+    override fun get(policyValue: ItemPolicyValue) = apply { this.get = policyValue.value }
 
     /**
      * Sets {@link ItemPolicy#listMy} policy value.
@@ -65,10 +57,8 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
      * @param policyValue policy value to set
      * @return {@link ItemPolicyBuilder} instance to allow for method chaining.
      */
-    override fun listMy(policyValue: ContainerPolicyValue): ItemPolicyBuilder {
-        this.listMy = policyValue.value
-        return this
-    }
+    override fun listMy(policyValue: ContainerPolicyValue) =
+        apply { this.listMy = policyValue.value }
 
     /**
      * Sets {@link ItemPolicy#listAll} policy value.
@@ -76,10 +66,8 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
      * @param policyValue policy value to set
      * @return {@link ItemPolicyBuilder} instance to allow for method chaining.
      */
-    override fun listAll(policyValue: ContainerPolicyValue): ItemPolicyBuilder {
-        this.listAll = policyValue.value
-        return this
-    }
+    override fun listAll(policyValue: ContainerPolicyValue) =
+        apply { this.listAll = policyValue.value }
 
     /**
      * Sets {@link ItemPolicy#create} policy value.
@@ -87,10 +75,8 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
      * @param policyValue policy value to set
      * @return {@link ItemPolicyBuilder} instance to allow for method chaining.
      */
-    override fun create(policyValue: ContainerPolicyValue): ItemPolicyBuilder {
-        this.create = policyValue.value
-        return this
-    }
+    override fun create(policyValue: ContainerPolicyValue) =
+        apply { this.create = policyValue.value }
 
     /**
      * Sets {@link ItemPolicy#update} policy value.
@@ -98,10 +84,7 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
      * @param policyValue policy value to set
      * @return {@link ItemPolicyBuilder} instance to allow for method chaining.
      */
-    override fun update(policyValue: ItemPolicyValue): ItemPolicyBuilder {
-        this.update = policyValue.value
-        return this
-    }
+    override fun update(policyValue: ItemPolicyValue) = apply { this.update = policyValue.value }
 
     /**
      * Sets {@link ItemPolicy#delete} policy value.
@@ -109,24 +92,30 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
      * @param policyValue policy value to set
      * @return {@link ItemPolicyBuilder} instance to allow for method chaining.
      */
-    override fun delete(policyValue: ItemPolicyValue): ItemPolicyBuilder {
-        this.delete = policyValue.value
-        return this
-    }
+    override fun delete(policyValue: ItemPolicyValue) = apply { this.delete = policyValue.value }
 
     /**
      * Creates {@link ItemPolicy} from current state.
      *
      * @return new {@link ItemPolicy} instance created from this builder policies.
      */
-    fun build(): ItemPolicy {
-        return ItemPolicy(
-            get,
-            listMy,
-            listAll,
-            create,
-            update,
-            delete
-        )
+    fun build() = ItemPolicy(
+        get,
+        listMy,
+        listAll,
+        create,
+        update,
+        delete
+    )
+}
+
+fun itemPolicy(
+    itemPolicy: ItemPolicy? = null,
+    buildBlock: ItemPolicyBuilderScope.() -> Unit
+): ItemPolicy {
+    return if (itemPolicy == null) {
+        ItemPolicyBuilder().apply(buildBlock).build()
+    } else {
+        ItemPolicyBuilder(itemPolicy).apply(buildBlock).build()
     }
 }

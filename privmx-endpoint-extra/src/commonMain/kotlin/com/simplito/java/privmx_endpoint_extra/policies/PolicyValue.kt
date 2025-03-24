@@ -13,14 +13,8 @@ package com.simplito.java.privmx_endpoint_extra.policies
 /**
  * Base class for all policies values.
  */
-open class PolicyValue
-/**
- * Creates instance of [PolicyValue].
- *
- * @param value raw policy value
- */ internal constructor(
-    /**
-     * Raw policy value.
-     */
-    val value: String
-)
+
+interface PolicyValue
+{
+    var value: String
+}

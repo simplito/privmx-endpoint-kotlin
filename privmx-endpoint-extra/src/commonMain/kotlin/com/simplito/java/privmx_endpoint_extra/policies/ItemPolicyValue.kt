@@ -19,4 +19,4 @@ open class ItemPolicyValue
  *
  * @param value raw policy value
  */
-internal constructor(value: String) : PolicyValue(value)
+internal constructor(override var value: String) : PolicyValue
