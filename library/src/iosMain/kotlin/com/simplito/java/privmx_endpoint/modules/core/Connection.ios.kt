@@ -35,7 +35,6 @@ actual class Connection() : AutoCloseable {
             ?: throw IllegalStateException("ThreadApi has been closed.")
 
     internal fun getConnectionPtr() = _nativeConnection.value
-//chce po angielsku powiedziec ze chce zmienic funkcje ktora wyrzucaka wyjatek jesli api bylo uzyte po zamknieciu na funkcje get zmiennej api
 
     actual companion object {
         actual fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String): Connection =
