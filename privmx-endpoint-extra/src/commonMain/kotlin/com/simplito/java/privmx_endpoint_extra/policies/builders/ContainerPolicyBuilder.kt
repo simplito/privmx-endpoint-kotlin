@@ -159,7 +159,7 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
      *
      * @return new [ContainerPolicy] instance created from this builder policies.
      */
-    fun build(): ContainerPolicy = ContainerPolicy(
+    fun build() = ContainerPolicy(
         get,
         update,
         delete,
@@ -173,21 +173,12 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
 fun containerPolicy(
     containerPolicy: ContainerPolicy? = null,
     buildBlock: ContainerPolicyBuilderScope.() -> Unit
-): ContainerPolicy {
-    return if (containerPolicy == null) {
-        ContainerPolicyBuilder().apply(buildBlock).build()
-    } else {
-        ContainerPolicyBuilder(containerPolicy).apply(buildBlock).build()
-    }
-}
+) = containerPolicy.buildContainer().apply(buildBlock).build()
 
 fun containerPolicyWithoutItem(
     containerPolicyWithoutItem: ContainerPolicyWithoutItem? = null,
     buildBlock: ContainerPolicyWithoutItemBuilderScope.() -> Unit
-): ContainerPolicyWithoutItem {
-    return if (containerPolicyWithoutItem == null) {
-        ContainerPolicyBuilder().apply(buildBlock).build()
-    } else {
-        ContainerPolicyBuilder(containerPolicyWithoutItem).apply(buildBlock).build()
-    }
-}
+) = containerPolicyWithoutItem.buildContainer().apply(buildBlock).buildWithoutItem()
+
+private fun <T : ContainerPolicyWithoutItem> T?.buildContainer() =
+    this?.let { ContainerPolicyBuilder(it) } ?: ContainerPolicyBuilder()

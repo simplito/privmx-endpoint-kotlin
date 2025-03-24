@@ -112,10 +112,7 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
 fun itemPolicy(
     itemPolicy: ItemPolicy? = null,
     buildBlock: ItemPolicyBuilderScope.() -> Unit
-): ItemPolicy {
-    return if (itemPolicy == null) {
-        ItemPolicyBuilder().apply(buildBlock).build()
-    } else {
-        ItemPolicyBuilder(itemPolicy).apply(buildBlock).build()
-    }
-}
+) = itemPolicy.buildItem().apply(buildBlock).build()
+
+private fun ItemPolicy?.buildItem() =
+    this?.let { ItemPolicyBuilder(it) } ?: ItemPolicyBuilder()
