@@ -32,7 +32,7 @@ actual class Connection() : AutoCloseable {
     private val _nativeConnection = nativeHeap.allocPointerTo<cnames.structs.Connection>()
     private val nativeConnection
         get() = _nativeConnection.value?.let { _nativeConnection }
-            ?: throw IllegalStateException("ThreadApi has been closed.")
+            ?: throw IllegalStateException("Connection has been closed.")
 
     internal fun getConnectionPtr() = _nativeConnection.value
 
