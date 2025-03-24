@@ -33,19 +33,15 @@ import libprivmxendpoint.pson_new_array
 @OptIn(ExperimentalForeignApi::class)
 actual class StoreApi actual constructor(connection: Connection) :
     AutoCloseable {
-    private val nativeStoreApi = nativeHeap.allocPointerTo<cnames.structs.StoreApi>()
-
-    private fun checkInstance()
-    {
-        if(nativeStoreApi.value == null){
-            throw IllegalStateException("ThreadApi has been closed.")
-        }
-    }
+    private val _nativeStoreApi = nativeHeap.allocPointerTo<cnames.structs.StoreApi>()
+    private val nativeStoreApi
+        get() = _nativeStoreApi.value?.let { _nativeStoreApi }
+            ?: throw IllegalStateException("StoreApi has been closed.")
 
     internal fun getStorePtr() = nativeStoreApi.value
 
     init {
-        privmx_endpoint_newStoreApi(connection.getConnectionPtr(), nativeStoreApi.ptr)
+        privmx_endpoint_newStoreApi(connection.getConnectionPtr(), _nativeStoreApi.ptr)
         memScoped {
             val args = pson_new_array()
             val pson_result = allocPointerTo<pson_value>()
@@ -67,7 +63,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         privateMeta: ByteArray?,
         policies: ContainerPolicy?
     ): String? = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             contextId?.pson,
@@ -97,7 +92,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         forceGenerateNewKey: Boolean,
         policies: ContainerPolicy?
     ) = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             storeId?.pson,
@@ -121,7 +115,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         IllegalStateException::class
     )
     actual fun getStore(storeId: String?): Store? = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(storeId?.pson)
         privmx_endpoint_execStoreApi(nativeStoreApi.value, 4, args, pson_result.ptr)
@@ -137,7 +130,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         sortOrder: String?,
         lastId: String?
     ): PagingList<Store?>? = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             contextId!!.pson,
@@ -159,7 +151,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         IllegalStateException::class
     )
     actual fun deleteStore(storeId: String?) = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(storeId!!.pson)
         privmx_endpoint_execStoreApi(nativeStoreApi.value, 3, args, pson_result.ptr)
@@ -178,7 +169,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         privateMeta: ByteArray?,
         size: Long
     ): Long? = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             storeId?.pson,
@@ -201,7 +191,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         privateMeta: ByteArray?,
         size: Long
     ): Long? = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileId?.pson,
@@ -223,7 +212,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         publicMeta: ByteArray?,
         privateMeta: ByteArray?
     ) = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileId?.pson,
@@ -241,7 +229,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         IllegalStateException::class
     )
     actual fun writeToFile(fileHandle: Long, dataChunk: ByteArray?) = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileHandle.pson,
@@ -258,7 +245,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         IllegalStateException::class
     )
     actual fun deleteFile(fileId: String?) = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileId!!.pson
@@ -274,7 +260,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         IllegalStateException::class
     )
     actual fun getFile(fileId: String?): File? = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileId!!.pson
@@ -296,7 +281,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         sortOrder: String?,
         lastId: String?
     ): PagingList<File?>? = memScoped {
-        checkInstance()
 
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -319,7 +303,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         IllegalStateException::class
     )
     actual fun openFile(fileId: String?): Long? = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileId!!.pson
@@ -334,7 +317,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         IllegalStateException::class
     )
     actual fun readFromFile(fileHandle: Long, length: Long): ByteArray? = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileHandle.pson,
@@ -350,7 +332,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         IllegalStateException::class
     )
     actual fun seekInFile(fileHandle: Long, position: Long) = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileHandle.pson,
@@ -367,7 +348,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         IllegalStateException::class
     )
     actual fun closeFile(fileHandle: Long): String? = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileHandle.pson,
@@ -382,7 +362,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         IllegalStateException::class
     )
     actual fun subscribeForStoreEvents() = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
         privmx_endpoint_execStoreApi(nativeStoreApi.value, 17, args, pson_result.ptr)
@@ -396,7 +375,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         IllegalStateException::class
     )
     actual fun unsubscribeFromStoreEvents() = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
         privmx_endpoint_execStoreApi(nativeStoreApi.value, 18, args, pson_result.ptr)
@@ -410,7 +388,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         IllegalStateException::class
     )
     actual fun subscribeForFileEvents(storeId: String?) = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             storeId?.pson
@@ -426,7 +403,6 @@ actual class StoreApi actual constructor(connection: Connection) :
         IllegalStateException::class
     )
     actual fun unsubscribeFromFileEvents(storeId: String?) = memScoped {
-        checkInstance()
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             storeId?.pson
@@ -437,9 +413,9 @@ actual class StoreApi actual constructor(connection: Connection) :
     }
 
     actual override fun close() {
-        if (nativeStoreApi.value == null) return
-        privmx_endpoint_freeStoreApi(nativeStoreApi.value)
-        nativeHeap.free(nativeStoreApi.rawPtr)
-        nativeStoreApi.value = null
+        if (_nativeStoreApi.value == null) return
+        privmx_endpoint_freeStoreApi(_nativeStoreApi.value)
+        nativeHeap.free(_nativeStoreApi.rawPtr)
+        _nativeStoreApi.value = null
     }
 }

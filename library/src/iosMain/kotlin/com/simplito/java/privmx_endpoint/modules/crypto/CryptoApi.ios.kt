@@ -24,10 +24,13 @@ import libprivmxendpoint.privmx_endpoint_newCryptoApi
  */
 @OptIn(ExperimentalForeignApi::class)
 actual class CryptoApi : AutoCloseable {
-    private val nativeCryptoApi = nativeHeap.allocPointerTo<cnames.structs.CryptoApi>()
+    private val _nativeCryptoApi = nativeHeap.allocPointerTo<cnames.structs.CryptoApi>()
+    private val nativeCryptoApi
+        get() = _nativeCryptoApi.value?.let { _nativeCryptoApi }
+            ?: throw IllegalStateException("CryptoApi has been closed.")
 
     init {
-        privmx_endpoint_newCryptoApi(nativeCryptoApi.ptr)
+        privmx_endpoint_newCryptoApi(_nativeCryptoApi.ptr)
         memScoped {
             allocPointerTo<pson_value>().apply {
                 privmx_endpoint_execCryptoApi(nativeCryptoApi.value, 0, makeArgs(), ptr)
@@ -254,8 +257,9 @@ actual class CryptoApi : AutoCloseable {
     }
 
     actual override fun close() {
-        if (nativeCryptoApi.value == null) return
-        privmx_endpoint_freeCryptoApi(nativeCryptoApi.value)
-        nativeCryptoApi.value = null
+        if (_nativeCryptoApi.value == null) return
+        privmx_endpoint_freeCryptoApi(_nativeCryptoApi.value)
+        nativeHeap.free(_nativeCryptoApi.rawPtr)
+        _nativeCryptoApi.value = null
     }
 }

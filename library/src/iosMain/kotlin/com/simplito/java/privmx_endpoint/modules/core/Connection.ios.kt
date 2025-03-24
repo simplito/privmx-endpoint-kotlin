@@ -16,20 +16,26 @@ import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.nativeHeap
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
-import libprivmxendpoint.*
+import libprivmxendpoint.privmx_endpoint_execConnection
+import libprivmxendpoint.privmx_endpoint_freeConnection
+import libprivmxendpoint.privmx_endpoint_newConnection
+import libprivmxendpoint.privmx_endpoint_setCertsPath
+import libprivmxendpoint.pson_add_array_value
+import libprivmxendpoint.pson_new_array
+import libprivmxendpoint.pson_new_int64
+import libprivmxendpoint.pson_new_object
+import libprivmxendpoint.pson_new_string
+import libprivmxendpoint.pson_set_object_value
 
 @OptIn(ExperimentalForeignApi::class)
 actual class Connection() : AutoCloseable {
-    private val nativeConnection = nativeHeap.allocPointerTo<cnames.structs.Connection>()
+    private val _nativeConnection = nativeHeap.allocPointerTo<cnames.structs.Connection>()
+    private val nativeConnection
+        get() = _nativeConnection.value?.let { _nativeConnection }
+            ?: throw IllegalStateException("ThreadApi has been closed.")
 
-    internal fun getConnectionPtr() = nativeConnection.value
-
-    private fun checkInstance()
-    {
-        if(nativeConnection.value == null){
-            throw IllegalStateException("Connection has been closed.")
-        }
-    }
+    internal fun getConnectionPtr() = _nativeConnection.value
+//chce po angielsku powiedziec ze chce zmienic funkcje ktora wyrzucaka wyjatek jesli api bylo uzyte po zamknieciu na funkcje get zmiennej api
 
     actual companion object {
         actual fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String): Connection =
@@ -39,11 +45,10 @@ actual class Connection() : AutoCloseable {
                     val result = allocPointerTo<pson_value>().apply {
                         value = pson_new_object()
                     }
-
                     pson_add_array_value(args, pson_new_string(userPrivKey))
                     pson_add_array_value(args, pson_new_string(solutionId))
                     pson_add_array_value(args, pson_new_string(bridgeUrl))
-                    privmx_endpoint_newConnection(nativeConnection.ptr)
+                    privmx_endpoint_newConnection(_nativeConnection.ptr)
                     privmx_endpoint_execConnection(nativeConnection.value, 0, args, result.ptr)
                     PsonResponse(psonMapper(result.value!!) as PsonValue.PsonObject).getResultOrThrow()
                 }
@@ -59,7 +64,7 @@ actual class Connection() : AutoCloseable {
                     solutionId.pson,
                     bridgeUrl.pson
                 )
-                privmx_endpoint_newConnection(nativeConnection.ptr)
+                privmx_endpoint_newConnection(_nativeConnection.ptr)
                 privmx_endpoint_execConnection(nativeConnection.value, 1, args, result.ptr)
                 result.value!!.asResponse?.getResultOrThrow()
             }
@@ -79,7 +84,6 @@ actual class Connection() : AutoCloseable {
         sortOrder: String,
         lastId: String?
     ): PagingList<Context> = memScoped {
-        checkInstance()
         val args = pson_new_array()
         val result = allocPointerTo<pson_value>()
         val pagingQuery = pson_new_object();
@@ -108,19 +112,16 @@ actual class Connection() : AutoCloseable {
                     )
                 }
             }
-
-
     }
+
     @Throws(IllegalStateException::class)
     actual fun disconnect() = memScoped {
-        checkInstance()
         val args = pson_new_object()
         val result = allocPointerTo<pson_value>().apply {
             value = pson_new_object()
         }
         privmx_endpoint_execConnection(nativeConnection.value, 4, args, result.ptr)
-        nativeConnection.value = null;
-        Unit
+        _nativeConnection.value = null;
     }
 
     actual override fun close() {
@@ -130,10 +131,9 @@ actual class Connection() : AutoCloseable {
 
     @Throws(IllegalStateException::class)
     actual fun getConnectionId(): Long? = memScoped {
-        checkInstance()
         val result = allocPointerTo<pson_value>()
         privmx_endpoint_execConnection(nativeConnection.value, 2, makeArgs(), result.ptr)
-        nativeConnection.value = null
+        _nativeConnection.value = null
         result.value!!.asResponse?.getResultOrThrow()?.typedValue()
     }
 }
