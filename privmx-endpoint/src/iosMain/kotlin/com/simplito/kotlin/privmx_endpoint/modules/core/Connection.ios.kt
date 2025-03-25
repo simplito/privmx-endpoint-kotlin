@@ -3,6 +3,8 @@ package com.simplito.kotlin.privmx_endpoint.modules.core
 import cnames.structs.pson_value
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.utils.PsonResponse
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
 import com.simplito.kotlin.privmx_endpoint.utils.asResponse
@@ -81,7 +83,7 @@ actual class Connection() : AutoCloseable {
         }
 
         @Throws(PrivmxException::class, NativeException::class)
-        actual fun setCertsPath(certsPath: String?): Unit = memScoped {
+        actual fun setCertsPath(certsPath: String): Unit = memScoped {
             privmx_endpoint_setCertsPath(certsPath)
         }
     }

@@ -43,24 +43,24 @@ actual class InboxApi actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual external fun createInbox(
-        contextId: String?,
-        users: List<UserWithPubKey?>?,
-        managers: List<UserWithPubKey?>?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
+        contextId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
         filesConfig: FilesConfig?,
         policies: ContainerPolicyWithoutItem?
-    ): String?
+    ): String
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual external fun updateInbox(
-        inboxId: String?,
-        users: List<UserWithPubKey?>?,
-        managers: List<UserWithPubKey?>?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
+        inboxId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
         filesConfig: FilesConfig?,
         version: Long,
         force: Boolean,
@@ -71,30 +71,31 @@ actual class InboxApi actual constructor(
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    actual external fun getInbox(inboxId: String?): Inbox?
+    actual external fun getInbox(inboxId: String): Inbox
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual external fun listInboxes(
-        contextId: String?, skip: Long, limit: Long, sortOrder: String?, lastId: String?
-    ): PagingList<Inbox?>?
+        contextId: String, skip: Long, limit: Long, sortOrder: String, lastId: String?
+    ): PagingList<Inbox>
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    actual external fun getInboxPublicView(inboxId: String?): InboxPublicView?
+    actual external fun getInboxPublicView(inboxId: String): InboxPublicView
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    actual external fun deleteInbox(inboxId: String?)
+    actual external fun deleteInbox(inboxId: String)
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
+    @JvmOverloads
     actual external fun prepareEntry(
-        inboxId: String?, data: ByteArray?, inboxFileHandles: List<Long?>?, userPrivKey: String?
+        inboxId: String, data: ByteArray, inboxFileHandles: List<Long>, userPrivKey: String?
     ): Long?
 
     @Throws(
@@ -105,43 +106,43 @@ actual class InboxApi actual constructor(
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    actual external fun readEntry(inboxEntryId: String?): InboxEntry?
+    actual external fun readEntry(inboxEntryId: String): InboxEntry
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual external fun listEntries(
-        inboxId: String?, skip: Long, limit: Long, sortOrder: String?, lastId: String?
-    ): PagingList<InboxEntry?>?
+        inboxId: String, skip: Long, limit: Long, sortOrder: String, lastId: String?
+    ): PagingList<InboxEntry>
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    actual external fun deleteEntry(inboxEntryId: String?)
+    actual external fun deleteEntry(inboxEntryId: String)
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual external fun /*inboxFileHandle*/createFileHandle(
-        publicMeta: ByteArray?, privateMeta: ByteArray?, fileSize: Long
+        publicMeta: ByteArray, privateMeta: ByteArray, fileSize: Long
     ): Long?
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual external fun writeToFile(
-        inboxHandle: Long, inboxFileHandle: Long, dataChunk: ByteArray?
+        inboxHandle: Long, inboxFileHandle: Long, dataChunk: ByteArray
     )
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    actual external fun openFile(fileId: String?): Long?
+    actual external fun openFile(fileId: String): Long?
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    actual external fun readFromFile(fileHandle: Long, length: Long): ByteArray?
+    actual external fun readFromFile(fileHandle: Long, length: Long): ByteArray
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -151,7 +152,7 @@ actual class InboxApi actual constructor(
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    actual external fun closeFile(fileHandle: Long): String?
+    actual external fun closeFile(fileHandle: Long): String
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -166,15 +167,15 @@ actual class InboxApi actual constructor(
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    actual external fun subscribeForEntryEvents(inboxId: String?)
+    actual external fun subscribeForEntryEvents(inboxId: String)
 
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    actual external fun unsubscribeFromEntryEvents(inboxId: String?)
+    actual external fun unsubscribeFromEntryEvents(inboxId: String)
 
     @Throws(IllegalStateException::class)
-    private external fun init(connection: Connection?, orElse: ThreadApi, orElse1: StoreApi): Long?
+    private external fun init(connection: Connection, threadApi: ThreadApi, storeApi: StoreApi): Long?
 
     @Throws(IllegalStateException::class)
     private external fun deinit()

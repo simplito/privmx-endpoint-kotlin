@@ -36,7 +36,7 @@ expect object EventQueue {
      * @throws NativeException thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class)
-    fun waitEvent(): Event<*>?
+    fun waitEvent(): Event<*>
 
     @Throws(
         PrivmxException::class,

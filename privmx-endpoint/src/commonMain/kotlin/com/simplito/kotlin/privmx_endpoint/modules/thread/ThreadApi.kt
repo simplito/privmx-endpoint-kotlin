@@ -46,13 +46,13 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun createThread(
-        contextId: String?,
-        users: List<UserWithPubKey?>?,
-        managers: List<UserWithPubKey?>?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
+        contextId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
         policies: ContainerPolicy? = null
-    ): String?
+    ): String
 
     /**
      * Updates an existing Thread.
@@ -76,13 +76,13 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun updateThread(
-        threadId: String?,
-        users: List<UserWithPubKey?>?,
-        managers: List<UserWithPubKey?>?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
+        threadId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
         version: Long,
-        force: Boolean,
+        force: Boolean = false,
         forceGenerateNewKey: Boolean = false,
         policies: ContainerPolicy? = null
     )
@@ -97,7 +97,7 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun getThread(threadId: String?): Thread?
+    fun getThread(threadId: String): Thread
 
     /**
      * Gets a list of Threads in given Context.
@@ -114,12 +114,12 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun listThreads(
-        contextId: String?,
+        contextId: String,
         skip: Long,
         limit: Long,
-        sortOrder: String?,
+        sortOrder: String = "desc",
         lastId: String? = null
-    ): PagingList<Thread?>?
+    ): PagingList<Thread>
 
     /**
      * Deletes a Thread by given Thread ID.
@@ -133,7 +133,7 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      * payload: [ThreadDeletedEventData]
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun deleteThread(threadId: String?)
+    fun deleteThread(threadId: String)
 
     /**
      * Sends a message in a Thread.
@@ -155,11 +155,11 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun sendMessage(
-        threadId: String?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
-        data: ByteArray?
-    ): String?
+        threadId: String,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
+        data: ByteArray
+    ): String
 
     /**
      * Gets a message by given message ID.
@@ -171,7 +171,7 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun getMessage(messageId: String?): Message?
+    fun getMessage(messageId: String): Message
 
     /**
      * Gets a list of messages from a Thread.
@@ -188,12 +188,12 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun listMessages(
-        threadId: String?,
+        threadId: String,
         skip: Long,
         limit: Long,
-        sortOrder: String?,
-        lastId: String?
-    ): PagingList<Message?>?
+        sortOrder: String = "desc",
+        lastId: String? = null
+    ): PagingList<Message>
 
 
     /**
@@ -208,7 +208,7 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      * payload: [ThreadDeletedMessageEventData]
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun deleteMessage(messageId: String?)
+    fun deleteMessage(messageId: String)
 
     /**
      * Updates message in a Thread.
@@ -226,10 +226,10 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun updateMessage(
-        messageId: String?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
-        data: ByteArray?
+        messageId: String,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
+        data: ByteArray
     )
 
     /**
@@ -261,7 +261,7 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun subscribeForMessageEvents(threadId: String?)
+    fun subscribeForMessageEvents(threadId: String)
 
     /**
      * Unsubscribes from events in given Thread.
@@ -272,7 +272,7 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun unsubscribeFromMessageEvents(threadId: String?)
+    fun unsubscribeFromMessageEvents(threadId: String)
 
     /**
      * Frees memory.

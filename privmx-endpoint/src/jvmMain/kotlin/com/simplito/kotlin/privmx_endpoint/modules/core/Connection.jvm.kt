@@ -23,7 +23,7 @@ actual class Connection private constructor(private val api: Long?,private val c
         ): Connection
 
         @JvmStatic
-        actual external fun setCertsPath(certsPath: String?)
+        actual external fun setCertsPath(certsPath: String)
     }
 
     private external fun  deinit();

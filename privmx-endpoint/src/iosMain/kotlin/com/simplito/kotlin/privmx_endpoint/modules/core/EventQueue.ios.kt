@@ -72,7 +72,7 @@ actual object EventQueue {
      * @throws NativeException thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class)
-    actual fun waitEvent(): Event<*>? = memScoped {
+    actual fun waitEvent(): Event<*> = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs()
         try {
