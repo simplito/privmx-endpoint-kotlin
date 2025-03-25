@@ -93,6 +93,7 @@ actual class InboxApi actual constructor(
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
+    @JvmOverloads
     actual external fun prepareEntry(
         inboxId: String, data: ByteArray, inboxFileHandles: List<Long>, userPrivKey: String?
     ): Long?

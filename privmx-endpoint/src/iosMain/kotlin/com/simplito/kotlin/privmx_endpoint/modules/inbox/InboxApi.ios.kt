@@ -296,7 +296,7 @@ actual class InboxApi actual constructor(
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
-    actual fun openFile(fileId: String): Long = memScoped {
+    actual fun openFile(fileId: String): Long? = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileId.pson

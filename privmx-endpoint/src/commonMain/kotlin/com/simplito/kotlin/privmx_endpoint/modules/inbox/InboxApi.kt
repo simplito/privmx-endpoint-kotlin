@@ -186,7 +186,6 @@ expect class InboxApi(
      * @throws NativeException       thrown when method encounters an unknown exception.
      * @throws IllegalStateException thrown when instance is closed.
      */
-    @JvmOverloads
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
