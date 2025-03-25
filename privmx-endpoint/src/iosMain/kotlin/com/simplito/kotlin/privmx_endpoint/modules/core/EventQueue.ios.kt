@@ -26,6 +26,8 @@ import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
 import libprivmxendpoint.privmx_endpoint_execEventQueue
 import libprivmxendpoint.privmx_endpoint_newEventQueue
+import libprivmxendpoint.pson_free_result
+import libprivmxendpoint.pson_free_value
 
 /**
  * Defines methods to working with Events queue.
@@ -51,9 +53,15 @@ actual object EventQueue {
     @Throws(PrivmxException::class, NativeException::class)
     actual fun emitBreakEvent() = memScoped {
         val result = allocPointerTo<pson_value>()
-        privmx_endpoint_execEventQueue(nativeEventQueue.value, 2, makeArgs(), result.ptr)
-        result.value!!.asResponse?.getResultOrThrow()
-        Unit
+        val args = makeArgs()
+        try {
+            privmx_endpoint_execEventQueue(nativeEventQueue.value, 2, args, result.ptr)
+            result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_result(result.value)
+            pson_free_value(args)
+        }
     }
 
     /**
@@ -66,9 +74,15 @@ actual object EventQueue {
     @Throws(PrivmxException::class, NativeException::class)
     actual fun waitEvent(): Event<*>? = memScoped {
         val result = allocPointerTo<pson_value>()
-        privmx_endpoint_execEventQueue(nativeEventQueue.value, 0, makeArgs(), result.ptr)
-        val native_event = result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
-        native_event.toEvent()
+        val args = makeArgs()
+        try {
+            privmx_endpoint_execEventQueue(nativeEventQueue.value, 0, args, result.ptr)
+            val native_event = result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+            native_event.toEvent()
+        } finally {
+            pson_free_result(result.value)
+            pson_free_value(args)
+        }
     }
 
     @Throws(
@@ -77,8 +91,15 @@ actual object EventQueue {
     )
     actual fun getEvent(): Event<*>? = memScoped {
         val result = allocPointerTo<pson_value>()
-        privmx_endpoint_execEventQueue(nativeEventQueue.value, 1, makeArgs(), result.ptr)
-        val native_event = result.value!!.asResponse?.getResultOrThrow() as? PsonValue.PsonObject
-        native_event?.toEvent()
+        val args = makeArgs()
+        try {
+            privmx_endpoint_execEventQueue(nativeEventQueue.value, 1, args, result.ptr)
+            val native_event =
+                result.value!!.asResponse?.getResultOrThrow() as? PsonValue.PsonObject
+            native_event?.toEvent()
+        } finally {
+            pson_free_result(result.value)
+            pson_free_value(args)
+        }
     }
 }
