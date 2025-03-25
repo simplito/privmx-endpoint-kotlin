@@ -42,7 +42,41 @@ abstract class StoreFileStream
          * Constant value with optimal size of reading/sending data.
          */
         const val OPTIMAL_SEND_SIZE: Long = 128 * 1024L
+
     }
+
+    /**
+     * Manages sending/reading files using [java.io.InputStream]/[java.io.OutputStream].
+     */
+    open class Controller() : ProgressListener {
+        var isStopped = false
+            private set
+
+        /**
+         * Stops reading/writing file after processing the current chunk.
+         */
+        fun stop() {
+            isStopped = true
+        }
+
+        /**
+         * Returns information whether the stream should be stopped.
+         * @return `true` if controller is set to stop
+         */
+        fun isStopped(): Boolean {
+            return isStopped
+        }
+
+        /**
+         * Override this method to handle event when each chunk was sent successfully.
+         *
+         * @param processedBytes full size of current sent/read data
+         */
+        override fun onChunkProcessed(processedBytes: Long) {
+        }
+
+    }
+
 
     /**
      * Sets listening for single chunk sent/read.
@@ -88,34 +122,5 @@ abstract class StoreFileStream
     }
 
 
-    /**
-     * Manages sending/reading files using [java.io.InputStream]/[java.io.OutputStream].
-     */
-    class Controller : ProgressListener {
-        private var isStopped = false
-            private set
 
-        /**
-         * Stops reading/writing file after processing the current chunk.
-         */
-        fun stop() {
-            isStopped = true
-        }
-
-        /**
-         * Returns information whether the stream should be stopped.
-         * @return `true` if controller is set to stop
-         */
-        fun isStopped(): Boolean {
-            return isStopped
-        }
-
-        /**
-         * Override this method to handle event when each chunk was sent successfully.
-         *
-         * @param processedBytes full size of current sent/read data
-         */
-        override fun onChunkProcessed(processedBytes: Long) {
-        }
-    }
 }

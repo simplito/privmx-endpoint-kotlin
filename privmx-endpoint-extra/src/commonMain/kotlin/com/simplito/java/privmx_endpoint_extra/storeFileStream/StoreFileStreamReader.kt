@@ -44,7 +44,7 @@ class StoreFileStreamReader private constructor(
     )
     fun read(size: Long): ByteArray {
         if (isClosed) throw IOException("File handle is closed")
-        val result: ByteArray = storeApi.readFromFile(handle, size)
+        val result: ByteArray = storeApi.readFromFile(handle, size)!!
         callChunkProcessed(result.size.toLong())
         return result
     }
@@ -85,11 +85,11 @@ class StoreFileStreamReader private constructor(
         }
 
         /**
-         * Opens Store file and writes it into [OutputStream].
+         * Opens Store file and writes it into [Sink].
          *
          * @param api          reference to Store API
          * @param fileId       ID of the file to open
-         * @param outputStream stream to write downloaded data with optimized chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
+         * @param sink stream to write downloaded data with optimized chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
          * @return ID of the read file
          * @throws IOException           if there is an error while writing the stream
          * @throws IllegalStateException when storeApi is not initialized or there's no connection
@@ -105,17 +105,17 @@ class StoreFileStreamReader private constructor(
         fun openFile(
             api: StoreApi,
             fileId: String,
-            outputStream: Sink
+            sink: Sink
         ): String {
-            return openFile(api, fileId, outputStream, null)
+            return openFile(api, fileId, sink, null)
         }
 
         /**
-         * Opens Store file and writes it into [OutputStream].
+         * Opens Store file and writes it into [Sink].
          *
          * @param api              reference to Store API
          * @param fileId           ID of the file to open
-         * @param outputStream     stream to write downloaded data with optimized chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
+         * @param sink     stream to write downloaded data with optimized chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
          * @param streamController controls the process of reading file
          * @return ID of the read file
          * @throws IOException           if there is an error while writing stream
@@ -132,11 +132,11 @@ class StoreFileStreamReader private constructor(
         fun openFile(
             api: StoreApi,
             fileId: String,
-            outputStream: Sink,
+            sink: Sink,
             streamController: Controller?
         ): String {
             val input: StoreFileStreamReader = openFile(api, fileId)
-            val output = outputStream.buffered()
+            val output = sink.buffered()
             var chunk: ByteArray
 
             if (streamController != null) {
@@ -145,7 +145,7 @@ class StoreFileStreamReader private constructor(
 
             do {
                 if (streamController != null && streamController.isStopped()) {
-                    break  // return input.close()
+                    input.close()
                 }
                 chunk = input.read(OPTIMAL_SEND_SIZE)
                 output.write(chunk)

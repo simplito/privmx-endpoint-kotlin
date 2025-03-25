@@ -102,14 +102,14 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
         }
 
         /**
-         * Creates a new file in given Store and writes data from given [InputStream].
+         * Creates a new file in given Store and writes data from given [Source].
          *
          * @param api         reference to Store API
          * @param storeId     ID of the Store
          * @param publicMeta  byte array of any arbitrary metadata that can be read by anyone
          * @param privateMeta byte array of any arbitrary metadata that will be encrypted before sending
          * @param size        size of data to write
-         * @param inputStream stream with data to write to the file using optimal chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
+         * @param source stream with data to write to the file using optimal chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
          * @return ID of the created file
          * @throws IOException           if there is an error while reading stream or `this` is closed
          * @throws IllegalStateException when storeApi is not initialized or there's no connection
@@ -128,20 +128,20 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
             publicMeta: ByteArray,
             privateMeta: ByteArray,
             size: Long,
-            inputStream: Source
+            source: Source
         ): String {
-            return createFile(api, storeId, publicMeta, privateMeta, size, inputStream, null)
+            return createFile(api, storeId, publicMeta, privateMeta, size, source, null)
         }
 
         /**
-         * Creates new file in given Store and writes data from given [InputStream].
+         * Creates new file in given Store and writes data from given [Source].
          *
          * @param api              reference to Store API
          * @param storeId          ID of the Store
          * @param publicMeta       byte array of any arbitrary metadata that can be read by anyone
          * @param privateMeta      byte array of any arbitrary metadata that will be encrypted before sending
          * @param size             size of data to write
-         * @param inputStream      stream with data to write to the file using optimal chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
+         * @param source      stream with data to write to the file using optimal chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
          * @param streamController controls the process of writing file
          * @return ID of the created file
          * @throws IOException           if there is an error while reading stream or `this` is closed
@@ -161,7 +161,7 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
             publicMeta: ByteArray,
             privateMeta: ByteArray,
             size: Long,
-            inputStream: Source,
+            source: Source,
             streamController: Controller?
         ): String {
             if (api == null) throw NullPointerException("api could not be null")
@@ -175,7 +175,7 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
             if (streamController != null) {
                 output.setProgressListener(streamController)
             }
-            val input = inputStream.buffered()
+            val input = source.buffered()
             val chunk = input.readByteArray(OPTIMAL_SEND_SIZE.toInt())
             while (chunk.isNotEmpty()) {
                 if (streamController != null && streamController.isStopped()) {
@@ -187,14 +187,14 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
         }
 
         /**
-         * Updates existing file and writes data from passed [InputStream].
+         * Updates existing file and writes data from passed [Source].
          *
          * @param api              reference to Store API
          * @param fileId           ID of the file to update
          * @param publicMeta       new public metadata for the matching file
          * @param privateMeta      new private (encrypted) metadata for the matching file
          * @param size             size of data to write
-         * @param inputStream      stream with data to write to the file using optimal chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
+         * @param source      stream with data to write to the file using optimal chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
          * @param streamController controls the process of writing file
          * @return Updated file ID
          * @throws IOException           if there is an error while reading stream or `this` is closed
@@ -214,7 +214,7 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
             publicMeta: ByteArray,
             privateMeta: ByteArray,
             size: Long,
-            inputStream: Source,
+            source: Source,
             streamController: Controller?
         ): String {
             if (api == null) throw NullPointerException("api could not be null")
@@ -226,7 +226,7 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
                 if (streamController != null && streamController.isStopped()) {
                     output.close()
                 }
-                val input = inputStream.buffered()
+                val input = source.buffered()
                 val chunk = input.readByteArray(OPTIMAL_SEND_SIZE.toInt())
                 if (chunk.isNotEmpty()) {
                     break
@@ -237,14 +237,14 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
         }
 
         /**
-         * Updates existing file and writes data from passed [InputStream].
+         * Updates existing file and writes data from passed [Source].
          *
          * @param api         reference to Store API
          * @param fileId      ID of the file to update
          * @param publicMeta  new public metadata for the matching file
          * @param privateMeta new private (encrypted) metadata for the matching file
          * @param size        size of data to write
-         * @param inputStream stream with data to write to the file using optimal chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
+         * @param source stream with data to write to the file using optimal chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
          * @return Updated file ID
          * @throws IOException           if there is an error while reading stream or `this` is closed
          * @throws IllegalStateException when `storeApi` is not initialized or there's no connection
@@ -263,9 +263,9 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
             publicMeta: ByteArray,
             privateMeta: ByteArray,
             size: Long,
-            inputStream: Source
+            source: Source
         ): String {
-            return updateFile(api, fileId, publicMeta, privateMeta, size, inputStream, null)
+            return updateFile(api, fileId, publicMeta, privateMeta, size, source, null)
         }
 
     }
