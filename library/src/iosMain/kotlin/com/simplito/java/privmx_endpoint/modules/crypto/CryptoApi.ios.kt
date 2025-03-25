@@ -259,7 +259,6 @@ actual class CryptoApi : AutoCloseable {
     actual override fun close() {
         if (_nativeCryptoApi.value == null) return
         privmx_endpoint_freeCryptoApi(_nativeCryptoApi.value)
-        nativeHeap.free(_nativeCryptoApi.rawPtr)
         _nativeCryptoApi.value = null
     }
 }

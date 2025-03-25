@@ -34,7 +34,7 @@ actual class Connection() : AutoCloseable {
         get() = _nativeConnection.value?.let { _nativeConnection }
             ?: throw IllegalStateException("Connection has been closed.")
 
-    internal fun getConnectionPtr() = _nativeConnection.value
+    internal fun getConnectionPtr() = nativeConnection.value
 
     actual companion object {
         actual fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String): Connection =
@@ -120,19 +120,20 @@ actual class Connection() : AutoCloseable {
             value = pson_new_object()
         }
         privmx_endpoint_execConnection(nativeConnection.value, 4, args, result.ptr)
-        _nativeConnection.value = null;
+        Unit
     }
 
     actual override fun close() {
+        if(_nativeConnection.value == null) return
         disconnect()
         privmx_endpoint_freeConnection(nativeConnection.value)
+        _nativeConnection.value = null
     }
 
     @Throws(IllegalStateException::class)
     actual fun getConnectionId(): Long? = memScoped {
         val result = allocPointerTo<pson_value>()
         privmx_endpoint_execConnection(nativeConnection.value, 2, makeArgs(), result.ptr)
-        _nativeConnection.value = null
         result.value!!.asResponse?.getResultOrThrow()?.typedValue()
     }
 }

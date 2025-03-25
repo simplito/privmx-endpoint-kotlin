@@ -415,7 +415,6 @@ actual class StoreApi actual constructor(connection: Connection) :
     actual override fun close() {
         if (_nativeStoreApi.value == null) return
         privmx_endpoint_freeStoreApi(_nativeStoreApi.value)
-        nativeHeap.free(_nativeStoreApi.rawPtr)
         _nativeStoreApi.value = null
     }
 }

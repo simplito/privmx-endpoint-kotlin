@@ -37,7 +37,7 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
         get() = _nativeThreadApi.value?.let { _nativeThreadApi }
             ?: throw IllegalStateException("ThreadApi has been closed.")
 
-    internal fun getThreadPtr() = _nativeThreadApi.value
+    internal fun getThreadPtr() = nativeThreadApi.value
 
     init {
         privmx_endpoint_newThreadApi(connection.getConnectionPtr(), _nativeThreadApi.ptr)
@@ -262,7 +262,6 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
     actual override fun close() {
         if (_nativeThreadApi.value == null) return
         privmx_endpoint_freeThreadApi(_nativeThreadApi.value)
-        nativeHeap.free(_nativeThreadApi.rawPtr)
         _nativeThreadApi.value = null
     }
 }

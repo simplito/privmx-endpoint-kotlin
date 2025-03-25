@@ -395,7 +395,6 @@ actual class InboxApi actual constructor(
     actual override fun close() {
         if (_nativeInboxApi.value == null) return
         privmx_endpoint_freeInboxApi(_nativeInboxApi.value)
-        nativeHeap.free(_nativeInboxApi.rawPtr)
         _nativeInboxApi.value = null
     }
 }
