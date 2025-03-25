@@ -44,8 +44,13 @@ actual class StoreApi actual constructor(connection: Connection) :
         memScoped {
             val args = pson_new_array()
             val pson_result = allocPointerTo<pson_value>()
-            privmx_endpoint_execStoreApi(nativeStoreApi.value, 0, args, pson_result.ptr)
-            pson_result.value!!.asResponse?.getResultOrThrow()
+            try{
+                privmx_endpoint_execStoreApi(nativeStoreApi.value, 0, args, pson_result.ptr)
+                pson_result.value!!.asResponse?.getResultOrThrow()
+            } finally {
+                pson_free_value(args)
+                pson_free_result(pson_result.value)
+            }
         }
     }
 

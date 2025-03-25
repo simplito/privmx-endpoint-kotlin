@@ -152,10 +152,9 @@ actual class Connection() : AutoCloseable {
     }
 
     actual override fun close() {
-        try {
-            disconnect()
-        } finally {
-            privmx_endpoint_freeConnection(nativeConnection.value)
-        }
+        if (nativeConnection.value == null) return
+        disconnect()
+        privmx_endpoint_freeConnection(nativeConnection.value)
+        nativeConnection.value = null
     }
 }
