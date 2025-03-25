@@ -33,12 +33,15 @@ import libprivmxendpoint.pson_new_array
 @OptIn(ExperimentalForeignApi::class)
 actual class StoreApi actual constructor(connection: Connection) :
     AutoCloseable {
-    private val nativeStoreApi = nativeHeap.allocPointerTo<cnames.structs.StoreApi>()
+    private val _nativeStoreApi = nativeHeap.allocPointerTo<cnames.structs.StoreApi>()
+    private val nativeStoreApi
+        get() = _nativeStoreApi.value?.let { _nativeStoreApi }
+            ?: throw IllegalStateException("StoreApi has been closed.")
 
     internal fun getStorePtr() = nativeStoreApi.value
 
     init {
-        privmx_endpoint_newStoreApi(connection.getConnectionPtr(), nativeStoreApi.ptr)
+        privmx_endpoint_newStoreApi(connection.getConnectionPtr(), _nativeStoreApi.ptr)
         memScoped {
             val args = pson_new_array()
             val pson_result = allocPointerTo<pson_value>()
@@ -278,6 +281,7 @@ actual class StoreApi actual constructor(connection: Connection) :
         sortOrder: String?,
         lastId: String?
     ): PagingList<File?>? = memScoped {
+
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             storeId!!.pson,
@@ -409,9 +413,8 @@ actual class StoreApi actual constructor(connection: Connection) :
     }
 
     actual override fun close() {
-        if (nativeStoreApi.value == null) return
-        privmx_endpoint_freeStoreApi(nativeStoreApi.value)
-        nativeHeap.free(nativeStoreApi.rawPtr)
-        nativeStoreApi.value = null
+        if (_nativeStoreApi.value == null) return
+        privmx_endpoint_freeStoreApi(_nativeStoreApi.value)
+        _nativeStoreApi.value = null
     }
 }

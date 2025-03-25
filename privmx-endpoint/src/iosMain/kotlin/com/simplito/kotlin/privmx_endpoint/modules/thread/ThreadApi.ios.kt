@@ -1,5 +1,6 @@
 package com.simplito.kotlin.privmx_endpoint.modules.thread
 
+import cnames.structs.pson_value
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.Message
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
@@ -24,18 +25,22 @@ import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.nativeHeap
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
-import libprivmxendpoint.*
-import cnames.structs.pson_value
-
+import libprivmxendpoint.privmx_endpoint_execThreadApi
+import libprivmxendpoint.privmx_endpoint_freeThreadApi
+import libprivmxendpoint.privmx_endpoint_newThreadApi
+import libprivmxendpoint.pson_new_array
 
 @OptIn(ExperimentalForeignApi::class)
 actual class ThreadApi actual constructor(connection: Connection) : AutoCloseable {
-    private val nativeThreadApi = nativeHeap.allocPointerTo<cnames.structs.ThreadApi>()
+    private val _nativeThreadApi = nativeHeap.allocPointerTo<cnames.structs.ThreadApi>()
+    private val nativeThreadApi
+        get() = _nativeThreadApi.value?.let { _nativeThreadApi }
+            ?: throw IllegalStateException("ThreadApi has been closed.")
 
     internal fun getThreadPtr() = nativeThreadApi.value
 
     init {
-        privmx_endpoint_newThreadApi(connection.getConnectionPtr(), nativeThreadApi.ptr)
+        privmx_endpoint_newThreadApi(connection.getConnectionPtr(), _nativeThreadApi.ptr)
         memScoped {
             val args = pson_new_array()
             val pson_result = allocPointerTo<pson_value>()
@@ -255,9 +260,9 @@ actual class ThreadApi actual constructor(connection: Connection) : AutoCloseabl
     }
 
     actual override fun close() {
-        if (nativeThreadApi.value == null) return
-        privmx_endpoint_freeThreadApi(nativeThreadApi.value)
-        nativeThreadApi.value = null
+        if (_nativeThreadApi.value == null) return
+        privmx_endpoint_freeThreadApi(_nativeThreadApi.value)
+        _nativeThreadApi.value = null
     }
 }
 

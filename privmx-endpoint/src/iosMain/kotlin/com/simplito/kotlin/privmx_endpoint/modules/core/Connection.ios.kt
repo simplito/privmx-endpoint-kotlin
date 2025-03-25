@@ -16,11 +16,23 @@ import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.nativeHeap
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
-import libprivmxendpoint.*
+import libprivmxendpoint.privmx_endpoint_execConnection
+import libprivmxendpoint.privmx_endpoint_freeConnection
+import libprivmxendpoint.privmx_endpoint_newConnection
+import libprivmxendpoint.privmx_endpoint_setCertsPath
+import libprivmxendpoint.pson_add_array_value
+import libprivmxendpoint.pson_new_array
+import libprivmxendpoint.pson_new_int64
+import libprivmxendpoint.pson_new_object
+import libprivmxendpoint.pson_new_string
+import libprivmxendpoint.pson_set_object_value
 
 @OptIn(ExperimentalForeignApi::class)
 actual class Connection() : AutoCloseable {
-    private val nativeConnection = nativeHeap.allocPointerTo<cnames.structs.Connection>()
+    private val _nativeConnection = nativeHeap.allocPointerTo<cnames.structs.Connection>()
+    private val nativeConnection
+        get() = _nativeConnection.value?.let { _nativeConnection }
+            ?: throw IllegalStateException("Connection has been closed.")
 
     internal fun getConnectionPtr() = nativeConnection.value
 
@@ -32,11 +44,10 @@ actual class Connection() : AutoCloseable {
                     val result = allocPointerTo<pson_value>().apply {
                         value = pson_new_object()
                     }
-
                     pson_add_array_value(args, pson_new_string(userPrivKey))
                     pson_add_array_value(args, pson_new_string(solutionId))
                     pson_add_array_value(args, pson_new_string(bridgeUrl))
-                    privmx_endpoint_newConnection(nativeConnection.ptr)
+                    privmx_endpoint_newConnection(_nativeConnection.ptr)
                     privmx_endpoint_execConnection(nativeConnection.value, 0, args, result.ptr)
                     PsonResponse(psonMapper(result.value!!) as PsonValue.PsonObject).getResultOrThrow()
                 }
@@ -52,18 +63,20 @@ actual class Connection() : AutoCloseable {
                     solutionId.pson,
                     bridgeUrl.pson
                 )
-                privmx_endpoint_newConnection(nativeConnection.ptr)
+                privmx_endpoint_newConnection(_nativeConnection.ptr)
                 privmx_endpoint_execConnection(nativeConnection.value, 1, args, result.ptr)
                 result.value!!.asResponse?.getResultOrThrow()
             }
         }
 
+        @Throws(IllegalStateException::class)
         actual fun setCertsPath(certsPath: String?): Unit = memScoped {
             privmx_endpoint_setCertsPath(certsPath)
         }
 
     }
 
+    @Throws(IllegalStateException::class)
     actual fun listContexts(
         skip: Long,
         limit: Long,
@@ -100,6 +113,7 @@ actual class Connection() : AutoCloseable {
             }
     }
 
+    @Throws(IllegalStateException::class)
     actual fun disconnect() = memScoped {
         val args = pson_new_object()
         val result = allocPointerTo<pson_value>().apply {
@@ -110,10 +124,13 @@ actual class Connection() : AutoCloseable {
     }
 
     actual override fun close() {
+        if(_nativeConnection.value == null) return
         disconnect()
         privmx_endpoint_freeConnection(nativeConnection.value)
+        _nativeConnection.value = null
     }
 
+    @Throws(IllegalStateException::class)
     actual fun getConnectionId(): Long? = memScoped {
         val result = allocPointerTo<pson_value>()
         privmx_endpoint_execConnection(nativeConnection.value, 2, makeArgs(), result.ptr)

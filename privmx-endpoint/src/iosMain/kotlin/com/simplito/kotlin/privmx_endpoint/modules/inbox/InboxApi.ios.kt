@@ -1,5 +1,6 @@
 package com.simplito.kotlin.privmx_endpoint.modules.inbox
 
+import cnames.structs.pson_value
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
 import com.simplito.kotlin.privmx_endpoint.model.Inbox
@@ -37,13 +38,15 @@ import libprivmxendpoint.privmx_endpoint_newInboxApi
 import libprivmxendpoint.privmx_endpoint_newStoreApi
 import libprivmxendpoint.privmx_endpoint_newThreadApi
 import libprivmxendpoint.pson_new_array
-import cnames.structs.pson_value
 
 @OptIn(ExperimentalForeignApi::class)
 actual class InboxApi actual constructor(
     connection: Connection, threadApi: ThreadApi?, storeApi: StoreApi?
 ) : AutoCloseable {
-    private val nativeInboxApi = nativeHeap.allocPointerTo<cnames.structs.InboxApi>()
+    private val _nativeInboxApi = nativeHeap.allocPointerTo<cnames.structs.InboxApi>()
+    private val nativeInboxApi
+        get() = _nativeInboxApi.value?.let { _nativeInboxApi }
+            ?: throw IllegalStateException("InboxApi has been closed.")
 
     init {
         val tmpThreadApi = if (threadApi == null) {
@@ -72,7 +75,7 @@ actual class InboxApi actual constructor(
             connection.getConnectionPtr(),
             threadApi?.getThreadPtr(),
             storeApi?.getStorePtr(),
-            nativeInboxApi.ptr
+            _nativeInboxApi.ptr
         )
         memScoped {
             val args = pson_new_array()
@@ -390,9 +393,8 @@ actual class InboxApi actual constructor(
     }
 
     actual override fun close() {
-        if (nativeInboxApi.value == null) return
-        privmx_endpoint_freeInboxApi(nativeInboxApi.value)
-        nativeHeap.free(nativeInboxApi.rawPtr)
-        nativeInboxApi.value = null
+        if (_nativeInboxApi.value == null) return
+        privmx_endpoint_freeInboxApi(_nativeInboxApi.value)
+        _nativeInboxApi.value = null
     }
 }
