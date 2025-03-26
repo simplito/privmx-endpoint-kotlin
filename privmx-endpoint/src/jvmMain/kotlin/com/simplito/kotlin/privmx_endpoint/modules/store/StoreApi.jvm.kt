@@ -28,6 +28,7 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         NativeException::class,
         IllegalStateException::class
     )
+    @JvmOverloads
     actual external fun createStore(
         contextId: String,
         users: List<UserWithPubKey>,
@@ -42,6 +43,7 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         NativeException::class,
         IllegalStateException::class
     )
+    @JvmOverloads
     actual external fun updateStore(
         storeId: String,
         users: List<UserWithPubKey>,
@@ -66,6 +68,7 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         NativeException::class,
         IllegalStateException::class
     )
+    @JvmOverloads
     actual external fun listStores(
         contextId: String,
         skip: Long,
@@ -142,6 +145,7 @@ actual class StoreApi actual constructor(connection: Connection) : AutoCloseable
         NativeException::class,
         IllegalStateException::class
     )
+    @JvmOverloads
     actual external fun listFiles(
         storeId: String,
         skip: Long,
