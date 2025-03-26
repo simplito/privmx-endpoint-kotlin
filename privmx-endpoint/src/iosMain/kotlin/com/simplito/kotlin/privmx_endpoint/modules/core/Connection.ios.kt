@@ -32,7 +32,7 @@ import libprivmxendpoint.pson_free_result
 import libprivmxendpoint.pson_free_value
 
 @OptIn(ExperimentalForeignApi::class)
-actual class Connection() : AutoCloseable {
+actual class Connection private constructor() : AutoCloseable {
     private val _nativeConnection = nativeHeap.allocPointerTo<cnames.structs.Connection>()
     private val nativeConnection
         get() = _nativeConnection.value?.let { _nativeConnection }
