@@ -192,7 +192,7 @@ expect class InboxApi(
     fun prepareEntry(
         inboxId: String,
         data: ByteArray,
-        inboxFileHandles: List<Long> = emptyList<Long>(),
+        inboxFileHandles: List<Long> = emptyList(),
         userPrivKey: String? = null
     ): Long?
 
