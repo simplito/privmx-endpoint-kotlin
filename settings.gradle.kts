@@ -15,6 +15,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "multiplatform-library-template"
 include(":privmx-endpoint-extra")
-include(":library")
+include(":privmx-endpoint")
 include(":library-test")
 
