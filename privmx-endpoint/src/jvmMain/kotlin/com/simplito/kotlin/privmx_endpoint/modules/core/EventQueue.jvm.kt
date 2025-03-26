@@ -49,5 +49,5 @@ actual object EventQueue {
         NativeException::class
     )
     @JvmStatic
-    actual external fun getEvent(): Event<*>
+    actual external fun getEvent(): Event<*>?
 }
