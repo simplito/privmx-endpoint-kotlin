@@ -42,5 +42,5 @@ expect object EventQueue {
         PrivmxException::class,
         NativeException::class
     )
-    fun getEvent(): Event<*>
+    fun getEvent(): Event<*>?
 }
