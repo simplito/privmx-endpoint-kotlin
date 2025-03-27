@@ -1,6 +1,7 @@
 package com.simplito.kotlin.privmx_endpoint.utils
 
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
+import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.Event
 import com.simplito.kotlin.privmx_endpoint.model.File
 import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
@@ -25,6 +26,10 @@ import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue.PsonObject
 import kotlin.collections.get
 
+internal fun PsonObject.toContext(): Context = Context(
+        this["userId"]?.typedValue(),
+        this["contextId"]?.typedValue()
+    )
 
 internal fun PsonObject.toThread(): Thread = Thread(
     this["contextId"]?.typedValue(),
