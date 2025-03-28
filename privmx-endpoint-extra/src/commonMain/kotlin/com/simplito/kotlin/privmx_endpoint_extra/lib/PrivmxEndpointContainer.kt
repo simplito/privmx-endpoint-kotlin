@@ -220,7 +220,6 @@ class PrivmxEndpointContainer : AutoCloseable {
     /**
      * Closes event loop.
      */
-//    @Throws(Exception::class)
     //TODO change to not use runBlocking
     override fun close() = runBlocking {
         stopListening()
