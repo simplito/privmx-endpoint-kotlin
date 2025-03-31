@@ -30,7 +30,6 @@ kotlin {
                 implementation(project(":privmx-endpoint"))
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.6.0")
-                //put your multiplatform dependencies here
             }
         }
         val commonTest by getting {
@@ -42,7 +41,7 @@ kotlin {
 }
 
 android {
-    namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
+    namespace = "com.simplito.kotlin.privmx-endpoint-extra"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -50,15 +49,6 @@ android {
 }
 
 publishing {
-    afterEvaluate {
-        publications.withType<MavenPublication>().onEach {
-            it.artifactId = it.artifactId.replace("library", "privmx-endpoint-extra")
-        }
-        publications.forEach {
-            println("Publication: ${it.name}")
-        }
-    }
-
     val properties = Properties()
     properties.load(file(rootDir.absolutePath + "/local.properties").inputStream())
     val repositoryURL: String = properties.getProperty("repositoryURL")

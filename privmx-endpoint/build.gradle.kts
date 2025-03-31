@@ -1,4 +1,3 @@
-import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
@@ -45,18 +44,15 @@ kotlin {
         ).forEach {
             it.dependsOn(iosMain.get())
         }
-        val iosMain by getting {
+
+        val iosMain by getting{
             dependsOn(commonMain.get())
         }
+
         val androidMain by getting{
             dependsOn(jvmMain.get())
         }
 
-        val commonMain by getting {
-            dependencies {
-                //put your multiplatform dependencies here
-            }
-        }
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlin.test)
@@ -66,7 +62,7 @@ kotlin {
 }
 
 android {
-    namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
+    namespace = "com.simplito.kotlin.privmx-endpoint"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -74,15 +70,6 @@ android {
 }
 
 publishing {
-    afterEvaluate {
-        publications.withType<MavenPublication>().onEach {
-            it.artifactId = it.artifactId.replace("library", "privmx-endpoint")
-        }
-        publications.forEach {
-            println("Publication: ${it.name}")
-        }
-    }
-
     val properties = Properties()
     properties.load(file(rootDir.absolutePath + "/local.properties").inputStream())
     val repositoryURL: String = properties.getProperty("repositoryURL")
