@@ -11,9 +11,7 @@ plugins {
 
 group = "com.simplito.kotlin"
 version = "1.0.0"
-//TODO: JvmNativeTarget is implementation contains jni wrapper (maybe contains from Java lib)
-//TODO: How to load jni wrapper?
-//TODO: All implementations for non jvm in nativeTarget
+
 kotlin {
     jvm()
     androidTarget {
@@ -25,7 +23,6 @@ kotlin {
     }
     listOf(
         iosSimulatorArm64(),
-        iosX64(),
         iosArm64(),
     ).forEach {
         it.compilations.getByName("main") {
@@ -39,7 +36,6 @@ kotlin {
         listOf(
             iosSimulatorArm64Main.get(),
             iosArm64Main.get(),
-            iosX64Main.get()
         ).forEach {
             it.dependsOn(iosMain.get())
         }
