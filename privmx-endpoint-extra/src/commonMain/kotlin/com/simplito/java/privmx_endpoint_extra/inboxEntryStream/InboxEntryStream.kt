@@ -15,19 +15,22 @@ import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.java.privmx_endpoint.modules.inbox.InboxApi
 import com.simplito.java.privmx_endpoint_extra.inboxFileStream.InboxFileStreamWriter
 import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStream
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.async
-import kotlinx.coroutines.internal.synchronized
-import kotlinx.coroutines.newSingleThreadContext
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withContext
 import kotlinx.io.IOException
 import kotlinx.io.Source
-import kotlin.jvm.Synchronized
+import kotlin.concurrent.atomics.AtomicReference
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.JvmOverloads
 
 /**
  * Provides a streamlined process for creating and sending Inbox entries
@@ -39,28 +42,24 @@ import kotlin.jvm.Synchronized
  *
  * @category inbox
  */
+@OptIn(ExperimentalAtomicApi::class)
 class InboxEntryStream private constructor(
-    api: InboxApi,
-    inboxFiles: Map<FileInfo, InboxFileStreamWriter>,
-    inboxHandle: Long,
-    entryStreamListener: EntryStreamListener
-) {
-    private val inboxApi: InboxApi
-    private val inboxFiles: Map<FileInfo, InboxFileStreamWriter>
-    private val inboxHandle: Long
+    private val inboxApi: InboxApi,
+    private val inboxFiles: Map<FileInfo, InboxFileStreamWriter>,
+    private val inboxHandle: Long,
     private val entryStreamListener: EntryStreamListener
-    private val sendingFiles: ArrayList<Deferred<*>> = ArrayList()
-    private var streamState = State.PREPARED
-
-    init {
-        this.inboxApi = api
-        this.inboxFiles = inboxFiles
-        this.inboxHandle = inboxHandle
-        this.entryStreamListener = entryStreamListener
+) {
+    private val sendingChunkContext = Dispatchers.IO + CoroutineName("PrivMX chunk sending context")
+    private val sendingFilesContext = Dispatchers.Default + CoroutineName("PrivMX files sending context")
+    private val coroutineScope = CoroutineScope(sendingFilesContext)
+    private lateinit var sendingFiles: List<Deferred<*>>
+    private var streamState = AtomicReference(
         if (inboxFiles.isEmpty()) {
-            streamState = State.FILES_SENT
+            State.FILES_SENT
+        } else {
+            State.PREPARED
         }
-    }
+    )
 
     /**
      * Initiates the process of sending files using the provided executor.
@@ -71,59 +70,40 @@ class InboxEntryStream private constructor(
      * @param fileStreamExecutor the executor service responsible for executing file sending tasks
      * @throws IllegalStateException If the stream is not in the [State.PREPARED] state.
      */
-    @Synchronized
     @Throws(IllegalStateException::class)
+    @JvmOverloads
     fun sendFiles(
-        fileStreamExecutor: CoroutineDispatcher = Dispatchers.Default
-    ) {
-        check(streamState == State.PREPARED) { "Stream should be in state PREPARED. Current state is: " + streamState.name }
-        val coroutineScope = CoroutineScope(fileStreamExecutor)
-        inboxFiles.forEach { (fileInfo: FileInfo?, fileHandle: InboxFileStreamWriter?) ->
-            sendingFiles.add(
-                coroutineScope.async() {
+        coroutineContext: CoroutineContext = sendingFilesContext
+    ): Deferred<Unit> {
+        check(streamState.load() == State.PREPARED) { "Stream should be in state PREPARED. Current state is: " + streamState.load().name }
+        return coroutineScope.async(coroutineContext) sendingFileAsync@{
+            check(!::sendingFiles.isInitialized) { "Files are being sent" }
+            sendingFiles = inboxFiles.map { (fileInfo, fileHandle) ->
+                async {
                     try {
                         sendFile(fileInfo, fileHandle)
                         entryStreamListener.onEndFileSending(fileInfo)
                     } catch (e: Exception) {
-                        stopFileStreams()
                         onError(e)
                         entryStreamListener.onErrorDuringSending(fileInfo, e)
                     }
                 }
-            )
-
-        }
-
-        runBlocking {
-        for (job in sendingFiles) {
-            try {
-                job.await()
-            } catch (e: InterruptedException) {
-                // catch when in async mode someone call cancel on result Future.
-                cancel()
-                return@runBlocking
-            } catch (e: concurrent.CancellationException) {
-                cancel()
-                return@runBlocking
-            } catch (ignore: Exception) {
             }
-        }
-        if (sendingFiles.all { it.isCompleted }) {
-            updateState(State.FILES_SENT)
-        } else {
-            onError(IllegalStateException("Some files cannot be sent"))
-        }  }
-    }
 
-    /**
-     * Sends files using a single-threaded executor (see: [Executors.newSingleThreadExecutor]).
-     *
-     * @throws IllegalStateException when this stream is not in state [State.PREPARED].
-     */
-    @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
-    fun sendFiles() {
-        newSingleThreadContext("").use{
-            sendFiles(it)
+            sendingFiles.forEach {
+                try {
+                    it.await()
+                } catch (_: CancellationException) {
+                    cancel()
+                    return@sendingFileAsync
+                }
+            }
+
+            if (sendingFiles.all { it.isCompleted }) {
+                updateState(State.FILES_SENT)
+            } else {
+                onError(IllegalStateException("Some files cannot be sent"))
+            }
         }
     }
 
@@ -133,16 +113,16 @@ class InboxEntryStream private constructor(
         IllegalStateException::class,
         IOException::class
     )
-    private fun sendFile(
+    private suspend fun sendFile(
         fileInfo: FileInfo,
-        fileHandle: InboxFileStreamWriter
-    ) {
+        fileHandle: InboxFileStreamWriter,
+    ) = withContext(sendingFilesContext) {
         val controller: StoreFileStream.Controller = object : StoreFileStream.Controller() {
             override fun onChunkProcessed(processedBytes: Long) {
                 entryStreamListener.onFileChunkProcessed(fileInfo, processedBytes)
-//                if (java.lang.Thread.interrupted()) {
-//                    this.stop()
-//                }
+                if (!isActive) {
+                    stop()
+                }
             }
         }
 
@@ -155,27 +135,28 @@ class InboxEntryStream private constructor(
                 }
                 val nextChunk = entryStreamListener.onNextChunkRequest(fileInfo)
                     ?: throw NullPointerException("Data chunk cannot be null")
-                fileHandle.write(inboxHandle, nextChunk)
+                withContext(sendingChunkContext) {
+                    fileHandle.write(inboxHandle, nextChunk)
+                }
             }
         } else {
-            fileHandle.writeStream(inboxHandle, fileInfo.fileStream, controller)
+            withContext(sendingChunkContext) {
+                fileHandle.writeStream(inboxHandle, fileInfo.fileStream, controller)
+            }
         }
     }
 
-    @Synchronized
     private fun onError(t: Throwable) {
         stopFileStreams()
         closeFileHandles()
         updateState(State.ERROR)
         entryStreamListener.onError(t)
+        coroutineScope.cancel()
     }
 
     private fun updateState(newState: State) {
-        if (streamState != newState) {
-            synchronized(this) {
-                streamState = newState
-                entryStreamListener.onUpdateState(streamState)
-            }
+        if (streamState.exchange(newState) != newState) {
+            entryStreamListener.onUpdateState(newState)
         }
     }
 
@@ -187,34 +168,32 @@ class InboxEntryStream private constructor(
      * If the stream is in the process of sending the entry, this operation will not have any effect.
      */
     fun cancel() {
-        if (streamState == State.ERROR) return
-        if (streamState == State.ABORTED) return
-        if (streamState == State.SENT) return
-        synchronized(this) {
-            stopFileStreams()
-            closeFileHandles()
-            updateState(State.ABORTED)
+        when (streamState.load()) {
+            State.ERROR, State.ABORTED, State.SENT -> return
+
+            else -> Unit
         }
+
+        stopFileStreams()
+        closeFileHandles()
+        updateState(State.ABORTED)
+        coroutineScope.cancel()
     }
 
     private fun stopFileStreams() {
-        if (streamState == State.PREPARED && !sendingFiles.isEmpty()) {
-            synchronized(streamState) {
-                sendingFiles.forEach{ it.cancel() }
-            }
+        if (streamState.load() == State.PREPARED) {
+            sendingFiles.forEach { it.cancel() }
         }
     }
 
     private fun closeFileHandles() {
-        synchronized(inboxFiles) {
-            inboxFiles.values.forEach(function.Consumer<InboxFileStreamWriter> { file: InboxFileStreamWriter ->
-                try {
-                    if (!file.isClosed) {
-                        file.close()
-                    }
-                } catch (ignore: Exception) {
+        inboxFiles.values.forEach { file: InboxFileStreamWriter ->
+            try {
+                if (!file.isClosed) {
+                    file.close()
                 }
-            })
+            } catch (_: Exception) {
+            }
         }
     }
 
@@ -228,17 +207,15 @@ class InboxEntryStream private constructor(
      * @throws NativeException       when method encounters an unknown exception while calling [InboxApi.sendEntry] method
      * @throws IllegalStateException if the stream is not in the [State.FILES_SENT] state or [InboxApi.sendEntry] thrown [IllegalStateException]
      */
-    @Synchronized
     @Throws(
-        PrivmxException::class,
-        NativeException::class,
-        IllegalStateException::class
+        PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     fun sendEntry() {
-        check(streamState == State.FILES_SENT) { "Stream should be in state FILES_SENT. Current state is: " + streamState.name }
+        check(streamState.load() == State.FILES_SENT) { "Stream should be in state FILES_SENT. Current state is: " + streamState.load().name }
         try {
             inboxApi.sendEntry(inboxHandle)
             updateState(State.SENT)
+            coroutineScope.cancel()
         } catch (e: Exception) {
             onError(e)
         }
@@ -280,29 +257,33 @@ class InboxEntryStream private constructor(
     /**
      * Represents information about a file to be sent by [InboxEntryStream].
      */
-    class FileInfo(
-        /**
-         * Byte array of any arbitrary metadata that can be read by anyone.
-         */
+    data class FileInfo(
         val publicMeta: ByteArray,
-        /**
-         * Byte array of any arbitrary metadata that will be encrypted before sending.
-         */
         val privateMeta: ByteArray,
-        /**
-         * The total size of the file data.
-         */
         val fileSize: Long,
-        fileStream: Source?
+        val fileStream: Source?
     ) {
-        /**
-         * An optional [InputStream] providing the file data.
-         *
-         * If this value is `null`, the stream will call
-         * [EntryStreamListener.onNextChunkRequest] to request chunks of data
-         * for sending.
-         */
-        val fileStream: Source? = fileStream
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as FileInfo
+
+            if (fileSize != other.fileSize) return false
+            if (!publicMeta.contentEquals(other.publicMeta)) return false
+            if (!privateMeta.contentEquals(other.privateMeta)) return false
+            if (fileStream != other.fileStream) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = fileSize.hashCode()
+            result = 31 * result + publicMeta.contentHashCode()
+            result = 31 * result + privateMeta.contentHashCode()
+            result = 31 * result + fileStream.hashCode()
+            return result
+        }
     }
 
     /**
@@ -321,7 +302,7 @@ class InboxEntryStream private constructor(
          *
          * @param file information about the file being sent
          */
-        fun onStartFileSending(file: FileInfo?) {
+        fun onStartFileSending(file: FileInfo) {
         }
 
         /**
@@ -329,7 +310,7 @@ class InboxEntryStream private constructor(
          *
          * @param file information about the sent file
          */
-        fun onEndFileSending(file: FileInfo?) {
+        fun onEndFileSending(file: FileInfo) {
         }
 
         /**
@@ -385,104 +366,6 @@ class InboxEntryStream private constructor(
     }
 
     companion object {
-        /**
-         * Creates [InboxEntryStream] instance ready for streaming.
-         *
-         *  This method initializes an [InboxEntryStream] and prepares it for sending
-         * an entry with the provided data. It creates an Inbox handle and sets the
-         * initial state of the stream to [State.FILES_SENT].
-         *
-         * @param inboxApi            reference to Inbox API
-         * @param inboxId             ID of the Inbox
-         * @param entryStreamListener the listener for stream state changes
-         * @param data                entry data to send
-         * @return instance of [InboxEntryStream] prepared for streaming
-         * @throws PrivmxException       when method encounters an exception while creating handles for Inbox or file
-         * @throws NativeException       when method encounters an unknown exception while creating handles for Inbox or file
-         * @throws IllegalStateException when [IllegalStateException] was thrown while creating handles for Inbox or file
-         */
-        @Throws(
-            PrivmxException::class,
-            NativeException::class,
-            IllegalStateException::class
-        )
-        fun prepareEntry(
-            inboxApi: InboxApi,
-            inboxId: String?,
-            entryStreamListener: EntryStreamListener,
-            data: ByteArray?
-        ): InboxEntryStream {
-            return prepareEntry(inboxApi, inboxId, entryStreamListener, data, null)
-        }
-
-        /**
-         * Creates [InboxEntryStream] instance ready for streaming.
-         *
-         * This method initializes an [InboxEntryStream] and prepares it for sending an entry with the
-         * associated files and empty data. It creates Inbox and file handles, setting the initial state of the stream
-         * to [State.PREPARED], indicating readiness for file transfer.
-         *
-         * @param inboxApi            reference to Inbox API
-         * @param inboxId             ID of the Inbox
-         * @param entryStreamListener the listener for stream state changes
-         * @param fileInfos           information about each entry's file to send
-         * @return instance of [InboxEntryStream] prepared for streaming
-         * @throws PrivmxException       when method encounters an exception while creating handles for Inbox or file
-         * @throws NativeException       when method encounters an unknown exception while creating handles for Inbox or file
-         * @throws IllegalStateException when [IllegalStateException] was thrown while creating handles for Inbox or file
-         */
-        @Throws(
-            PrivmxException::class,
-            NativeException::class,
-            IllegalStateException::class
-        )
-        fun prepareEntry(
-            inboxApi: InboxApi,
-            inboxId: String?,
-            entryStreamListener: EntryStreamListener,
-            fileInfos: List<FileInfo?>?
-        ): InboxEntryStream {
-            return prepareEntry(
-                inboxApi,
-                inboxId,
-                entryStreamListener,
-                "".encodeToByteArray(),
-                fileInfos
-            )
-        }
-
-        /**
-         * Creates an [InboxEntryStream] instance ready for streaming, with optional files and encryption.
-         *
-         * This method initializes an [InboxEntryStream] and prepares it for sending an entry with
-         * the provided data and optional associated files. It creates Inbox and file handles (if
-         * `fileInfos` is provided), setting the initial state of the stream to
-         * [State.PREPARED], indicating readiness for data and file transfer.
-         *
-         * @param inboxApi            reference to Inbox API
-         * @param inboxId             ID of the Inbox
-         * @param entryStreamListener the listener for stream state changes
-         * @param data                entry data to send
-         * @param fileInfos           information about each entry's file to send
-         * @return instance of [InboxEntryStream] prepared for streaming
-         * @throws PrivmxException       when method encounters an exception while creating handles for Inbox or file
-         * @throws NativeException       when method encounters an unknown exception while creating handles for Inbox or file
-         * @throws IllegalStateException when [IllegalStateException] was thrown while creating handles for Inbox or file
-         */
-        @Throws(
-            PrivmxException::class,
-            NativeException::class,
-            IllegalStateException::class
-        )
-        fun prepareEntry(
-            inboxApi: InboxApi,
-            inboxId: String?,
-            entryStreamListener: EntryStreamListener,
-            data: ByteArray?,
-            fileInfos: List<FileInfo?>?
-        ): InboxEntryStream {
-            return prepareEntry(inboxApi, inboxId, entryStreamListener, data, fileInfos, null)
-        }
 
         /**
          * Creates an [InboxEntryStream] instance ready for streaming, with optional files and encryption.
@@ -505,42 +388,28 @@ class InboxEntryStream private constructor(
          * @throws IllegalStateException when [IllegalStateException] was thrown while creating handles for Inbox or file
          */
         @Throws(
-            PrivmxException::class,
-            NativeException::class,
-            IllegalStateException::class
+            PrivmxException::class, NativeException::class, IllegalStateException::class
         )
+        @JvmOverloads
         fun prepareEntry(
             inboxApi: InboxApi,
-            inboxId: String?,
+            inboxId: String,
             entryStreamListener: EntryStreamListener,
-            data: ByteArray?,
-            fileInfos: List<FileInfo?>?,
-            userPrivKey: String?
+            data: ByteArray? = ByteArray(0),
+            fileInfos: List<FileInfo> = emptyList(),
+            userPrivKey: String? = null
         ): InboxEntryStream {
-            val files: Map<FileInfo, InboxFileStreamWriter> =
-                Optional.ofNullable<List<FileInfo>>(fileInfos)
-                    .orElse(emptyList<FileInfo>())
-                    .stream()
-                    .collect<Map<FileInfo, InboxFileStreamWriter>, Any>(
-                        stream.Collectors.toMap<Any, FileInfo, Any>(
-                            function.Function<Any, FileInfo> { fileInfo: FileInfo? -> fileInfo },
-                            function.Function<Any, Any> { config: FileInfo ->
-                                InboxFileStreamWriter.createFile(
-                                    inboxApi,
-                                    config.publicMeta,
-                                    config.privateMeta,
-                                    config.fileSize
-                                )
-                            }
-                        )
+            val files = mapOf(
+                *(fileInfos.map {
+                    it to InboxFileStreamWriter.createFile(
+                        inboxApi, it.publicMeta, it.privateMeta, it.fileSize
                     )
-            val fileHandles: List<Long?> =
-                files.values.stream().map<Long>(InboxFileStreamWriter::fileHandle)
-                    .collect<List<Long>, Any>(stream.Collectors.toList<Long>())
+                }).toTypedArray()
+            )
+            val fileHandles = files.values.map(InboxFileStreamWriter::fileHandle)
             val inboxHandle = inboxApi.prepareEntry(inboxId, data, fileHandles, userPrivKey)
             return InboxEntryStream(
-                inboxApi, files,
-                inboxHandle!!, entryStreamListener
+                inboxApi, files, inboxHandle!!, entryStreamListener
             )
         }
     }

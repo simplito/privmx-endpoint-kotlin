@@ -14,7 +14,6 @@ import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.java.privmx_endpoint.modules.inbox.InboxApi
 import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStream
-import kotlin.jvm.Synchronized
 
 /**
  * Base class for Inbox file streams.
@@ -31,7 +30,7 @@ abstract class InboxFileStream
     /**
      * Reference to file handle.
      */
-    protected val fileHandle: Long,
+    val fileHandle: Long,
     /**
      * Reference to [com.simplito.java.privmx_endpoint.modules.inbox.InboxApi] instance.
      */
@@ -83,7 +82,6 @@ abstract class InboxFileStream
      * @throws NativeException       if there is an unknown error while closing file
      * @throws IllegalStateException when [.inboxApi] is not initialized or there's no connection
      */
-    @Synchronized
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )

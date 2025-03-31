@@ -91,7 +91,7 @@ abstract class StoreFileStream
     /**
      * Manages sending/reading files using [java.io.InputStream]/[java.io.OutputStream].
      */
-    class Controller : ProgressListener {
+    open class Controller : ProgressListener {
         private var isStopped = false
             private set
 
