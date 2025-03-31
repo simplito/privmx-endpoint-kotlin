@@ -56,7 +56,7 @@ fun InboxFileStreamWriter.writeStream(
     val chunk = ByteArray(InboxFileStream.OPTIMAL_SEND_SIZE as Int)
     var read: Int
     while (true) {
-        if (streamController != null && streamController.isStopped()) {
+        if ( streamController?.isStopped() == true) {
             return
         }
         if ((inputStream.read(chunk).also { read = it }) <= 0) {

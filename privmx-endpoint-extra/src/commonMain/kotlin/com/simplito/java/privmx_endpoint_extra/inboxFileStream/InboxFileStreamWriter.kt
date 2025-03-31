@@ -16,7 +16,6 @@ import com.simplito.java.privmx_endpoint.modules.inbox.InboxApi
 import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStream
 import kotlinx.io.IOException
 import kotlinx.io.Source
-import kotlinx.io.buffered
 import kotlinx.io.readByteArray
 import kotlin.jvm.JvmOverloads
 
@@ -85,7 +84,7 @@ class InboxFileStreamWriter private constructor(handle: Long, inboxApi: InboxApi
      * Writes data from an [Source] to an Inbox file.
      *
      * @param inboxHandle the handle of an Inbox to write to
-     * @param inputStream the [Source] to read data from
+     * @param source the [Source] to read data from
      * @throws PrivmxException       when method encounters an exception while executing [InboxApi.writeToFile]
      * @throws NativeException       when method encounters an unknown exception while executing [InboxApi.writeToFile]
      * @throws IllegalStateException when [.inboxApi] is closed
@@ -100,19 +99,18 @@ class InboxFileStreamWriter private constructor(handle: Long, inboxApi: InboxApi
     )
     fun writeStream(
         inboxHandle: Long,
-        inputStream: Source,
+        source: Source,
         streamController: StoreFileStream.Controller? = null
     ) {
         if (streamController != null) {
             setProgressListener(streamController)
         }
         while (true) {
-            if (streamController != null && streamController.isStopped()) {
+            if (streamController?.isStopped() == true) {
                 return
             }
-            val input = inputStream.buffered()
-            val chunk = input.readByteArray(OPTIMAL_SEND_SIZE.toInt())
-            if (chunk.isNotEmpty()) {
+            val chunk = source.readByteArray(OPTIMAL_SEND_SIZE.toInt())
+            if (chunk.isEmpty()) {
                 return
             }
             write(inboxHandle, chunk)

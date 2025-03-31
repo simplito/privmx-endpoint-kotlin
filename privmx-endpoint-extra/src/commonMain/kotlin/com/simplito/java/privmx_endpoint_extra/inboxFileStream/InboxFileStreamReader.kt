@@ -93,32 +93,6 @@ class InboxFileStreamReader private constructor(
     /**
      * Opens Inbox file and writes it into [Sink] with optimized chunk size [InboxFileStream.OPTIMAL_SEND_SIZE].
      *
-     * @param api          reference to Inbox API
-     * @param fileId       ID of the file to open
-     * @param sink stream to write downloaded data
-     * @return ID of the read file
-     * @throws IOException           if there is an error while writing the stream
-     * @throws IllegalStateException when inboxApi is not initialized or there's no connection
-     * @throws PrivmxException       if there is an error while opening Inbox file
-     * @throws NativeException       if there is an unknown error while opening Inbox file
-     */
-    @Throws(
-        IOException::class,
-        IllegalStateException::class,
-        PrivmxException::class,
-        NativeException::class
-    )
-    fun openFile(
-        api: InboxApi,
-        fileId: String,
-        sink: Sink
-    ): String {
-        return openFile(api, fileId, sink, null)
-    }
-
-    /**
-     * Opens Inbox file and writes it into [Sink] with optimized chunk size [InboxFileStream.OPTIMAL_SEND_SIZE].
-     *
      * @param api              reference to Inbox API
      * @param fileId           ID of the file to open
      * @param sink     stream to write downloaded data
@@ -139,22 +113,21 @@ class InboxFileStreamReader private constructor(
         api: InboxApi,
         fileId: String,
         sink: Sink,
-        streamController: StoreFileStream.Controller?
+        streamController: StoreFileStream.Controller? = null
     ): String {
         val input = openFile(api, fileId)
-        val output = sink.buffered()
         var chunk: ByteArray
 
         if (streamController != null) {
             input.setProgressListener(streamController)
         }
         do {
-            if (streamController != null && streamController.isStopped()) {
+            if (streamController?.isStopped() == true) {
                 input.close()
             }
             chunk = input.read(StoreFileStream.OPTIMAL_SEND_SIZE)
-            output.write(chunk)
-            output.flush()
+            sink.write(chunk)
+            sink.flush()
         } while (chunk.size.toLong() == OPTIMAL_SEND_SIZE)
 
         return input.close()!!
