@@ -106,7 +106,6 @@ class StoreFileStreamReader private constructor(
             api: StoreApi, fileId: String, sink: Sink, streamController: Controller? = null
         ): String {
             val input: StoreFileStreamReader = openFile(api, fileId)
-            val output = sink.buffered()
             var chunk: ByteArray
 
             if (streamController != null) {
@@ -114,12 +113,12 @@ class StoreFileStreamReader private constructor(
             }
 
             do {
-                if (streamController != null && streamController.isStopped()) {
+                if (streamController?.isStopped() == true) {
                     input.close()
                 }
                 chunk = input.read(OPTIMAL_SEND_SIZE)
-                output.write(chunk)
-                output.flush()
+                sink.write(chunk)
+                sink.flush()
             } while (chunk.size.toLong() == OPTIMAL_SEND_SIZE)
 
             return input.close()
