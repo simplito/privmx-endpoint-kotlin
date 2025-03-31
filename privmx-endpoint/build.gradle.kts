@@ -21,13 +21,19 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_1_8)
         }
     }
+
     listOf(
         iosSimulatorArm64(),
         iosArm64(),
     ).forEach {
         it.compilations.getByName("main") {
             cinterops {
-                val libprivmxendpoint by creating
+                val libprivmxendpoint by creating {
+                    this.extraOpts = listOf(
+                        "-libraryPath", "src/nativeInterop/cinterop/privmx-endpoint/${it.name}/lib",
+                        "-compilerOpts", "-Isrc/nativeInterop/cinterop/privmx-endpoint/${it.name}/include"
+                    )
+                }
             }
         }
     }
