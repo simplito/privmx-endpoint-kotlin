@@ -77,7 +77,6 @@ abstract class StoreFileStream
 
     }
 
-
     /**
      * Sets listening for single chunk sent/read.
      * @param progressListener callback triggered when chunk is sent/read
@@ -120,7 +119,4 @@ abstract class StoreFileStream
         isClosed = true
         return ( /*closedFileId =*/storeApi.closeFile(handle)!!)
     }
-
-
-
 }

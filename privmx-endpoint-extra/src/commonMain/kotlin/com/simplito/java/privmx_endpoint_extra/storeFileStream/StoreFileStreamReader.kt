@@ -16,6 +16,7 @@ import com.simplito.java.privmx_endpoint.modules.store.StoreApi
 import kotlinx.io.IOException
 import kotlinx.io.Sink
 import kotlinx.io.buffered
+import kotlin.jvm.JvmOverloads
 
 /**
  * Manages handle for file reading.
@@ -23,8 +24,7 @@ import kotlinx.io.buffered
  * @category store
  */
 class StoreFileStreamReader private constructor(
-    handle: Long,
-    api: StoreApi
+    handle: Long, api: StoreApi
 ) : StoreFileStream(handle, api) {
     /**
      * Reads file data and moves the cursor. If read data size is less than length, then EOF.
@@ -75,39 +75,11 @@ class StoreFileStreamReader private constructor(
          */
         @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
         fun openFile(
-            api: StoreApi,
-            fileId: String
+            api: StoreApi, fileId: String
         ): StoreFileStreamReader {
             return StoreFileStreamReader(
-                api.openFile(fileId)!!,
-                api
+                api.openFile(fileId)!!, api
             )
-        }
-
-        /**
-         * Opens Store file and writes it into [Sink].
-         *
-         * @param api          reference to Store API
-         * @param fileId       ID of the file to open
-         * @param sink stream to write downloaded data with optimized chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
-         * @return ID of the read file
-         * @throws IOException           if there is an error while writing the stream
-         * @throws IllegalStateException when storeApi is not initialized or there's no connection
-         * @throws PrivmxException       if there is an error while opening Store file
-         * @throws NativeException       if there is an unknown error while opening Store file
-         */
-        @Throws(
-            IOException::class,
-            IllegalStateException::class,
-            PrivmxException::class,
-            NativeException::class
-        )
-        fun openFile(
-            api: StoreApi,
-            fileId: String,
-            sink: Sink
-        ): String {
-            return openFile(api, fileId, sink, null)
         }
 
         /**
@@ -129,11 +101,9 @@ class StoreFileStreamReader private constructor(
             PrivmxException::class,
             NativeException::class
         )
+        @JvmOverloads
         fun openFile(
-            api: StoreApi,
-            fileId: String,
-            sink: Sink,
-            streamController: Controller?
+            api: StoreApi, fileId: String, sink: Sink, streamController: Controller? = null
         ): String {
             val input: StoreFileStreamReader = openFile(api, fileId)
             val output = sink.buffered()
@@ -156,4 +126,3 @@ class StoreFileStreamReader private constructor(
         }
     }
 }
-
