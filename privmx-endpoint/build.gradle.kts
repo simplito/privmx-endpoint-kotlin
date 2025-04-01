@@ -1,4 +1,6 @@
-import com.vanniktech.maven.publish.SonatypeHost
+import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.DokkaBaseConfiguration
+import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
@@ -49,7 +51,6 @@ kotlin {
         val androidMain by getting{
             dependsOn(jvmMain.get())
         }
-
         val commonMain by getting {
             dependencies {
                 //put your multiplatform dependencies here
