@@ -38,7 +38,7 @@ subprojects{
         doLast {
             copy {
                 from(rootProject.layout.projectDirectory.file("docs/fonts"))
-                into(outputDirectory.file("fonts"))
+                into(outputDirectory.file("styles/fonts"))
             }
         }
 //        doLast {
