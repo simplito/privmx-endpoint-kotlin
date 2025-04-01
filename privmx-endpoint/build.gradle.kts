@@ -9,7 +9,6 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     id("maven-publish")
-    id("org.jetbrains.dokka") version "2.0.0"
 }
 
 group = "com.simplito.kotlin"
@@ -49,7 +48,9 @@ kotlin {
         val iosMain by getting {
             dependsOn(commonMain.get())
         }
-
+        val androidMain by getting{
+            dependsOn(jvmMain.get())
+        }
         val commonMain by getting {
             dependencies {
                 //put your multiplatform dependencies here
@@ -63,49 +64,6 @@ kotlin {
     }
 }
 
-buildscript {
-    dependencies {
-        classpath("org.jetbrains.dokka:dokka-base:2.0.0")
-    }
-}
-
-tasks.register<DokkaTask>("customHtml") {
-    outputDirectory.set(file(layout.buildDirectory.file("customHtml")))
-    val indexFile = outputDirectory.file("index.html").get().asFile
-    val svgFile = outputDirectory.file("ui-kit/assets/theme-toggle.svg").get().asFile
-    pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
-        templatesDir = file(layout.projectDirectory.file("src/docs/templates"))
-        customAssets = listOf(
-            file(layout.projectDirectory.file("src/docs/fonts/Manrope-VariableFont_wght.ttf"))
-        )
-        customStyleSheets = listOf(
-            file(layout.projectDirectory.file("src/docs/styles/style.css")),
-            file(layout.projectDirectory.file("src/docs/styles/main.css")),
-            file(layout.projectDirectory.file("src/docs/styles/font-jb-sans-auto.css"))
-        )
-    }
-    doLast {
-        val content = svgFile.readText().replace(Regex("rgba\\([^\\)]*\\)"),"currentColor")
-        val buttonTag = "<button class=\"navigation-controls--btn custom-header-icons\" id=\"theme-toggle-button\" type=\"button\">$content</button>"
-        indexFile.readText(Charsets.UTF_8).replace(Regex("<button class=\"navigation-controls--btn navigation-controls--btn_theme\"[^<]*</button>",RegexOption.MULTILINE),buttonTag).let {
-            indexFile.writeText(it)
-        }
-    }
-
-}
-
-tasks.register("dokkaCustom2") {
-    dependsOn("customHtml")
-    val indexFile = file(layout.buildDirectory.file("customHtml/index.html"));
-    val svgFile = file(layout.buildDirectory.file("customHtml/ui-kit/assets/theme-toggle.svg"))
-    doLast {
-        val content = svgFile.readText().replace(Regex("rgba\\([\\)]^*"),"currentColor")
-        val buttonTag = "<button class=\"navigation-controls--btn custom-header-icons\" id=\"theme-toggle-button\" type=\"button\">$content</button>"
-        indexFile.readText(Charsets.UTF_8).replace(Regex("<button class=\"navigation-controls--btn navigation-controls--btn_theme\"(?!=<).*</button>"),buttonTag).let {
-            indexFile.writeText(it)
-        }
-    }
-}
 android {
     namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
