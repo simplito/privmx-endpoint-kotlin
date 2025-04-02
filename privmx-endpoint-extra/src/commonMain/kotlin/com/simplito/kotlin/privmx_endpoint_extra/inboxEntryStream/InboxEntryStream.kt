@@ -8,13 +8,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.simplito.java.privmx_endpoint_extra.inboxEntryStream
+package com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream
 
-import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
-import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
-import com.simplito.java.privmx_endpoint.modules.inbox.InboxApi
-import com.simplito.java.privmx_endpoint_extra.inboxFileStream.InboxFileStreamWriter
-import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStream
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.kotlin.privmx_endpoint.modules.inbox.InboxApi
+import com.simplito.kotlin.privmx_endpoint_extra.inboxFileStream.InboxFileStreamWriter
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -30,6 +30,7 @@ import kotlinx.io.Source
 import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.coroutines.CoroutineContext
+import kotlin.invoke
 import kotlin.jvm.JvmOverloads
 
 /**

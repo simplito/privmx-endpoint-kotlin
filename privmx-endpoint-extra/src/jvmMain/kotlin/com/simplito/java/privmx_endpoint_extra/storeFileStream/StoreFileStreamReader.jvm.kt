@@ -3,7 +3,9 @@ package com.simplito.java.privmx_endpoint_extra.storeFileStream
 import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.java.privmx_endpoint.modules.store.StoreApi
-import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStream.Companion.OPTIMAL_SEND_SIZE
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream.Companion.OPTIMAL_SEND_SIZE
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStreamReader
 import java.io.IOException
 import java.io.OutputStream
 
@@ -12,7 +14,7 @@ import java.io.OutputStream
  *
  * @param api              reference to Store API
  * @param fileId           ID of the file to open
- * @param outputStream     stream to write downloaded data with optimized chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
+ * @param outputStream     stream to write downloaded data with optimized chunk size [com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream.OPTIMAL_SEND_SIZE]
  * @param streamController controls the process of reading file
  * @return ID of the read file
  * @throws IOException           if there is an error while writing stream

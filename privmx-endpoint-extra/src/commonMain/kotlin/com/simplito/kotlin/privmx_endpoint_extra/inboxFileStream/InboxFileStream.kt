@@ -8,12 +8,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.simplito.java.privmx_endpoint_extra.inboxFileStream
+package com.simplito.kotlin.privmx_endpoint_extra.inboxFileStream
 
-import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
-import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
-import com.simplito.java.privmx_endpoint.modules.inbox.InboxApi
-import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStream
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.kotlin.privmx_endpoint.modules.inbox.InboxApi
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream
+import kotlin.jvm.JvmStatic
 
 /**
  * Base class for Inbox file streams.
@@ -32,7 +33,7 @@ abstract class InboxFileStream
      */
     val fileHandle: Long,
     /**
-     * Reference to [com.simplito.java.privmx_endpoint.modules.inbox.InboxApi] instance.
+     * Reference to [com.simplito.kotlin.privmx_endpoint.modules.inbox.InboxApi] instance.
      */
     protected val inboxApi: InboxApi
 ) {
@@ -53,6 +54,14 @@ abstract class InboxFileStream
     var isClosed: Boolean = false
         private set
 
+    companion object {
+        /**
+         * Constant value with optimal size of reading/sending data.
+         */
+        @JvmStatic
+        const val OPTIMAL_SEND_SIZE: Long = 128 * 1024L
+    }
+
     /**
      * Sets listening for single chunk sent/read.
      *
@@ -69,9 +78,7 @@ abstract class InboxFileStream
      */
     protected fun callChunkProcessed(chunkSize: Long) {
         processedBytes += chunkSize
-        if (progressListener != null) {
-            progressListener!!.onChunkProcessed(processedBytes)
-        }
+        progressListener?.onChunkProcessed(processedBytes)
     }
 
     /**
@@ -82,19 +89,8 @@ abstract class InboxFileStream
      * @throws NativeException       if there is an unknown error while closing file
      * @throws IllegalStateException when [.inboxApi] is not initialized or there's no connection
      */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    fun close(): String? {
-        val result = inboxApi.closeFile(fileHandle)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun close(): String = inboxApi.closeFile(fileHandle)!!.also {
         isClosed = true
-        return result
-    }
-
-    companion object {
-        /**
-         * Constant value with optimal size of reading/sending data.
-         */
-        const val OPTIMAL_SEND_SIZE: Long = 128 * 1024L
     }
 }

@@ -13,8 +13,9 @@ package com.simplito.java.privmx_endpoint_extra.inboxEntryStream
 import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.java.privmx_endpoint.modules.inbox.InboxApi
-import com.simplito.java.privmx_endpoint_extra.inboxFileStream.InboxFileStreamWriter
-import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStream
+import com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream
+import com.simplito.kotlin.privmx_endpoint_extra.inboxFileStream.InboxFileStreamWriter
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -245,18 +246,18 @@ class InboxEntryStream private constructor(
     }
 
     /**
-     * Contains available states of [InboxEntryStream].
+     * Contains available states of [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream].
      */
     enum class State {
         /**
-         * The initial state, indicating that [InboxEntryStream] is ready to send files.
+         * The initial state, indicating that [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] is ready to send files.
          */
         PREPARED,
 
         /**
          * Indicates that all files have been sent successfully and the entry is ready to be sent.
          * This state is set when:
-         * 1. The [InboxEntryStream] has been initialized and there are no files to send.
+         * 1. The [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] has been initialized and there are no files to send.
          * 2. All files have been sent successfully.
          */
         FILES_SENT,
@@ -272,13 +273,13 @@ class InboxEntryStream private constructor(
         SENT,
 
         /**
-         * Indicates that the [InboxEntryStream] was canceled.
+         * Indicates that the [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] was canceled.
          */
         ABORTED
     }
 
     /**
-     * Represents information about a file to be sent by [InboxEntryStream].
+     * Represents information about a file to be sent by [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream].
      */
     class FileInfo(
         /**
@@ -306,7 +307,7 @@ class InboxEntryStream private constructor(
     }
 
     /**
-     * Interface for listening to state changes and exchanging data with an [InboxEntryStream] instance.
+     * Interface for listening to state changes and exchanging data with an [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] instance.
      *
      *
      * This interface provides callbacks for various events that occur during the lifecycle of an Inbox entry stream,
@@ -339,7 +340,7 @@ class InboxEntryStream private constructor(
          * If you override this method, you should return the next chunk of the file.
          *
          * Returning `null` will cause a
-         * [NullPointerException] while sending the file and stop the [InboxEntryStream] instance with
+         * [NullPointerException] while sending the file and stop the [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] instance with
          * the state [State.ERROR].
          *
          * @param file info about the file, which chunk is requested
@@ -386,9 +387,9 @@ class InboxEntryStream private constructor(
 
     companion object {
         /**
-         * Creates [InboxEntryStream] instance ready for streaming.
+         * Creates [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] instance ready for streaming.
          *
-         *  This method initializes an [InboxEntryStream] and prepares it for sending
+         *  This method initializes an [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] and prepares it for sending
          * an entry with the provided data. It creates an Inbox handle and sets the
          * initial state of the stream to [State.FILES_SENT].
          *
@@ -396,7 +397,7 @@ class InboxEntryStream private constructor(
          * @param inboxId             ID of the Inbox
          * @param entryStreamListener the listener for stream state changes
          * @param data                entry data to send
-         * @return instance of [InboxEntryStream] prepared for streaming
+         * @return instance of [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] prepared for streaming
          * @throws PrivmxException       when method encounters an exception while creating handles for Inbox or file
          * @throws NativeException       when method encounters an unknown exception while creating handles for Inbox or file
          * @throws IllegalStateException when [IllegalStateException] was thrown while creating handles for Inbox or file
@@ -416,9 +417,9 @@ class InboxEntryStream private constructor(
         }
 
         /**
-         * Creates [InboxEntryStream] instance ready for streaming.
+         * Creates [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] instance ready for streaming.
          *
-         * This method initializes an [InboxEntryStream] and prepares it for sending an entry with the
+         * This method initializes an [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] and prepares it for sending an entry with the
          * associated files and empty data. It creates Inbox and file handles, setting the initial state of the stream
          * to [State.PREPARED], indicating readiness for file transfer.
          *
@@ -426,7 +427,7 @@ class InboxEntryStream private constructor(
          * @param inboxId             ID of the Inbox
          * @param entryStreamListener the listener for stream state changes
          * @param fileInfos           information about each entry's file to send
-         * @return instance of [InboxEntryStream] prepared for streaming
+         * @return instance of [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] prepared for streaming
          * @throws PrivmxException       when method encounters an exception while creating handles for Inbox or file
          * @throws NativeException       when method encounters an unknown exception while creating handles for Inbox or file
          * @throws IllegalStateException when [IllegalStateException] was thrown while creating handles for Inbox or file
@@ -452,9 +453,9 @@ class InboxEntryStream private constructor(
         }
 
         /**
-         * Creates an [InboxEntryStream] instance ready for streaming, with optional files and encryption.
+         * Creates an [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] instance ready for streaming, with optional files and encryption.
          *
-         * This method initializes an [InboxEntryStream] and prepares it for sending an entry with
+         * This method initializes an [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] and prepares it for sending an entry with
          * the provided data and optional associated files. It creates Inbox and file handles (if
          * `fileInfos` is provided), setting the initial state of the stream to
          * [State.PREPARED], indicating readiness for data and file transfer.
@@ -464,7 +465,7 @@ class InboxEntryStream private constructor(
          * @param entryStreamListener the listener for stream state changes
          * @param data                entry data to send
          * @param fileInfos           information about each entry's file to send
-         * @return instance of [InboxEntryStream] prepared for streaming
+         * @return instance of [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] prepared for streaming
          * @throws PrivmxException       when method encounters an exception while creating handles for Inbox or file
          * @throws NativeException       when method encounters an unknown exception while creating handles for Inbox or file
          * @throws IllegalStateException when [IllegalStateException] was thrown while creating handles for Inbox or file
@@ -485,9 +486,9 @@ class InboxEntryStream private constructor(
         }
 
         /**
-         * Creates an [InboxEntryStream] instance ready for streaming, with optional files and encryption.
+         * Creates an [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] instance ready for streaming, with optional files and encryption.
          *
-         * This method initializes an [InboxEntryStream] and prepares it for sending an entry with the provided data,
+         * This method initializes an [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] and prepares it for sending an entry with the provided data,
          * optional associated files, and optional encryption using the sender's private key. It creates an Inbox handle
          * and initializes file handles for any associated files. The initial state of the stream is determined based
          * on the presence of files: if no files are provided, the state is set to [State.FILES_SENT]. Otherwise,
@@ -499,7 +500,7 @@ class InboxEntryStream private constructor(
          * @param data                entry data to send
          * @param fileInfos           information about each entry's file to send
          * @param userPrivKey         sender's private key which can be used later to encrypt data for that sender
-         * @return instance of [InboxEntryStream] prepared for streaming
+         * @return instance of [com.simplito.kotlin.privmx_endpoint_extra.inboxEntryStream.InboxEntryStream] prepared for streaming
          * @throws PrivmxException       when method encounters an exception while creating handles for Inbox or file
          * @throws NativeException       when method encounters an unknown exception while creating handles for Inbox or file
          * @throws IllegalStateException when [IllegalStateException] was thrown while creating handles for Inbox or file

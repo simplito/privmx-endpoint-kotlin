@@ -8,14 +8,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.simplito.java.privmx_endpoint_extra.policies
+package com.simplito.kotlin.privmx_endpoint_extra.policies
 
 /**
- * Contains value for Container's item policies.
+ * Contains value for Container policies.
  */
-open class ItemPolicyValue
+open class ContainerPolicyValue
 /**
- * Creates instance of [ItemPolicyValue].
+ * Creates instance of [ContainerPolicyValue].
  *
  * @param value raw policy value
  */

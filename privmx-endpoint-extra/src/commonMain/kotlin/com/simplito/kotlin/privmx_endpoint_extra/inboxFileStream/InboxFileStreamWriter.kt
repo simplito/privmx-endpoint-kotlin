@@ -8,16 +8,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.simplito.java.privmx_endpoint_extra.inboxFileStream
+package com.simplito.kotlin.privmx_endpoint_extra.inboxFileStream
 
-import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
-import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
-import com.simplito.java.privmx_endpoint.modules.inbox.InboxApi
-import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStream
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.kotlin.privmx_endpoint.modules.inbox.InboxApi
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream
 import kotlinx.io.IOException
 import kotlinx.io.Source
 import kotlinx.io.readByteArray
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * Manages handle for file writing.
@@ -26,37 +27,6 @@ import kotlin.jvm.JvmOverloads
  */
 class InboxFileStreamWriter private constructor(handle: Long, inboxApi: InboxApi) :
     InboxFileStream(handle, inboxApi) {
-    companion object {
-        /**
-         * Creates a new file in given Inbox.
-         *
-         * @param api         reference to Inbox API
-         * @param publicMeta  byte array of any arbitrary metadata that can be read by anyone
-         * @param privateMeta byte array of any arbitrary metadata that will be encrypted before sending
-         * @param size        size of data to write
-         * @return Instance ready to write to the created Inbox file
-         * @throws IllegalStateException when inboxApi is not initialized or there's no connection
-         * @throws PrivmxException       if there is an error while creating Inbox file metadata
-         * @throws NativeException       if there is an unknown error while creating inbox file metadata
-         */
-        @Throws(
-            PrivmxException::class,
-            NativeException::class,
-            IllegalStateException::class
-        )
-        fun createFile(
-            api: InboxApi,
-            publicMeta: ByteArray,
-            privateMeta: ByteArray,
-            size: Long
-        ): InboxFileStreamWriter {
-            if (api == null) throw NullPointerException("api cannot be null")
-            return InboxFileStreamWriter(
-                api.createFileHandle(publicMeta, privateMeta, size)!!,
-                api
-            )
-        }
-    }
 
     /**
      * Writes data to Inbox file.
@@ -90,13 +60,13 @@ class InboxFileStreamWriter private constructor(handle: Long, inboxApi: InboxApi
      * @throws IllegalStateException when [.inboxApi] is closed
      * @throws IOException           when [Source.read] thrown exception or `this` is closed
      */
-    @JvmOverloads
     @Throws(
         PrivmxException::class,
         NativeException::class,
         IllegalStateException::class,
         IOException::class
     )
+    @JvmOverloads
     fun writeStream(
         inboxHandle: Long,
         source: Source,
@@ -106,7 +76,7 @@ class InboxFileStreamWriter private constructor(handle: Long, inboxApi: InboxApi
             setProgressListener(streamController)
         }
         while (true) {
-            if (streamController?.isStopped() == true) {
+            if (streamController?.isStopped == true) {
                 return
             }
             val chunk = source.readByteArray(OPTIMAL_SEND_SIZE.toInt())
@@ -115,5 +85,36 @@ class InboxFileStreamWriter private constructor(handle: Long, inboxApi: InboxApi
             }
             write(inboxHandle, chunk)
         }
+    }
+
+    companion object {
+        /**
+         * Creates a new file in given Inbox.
+         *
+         * @param api         reference to Inbox API
+         * @param publicMeta  byte array of any arbitrary metadata that can be read by anyone
+         * @param privateMeta byte array of any arbitrary metadata that will be encrypted before sending
+         * @param size        size of data to write
+         * @return Instance ready to write to the created Inbox file
+         * @throws IllegalStateException when inboxApi is not initialized or there's no connection
+         * @throws PrivmxException       if there is an error while creating Inbox file metadata
+         * @throws NativeException       if there is an unknown error while creating inbox file metadata
+         */
+        @Throws(
+            PrivmxException::class,
+            NativeException::class,
+            IllegalStateException::class
+        )
+        @JvmStatic
+        fun createFile(
+            api: InboxApi,
+            publicMeta: ByteArray,
+            privateMeta: ByteArray,
+            size: Long
+        ) = InboxFileStreamWriter(
+            api.createFileHandle(publicMeta, privateMeta, size)!!,
+            api
+        )
+
     }
 }

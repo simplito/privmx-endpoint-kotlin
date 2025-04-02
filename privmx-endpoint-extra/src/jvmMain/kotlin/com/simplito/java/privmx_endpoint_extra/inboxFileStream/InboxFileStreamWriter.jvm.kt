@@ -12,8 +12,9 @@ package com.simplito.java.privmx_endpoint_extra.inboxFileStream
 
 import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
-import com.simplito.java.privmx_endpoint.modules.inbox.InboxApi
-import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStream
+import com.simplito.kotlin.privmx_endpoint_extra.inboxFileStream.InboxFileStream
+import com.simplito.kotlin.privmx_endpoint_extra.inboxFileStream.InboxFileStreamWriter
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream
 import kotlinx.io.IOException
 import java.io.InputStream
 

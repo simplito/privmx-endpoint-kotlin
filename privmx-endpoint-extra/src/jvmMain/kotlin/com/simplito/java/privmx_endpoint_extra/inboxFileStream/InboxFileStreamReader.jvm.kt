@@ -13,12 +13,14 @@ package com.simplito.java.privmx_endpoint_extra.inboxFileStream
 import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.java.privmx_endpoint.modules.inbox.InboxApi
-import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStream
+import com.simplito.kotlin.privmx_endpoint_extra.inboxFileStream.InboxFileStream
+import com.simplito.kotlin.privmx_endpoint_extra.inboxFileStream.InboxFileStreamReader
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream
 import kotlinx.io.IOException
 import java.io.OutputStream
 
 /**
- * Opens Inbox file and writes it into [OutputStream] with optimized chunk size [InboxFileStream.OPTIMAL_SEND_SIZE].
+ * Opens Inbox file and writes it into [OutputStream] with optimized chunk size [com.simplito.kotlin.privmx_endpoint_extra.inboxFileStream.InboxFileStream.OPTIMAL_SEND_SIZE].
  *
  * @param api              reference to Inbox API
  * @param fileId           ID of the file to open
