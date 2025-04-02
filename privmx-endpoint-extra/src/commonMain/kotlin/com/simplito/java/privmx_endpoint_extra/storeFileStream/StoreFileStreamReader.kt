@@ -15,7 +15,6 @@ import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.java.privmx_endpoint.modules.store.StoreApi
 import kotlinx.io.IOException
 import kotlinx.io.Sink
-import kotlinx.io.buffered
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
