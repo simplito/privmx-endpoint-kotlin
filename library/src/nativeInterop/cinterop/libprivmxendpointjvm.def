@@ -1,1 +1,0 @@
-compilerOpts= -Isrc/nativeInterop/cinterop/libprivmx/include -Lsrc/nativeInterop/cinterop/libprivmx/libprivmx-endpoint-java.so

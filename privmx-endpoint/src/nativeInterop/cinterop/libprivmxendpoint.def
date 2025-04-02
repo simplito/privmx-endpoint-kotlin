@@ -1,0 +1,6 @@
+headers=privmx/endpoint/interface/endpoint.h Pson/pson.h
+staticLibraries = libgmp.a libopenssl.a libpmxend.a libpoco.a libpson.a
+libraryPaths = src/nativeInterop/cinterop/libprivmx/lib/
+compilerOpts= -Isrc/nativeInterop/cinterop/libprivmx/include
+noStringConversion= pson_new_binary pson_inspect_binary
+linkerOpts= -v
