@@ -131,7 +131,7 @@ class InboxEntryStream private constructor(
         if (fileInfo.fileStream == null) {
             fileHandle.setProgressListener(controller)
             while (fileInfo.fileSize > fileHandle.processedBytes && !fileHandle.isClosed) {
-                if (controller.isStopped()) {
+                if (controller.isStopped) {
                     break
                 }
                 val nextChunk = entryStreamListener.onNextChunkRequest(fileInfo)
@@ -396,7 +396,7 @@ class InboxEntryStream private constructor(
             inboxApi: InboxApi,
             inboxId: String,
             entryStreamListener: EntryStreamListener,
-            data: ByteArray? = ByteArray(0),
+            data: ByteArray = ByteArray(0),
             fileInfos: List<FileInfo> = emptyList(),
             userPrivKey: String? = null
         ): InboxEntryStream {
