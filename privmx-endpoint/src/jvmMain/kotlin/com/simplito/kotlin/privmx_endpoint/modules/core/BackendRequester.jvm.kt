@@ -1,10 +1,13 @@
-package com.simplito.java.privmx_endpoint.modules.core
+package com.simplito.kotlin.privmx_endpoint.modules.core
+
+import com.simplito.kotlin.privmx_endpoint.LibLoader
 
 actual class BackendRequester {
     actual companion object {
         init {
-            System.loadLibrary("privmx-endpoint-java")
+            LibLoader.load()
         }
+
         @JvmStatic
         actual external fun backendRequest(
             serverUrl: String,

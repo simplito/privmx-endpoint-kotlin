@@ -1,4 +1,4 @@
-package com.simplito.java.privmx_endpoint.modules.core
+package com.simplito.kotlin.privmx_endpoint.modules.core
 
 expect class BackendRequester {
     companion object {
