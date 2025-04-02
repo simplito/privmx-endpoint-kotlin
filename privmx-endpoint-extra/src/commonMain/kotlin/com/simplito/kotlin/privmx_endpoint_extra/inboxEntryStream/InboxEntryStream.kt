@@ -30,7 +30,6 @@ import kotlinx.io.Source
 import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.coroutines.CoroutineContext
-import kotlin.invoke
 import kotlin.jvm.JvmOverloads
 
 /**
