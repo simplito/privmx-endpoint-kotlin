@@ -17,6 +17,7 @@ import kotlinx.io.IOException
 import kotlinx.io.Sink
 import kotlinx.io.buffered
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * Manages handle for file reading.
@@ -101,6 +102,7 @@ class StoreFileStreamReader private constructor(
             PrivmxException::class,
             NativeException::class
         )
+        @JvmStatic
         @JvmOverloads
         fun openFile(
             api: StoreApi, fileId: String, sink: Sink, streamController: Controller? = null
@@ -113,7 +115,7 @@ class StoreFileStreamReader private constructor(
             }
 
             do {
-                if (streamController?.isStopped() == true) {
+                if (streamController?.isStopped == true) {
                     input.close()
                 }
                 chunk = input.read(OPTIMAL_SEND_SIZE)

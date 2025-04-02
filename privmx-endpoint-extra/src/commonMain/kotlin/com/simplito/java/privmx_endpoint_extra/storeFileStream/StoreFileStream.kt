@@ -10,7 +10,10 @@
 //
 package com.simplito.java.privmx_endpoint_extra.storeFileStream
 
+import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
+import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.java.privmx_endpoint.modules.store.StoreApi
+import kotlin.jvm.JvmStatic
 
 /**
  * Base class for Store file streams. Implements progress listeners.
@@ -41,12 +44,13 @@ abstract class StoreFileStream
         /**
          * Constant value with optimal size of reading/sending data.
          */
+        @JvmStatic
         const val OPTIMAL_SEND_SIZE: Long = 128 * 1024L
 
     }
 
     /**
-     * Manages sending/reading files using [java.io.InputStream]/[java.io.OutputStream].
+     * Manages sending/reading files using [kotlinx.io.Source]/[kotlinx.io.Sink].
      */
     open class Controller() : ProgressListener {
         var isStopped = false
@@ -57,14 +61,6 @@ abstract class StoreFileStream
          */
         fun stop() {
             isStopped = true
-        }
-
-        /**
-         * Returns information whether the stream should be stopped.
-         * @return `true` if controller is set to stop
-         */
-        fun isStopped(): Boolean {
-            return isStopped
         }
 
         /**
@@ -91,9 +87,7 @@ abstract class StoreFileStream
      */
     protected fun callChunkProcessed(chunkSize: Long) {
         processedBytes += chunkSize
-        if (progressListener != null) {
-            progressListener!!.onChunkProcessed(processedBytes)
-        }
+        progressListener?.onChunkProcessed(processedBytes)
     }
 
     /**
@@ -114,7 +108,7 @@ abstract class StoreFileStream
      * @throws NativeException if there is an unknown error while closing file
      * @throws IllegalStateException when `storeApi` is not initialized or there's no connection
      */
-
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun close(): String {
         isClosed = true
         return ( /*closedFileId =*/storeApi.closeFile(handle)!!)

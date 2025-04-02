@@ -37,8 +37,7 @@ fun StoreFileStreamWriter.Companion.createFile(
     inputStream: InputStream,
     streamController: Controller? = null
 ): String {
-    if (api == null) throw NullPointerException("api could not be null")
-    val output = StoreFileStreamWriter.createFile(
+    val output = createFile(
         api, storeId, publicMeta, privateMeta, size
     )
 
@@ -48,7 +47,7 @@ fun StoreFileStreamWriter.Companion.createFile(
     val chunk = ByteArray(OPTIMAL_SEND_SIZE.toInt())
     var read: Int
     while ((inputStream.read(chunk).also { read = it }) >= 0) {
-        if (streamController?.isStopped() == true) {
+        if (streamController?.isStopped == true) {
             output.close()
         }
         output.write(chunk.copyOf(read))
@@ -75,6 +74,7 @@ fun StoreFileStreamWriter.Companion.createFile(
 @Throws(
     IOException::class, PrivmxException::class, NativeException::class, IllegalStateException::class
 )
+@JvmOverloads
 fun StoreFileStreamWriter.Companion.updateFile(
     api: StoreApi,
     fileId: String,
@@ -84,7 +84,6 @@ fun StoreFileStreamWriter.Companion.updateFile(
     inputStream: InputStream,
     streamController: Controller? = null
 ): String {
-    if (api == null) throw NullPointerException("api could not be null")
     val output = updateFile(api, fileId, publicMeta, privateMeta, size)
     if (streamController != null) {
         output.setProgressListener(streamController)
@@ -92,7 +91,7 @@ fun StoreFileStreamWriter.Companion.updateFile(
     val chunk = ByteArray(OPTIMAL_SEND_SIZE.toInt())
     var read: Int
     while (true) {
-        if (streamController?.isStopped() == true) {
+        if (streamController?.isStopped == true) {
             output.close()
         }
         if ((inputStream.read(chunk).also { read = it }) <= 0) {

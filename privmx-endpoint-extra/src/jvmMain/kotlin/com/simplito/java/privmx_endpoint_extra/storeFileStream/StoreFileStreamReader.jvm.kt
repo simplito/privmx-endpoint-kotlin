@@ -36,7 +36,7 @@ fun StoreFileStreamReader.Companion.openFile(
     }
     var chunk: ByteArray
     do {
-        if (streamController?.isStopped() == true) {
+        if (streamController?.isStopped == true) {
             input.close()
         }
         chunk = input.read(OPTIMAL_SEND_SIZE)

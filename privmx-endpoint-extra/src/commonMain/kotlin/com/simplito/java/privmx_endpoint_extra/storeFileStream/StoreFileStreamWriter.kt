@@ -75,7 +75,6 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
             privateMeta: ByteArray,
             size: Long
         ): StoreFileStreamWriter {
-            if (api == null) throw NullPointerException("api could not be null")
             return StoreFileStreamWriter(
                 api.createFile(storeId, publicMeta, privateMeta, size)!!, api
             )
@@ -101,7 +100,6 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
         fun updateFile(
             api: StoreApi, fileId: String, publicMeta: ByteArray, privateMeta: ByteArray, size: Long
         ): StoreFileStreamWriter {
-            if (api == null) throw NullPointerException("api could not be null")
             return StoreFileStreamWriter(
                 api.updateFile(fileId, publicMeta, privateMeta, size)!!, api
             )
@@ -140,7 +138,6 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
             source: Source,
             streamController: Controller? = null
         ): String {
-            if (api == null) throw NullPointerException("api could not be null")
             val output = createFile(
                 api, storeId, publicMeta, privateMeta, size
             )
@@ -149,7 +146,7 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
             }
             var chunk = source.readByteArray(OPTIMAL_SEND_SIZE.toInt())
             while (chunk.isNotEmpty()) {
-                if (streamController?.isStopped() == true) {
+                if (streamController?.isStopped == true) {
                     output.close()
                 }
                 output.write(chunk)
@@ -191,13 +188,12 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
             source: Source,
             streamController: Controller? = null
         ): String {
-            if (api == null) throw NullPointerException("api could not be null")
             val output = updateFile(api, fileId, publicMeta, privateMeta, size)
             if (streamController != null) {
                 output.setProgressListener(streamController)
             }
             while (true) {
-                if (streamController?.isStopped() == true) {
+                if (streamController?.isStopped == true) {
                     output.close()
                 }
                 val chunk = source.readByteArray(OPTIMAL_SEND_SIZE.toInt())
