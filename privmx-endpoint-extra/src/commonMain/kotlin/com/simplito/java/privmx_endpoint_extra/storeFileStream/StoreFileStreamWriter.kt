@@ -15,8 +15,9 @@ import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.java.privmx_endpoint.modules.store.StoreApi
 import kotlinx.io.IOException
 import kotlinx.io.Source
-import kotlinx.io.buffered
 import kotlinx.io.readByteArray
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * Manages handle for file writing.
@@ -64,84 +65,57 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
          * @throws NativeException       if there is an unknown error while creating store file metadata
          */
         @Throws(
-            PrivmxException::class,
-            NativeException::class,
-            IllegalStateException::class
+            PrivmxException::class, NativeException::class, IllegalStateException::class
         )
+        @JvmStatic
         fun createFile(
             api: StoreApi,
             storeId: String,
             publicMeta: ByteArray,
             privateMeta: ByteArray,
             size: Long
-        ): StoreFileStreamWriter {
-            if (api == null) throw NullPointerException("api could not be null")
-            return StoreFileStreamWriter(
-                api.createFile(storeId, publicMeta, privateMeta, size)!!,
-                api
-            )
-        }
-
-        @Throws(
-            PrivmxException::class,
-            NativeException::class,
-            IllegalStateException::class
+        ) = StoreFileStreamWriter(
+            api.createFile(storeId, publicMeta, privateMeta, size)!!,
+            api
         )
+
+        /**
+         * Updates an existing file.
+         *
+         * @param api         reference to Store API
+         * @param fileId      ID of the file to update
+         * @param publicMeta  new public metadata for the matching file
+         * @param privateMeta new private (encrypted) metadata for the matching file
+         * @param size        size of data to write
+         * @return {@link StoreFileStreamWriter} instance prepared for writing
+         * @throws IllegalStateException when {@code storeApi} is not initialized or there's no connection
+         * @throws PrivmxException       if there is an error while updating Store file metadata
+         * @throws NativeException       if there is an unknown error while updating Store file metadata
+         */
+        @Throws(
+            PrivmxException::class, NativeException::class, IllegalStateException::class
+        )
+        @JvmStatic
         fun updateFile(
             api: StoreApi,
             fileId: String,
             publicMeta: ByteArray,
             privateMeta: ByteArray,
             size: Long
-        ): StoreFileStreamWriter {
-            if (api == null) throw NullPointerException("api could not be null")
-            return StoreFileStreamWriter(
-                api.updateFile(fileId, publicMeta, privateMeta, size)!!,
-                api
-            )
-        }
-
-        /**
-         * Creates a new file in given Store and writes data from given [InputStream].
-         *
-         * @param api         reference to Store API
-         * @param storeId     ID of the Store
-         * @param publicMeta  byte array of any arbitrary metadata that can be read by anyone
-         * @param privateMeta byte array of any arbitrary metadata that will be encrypted before sending
-         * @param size        size of data to write
-         * @param inputStream stream with data to write to the file using optimal chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
-         * @return ID of the created file
-         * @throws IOException           if there is an error while reading stream or `this` is closed
-         * @throws IllegalStateException when storeApi is not initialized or there's no connection
-         * @throws PrivmxException       if there is an error while creating Store file metadata
-         * @throws NativeException       if there is an unknown error while creating Store file metadata
-         */
-        @Throws(
-            IOException::class,
-            PrivmxException::class,
-            NativeException::class,
-            IllegalStateException::class
+        ) = StoreFileStreamWriter(
+            api.updateFile(fileId, publicMeta, privateMeta, size)!!,
+            api
         )
-        fun createFile(
-            api: StoreApi,
-            storeId: String,
-            publicMeta: ByteArray,
-            privateMeta: ByteArray,
-            size: Long,
-            inputStream: Source
-        ): String {
-            return createFile(api, storeId, publicMeta, privateMeta, size, inputStream, null)
-        }
 
         /**
-         * Creates new file in given Store and writes data from given [InputStream].
+         * Creates new file in given Store and writes data from given [Source].
          *
          * @param api              reference to Store API
          * @param storeId          ID of the Store
          * @param publicMeta       byte array of any arbitrary metadata that can be read by anyone
          * @param privateMeta      byte array of any arbitrary metadata that will be encrypted before sending
          * @param size             size of data to write
-         * @param inputStream      stream with data to write to the file using optimal chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
+         * @param source      stream with data to write to the file using optimal chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
          * @param streamController controls the process of writing file
          * @return ID of the created file
          * @throws IOException           if there is an error while reading stream or `this` is closed
@@ -155,31 +129,28 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
             NativeException::class,
             IllegalStateException::class
         )
+        @JvmOverloads
+        @JvmStatic
         fun createFile(
             api: StoreApi,
             storeId: String,
             publicMeta: ByteArray,
             privateMeta: ByteArray,
             size: Long,
-            inputStream: Source,
-            streamController: Controller?
+            source: Source,
+            streamController: Controller? = null
         ): String {
-            if (api == null) throw NullPointerException("api could not be null")
-            val output = createFile(
-                api,
-                storeId,
-                publicMeta,
-                privateMeta,
-                size
-            )
+            val output = createFile(api, storeId, publicMeta, privateMeta, size)
             if (streamController != null) {
                 output.setProgressListener(streamController)
             }
-            val input = inputStream.buffered()
-            val chunk = input.readByteArray(OPTIMAL_SEND_SIZE.toInt())
-            while (chunk.isNotEmpty()) {
-                if (streamController != null && streamController.isStopped()) {
+            while (true) {
+                if (streamController?.isStopped == true) {
                     output.close()
+                }
+                val chunk = source.readByteArray(OPTIMAL_SEND_SIZE.toInt())
+                if (chunk.isEmpty()) {
+                    break
                 }
                 output.write(chunk)
             }
@@ -187,14 +158,14 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
         }
 
         /**
-         * Updates existing file and writes data from passed [InputStream].
+         * Updates existing file and writes data from passed [Source].
          *
          * @param api              reference to Store API
          * @param fileId           ID of the file to update
          * @param publicMeta       new public metadata for the matching file
          * @param privateMeta      new private (encrypted) metadata for the matching file
          * @param size             size of data to write
-         * @param inputStream      stream with data to write to the file using optimal chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
+         * @param source      stream with data to write to the file using optimal chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
          * @param streamController controls the process of writing file
          * @return Updated file ID
          * @throws IOException           if there is an error while reading stream or `this` is closed
@@ -208,66 +179,32 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
             NativeException::class,
             IllegalStateException::class
         )
-        fun updateFile(
-            api: StoreApi?,
-            fileId: String,
-            publicMeta: ByteArray,
-            privateMeta: ByteArray,
-            size: Long,
-            inputStream: Source,
-            streamController: Controller?
-        ): String {
-            if (api == null) throw NullPointerException("api could not be null")
-            val output = updateFile(api, fileId, publicMeta, privateMeta, size)
-            if (streamController != null) {
-                output.setProgressListener(streamController)
-            }
-            while (true) {
-                if (streamController != null && streamController.isStopped()) {
-                    output.close()
-                }
-                val input = inputStream.buffered()
-                val chunk = input.readByteArray(OPTIMAL_SEND_SIZE.toInt())
-                if (chunk.isNotEmpty()) {
-                    break
-                }
-                output.write(chunk)
-            }
-            return output.close()!!
-        }
-
-        /**
-         * Updates existing file and writes data from passed [InputStream].
-         *
-         * @param api         reference to Store API
-         * @param fileId      ID of the file to update
-         * @param publicMeta  new public metadata for the matching file
-         * @param privateMeta new private (encrypted) metadata for the matching file
-         * @param size        size of data to write
-         * @param inputStream stream with data to write to the file using optimal chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
-         * @return Updated file ID
-         * @throws IOException           if there is an error while reading stream or `this` is closed
-         * @throws IllegalStateException when `storeApi` is not initialized or there's no connection
-         * @throws PrivmxException       if there is an error while updating Store file metadata
-         * @throws NativeException       if there is an unknown error while updating Store file metadata
-         */
-        @Throws(
-            IOException::class,
-            PrivmxException::class,
-            NativeException::class,
-            IllegalStateException::class
-        )
+        @JvmOverloads
+        @JvmStatic
         fun updateFile(
             api: StoreApi,
             fileId: String,
             publicMeta: ByteArray,
             privateMeta: ByteArray,
             size: Long,
-            inputStream: Source
+            source: Source,
+            streamController: Controller? = null
         ): String {
-            return updateFile(api, fileId, publicMeta, privateMeta, size, inputStream, null)
+            val output = updateFile(api, fileId, publicMeta, privateMeta, size)
+            if (streamController != null) {
+                output.setProgressListener(streamController)
+            }
+            while (true) {
+                if (streamController?.isStopped == true) {
+                    output.close()
+                }
+                val chunk = source.readByteArray(OPTIMAL_SEND_SIZE.toInt())
+                if (chunk.isEmpty()) {
+                    break
+                }
+                output.write(chunk)
+            }
+            return output.close()
         }
-
     }
-
 }

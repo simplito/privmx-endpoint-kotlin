@@ -15,17 +15,16 @@ import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.java.privmx_endpoint.modules.store.StoreApi
 import kotlinx.io.IOException
 import kotlinx.io.Sink
-import kotlinx.io.buffered
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * Manages handle for file reading.
  *
  * @category store
  */
-class StoreFileStreamReader private constructor(
-    handle: Long,
-    api: StoreApi
-) : StoreFileStream(handle, api) {
+class StoreFileStreamReader private constructor(handle: Long, api: StoreApi) :
+    StoreFileStream(handle, api) {
     /**
      * Reads file data and moves the cursor. If read data size is less than length, then EOF.
      *
@@ -44,9 +43,9 @@ class StoreFileStreamReader private constructor(
     )
     fun read(size: Long): ByteArray {
         if (isClosed) throw IOException("File handle is closed")
-        val result: ByteArray = storeApi.readFromFile(handle, size)
-        callChunkProcessed(result.size.toLong())
-        return result
+        return storeApi.readFromFile(handle, size)!!.also {
+            callChunkProcessed(it.size.toLong())
+        }
     }
 
     /**
@@ -74,48 +73,20 @@ class StoreFileStreamReader private constructor(
          * @throws NativeException       if there is an unknown error while opening Store file
          */
         @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
+        @JvmStatic
         fun openFile(
-            api: StoreApi,
-            fileId: String
-        ): StoreFileStreamReader {
-            return StoreFileStreamReader(
-                api.openFile(fileId)!!,
-                api
-            )
-        }
-
-        /**
-         * Opens Store file and writes it into [OutputStream].
-         *
-         * @param api          reference to Store API
-         * @param fileId       ID of the file to open
-         * @param outputStream stream to write downloaded data with optimized chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
-         * @return ID of the read file
-         * @throws IOException           if there is an error while writing the stream
-         * @throws IllegalStateException when storeApi is not initialized or there's no connection
-         * @throws PrivmxException       if there is an error while opening Store file
-         * @throws NativeException       if there is an unknown error while opening Store file
-         */
-        @Throws(
-            IOException::class,
-            IllegalStateException::class,
-            PrivmxException::class,
-            NativeException::class
+            api: StoreApi, fileId: String
+        ) = StoreFileStreamReader(
+            api.openFile(fileId)!!,
+            api
         )
-        fun openFile(
-            api: StoreApi,
-            fileId: String,
-            outputStream: Sink
-        ): String {
-            return openFile(api, fileId, outputStream, null)
-        }
 
         /**
-         * Opens Store file and writes it into [OutputStream].
+         * Opens Store file and writes it into [Sink].
          *
          * @param api              reference to Store API
          * @param fileId           ID of the file to open
-         * @param outputStream     stream to write downloaded data with optimized chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
+         * @param sink     stream to write downloaded data with optimized chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
          * @param streamController controls the process of reading file
          * @return ID of the read file
          * @throws IOException           if there is an error while writing stream
@@ -129,31 +100,30 @@ class StoreFileStreamReader private constructor(
             PrivmxException::class,
             NativeException::class
         )
+        @JvmStatic
+        @JvmOverloads
         fun openFile(
             api: StoreApi,
             fileId: String,
-            outputStream: Sink,
-            streamController: Controller?
+            sink: Sink,
+            streamController: Controller? = null
         ): String {
             val input: StoreFileStreamReader = openFile(api, fileId)
-            val output = outputStream.buffered()
-            var chunk: ByteArray
 
             if (streamController != null) {
                 input.setProgressListener(streamController)
             }
 
             do {
-                if (streamController != null && streamController.isStopped()) {
-                    break  // return input.close()
+                if (streamController?.isStopped == true) {
+                    input.close()
                 }
-                chunk = input.read(OPTIMAL_SEND_SIZE)
-                output.write(chunk)
-                output.flush()
+                val chunk = input.read(OPTIMAL_SEND_SIZE)
+                sink.write(chunk)
+                sink.flush()
             } while (chunk.size.toLong() == OPTIMAL_SEND_SIZE)
 
             return input.close()
         }
     }
 }
-
