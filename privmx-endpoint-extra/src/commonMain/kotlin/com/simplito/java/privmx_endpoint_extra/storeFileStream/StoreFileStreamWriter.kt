@@ -74,11 +74,10 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
             publicMeta: ByteArray,
             privateMeta: ByteArray,
             size: Long
-        ): StoreFileStreamWriter {
-            return StoreFileStreamWriter(
-                api.createFile(storeId, publicMeta, privateMeta, size)!!, api
-            )
-        }
+        ) = StoreFileStreamWriter(
+            api.createFile(storeId, publicMeta, privateMeta, size)!!,
+            api
+        )
 
         /**
          * Updates an existing file.
@@ -98,12 +97,15 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
         )
         @JvmStatic
         fun updateFile(
-            api: StoreApi, fileId: String, publicMeta: ByteArray, privateMeta: ByteArray, size: Long
-        ): StoreFileStreamWriter {
-            return StoreFileStreamWriter(
-                api.updateFile(fileId, publicMeta, privateMeta, size)!!, api
-            )
-        }
+            api: StoreApi,
+            fileId: String,
+            publicMeta: ByteArray,
+            privateMeta: ByteArray,
+            size: Long
+        ) = StoreFileStreamWriter(
+            api.updateFile(fileId, publicMeta, privateMeta, size)!!,
+            api
+        )
 
         /**
          * Creates new file in given Store and writes data from given [Source].
@@ -138,19 +140,19 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
             source: Source,
             streamController: Controller? = null
         ): String {
-            val output = createFile(
-                api, storeId, publicMeta, privateMeta, size
-            )
+            val output = createFile(api, storeId, publicMeta, privateMeta, size)
             if (streamController != null) {
                 output.setProgressListener(streamController)
             }
-            var chunk = source.readByteArray(OPTIMAL_SEND_SIZE.toInt())
-            while (chunk.isNotEmpty()) {
+            while (true) {
                 if (streamController?.isStopped == true) {
                     output.close()
                 }
+                val chunk = source.readByteArray(OPTIMAL_SEND_SIZE.toInt())
+                if (chunk.isEmpty()) {
+                    break
+                }
                 output.write(chunk)
-                chunk = source.readByteArray(OPTIMAL_SEND_SIZE.toInt())
             }
             return output.close()
         }

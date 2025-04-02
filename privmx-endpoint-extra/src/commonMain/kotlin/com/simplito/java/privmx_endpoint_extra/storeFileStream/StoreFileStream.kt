@@ -110,7 +110,8 @@ abstract class StoreFileStream
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun close(): String {
-        isClosed = true
-        return ( /*closedFileId =*/storeApi.closeFile(handle)!!)
+        return storeApi.closeFile(handle)!!.also {
+            isClosed = true
+        }
     }
 }

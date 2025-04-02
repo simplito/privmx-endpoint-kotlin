@@ -21,7 +21,10 @@ import java.io.OutputStream
  * @throws NativeException       if there is an unknown error while reading Store file
  */
 @Throws(
-    IOException::class, IllegalStateException::class, PrivmxException::class, NativeException::class
+    IOException::class,
+    IllegalStateException::class,
+    PrivmxException::class,
+    NativeException::class
 )
 @JvmOverloads
 fun StoreFileStreamReader.Companion.openFile(
@@ -34,12 +37,11 @@ fun StoreFileStreamReader.Companion.openFile(
     if (streamController != null) {
         input.setProgressListener(streamController)
     }
-    var chunk: ByteArray
     do {
         if (streamController?.isStopped == true) {
             input.close()
         }
-        chunk = input.read(OPTIMAL_SEND_SIZE)
+        val chunk = input.read(OPTIMAL_SEND_SIZE)
         outputStream.write(chunk)
     } while (chunk.size.toLong() == OPTIMAL_SEND_SIZE)
 

@@ -37,9 +37,7 @@ fun StoreFileStreamWriter.Companion.createFile(
     inputStream: InputStream,
     streamController: Controller? = null
 ): String {
-    val output = createFile(
-        api, storeId, publicMeta, privateMeta, size
-    )
+    val output = createFile(api, storeId, publicMeta, privateMeta, size)
 
     if (streamController != null) {
         output.setProgressListener(streamController)
