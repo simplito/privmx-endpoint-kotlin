@@ -10,6 +10,8 @@
 //
 package com.simplito.kotlin.privmx_endpoint.model.exceptions
 
+import kotlin.jvm.JvmOverloads
+
 /**
  * Thrown when a PrivMX Endpoint method encounters an unknown exception.
  * @category errors
@@ -19,4 +21,5 @@ class NativeException
  * Initialize exception with passed message.
  * @param message information about the exception
  */
-internal constructor(message: String?) : RuntimeException(message)
+@JvmOverloads
+internal constructor(message: String = "No message") : RuntimeException(message)
