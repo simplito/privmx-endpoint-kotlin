@@ -1,11 +1,10 @@
-package com.simplito.java.privmx_endpoint_extra.storeFileStream
+package com.simplito.kotlin.privmx_endpoint_extra.storeFileStream
 
-import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
-import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
-import com.simplito.java.privmx_endpoint.modules.store.StoreApi
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
 import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream.Companion.OPTIMAL_SEND_SIZE
 import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream.Controller
-import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStreamWriter
 import java.io.IOException
 import java.io.InputStream
 
@@ -17,7 +16,7 @@ import java.io.InputStream
  * @param publicMeta       byte array of any arbitrary metadata that can be read by anyone
  * @param privateMeta      byte array of any arbitrary metadata that will be encrypted before sending
  * @param size             size of data to write
- * @param inputStream      stream with data to write to the file using optimal chunk size [com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream.OPTIMAL_SEND_SIZE]
+ * @param inputStream      stream with data to write to the file using optimal chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
  * @param streamController controls the process of writing file
  * @return ID of the created file
  * @throws IOException           if there is an error while reading stream or `this` is closed
@@ -62,7 +61,7 @@ fun StoreFileStreamWriter.Companion.createFile(
  * @param publicMeta       new public metadata for the matching file
  * @param privateMeta      new private (encrypted) metadata for the matching file
  * @param size             size of data to write
- * @param inputStream      stream with data to write to the file using optimal chunk size [com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream.OPTIMAL_SEND_SIZE]
+ * @param inputStream      stream with data to write to the file using optimal chunk size [StoreFileStream.OPTIMAL_SEND_SIZE]
  * @param streamController controls the process of writing file
  * @return Updated file ID
  * @throws IOException           if there is an error while reading stream or `this` is closed
