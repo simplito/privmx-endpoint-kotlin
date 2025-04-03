@@ -1,10 +1,10 @@
-package com.simplito.java.privmx_endpoint_extra.storeFileStream
+package com.simplito.kotlin.privmx_endpoint_extra.storeFileStream
 
-import com.simplito.java.privmx_endpoint.model.exceptions.NativeException
-import com.simplito.java.privmx_endpoint.model.exceptions.PrivmxException
-import com.simplito.java.privmx_endpoint.modules.store.StoreApi
-import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStream.Companion.OPTIMAL_SEND_SIZE
-import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStream.Controller
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream.Companion.OPTIMAL_SEND_SIZE
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream.Controller
 import java.io.IOException
 import java.io.InputStream
 

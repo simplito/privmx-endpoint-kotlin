@@ -8,13 +8,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.simplito.java.privmx_endpoint_extra.policies.builders
+package com.simplito.kotlin.privmx_endpoint_extra.policies.builders
 
-import com.simplito.java.privmx_endpoint.model.ContainerPolicy
-import com.simplito.java.privmx_endpoint.model.ContainerPolicyWithoutItem
-import com.simplito.java.privmx_endpoint.model.ItemPolicy
-import com.simplito.java.privmx_endpoint_extra.policies.ContainerPolicyValue
-import com.simplito.java.privmx_endpoint_extra.policies.SpecialPolicyValue
+import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
+import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
+import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
+import com.simplito.kotlin.privmx_endpoint_extra.policies.ContainerPolicyValue
+import com.simplito.kotlin.privmx_endpoint_extra.policies.SpecialPolicyValue
 
 interface ContainerPolicyWithoutItemBuilderScope {
     fun get(policyValue: ContainerPolicyValue): ContainerPolicyBuilder

@@ -1,8 +1,8 @@
-package com.simplito.java.privmx_endpoint_extra.policies.builders
+package com.simplito.kotlin.privmx_endpoint_extra.policies.builders
 
-import com.simplito.java.privmx_endpoint.model.ItemPolicy
-import com.simplito.java.privmx_endpoint_extra.policies.ContainerPolicyValue
-import com.simplito.java.privmx_endpoint_extra.policies.ItemPolicyValue
+import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
+import com.simplito.kotlin.privmx_endpoint_extra.policies.ContainerPolicyValue
+import com.simplito.kotlin.privmx_endpoint_extra.policies.ItemPolicyValue
 
 interface ItemPolicyBuilderScope {
     fun get(policyValue: ItemPolicyValue): ItemPolicyBuilder
