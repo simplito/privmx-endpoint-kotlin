@@ -25,7 +25,7 @@ data class ThreadStatsEventData
     /**
      * ID of the changed Thread.
      */
-    val threadId: String?,
+    val threadId: String,
     /**
      * Timestamp of the most recent Thread message.
      */

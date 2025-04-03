@@ -23,5 +23,5 @@ data class StoreDeletedEventData
     /**
      * ID of the deleted Store.
      */
-    val storeId: String?
+    val storeId: String
 )

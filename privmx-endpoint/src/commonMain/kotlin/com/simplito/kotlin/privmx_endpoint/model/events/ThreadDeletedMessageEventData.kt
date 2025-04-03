@@ -20,13 +20,13 @@ data class ThreadDeletedMessageEventData
  * Creates instance of `ThreadDeletedMessageEventData`.
  * @param threadId ID of the deleted message's Thread.
  * @param messageId ID of the deleted Message.
- */ internal constructor(
+ */(
     /**
      * ID of the deleted message's Thread.
      */
-    val threadId: String?,
+    val threadId: String,
     /**
      * ID of the deleted Message.
      */
-    val messageId: String?
+    val messageId: String
 )

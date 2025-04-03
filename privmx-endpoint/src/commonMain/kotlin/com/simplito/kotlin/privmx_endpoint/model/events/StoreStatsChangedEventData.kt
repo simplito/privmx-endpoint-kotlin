@@ -26,11 +26,11 @@ data class StoreStatsChangedEventData
     /**
      * ID of the changed Store.
      */
-    val storeId: String?,
+    val storeId: String,
     /**
      * ID of the changed Store's Context.
      */
-    val contextId: String?,
+    val contextId: String,
     /**
      * Updated date of the last file in the Store.
      */

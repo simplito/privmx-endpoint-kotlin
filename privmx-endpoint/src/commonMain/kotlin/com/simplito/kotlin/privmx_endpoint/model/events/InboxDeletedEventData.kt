@@ -24,5 +24,5 @@ data class InboxDeletedEventData
     /**
      * ID of the deleted Inbox.
      */
-    val inboxId: String?
+    val inboxId: String
 )
