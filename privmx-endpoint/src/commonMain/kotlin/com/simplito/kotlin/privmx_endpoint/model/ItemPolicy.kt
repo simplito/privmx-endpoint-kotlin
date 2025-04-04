@@ -16,7 +16,7 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @category core
  * @group Core
  */
-data class ItemPolicy
+class ItemPolicy
 /**
  * Creates instance of [ItemPolicy].
  *
