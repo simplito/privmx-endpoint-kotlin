@@ -20,10 +20,10 @@ data class UserWithPubKey(
     /**
      * ID of the user.
      */
-    var userId: String,
+    val userId: String,
 
     /**
      * User's public key.
      */
-    var pubKey: String
+    val pubKey: String
 )
