@@ -7,7 +7,7 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @category core
  * @group Core
 </T> */
-data class PagingList<T>(
+class PagingList<T>(
     /**
      * Total items available to get.
      */

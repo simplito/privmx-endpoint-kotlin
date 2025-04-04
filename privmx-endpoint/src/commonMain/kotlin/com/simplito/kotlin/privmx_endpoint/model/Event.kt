@@ -17,7 +17,7 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @category core
  * @group Events
 </T> */
-data class Event<T: Any>(
+class Event<T: Any>(
     /**
      * Type of the event.
      */
