@@ -17,51 +17,27 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @category core
  * @group Events
 </T> */
-class Event<T> {
+@ConsistentCopyVisibility
+data class Event<T: Any> internal constructor(
     /**
      * Type of the event.
      */
-    var type: String? = null
+    var type: String,
 
     /**
      * The event channel.
      */
-    var channel: String? = null
+    var channel: String,
 
 
     /**
      * ID of connection for this event.
      */
-    var connectionId: Long? = null
+    var connectionId: Long?,
 
     /**
      * The data payload associated with the event.
      * The type of this data is determined by the generic type parameter `T`.
      */
-    var data: T? = null
-
-    /**
-     * Creates instance of Event model.
-     */
-    internal constructor()
-
-    /**
-     * Creates instance of Event model.
-     *
-     * @param type type of event as text
-     * @param channel event channel
-     * @param connectionId ID of connection for this event
-     * @param data event data
-     */
-    constructor(
-        type: String?,
-        channel: String?,
-        connectionId: Long?,
-        data: T?
-    ) {
-        this.type = type
-        this.channel = channel
-        this.connectionId = connectionId
-        this.data = data
-    }
-}
+    var data: T
+)

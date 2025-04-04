@@ -16,7 +16,7 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @category inbox
  * @group Inbox
  */
-class FilesConfig
+data class FilesConfig
 /**
  * Creates instance of `FilesConfig`.
  *

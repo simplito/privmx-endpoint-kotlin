@@ -15,5 +15,5 @@ data class PagingList<T>(
     /**
      * List of items read during single method call.
      */
-    val readItems: List<T>?
+    val readItems: List<T>
 )
