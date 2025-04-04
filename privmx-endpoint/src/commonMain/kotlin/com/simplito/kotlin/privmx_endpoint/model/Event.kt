@@ -17,8 +17,7 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @category core
  * @group Events
 </T> */
-@ConsistentCopyVisibility
-data class Event<T: Any> internal constructor(
+data class Event<T: Any>(
     /**
      * Type of the event.
      */
