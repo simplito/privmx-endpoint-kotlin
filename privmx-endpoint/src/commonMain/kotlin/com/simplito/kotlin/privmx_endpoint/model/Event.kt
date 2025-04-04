@@ -21,22 +21,22 @@ data class Event<T: Any>(
     /**
      * Type of the event.
      */
-    var type: String,
+    val type: String,
 
     /**
      * The event channel.
      */
-    var channel: String,
+    val channel: String,
 
 
     /**
      * ID of connection for this event.
      */
-    var connectionId: Long?,
+    val connectionId: Long?,
 
     /**
      * The data payload associated with the event.
      * The type of this data is determined by the generic type parameter `T`.
      */
-    var data: T
+    val data: T
 )
