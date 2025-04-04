@@ -13,6 +13,22 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds all available information about a Store.
  *
+ * @param storeId               ID of the Store.
+ * @param contextId             ID of the Context.
+ * @param createDate            Store creation timestamp.
+ * @param creator               ID of the Store.
+ * @param lastModificationDate  Store last modification timestamp.
+ * @param lastFileDate          Timestamp of the last created file.
+ * @param lastModifier          ID of the user who last modified the Store.
+ * @param users                 List of users (their IDs) with access to the Store.
+ * @param managers              List of users (their IDs) with management rights.
+ * @param version               Version number (changes on updates).
+ * @param publicMeta            Store's public metadata.
+ * @param privateMeta           Store's private metadata.
+ * @param policy                Store's policies.
+ * @param filesCount            Total number of files in the Store.
+ * @param statusCode            Status code of retrieval and decryption of the `Store`.
+ *
  * @category store
  * @group Store
  */
@@ -78,57 +94,4 @@ class Store
      * Status code of retrieval and decryption of the `Store`.
      */
     var statusCode: Long?
-) {
-
-    /**
-     * Creates instance of `Store` with null policy value.
-     *
-     * @param storeId              ID of the Store.
-     * @param contextId            ID of the Context.
-     * @param createDate           Store creation timestamp.
-     * @param creator              ID of the user who created the Store.
-     * @param lastModificationDate Store last modification timestamp.
-     * @param lastFileDate         Timestamp of the last created file.
-     * @param lastModifier         ID of the user who last modified the Store.
-     * @param users                List of users (their IDs) with access to the Store.
-     * @param managers             List of users (their IDs) with management rights.
-     * @param version              Version number (changes on updates).
-     * @param publicMeta           Store's public metadata.
-     * @param privateMeta          Store's private metadata.
-     * @param filesCount           Total number of files in the Store.
-     * @param statusCode           Status code of retrieval and decryption of the `Store`.
-     */
-    @Deprecated("")
-    constructor(
-        storeId: String,
-        contextId: String,
-        createDate: Long,
-        creator: String,
-        lastModificationDate: Long,
-        lastFileDate: Long,
-        lastModifier: String,
-        users: List<String>,
-        managers: List<String>,
-        version: Long,
-        publicMeta: ByteArray,
-        privateMeta: ByteArray,
-        filesCount: Long,
-        statusCode: Long
-    ) : this(
-        storeId,
-        contextId,
-        createDate,
-        creator,
-        lastModificationDate,
-        lastFileDate,
-        lastModifier,
-        users,
-        managers,
-        version,
-        publicMeta,
-        privateMeta,
-        null,
-        filesCount,
-        statusCode
-    )
-}
+)

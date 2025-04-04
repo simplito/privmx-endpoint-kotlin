@@ -25,7 +25,6 @@ import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
  * @category thread
  */
 expect class ThreadApi(connection: Connection) : AutoCloseable {
-
     /**
      * Creates a new Thread in given Context.
      *

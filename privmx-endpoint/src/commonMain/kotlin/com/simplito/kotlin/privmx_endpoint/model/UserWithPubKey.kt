@@ -13,35 +13,20 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Contains ID of user and the corresponding public key.
  *
+ * @param userId ID of the user.
+ * @param pubKey User's public key.
+ *
  * @category core
  * @group Core
  */
-class UserWithPubKey {
+class UserWithPubKey (
     /**
      * ID of the user.
      */
-    var userId: String? = null
+    var userId: String? = null,
 
     /**
      * User's public key.
      */
     var pubKey: String? = null
-
-    /**
-     * Creates instance of `UserWithPubKey`.
-     */
-    constructor()
-
-    /**
-     * Creates instance of `UserWithPubKey`.
-     * @param userId ID of the user.
-     * @param pubKey User's public key.
-     */
-    constructor(
-        userId: String?,
-        pubKey: String?
-    ) {
-        this.userId = userId
-        this.pubKey = pubKey
-    }
-}
+)

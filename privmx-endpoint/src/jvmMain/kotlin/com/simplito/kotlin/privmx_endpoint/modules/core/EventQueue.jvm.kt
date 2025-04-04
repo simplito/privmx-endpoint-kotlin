@@ -44,6 +44,13 @@ actual object EventQueue {
     @JvmStatic
     actual external fun waitEvent(): Event<*>
 
+    /**
+     * Gets the first event from the events queue.
+     *
+     * @return Event data if any available otherwise return null
+     * @throws PrivmxException thrown when method encounters an exception.
+     * @throws NativeException thrown when method encounters an unknown exception.
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class

@@ -142,7 +142,6 @@ expect class InboxApi(
         lastId: String? = null
     ): PagingList<Inbox>
 
-
     /**
      * Gets public data of given Inbox.
      * You do not have to be logged in to call this function.
@@ -308,7 +307,6 @@ expect class InboxApi(
         inboxFileHandle: Long,
         dataChunk: ByteArray
     )
-
 
     /**
      * Opens a file to read.

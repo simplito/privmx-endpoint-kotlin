@@ -12,17 +12,17 @@ package com.simplito.kotlin.privmx_endpoint.model.events
 
 /**
  * Holds information about changes in a Store's statistics.
- * @category core
- * @group Events
- */
-data class StoreStatsChangedEventData
-/**
- * Creates instance of `StoreStatsChangedEventData`.
+ *
  * @param storeId ID of the changed Store's Context.
  * @param contextId ID of the changed Store.
  * @param lastFileDate Updated date of the last file in the Store.
  * @param filesCount Updated number of files in the Store.
- */(
+ *
+ * @category core
+ * @group Events
+ */
+data class StoreStatsChangedEventData
+(
     /**
      * ID of the changed Store.
      */

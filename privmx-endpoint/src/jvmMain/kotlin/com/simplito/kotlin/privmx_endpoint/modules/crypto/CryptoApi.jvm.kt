@@ -52,16 +52,6 @@ actual class CryptoApi : AutoCloseable {
 
     /**
      * Generates a new private ECC key from a password using pbkdf2.
-     *
-     * @param password the password used to generate the new key
-     * @param salt     random string (additional input for the hashing function)
-     * @return Generated ECC key in WIF format
-     */
-    @Throws(PrivmxException::class, NativeException::class)
-    actual external fun derivePrivateKey(password: String, salt: String): String
-
-    /**
-     * Generates a new private ECC key from a password using pbkdf2.
      * This version of the derive function has a rounds count increased to 200k.
      * This makes using this function a safer choice, but it makes the received key
      * different than in the original version.

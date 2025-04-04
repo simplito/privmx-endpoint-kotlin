@@ -13,18 +13,15 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds Inbox files configuration.
  *
- * @category inbox
- * @group Inbox
- */
-class FilesConfig
-/**
- * Creates instance of `FilesConfig`.
- *
  * @param minCount           Minimum number of files required when sending Inbox entry.
  * @param maxCount           Maximum number of files allowed when sending Inbox entry.
  * @param maxFileSize        Maximum file size allowed when sending Inbox entry.
  * @param maxWholeUploadSize Maximum size of all files in total allowed when sending Inbox entry.
- */(
+ *
+ * @category inbox
+ * @group Inbox
+ */
+class FilesConfig(
     /**
      * Minimum number of files required when sending Inbox entry.
      */

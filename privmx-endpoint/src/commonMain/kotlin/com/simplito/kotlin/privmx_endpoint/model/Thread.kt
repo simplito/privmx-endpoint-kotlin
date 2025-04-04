@@ -13,6 +13,22 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds all available information about a Thread.
  *
+ * @param contextId                 ID of the Thread's Context.
+ * @param threadId                  ID of the Thread.
+ * @param createDate                Thread creation timestamp.
+ * @param creator                   ID of the user who created the Thread.
+ * @param lastModificationDate      Thread last modification timestamp.
+ * @param lastModifier              ID of the user who last modified the Thread.
+ * @param users                     List of users (their IDs) with access to the Thread.
+ * @param managers                  List of users (their IDs) with management rights.
+ * @param version                   Version number (changes on updates).
+ * @param lastMsgDate               Timestamp of the last posted message.
+ * @param publicMeta                Thread's public metadata.
+ * @param privateMeta               Thread's private metadata.
+ * @param messagesCount             Total number of messages in the Thread.
+ * @param policy                    Thread's policies
+ * @param statusCode                Status code of retrieval and decryption of the `Thread`.
+ *
  * @category thread
  * @group Thread
  */
@@ -65,100 +81,16 @@ class Thread(
      * Thread's private metadata.
      */
     var privateMeta: ByteArray?,
-    policy: ContainerPolicy?,
-    messagesCount: Long?,
-    statusCode: Long?
-) {
-    /**
-     * Total number of messages in the Thread.
-     */
-    var messagesCount: Long?
-
     /**
      * Thread's policies
      */
-    var policy: ContainerPolicy?
-
+    var policy: ContainerPolicy?,
+    /**
+     * Total number of messages in the Thread.
+     */
+    var messagesCount: Long?,
     /**
      * Status code of retrieval and decryption of the `Thread`.
      */
     var statusCode: Long?
-
-
-    /**
-     * Creates instance of `Thread`.
-     *
-     * @param contextId            ID of the Context.
-     * @param threadId             ID of the Thread.
-     * @param createDate           Thread creation timestamp.
-     * @param creator              ID of the user who created the Thread.
-     * @param lastModificationDate Thread last modification timestamp.
-     * @param lastModifier         ID of the user who last modified the Thread.
-     * @param users                List of users (their IDs) with access to the Thread.
-     * @param managers             List of users (their IDs) with management rights.
-     * @param version              Version number (changes on updates).
-     * @param lastMsgDate          Timestamp of the last posted message.
-     * @param publicMeta           Total number of messages in the Thread.
-     * @param privateMeta          Thread's public metadata.
-     * @param policy               Thread's policies.
-     * @param messagesCount        Thread's private metadata.
-     * @param statusCode           Status code of retrieval and decryption of the `Thread`.
-     */
-    init {
-        this.policy = policy
-        this.messagesCount = messagesCount
-        this.statusCode = statusCode
-    }
-
-    /**
-     * Creates instance of `Thread` with null policy value.
-     *
-     * @param contextId            ID of the Context.
-     * @param threadId             ID of the Thread.
-     * @param createDate           Thread creation timestamp.
-     * @param creator              ID of the user who created the Thread.
-     * @param lastModificationDate Thread last modification timestamp.
-     * @param lastModifier         ID of the user who last modified the Thread.
-     * @param users                List of users (their IDs) with access to the Thread.
-     * @param managers             List of users (their IDs) with management rights.
-     * @param version              Version number (changes on updates).
-     * @param lastMsgDate          Timestamp of the last posted message.
-     * @param publicMeta           Total number of messages in the Thread.
-     * @param privateMeta          Thread's public metadata.
-     * @param messagesCount        Thread's private metadata.
-     * @param statusCode           Status code of retrieval and decryption of the `Thread`.
-     */
-//    @Deprecated
-    constructor(
-        contextId: String?,
-        threadId: String?,
-        createDate: Long?,
-        creator: String?,
-        lastModificationDate: Long?,
-        lastModifier: String?,
-        users: List<String?>?,
-        managers: List<String?>?,
-        version: Long?,
-        lastMsgDate: Long?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
-        messagesCount: Long?,
-        statusCode: Long?
-    ) : this(
-        contextId,
-        threadId,
-        createDate,
-        creator,
-        lastModificationDate,
-        lastModifier,
-        users,
-        managers,
-        version,
-        lastMsgDate,
-        publicMeta,
-        privateMeta,
-        null,
-        messagesCount,
-        statusCode
-    )
-}
+)

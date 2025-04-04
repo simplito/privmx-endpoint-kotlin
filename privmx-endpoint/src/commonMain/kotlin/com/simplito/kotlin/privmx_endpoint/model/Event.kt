@@ -12,56 +12,34 @@ package com.simplito.kotlin.privmx_endpoint.model
 
 /**
  * Represents a generic event caught by PrivMX Endpoint.
- * @param <T> The type of data associated with the event.
+ * @param T             The type of data associated with the event.
+ * @param type          Type of the event.
+ * @param channel       The event channel.
+ * @param connectionId  ID of connection for this event.
+ * @param data          The data payload associated with the event.
  *
  * @category core
  * @group Events
-</T> */
-class Event<T> {
+*/
+class Event<T> (
     /**
      * Type of the event.
      */
-    var type: String? = null
+    var type: String? = null,
 
     /**
      * The event channel.
      */
-    var channel: String? = null
-
+    var channel: String? = null,
 
     /**
      * ID of connection for this event.
      */
-    var connectionId: Long? = null
+    var connectionId: Long? = null,
 
     /**
      * The data payload associated with the event.
      * The type of this data is determined by the generic type parameter `T`.
      */
     var data: T? = null
-
-    /**
-     * Creates instance of Event model.
-     */
-    internal constructor()
-
-    /**
-     * Creates instance of Event model.
-     *
-     * @param type type of event as text
-     * @param channel event channel
-     * @param connectionId ID of connection for this event
-     * @param data event data
-     */
-    constructor(
-        type: String?,
-        channel: String?,
-        connectionId: Long?,
-        data: T?
-    ) {
-        this.type = type
-        this.channel = channel
-        this.connectionId = connectionId
-        this.data = data
-    }
-}
+)

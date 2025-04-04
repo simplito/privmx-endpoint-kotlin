@@ -13,63 +13,39 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds information about the Message.
  *
+ * @param info         Message's information created by server.
+ * @param publicMeta   Message's public metadata.
+ * @param privateMeta  Message's private metadata.
+ * @param data         Message's data.
+ * @param authorPubKey Public key of the author of the message.
+ * @param statusCode   Status code of retrieval and decryption of the `Message`.
+ *
  * @category thread
  * @group Thread
  */
 class Message(
-    info: ServerMessageInfo?,
-    publicMeta: ByteArray?,
-    privateMeta: ByteArray?,
-    data: ByteArray?,
-    authorPubKey: String?,
-    statusCode: Long?
-) {
     /**
      * Message's information created by server.
      */
-    var info: ServerMessageInfo?
-
+    var info: ServerMessageInfo?,
     /**
      * Message's public metadata.
      */
-    var publicMeta: ByteArray?
-
+    var publicMeta: ByteArray?,
     /**
      * Message's private metadata.
      */
-    var privateMeta: ByteArray?
-
+    var privateMeta: ByteArray?,
     /**
      * Message's data.
      */
-    var data: ByteArray?
-
+    var data: ByteArray?,
     /**
      * Public key of the author of the message.
      */
-    var authorPubKey: String?
-
+    var authorPubKey: String?,
     /**
      * Status code of retrieval and decryption of the `Message`.
      */
     var statusCode: Long?
-
-    /**
-     * Creates instance of `Message`.
-     *
-     * @param info         Message's information created by server.
-     * @param publicMeta   Message's public metadata.
-     * @param privateMeta  Message's private metadata.
-     * @param data         Message's data.
-     * @param authorPubKey Public key of the author of the message.
-     * @param statusCode   Status code of retrieval and decryption of the `Message`.
-     */
-    init {
-        this.info = info
-        this.publicMeta = publicMeta
-        this.privateMeta = privateMeta
-        this.authorPubKey = authorPubKey
-        this.data = data
-        this.statusCode = statusCode
-    }
-}
+)

@@ -29,6 +29,11 @@ import libprivmxendpoint.pson_free_result
 import libprivmxendpoint.pson_free_value
 import libprivmxendpoint.pson_new_object
 
+/**
+ * Manages a connection between the Endpoint and the Bridge server.
+ *
+ * @category core
+ */
 @OptIn(ExperimentalForeignApi::class)
 actual class Connection private constructor() : AutoCloseable {
     private val _nativeConnection = nativeHeap.allocPointerTo<cnames.structs.Connection>()
@@ -39,6 +44,19 @@ actual class Connection private constructor() : AutoCloseable {
     internal fun getConnectionPtr() = nativeConnection.value
 
     actual companion object {
+        /**
+         * Connects to PrivMX Bridge server.
+         *
+         * @param userPrivKey user's private key
+         * @param solutionId  ID of the Solution
+         * @param bridgeUrl   Bridge's Endpoint URL
+         * @return Connection object
+         * @throws PrivmxException thrown when method encounters an exception.
+         * @throws NativeException thrown when method encounters an unknown exception.
+         * @event type: libConnected
+         * channel: -
+         * @payload: [Void]
+         */
         @Throws(PrivmxException::class, NativeException::class)
         actual fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String): Connection =
             Connection().apply {
@@ -58,6 +76,18 @@ actual class Connection private constructor() : AutoCloseable {
                 }
             }
 
+        /**
+         * Connects to PrivMX Bridge server as a guest user.
+         *
+         * @param solutionId ID of the Solution
+         * @param bridgeUrl  Bridge's Endpoint URL
+         * @return Connection object
+         * @throws PrivmxException thrown when method encounters an exception.
+         * @throws NativeException thrown when method encounters an unknown exception.
+         * @event type: libConnected
+         * channel: -
+         * payload: [Void]
+         */
         @Throws(PrivmxException::class, NativeException::class)
         actual fun connectPublic(
             solutionId: String,
@@ -77,12 +107,31 @@ actual class Connection private constructor() : AutoCloseable {
             }
         }
 
+        /**
+         * Allows to set path to the SSL certificate file.
+         *
+         * @param certsPath path to file
+         * @throws PrivmxException thrown when method encounters an exception.
+         * @throws NativeException thrown when method encounters an unknown exception.
+         */
         @Throws(PrivmxException::class, NativeException::class)
         actual fun setCertsPath(certsPath: String): Unit = memScoped {
             privmx_endpoint_setCertsPath(certsPath)
         }
     }
 
+    /**
+     * Gets a list of Contexts available for the user.
+     *
+     * @param skip      skip number of elements to skip from result
+     * @param limit     limit of elements to return for query
+     * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
+     * @param lastId    ID of the element from which query results should start
+     * @return list of Contexts
+     * @throws IllegalStateException thrown when instance is not connected.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
     @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
     actual fun listContexts(
         skip: Long, limit: Long, sortOrder: String, lastId: String?
@@ -105,6 +154,19 @@ actual class Connection private constructor() : AutoCloseable {
         }
     }
 
+    /**
+     * Disconnects from PrivMX Bridge server.
+     *
+     * @throws IllegalStateException thrown when instance is not connected or closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @event type: libDisconnected
+     * channel: -
+     * payload: [Void]
+     * @event type: libPlatformDisconnected
+     * channel: -
+     * payload: [Void]
+     */
     @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
     actual fun disconnect() = memScoped {
         val args = pson_new_object()
@@ -120,7 +182,11 @@ actual class Connection private constructor() : AutoCloseable {
         }
     }
 
-
+    /**
+     * Gets the ID of the current connection.
+     *
+     * @return ID of the connection
+     */
     @Throws(IllegalStateException::class)
     actual fun getConnectionId(): Long? = memScoped {
         val result = allocPointerTo<pson_value>()
@@ -134,6 +200,10 @@ actual class Connection private constructor() : AutoCloseable {
         }
     }
 
+    /**
+     * If there is an active connection then it
+     * disconnects from PrivMX Bridge and frees memory making this instance not reusable.
+     */
     actual override fun close() {
         if (_nativeConnection.value == null) return
         disconnect()

@@ -32,6 +32,11 @@ import libprivmxendpoint.pson_free_result
 import libprivmxendpoint.pson_free_value
 import libprivmxendpoint.pson_new_array
 
+/**
+ * Manages PrivMX Bridge Stores and Files.
+ *
+ * @category store
+ */
 @OptIn(ExperimentalForeignApi::class)
 actual class StoreApi actual constructor(connection: Connection) :
     AutoCloseable {
@@ -57,6 +62,23 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Creates a new Store in given Context.
+     *
+     * @param contextId   ID of the Context to create the Store in
+     * @param users       list of [UserWithPubKey] which indicates who will have access to the created Store
+     * @param managers    list of [UserWithPubKey] which indicates who will have access (and management rights) to the
+     * created Store
+     * @param publicMeta  public (unencrypted) metadata
+     * @param privateMeta private (encrypted) metadata
+     * @return Created Store ID
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @event type: storeCreated
+     * channel: store
+     * payload: [Store]
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -88,6 +110,24 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Updates an existing Store.
+     *
+     * @param storeId     ID of the Store to update
+     * @param users       list of [UserWithPubKey] which indicates who will have access to the updated Store
+     * @param managers    list of [UserWithPubKey] which indicates who will have access (and management rights) to the
+     * updated Store
+     * @param publicMeta  public (unencrypted) metadata
+     * @param privateMeta private (encrypted) metadata
+     * @param version     current version of the updated Store
+     * @param force       force update (without checking version)
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @event type: storeUpdated
+     * channel: store
+     * payload: [Store]
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -126,6 +166,15 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Gets a single Store by given Store ID.
+     *
+     * @param storeId ID of the Store to get
+     * @return Information about the Store
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -144,6 +193,19 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Gets a list of Stores in given Context.
+     *
+     * @param contextId ID of the Context to get the Stores from
+     * @param skip      skip number of elements to skip from result
+     * @param limit     limit of elements to return for query
+     * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
+     * @param lastId    ID of the element from which query results should start
+     * @return list of Stores
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun listStores(
         contextId: String,
@@ -173,6 +235,17 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Deletes a Store by given Store ID.
+     *
+     * @param storeId ID of the Store to delete
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @event type: storeDeleted
+     * channel: store
+     * payload: [StoreDeletedEventData]
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -191,6 +264,18 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Creates a new file in a Store.
+     *
+     * @param storeId     ID of the Store to create the file in
+     * @param publicMeta  public file metadata
+     * @param privateMeta private file metadata
+     * @param size        size of the file
+     * @return Handle to write data
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -218,6 +303,18 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Updates an existing file in a Store.
+     *
+     * @param fileId      ID of the file to update
+     * @param publicMeta  public file metadata
+     * @param privateMeta private file metadata
+     * @param size        size of the file
+     * @return Handle to write file data
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -245,6 +342,19 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Updates metadata of an existing file in a Store.
+     *
+     * @param fileId      ID of the file to update
+     * @param publicMeta  public file metadata
+     * @param privateMeta private file metadata
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @event type: storeFileUpdated
+     * channel: store/&lt;storeId&gt;/files
+     * payload: [File]
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -271,6 +381,15 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Writes a file data.
+     *
+     * @param fileHandle handle to write file data
+     * @param dataChunk  file data chunk
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -292,6 +411,17 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Deletes a file by given ID.
+     *
+     * @param fileId ID of the file to delete
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @event type: storeFileDeleted
+     * channel: store/&lt;storeId&gt;/files
+     * payload: [StoreFileDeletedEventData]
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -312,6 +442,15 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Gets a single file by the given file ID.
+     *
+     * @param fileId ID of the file to get
+     * @return Information about the file
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -332,6 +471,19 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Gets a list of files in given Store.
+     *
+     * @param storeId   ID of the Store to get files from
+     * @param skip      skip number of elements to skip from result
+     * @param limit     limit of elements to return for query
+     * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
+     * @param lastId    ID of the element from which query results should start
+     * @return list of files
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -365,6 +517,15 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Opens a file to read.
+     *
+     * @param fileId ID of the file to read
+     * @return Handle to read file data
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -384,6 +545,16 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Reads file data.
+     *
+     * @param fileHandle handle to read file data
+     * @param length     size of data to read
+     * @return File data chunk
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -404,6 +575,15 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Moves read cursor.
+     *
+     * @param fileHandle handle to read/write file data
+     * @param position   new cursor position
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -425,6 +605,24 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Closes the file handle.
+     *
+     * @param fileHandle handle to read/write file data
+     * @return ID of closed file
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @event type: storeStatsChanged
+     * channel: store
+     * payload: [StoreStatsChangedEventData]
+     * @event type: storeFileCreated
+     * channel: store/&lt;storeId&gt;/files
+     * payload: [File]
+     * @event type: storeFileUpdated
+     * channel: store/&lt;storeId&gt;/files
+     * payload: [File]
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -444,6 +642,13 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Subscribes for the Store module main events.
+     *
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -462,6 +667,13 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Unsubscribes from the Store module main events.
+     *
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -480,6 +692,14 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Subscribes for events in given Store.
+     *
+     * @param storeId ID of the Store to subscribe
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -500,6 +720,14 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Unsubscribes from events in given Store.
+     *
+     * @param storeId ID of the `Store` to unsubscribe
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class,
@@ -520,6 +748,11 @@ actual class StoreApi actual constructor(connection: Connection) :
         }
     }
 
+    /**
+     * Frees memory.
+     *
+     * @throws Exception when instance is currently closed.
+     */
     actual override fun close() {
         if (_nativeStoreApi.value == null) return
         privmx_endpoint_freeStoreApi(_nativeStoreApi.value)

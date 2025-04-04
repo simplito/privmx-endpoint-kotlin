@@ -13,20 +13,18 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Contains container items policies.
  *
- * @category core
- * @group Core
- */
-class ItemPolicy
-/**
- * Creates instance of [ItemPolicy].
- *
  * @param get     determines who can get an item
  * @param listMy  determines who can list items created by themselves
  * @param listAll determines who can list all items
  * @param create  determines who can create an item
  * @param update  determines who can update an item
  * @param delete  determines who can delete an item
- */(
+ *
+ * @category core
+ * @group Core
+ */
+class ItemPolicy
+(
     /**
      * Determines who can get an item.
      */

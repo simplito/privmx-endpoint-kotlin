@@ -13,13 +13,6 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds information about Inbox entry.
  *
- * @category inbox
- * @group Inbox
- */
-class InboxEntry
-/**
- * Creates instance of `InboxEntry`.
- *
  * @param entryId      ID of the entry.
  * @param inboxId      ID of the Inbox.
  * @param data         Entry data.
@@ -27,7 +20,12 @@ class InboxEntry
  * @param authorPubKey Public key of the author of an entry.
  * @param createDate   Inbox entry creation timestamp.
  * @param statusCode   Status code of retrieval and decryption of the `Inbox` entry.
- */(
+ *
+ * @category inbox
+ * @group Inbox
+ */
+class InboxEntry
+    (
     /**
      * ID of the entry.
      */

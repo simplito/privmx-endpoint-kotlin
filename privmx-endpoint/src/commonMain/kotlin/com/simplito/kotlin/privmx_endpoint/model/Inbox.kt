@@ -13,13 +13,6 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds all available information about an Inbox.
  *
- * @category inbox
- * @group Inbox
- */
-class Inbox
-/**
- * Creates instance of `Inbox`.
- *
  * @param inboxId              ID of the Inbox.
  * @param contextId            ID of the Context.
  * @param createDate           Inbox creation timestamp.
@@ -34,7 +27,12 @@ class Inbox
  * @param filesConfig          Inbox files configuration.
  * @param policy               Inbox policies.
  * @param statusCode           Status code of retrieval and decryption of the `Inbox`.
- */(
+ *
+ * @category inbox
+ * @group Inbox
+ */
+class Inbox
+    (
     /**
      * ID of the Inbox.
      */
@@ -91,53 +89,4 @@ class Inbox
      * Status code of retrieval and decryption of the `Inbox`.
      */
     var statusCode: Long?
-) {
-    /**
-     * Creates instance of `Inbox` with null policy value.
-     *
-     * @param inboxId              ID of the Inbox.
-     * @param contextId            ID of the Context.
-     * @param createDate           Inbox creation timestamp.
-     * @param creator              ID of the user who created the Inbox.
-     * @param lastModificationDate Inbox last modification timestamp.
-     * @param lastModifier         ID of the user who last modified the Inbox.
-     * @param users                List of users (their IDs) with access to the Inbox.
-     * @param managers             List of users (their IDs) with management rights.
-     * @param version              Version number (changes on updates).
-     * @param publicMeta           Inbox public metadata.
-     * @param privateMeta          Inbox private metadata.
-     * @param filesConfig          Inbox files configuration.
-     * @param statusCode           Status code of retrieval and decryption of the `Inbox`.
-     */
-    @Deprecated("")
-    constructor(
-        inboxId: String,
-        contextId: String,
-        createDate: Long,
-        creator: String,
-        lastModificationDate: Long,
-        lastModifier: String,
-        users: List<String>,
-        managers: List<String>,
-        version: Long,
-        publicMeta: ByteArray,
-        privateMeta: ByteArray,
-        filesConfig: FilesConfig,
-        statusCode: Long
-    ) : this(
-        inboxId,
-        contextId,
-        createDate,
-        creator,
-        lastModificationDate,
-        lastModifier,
-        users,
-        managers,
-        version,
-        publicMeta,
-        privateMeta,
-        filesConfig,
-        null,
-        statusCode
-    )
-}
+)
