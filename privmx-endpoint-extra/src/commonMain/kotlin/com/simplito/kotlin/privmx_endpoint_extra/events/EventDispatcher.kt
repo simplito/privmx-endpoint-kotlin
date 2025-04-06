@@ -15,8 +15,19 @@ import com.simplito.kotlin.privmx_endpoint.model.Event
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
+/**
+ * Represents a callback for catching events data.
+ * @param T type of the caught event data
+ *
+ * @category core
+ */
 //TODO: Try to use function type instead of SAM/functional interface
 fun interface EventCallback<T>{
+    /**
+     * Called to handle data from a captured event.
+     *
+     *  @param event the caught event
+     */
     operator fun invoke(event: Event<out T>)
 }
 
@@ -59,7 +70,7 @@ class EventDispatcher(
     /**
      * Emits specified event. It should only be called by event loops.
      *
-     * @param <T>   type of event data
+     * @param T     type of event data
      * @param event event data to emit
     </T> */
     suspend fun <T> emit(event: Event<out T>) {

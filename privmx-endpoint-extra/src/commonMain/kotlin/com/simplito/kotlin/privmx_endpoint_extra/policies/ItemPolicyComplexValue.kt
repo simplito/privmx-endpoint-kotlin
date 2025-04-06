@@ -8,19 +8,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.simplito.java.privmx_endpoint_extra.policies
+package com.simplito.kotlin.privmx_endpoint_extra.policies
 
 /**
  * Represents a complex value for Container item policies, allowing logical combinations with other [ItemPolicyComplexValue] instances.
  * These complex values enable the creation of fine-grained access control rules by combining multiple policy criteria using logical operators.
- */
-class ItemPolicyComplexValue
-/**
- * Creates instance of [ItemPolicyComplexValue]
  *
  * @param value raw policy value
  */
-internal constructor(value: String) : ItemPolicyValue(value) {
+class ItemPolicyComplexValue internal constructor(value: String) : ItemPolicyValue(value) {
     /**
      * Combines this policy with another policy using the logical OR operator.
      *

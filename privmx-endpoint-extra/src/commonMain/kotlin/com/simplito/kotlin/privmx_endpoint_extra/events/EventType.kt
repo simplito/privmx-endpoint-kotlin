@@ -28,9 +28,9 @@ import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
 /**
  * Defines the structure to register PrivMX Bridge event callbacks using [PrivmxEndpoint.registerCallback].
  *
- * @param <T> the type of data contained in the Event.
+ * @param T the type of data contained in the Event.
  * @category core
-</T> */
+ */
 sealed class EventType<out Any>(
     /**
      * Channel of this event type.

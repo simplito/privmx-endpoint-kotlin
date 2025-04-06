@@ -8,24 +8,71 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.simplito.java.privmx_endpoint_extra.policies.builders
+package com.simplito.kotlin.privmx_endpoint_extra.policies.builders
 
-import com.simplito.java.privmx_endpoint.model.ContainerPolicy
-import com.simplito.java.privmx_endpoint.model.ContainerPolicyWithoutItem
-import com.simplito.java.privmx_endpoint.model.ItemPolicy
-import com.simplito.java.privmx_endpoint_extra.policies.ContainerPolicyValue
-import com.simplito.java.privmx_endpoint_extra.policies.SpecialPolicyValue
+import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
+import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
+import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
+import com.simplito.kotlin.privmx_endpoint_extra.policies.ContainerPolicyValue
+import com.simplito.kotlin.privmx_endpoint_extra.policies.SpecialPolicyValue
 
 interface ContainerPolicyWithoutItemBuilderScope {
+    /**
+     * Sets [ContainerPolicyWithoutItem.get] policy value
+     *
+     * @param policyValue the rule determining who can get container
+     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
+     */
     fun get(policyValue: ContainerPolicyValue): ContainerPolicyBuilder
+
+    /**
+     * ets [ContainerPolicyWithoutItem.update] policy value.
+     *
+     * @param policyValue the rule determining who can update container
+     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
+     */
     fun update(policyValue: ContainerPolicyValue): ContainerPolicyBuilder
+
+    /**
+     * Sets [ContainerPolicyWithoutItem.delete] policy value.
+     *
+     * @param policyValue the rule determining who can delete container
+     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
+     */
     fun delete(policyValue: ContainerPolicyValue): ContainerPolicyBuilder
+
+    /**
+     * Sets [ContainerPolicyWithoutItem.updatePolicy] policy value.
+     *
+     * @param policyValue the access rule for modifying container policies
+     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
+     */
     fun updatePolicy(policyValue: ContainerPolicyValue): ContainerPolicyBuilder
+
+    /**
+     * Sets [ContainerPolicyWithoutItem.updaterCanBeRemovedFromManagers] policy value.
+     *
+     * @param policyValue the special rule indicating if user who can update the container can be removed from the list of managers.
+     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
+     */
     fun updaterCanBeRemovedFromManagers(policyValue: SpecialPolicyValue): ContainerPolicyBuilder
+
+    /**
+     * Sets [ContainerPolicyWithoutItem.ownerCanBeRemovedFromManagers] policy value.
+     *
+     * @param policyValue the special rule indicating if removal is allowed
+     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
+     */
     fun ownerCanBeRemovedFromManagers(policyValue: SpecialPolicyValue): ContainerPolicyBuilder
 }
 
 interface ContainerPolicyBuilderScope : ContainerPolicyWithoutItemBuilderScope {
+    /**
+     * Sets the access policy for items within the container.
+     *
+     * @param item the item access policy
+     * @return  [ContainerPolicyBuilder]
+     */
     fun item(item: ItemPolicy): ContainerPolicyBuilder
 }
 
@@ -79,65 +126,23 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
             containerPolicyWithoutItem.ownerCanBeRemovedFromManagers
     }
 
-    /**
-     * Sets [ContainerPolicyWithoutItem.get] policy value.
-     *
-     * @param policyValue policy value to set
-     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
-     */
     override fun get(policyValue: ContainerPolicyValue) = apply { this.get = policyValue.value }
 
-    /**
-     * Sets [ContainerPolicyWithoutItem.update] policy value.
-     *
-     * @param policyValue policy value to set
-     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
-     */
     override fun update(policyValue: ContainerPolicyValue) =
         apply { this.update = policyValue.value }
 
-    /**
-     * Sets [ContainerPolicyWithoutItem.delete] policy value.
-     *
-     * @param policyValue policy value to set
-     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
-     */
     override fun delete(policyValue: ContainerPolicyValue) =
         apply { this.delete = policyValue.value }
 
-    /**
-     * Sets [ContainerPolicyWithoutItem.updatePolicy] policy value.
-     *
-     * @param policyValue policy value to set
-     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
-     */
     override fun updatePolicy(policyValue: ContainerPolicyValue) =
         apply { this.updatePolicy = policyValue.value }
 
-    /**
-     * Sets [ContainerPolicyWithoutItem.updaterCanBeRemovedFromManagers] policy value.
-     *
-     * @param policyValue policy value to set
-     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
-     */
     override fun updaterCanBeRemovedFromManagers(policyValue: SpecialPolicyValue) =
         apply { this.updaterCanBeRemovedFromManagers = policyValue.value }
 
-    /**
-     * Sets [ContainerPolicyWithoutItem.ownerCanBeRemovedFromManagers] policy value.
-     *
-     * @param policyValue policy value to set
-     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
-     */
     override fun ownerCanBeRemovedFromManagers(policyValue: SpecialPolicyValue) =
         apply { this.ownerCanBeRemovedFromManagers = policyValue.value }
 
-    /**
-     * Sets [ContainerPolicy.item] items policy value.
-     *
-     * @param item policy value to set
-     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
-     */
     override fun item(item: ItemPolicy) = apply { this.item = item }
 
     /**
@@ -170,11 +175,49 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
     )
 }
 
+/**
+ * Creates or updates a [ContainerPolicy] using a builder DSL.
+ * This function allows building a full container policy, including item-level access rules.
+ * If a [currentPolicy] is provided, its settings will be used as a base.
+ *
+ *
+ *
+ * ### Example:
+ * ```
+ * val policy = containerPolicy {
+ *     get(...)
+ *     update(...)
+ *     item(ItemPolicy(...))
+ * }
+ * ```
+ *
+ * @param currentPolicy optional existing policy to use as a base
+ * @param buildBlock DSL block to configure the new containerPolicy
+ * @return [ContainerPolicy]
+ */
 fun containerPolicy(
-    currentPolicy: ContainerPolicy? = null,
-    buildBlock: ContainerPolicyBuilderScope.() -> Unit
+    currentPolicy: ContainerPolicy? = null, buildBlock: ContainerPolicyBuilderScope.() -> Unit
 ) = currentPolicy.builder().apply(buildBlock).build()
 
+/**
+ * Creates or updates a [ContainerPolicyWithoutItem] using a builder DSL.
+ *
+ * This function allows building container-level policies only.
+ * If a [currentPolicy] is provided, its settings will be used as a base.
+ *
+ * ### Example:
+ * ```
+ * val policy = containerPolicy {
+ *     get(...)
+ *     update(...)
+ *     item(ItemPolicy(...))
+ * }
+ * ```
+ *
+ * @param currentPolicy optional existing policy to use as a base
+ * @param buildBlock DSL block to configure the container-level policy
+ * @return [ContainerPolicyWithoutItem]
+ */
 fun containerPolicyWithoutItem(
     currentPolicy: ContainerPolicyWithoutItem? = null,
     buildBlock: ContainerPolicyWithoutItemBuilderScope.() -> Unit

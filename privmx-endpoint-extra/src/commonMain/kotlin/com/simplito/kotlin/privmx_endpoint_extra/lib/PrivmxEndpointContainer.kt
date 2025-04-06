@@ -43,7 +43,6 @@ import kotlin.collections.get
 class PrivmxEndpointContainer : AutoCloseable {
     private val privmxEndpoints = mutableMapOf<Long, PrivmxEndpoint>()
 
-
     /**
      * Instance of [CryptoApi].
      */
@@ -89,6 +88,9 @@ class PrivmxEndpointContainer : AutoCloseable {
         return privmxEndpoints.get(connectionId)!!
     }
 
+    /**
+     * Set of all active connection's IDs
+     */
     val endpointIDs: Set<Long?>
         /**
          * Returns set of all active connection's IDs.

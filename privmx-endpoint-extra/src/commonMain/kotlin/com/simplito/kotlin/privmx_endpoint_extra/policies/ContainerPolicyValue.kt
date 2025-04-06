@@ -8,13 +8,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.simplito.java.privmx_endpoint_extra.policies
+package com.simplito.kotlin.privmx_endpoint_extra.policies
 
 /**
- * Base class for all policies values.
+ * Contains value for Container policies.
+ *
+ * @param value raw policy value
  */
-
-interface PolicyValue
-{
-    val value: String
-}
+open class ContainerPolicyValue internal constructor(override val value: String) : PolicyValue

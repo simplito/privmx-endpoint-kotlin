@@ -19,6 +19,13 @@ import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
 /**
  * A collection of all PrivMX Endpoint modules. It represents a single connection to PrivMX Bridge.
  *
+ * @param enableModule   set of modules to initialize; should contain [Modules.THREAD]
+ * to enable Thread module or [Modules.STORE] to enable Store module
+ * @param bridgeUrl      Bridge's Endpoint URL
+ * @param solutionId     `SolutionId` of the current project
+ * @param userPrivateKey user private key used to authorize; generated from:
+ * [CryptoApi.generatePrivateKey] or [CryptoApi.derivePrivateKey]
+ *
  * @category core
  */
 open class BasicPrivmxEndpoint(
@@ -28,50 +35,24 @@ open class BasicPrivmxEndpoint(
     bridgeUrl: String
 ) : AutoCloseable {
     /**
+     * Reference to Connection module.
+     */
+    val connection: Connection = Connection.connect(userPrivateKey, solutionId, bridgeUrl)
+
+    /**
      * Reference to Store module.
      */
-    val storeApi: StoreApi?
+    val storeApi: StoreApi? = if (enableModule.contains(Modules.STORE)) StoreApi(connection) else null
 
     /**
      * Reference to Thread module.
      */
-    val threadApi: ThreadApi?
+    val threadApi: ThreadApi? = if (enableModule.contains(Modules.THREAD)) ThreadApi(connection) else null
 
     /**
      * Reference to Inbox module.
      */
-    val inboxApi: InboxApi?
-
-    /**
-     * Reference to Connection module.
-     */
-    val connection: Connection
-
-
-    /**
-     * Initializes modules and connects to PrivMX Bridge server using given parameters.
-     *
-     * @param enableModule   set of modules to initialize; should contain [Modules.THREAD]
-     * to enable Thread module or [Modules.STORE] to enable Store module
-     * @param bridgeUrl      Bridge's Endpoint URL
-     * @param solutionId     `SolutionId` of the current project
-     * @param userPrivateKey user private key used to authorize; generated from:
-     * [CryptoApi.generatePrivateKey] or
-     * [CryptoApi.derivePrivateKey]
-     * @throws IllegalStateException thrown if there is an exception during init modules
-     * @throws PrivmxException       thrown if there is a problem during login
-     * @throws NativeException       thrown if there is an **unknown** problem during login
-     */
-    init {
-        connection = Connection.connect(userPrivateKey, solutionId, bridgeUrl)
-        storeApi = if (enableModule.contains(Modules.STORE)) StoreApi(connection) else null
-        threadApi = if (enableModule.contains(Modules.THREAD)) ThreadApi(connection) else null
-        inboxApi = if (enableModule.contains(Modules.INBOX)) InboxApi(
-            connection,
-            threadApi,
-            storeApi
-        ) else null
-    }
+    val inboxApi: InboxApi? = if (enableModule.contains(Modules.INBOX)) InboxApi(connection, threadApi, storeApi) else null
 
     /**
      * Disconnects from PrivMX Bridge and frees memory.

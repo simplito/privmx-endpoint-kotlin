@@ -19,23 +19,17 @@ import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
 /**
  * Extends [BasicPrivmxEndpoint] with event callbacks dispatcher.
  *
- * @category core
- */
-class PrivmxEndpoint
-/**
- * Calls [BasicPrivmxEndpoint.BasicPrivmxEndpoint].
- *
  * @param enableModule   set of modules to initialize; should contain [Modules.THREAD]
  * to enable Thread module or [Modules.STORE] to enable Store module
  * @param bridgeUrl      Bridge's Endpoint URL
  * @param solutionId     `SolutionId` of the current project
  * @param userPrivateKey user private key used to authorize; generated from:
- * [CryptoApi.generatePrivateKey] or
- * [CryptoApi.derivePrivateKey]
- * @throws IllegalStateException thrown if there is an exception during init modules
- * @throws PrivmxException       thrown if there is a problem during login
- * @throws NativeException       thrown if there is an **unknown** problem during login
+ * [Modules.CryptoApi.generatePrivateKey] or
+ * [Modules.CryptoApi.derivePrivateKey]
+ *
+ * @category core
  */
+class PrivmxEndpoint
     (
     enableModule: Set<Modules>,
     userPrivateKey: String,
@@ -59,7 +53,7 @@ class PrivmxEndpoint
      * @param callback  a block of code to execute when event was handled
      * @param <T>       type of data passed to callback
      * @throws RuntimeException thrown when method encounters an exception during subscribing on channel.
-    </T> */
+     */
     @Throws(RuntimeException::class)
     suspend fun <T> registerCallback(
         context: Any,
