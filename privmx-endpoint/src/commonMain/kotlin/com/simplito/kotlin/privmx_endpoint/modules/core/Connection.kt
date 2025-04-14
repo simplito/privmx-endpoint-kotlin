@@ -2,7 +2,8 @@ package com.simplito.kotlin.privmx_endpoint.modules.core
 
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
-import kotlin.jvm.JvmStatic
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 
 /**
  * Manages a connection between the Endpoint and the Bridge server.
@@ -22,7 +23,7 @@ expect class Connection : AutoCloseable {
          * @throws NativeException thrown when method encounters an unknown exception.
          * @event type: libConnected
          * channel: -
-         * @payload: [Void]
+         * @payload: [Unit]
          */
         fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String): Connection
 
@@ -36,7 +37,7 @@ expect class Connection : AutoCloseable {
          * @throws NativeException thrown when method encounters an unknown exception.
          * @event type: libConnected
          * channel: -
-         * payload: [Void]
+         * payload: [Unit]
          */
         fun connectPublic(solutionId: String, bridgeUrl: String): Connection
 
@@ -81,10 +82,10 @@ expect class Connection : AutoCloseable {
      * @throws NativeException       thrown when method encounters an unknown exception.
      * @event type: libDisconnected
      * channel: -
-     * payload: [Void]
+     * payload: [Unit]
      * @event type: libPlatformDisconnected
      * channel: -
-     * payload: [Void]
+     * payload: [Unit]
      */
     fun disconnect()
 
