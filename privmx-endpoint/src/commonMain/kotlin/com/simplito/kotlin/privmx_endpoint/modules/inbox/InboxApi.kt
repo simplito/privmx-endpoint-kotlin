@@ -26,7 +26,8 @@ import kotlin.jvm.JvmOverloads
 
 /**
  * Manages PrivMX Bridge Inboxes and Entries.
- *
+ * @param connection active connection to PrivMX Bridge
+ * @throws IllegalStateException when given [Connection] is not connected
  * @category inbox
  */
 expect class InboxApi(

@@ -21,10 +21,14 @@ import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 
 /**
  * Manages Threads and messages.
- *
+ * @param connection active connection to PrivMX Bridge
+ * @throws IllegalStateException when given [Connection] is not connected
  * @category thread
  */
-expect class ThreadApi(connection: Connection) : AutoCloseable {
+expect class ThreadApi
+@Throws(IllegalStateException::class)
+constructor(connection: Connection) : AutoCloseable {
+
     /**
      * Creates a new Thread in given Context.
      *
