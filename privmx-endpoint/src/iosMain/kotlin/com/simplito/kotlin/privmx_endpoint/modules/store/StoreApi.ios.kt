@@ -34,11 +34,14 @@ import libprivmxendpoint.pson_new_array
 
 /**
  * Manages PrivMX Bridge Stores and Files.
- *
+ * @param connection active connection to PrivMX Bridge
+ * @throws IllegalStateException when given [Connection] is not connected
  * @category store
  */
 @OptIn(ExperimentalForeignApi::class)
-actual class StoreApi actual constructor(connection: Connection) :
+actual class StoreApi
+@Throws(IllegalStateException::class)
+actual constructor(connection: Connection) :
     AutoCloseable {
     private val _nativeStoreApi = nativeHeap.allocPointerTo<cnames.structs.StoreApi>()
     private val nativeStoreApi

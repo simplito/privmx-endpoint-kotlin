@@ -16,10 +16,16 @@ import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
 
 /**
  * Manages PrivMX Bridge Inboxes and Entries.
- *
+ * @param connection active connection to PrivMX Bridge
+ * @param threadApi  instance of [ThreadApi] created on passed Connection
+ * @param storeApi   instance of [StoreApi] created on passed Connection
+ * @throws IllegalStateException when one of the passed parameters is closed.
  * @category inbox
  */
-actual class InboxApi @JvmOverloads actual constructor(
+actual class InboxApi
+@Throws(IllegalStateException::class)
+@JvmOverloads
+actual constructor(
     connection: Connection, threadApi: ThreadApi?, storeApi: StoreApi?
 ) : AutoCloseable {
     companion object {

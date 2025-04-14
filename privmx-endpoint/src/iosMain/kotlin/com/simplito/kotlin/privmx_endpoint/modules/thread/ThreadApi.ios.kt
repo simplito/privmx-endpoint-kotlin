@@ -34,11 +34,14 @@ import libprivmxendpoint.pson_free_value
 
 /**
  * Manages Threads and messages.
- *
+ * @param connection active connection to PrivMX Bridge
+ * @throws IllegalStateException when given [Connection] is not connected
  * @category thread
  */
 @OptIn(ExperimentalForeignApi::class)
-actual class ThreadApi actual constructor(connection: Connection) : AutoCloseable {
+actual class ThreadApi
+@Throws(IllegalStateException::class)
+actual constructor(connection: Connection) : AutoCloseable {
     private val _nativeThreadApi = nativeHeap.allocPointerTo<cnames.structs.ThreadApi>()
     private val nativeThreadApi
         get() = _nativeThreadApi.value?.let { _nativeThreadApi }

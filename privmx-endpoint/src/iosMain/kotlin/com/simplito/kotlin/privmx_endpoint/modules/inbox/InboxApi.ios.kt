@@ -43,11 +43,16 @@ import libprivmxendpoint.pson_new_array
 
 /**
  * Manages PrivMX Bridge Inboxes and Entries.
- *
+ * @param connection active connection to PrivMX Bridge
+ * @param threadApi  instance of [ThreadApi] created on passed Connection
+ * @param storeApi   instance of [StoreApi] created on passed Connection
+ * @throws IllegalStateException when one of the passed parameters is closed.
  * @category inbox
  */
 @OptIn(ExperimentalForeignApi::class)
-actual class InboxApi actual constructor(
+actual class InboxApi
+@Throws(IllegalStateException::class)
+actual constructor(
     connection: Connection, threadApi: ThreadApi?, storeApi: StoreApi?
 ) : AutoCloseable {
     private val _nativeInboxApi = nativeHeap.allocPointerTo<cnames.structs.InboxApi>()

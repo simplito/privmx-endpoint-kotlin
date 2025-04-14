@@ -12,10 +12,13 @@ import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 
 /**
  * Manages PrivMX Bridge Stores and Files.
- *
+ * @param connection active connection to PrivMX Bridge
+ * @throws IllegalStateException when given [Connection] is not connected
  * @category store
  */
-actual class StoreApi actual constructor(connection: Connection) : AutoCloseable {
+actual class StoreApi
+@Throws(IllegalStateException::class)
+actual constructor(connection: Connection) : AutoCloseable {
     companion object {
         init {
             LibLoader.load()

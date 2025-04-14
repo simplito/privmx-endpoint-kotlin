@@ -27,10 +27,14 @@ import kotlin.jvm.JvmOverloads
 /**
  * Manages PrivMX Bridge Inboxes and Entries.
  * @param connection active connection to PrivMX Bridge
- * @throws IllegalStateException when given [Connection] is not connected
+ * @param threadApi  instance of [ThreadApi] created on passed Connection
+ * @param storeApi   instance of [StoreApi] created on passed Connection
+ * @throws IllegalStateException when one of the passed parameters is closed.
  * @category inbox
  */
-expect class InboxApi(
+expect class InboxApi
+@Throws(IllegalStateException::class)
+constructor(
     connection: Connection,
     threadApi: ThreadApi? = null,
     storeApi: StoreApi? = null

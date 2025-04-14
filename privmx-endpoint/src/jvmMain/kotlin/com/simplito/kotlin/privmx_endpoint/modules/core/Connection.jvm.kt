@@ -3,6 +3,8 @@ package com.simplito.kotlin.privmx_endpoint.modules.core
 import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
 /**
  * Manages a connection between the Endpoint and the Bridge server.
@@ -26,7 +28,7 @@ actual class Connection private constructor(private val api: Long?,private val c
          * @throws NativeException thrown when method encounters an unknown exception.
          * @event type: libConnected
          * channel: -
-         * @payload: [Void]
+         * @payload: [Unit]
          */
         @JvmStatic
         actual external fun connect(
@@ -45,7 +47,7 @@ actual class Connection private constructor(private val api: Long?,private val c
          * @throws NativeException thrown when method encounters an unknown exception.
          * @event type: libConnected
          * channel: -
-         * payload: [Void]
+         * payload: [Unit]
          */
         @JvmStatic
         actual external fun connectPublic(
@@ -107,10 +109,10 @@ actual class Connection private constructor(private val api: Long?,private val c
      * @throws NativeException       thrown when method encounters an unknown exception.
      * @event type: libDisconnected
      * channel: -
-     * payload: [Void]
+     * payload: [Unit]
      * @event type: libPlatformDisconnected
      * channel: -
-     * payload: [Void]
+     * payload: [Unit]
      */
     actual external fun disconnect()
 

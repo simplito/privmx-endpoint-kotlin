@@ -13,10 +13,13 @@ import java.lang.AutoCloseable
 
 /**
  * Manages Threads and messages.
- *
+ * @param connection active connection to PrivMX Bridge
+ * @throws IllegalStateException when given [Connection] is not connected
  * @category thread
  */
-actual class ThreadApi actual constructor(connection: Connection): AutoCloseable {
+actual class ThreadApi
+@Throws(IllegalStateException::class)
+actual constructor(connection: Connection): AutoCloseable {
     companion object {
         init {
             LibLoader.load()

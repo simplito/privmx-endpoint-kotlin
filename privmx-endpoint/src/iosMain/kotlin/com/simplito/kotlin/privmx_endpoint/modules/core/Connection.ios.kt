@@ -55,7 +55,7 @@ actual class Connection private constructor() : AutoCloseable {
          * @throws NativeException thrown when method encounters an unknown exception.
          * @event type: libConnected
          * channel: -
-         * @payload: [Void]
+         * @payload: [Unit]
          */
         @Throws(PrivmxException::class, NativeException::class)
         actual fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String): Connection =
@@ -86,7 +86,7 @@ actual class Connection private constructor() : AutoCloseable {
          * @throws NativeException thrown when method encounters an unknown exception.
          * @event type: libConnected
          * channel: -
-         * payload: [Void]
+         * payload: [Unit]
          */
         @Throws(PrivmxException::class, NativeException::class)
         actual fun connectPublic(
@@ -162,10 +162,10 @@ actual class Connection private constructor() : AutoCloseable {
      * @throws NativeException       thrown when method encounters an unknown exception.
      * @event type: libDisconnected
      * channel: -
-     * payload: [Void]
+     * payload: [Unit]
      * @event type: libPlatformDisconnected
      * channel: -
-     * payload: [Void]
+     * payload: [Unit]
      */
     @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
     actual fun disconnect() = memScoped {
