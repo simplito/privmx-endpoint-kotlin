@@ -16,149 +16,112 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @category thread
  * @group Thread
  */
-class Thread(
+data class Thread(
     /**
      * ID of the Thread's Context.
      */
-    var contextId: String?,
+    val contextId: String,
     /**
      * ID of the Thread.
      */
-    var threadId: String?,
+    val threadId: String,
     /**
      * Thread creation timestamp.
      */
-    var createDate: Long?,
+    val createDate: Long?,
     /**
      * ID of the user who created the Thread.
      */
-    var creator: String?,
+    val creator: String,
     /**
      * Thread last modification timestamp.
      */
-    var lastModificationDate: Long?,
+    val lastModificationDate: Long?,
     /**
      * ID of the user who last modified the Thread.
      */
-    var lastModifier: String?,
+    val lastModifier: String,
     /**
      * List of users (their IDs) with access to the Thread.
      */
-    var users: List<String?>?,
+    val users: List<String>,
     /**
      * List of users (their IDs) with management rights.
      */
-    var managers: List<String?>?,
+    val managers: List<String>,
     /**
      * Version number (changes on updates).
      */
-    var version: Long?,
+    val version: Long?,
     /**
      * Timestamp of the last posted message.
      */
-    var lastMsgDate: Long?,
+    val lastMsgDate: Long?,
     /**
      * Thread's public metadata.
      */
-    var publicMeta: ByteArray?,
+    val publicMeta: ByteArray,
     /**
      * Thread's private metadata.
      */
-    var privateMeta: ByteArray?,
-    policy: ContainerPolicy?,
-    messagesCount: Long?,
-    statusCode: Long?
-) {
+    val privateMeta: ByteArray,
+
     /**
      * Total number of messages in the Thread.
      */
-    var messagesCount: Long?
+    val messagesCount: Long?,
 
     /**
      * Thread's policies
      */
-    var policy: ContainerPolicy?
+    val policy: ContainerPolicy,
 
     /**
      * Status code of retrieval and decryption of the `Thread`.
      */
-    var statusCode: Long?
+    val statusCode: Long?
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
 
+        other as Thread
 
-    /**
-     * Creates instance of `Thread`.
-     *
-     * @param contextId            ID of the Context.
-     * @param threadId             ID of the Thread.
-     * @param createDate           Thread creation timestamp.
-     * @param creator              ID of the user who created the Thread.
-     * @param lastModificationDate Thread last modification timestamp.
-     * @param lastModifier         ID of the user who last modified the Thread.
-     * @param users                List of users (their IDs) with access to the Thread.
-     * @param managers             List of users (their IDs) with management rights.
-     * @param version              Version number (changes on updates).
-     * @param lastMsgDate          Timestamp of the last posted message.
-     * @param publicMeta           Total number of messages in the Thread.
-     * @param privateMeta          Thread's public metadata.
-     * @param policy               Thread's policies.
-     * @param messagesCount        Thread's private metadata.
-     * @param statusCode           Status code of retrieval and decryption of the `Thread`.
-     */
-    init {
-        this.policy = policy
-        this.messagesCount = messagesCount
-        this.statusCode = statusCode
+        if (createDate != other.createDate) return false
+        if (lastModificationDate != other.lastModificationDate) return false
+        if (version != other.version) return false
+        if (lastMsgDate != other.lastMsgDate) return false
+        if (messagesCount != other.messagesCount) return false
+        if (statusCode != other.statusCode) return false
+        if (contextId != other.contextId) return false
+        if (threadId != other.threadId) return false
+        if (creator != other.creator) return false
+        if (lastModifier != other.lastModifier) return false
+        if (users != other.users) return false
+        if (managers != other.managers) return false
+        if (!publicMeta.contentEquals(other.publicMeta)) return false
+        if (!privateMeta.contentEquals(other.privateMeta)) return false
+        if (policy != other.policy) return false
+
+        return true
     }
 
-    /**
-     * Creates instance of `Thread` with null policy value.
-     *
-     * @param contextId            ID of the Context.
-     * @param threadId             ID of the Thread.
-     * @param createDate           Thread creation timestamp.
-     * @param creator              ID of the user who created the Thread.
-     * @param lastModificationDate Thread last modification timestamp.
-     * @param lastModifier         ID of the user who last modified the Thread.
-     * @param users                List of users (their IDs) with access to the Thread.
-     * @param managers             List of users (their IDs) with management rights.
-     * @param version              Version number (changes on updates).
-     * @param lastMsgDate          Timestamp of the last posted message.
-     * @param publicMeta           Total number of messages in the Thread.
-     * @param privateMeta          Thread's public metadata.
-     * @param messagesCount        Thread's private metadata.
-     * @param statusCode           Status code of retrieval and decryption of the `Thread`.
-     */
-//    @Deprecated
-    constructor(
-        contextId: String?,
-        threadId: String?,
-        createDate: Long?,
-        creator: String?,
-        lastModificationDate: Long?,
-        lastModifier: String?,
-        users: List<String?>?,
-        managers: List<String?>?,
-        version: Long?,
-        lastMsgDate: Long?,
-        publicMeta: ByteArray?,
-        privateMeta: ByteArray?,
-        messagesCount: Long?,
-        statusCode: Long?
-    ) : this(
-        contextId,
-        threadId,
-        createDate,
-        creator,
-        lastModificationDate,
-        lastModifier,
-        users,
-        managers,
-        version,
-        lastMsgDate,
-        publicMeta,
-        privateMeta,
-        null,
-        messagesCount,
-        statusCode
-    )
+    override fun hashCode(): Int {
+        var result = createDate?.hashCode() ?: 0
+        result = 31 * result + (lastModificationDate?.hashCode() ?: 0)
+        result = 31 * result + (version?.hashCode() ?: 0)
+        result = 31 * result + (lastMsgDate?.hashCode() ?: 0)
+        result = 31 * result + (messagesCount?.hashCode() ?: 0)
+        result = 31 * result + (statusCode?.hashCode() ?: 0)
+        result = 31 * result + contextId.hashCode()
+        result = 31 * result + threadId.hashCode()
+        result = 31 * result + creator.hashCode()
+        result = 31 * result + lastModifier.hashCode()
+        result = 31 * result + users.hashCode()
+        result = 31 * result + managers.hashCode()
+        result = 31 * result + publicMeta.contentHashCode()
+        result = 31 * result + privateMeta.contentHashCode()
+        result = 31 * result + policy.hashCode()
+        return result
+    }
 }

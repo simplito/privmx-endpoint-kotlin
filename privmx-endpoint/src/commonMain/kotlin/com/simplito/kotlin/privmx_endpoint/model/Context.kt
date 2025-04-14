@@ -9,9 +9,9 @@ data class Context(
     /**
      * ID of the user requesting information.
      */
-    val userId: String?,
+    val userId: String,
     /**
      * ID of the Context.
      */
-    val contextId: String?
+    val contextId: String
 )
