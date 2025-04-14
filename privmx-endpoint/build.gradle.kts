@@ -52,7 +52,7 @@ kotlin {
         val androidMain by getting{
             dependsOn(jvmMain.get())
         }
-
+        
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlin.test)
