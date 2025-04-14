@@ -25,13 +25,13 @@ data class StoreFileDeletedEventData
     /**
      * ID of the deleted file.
      */
-    val fileId: String?,
+    val fileId: String,
     /**
      * ID of the Store's Context.
      */
-    val contextId: String?,
+    val contextId: String,
     /**
      * ID of the deleted file's Store.
      */
-    val storeId: String?
+    val storeId: String
 )

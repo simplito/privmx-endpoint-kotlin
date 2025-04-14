@@ -24,5 +24,5 @@ data class ThreadDeletedEventData
     /**
      * ID of the deleted Thread.
      */
-    val threadId: String?
+    val threadId: String
 )

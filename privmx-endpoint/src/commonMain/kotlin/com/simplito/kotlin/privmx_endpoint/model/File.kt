@@ -16,60 +16,61 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @category store
  * @group Store
  */
-class File(
-    info: ServerFileInfo?,
-    publicMeta: ByteArray?,
-    privateMeta: ByteArray?,
-    size: Long?,
-    authorPubKey: String?,
-    statusCode: Long?) {
+data class File(
 
     /**
      * File's information created by server.
      */
-    var info: ServerFileInfo?
+    val info: ServerFileInfo,
 
     /**
      * File's public metadata.
      */
-    var publicMeta: ByteArray?
+    val publicMeta: ByteArray,
 
     /**
      * File's private metadata.
      */
-    var privateMeta: ByteArray?
+    val privateMeta: ByteArray,
 
     /**
      * File's size.
      */
-    var size: Long?
+    val size: Long?,
 
     /**
      * Public key of the author of the file.
      */
-    var authorPubKey: String?
+    val authorPubKey: String,
 
     /**
      * Status code of retrieval and decryption of the file.
      */
-    var statusCode: Long?
+    val statusCode: Long?
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
 
-    /**
-     * Creates instance of `File`.
-     *
-     * @param info         File's information created by server.
-     * @param publicMeta   File's public metadata.
-     * @param privateMeta  File's private metadata.
-     * @param size         File's size.
-     * @param authorPubKey Public key of the author of the file.
-     * @param statusCode   Status code of retrieval and decryption of the `File`.
-     */
-    init {
-        this.info = info
-        this.publicMeta = publicMeta
-        this.privateMeta = privateMeta
-        this.authorPubKey = authorPubKey
-        this.size = size
-        this.statusCode = statusCode
+        other as File
+
+        if (size != other.size) return false
+        if (statusCode != other.statusCode) return false
+        if (info != other.info) return false
+        if (!publicMeta.contentEquals(other.publicMeta)) return false
+        if (!privateMeta.contentEquals(other.privateMeta)) return false
+        if (authorPubKey != other.authorPubKey) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = size?.hashCode() ?: 0
+        result = 31 * result + (statusCode?.hashCode() ?: 0)
+        result = 31 * result + info.hashCode()
+        result = 31 * result + publicMeta.contentHashCode()
+        result = 31 * result + privateMeta.contentHashCode()
+        result = 31 * result + authorPubKey.hashCode()
+        return result
     }
 }
