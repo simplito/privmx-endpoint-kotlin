@@ -14,7 +14,6 @@ package com.simplito.kotlin.privmx_endpoint_extra.policies
  * Represents a complex value for Container item policies, allowing logical combinations with other [ItemPolicyComplexValue] instances.
  * These complex values enable the creation of fine-grained access control rules by combining multiple policy criteria using logical operators.
  *
- * @param value Raw policy value
  */
 class ItemPolicyComplexValue internal constructor(value: String) : ItemPolicyValue(value) {
     /**
