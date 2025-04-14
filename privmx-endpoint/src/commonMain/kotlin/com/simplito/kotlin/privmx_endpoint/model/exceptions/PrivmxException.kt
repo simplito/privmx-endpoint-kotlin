@@ -14,10 +14,10 @@ package com.simplito.kotlin.privmx_endpoint.model.exceptions
  * Thrown when a PrivMX Endpoint method encounters an exception.
  *
  * @param message     brief  information about exception
- * @param description detailed information about exception
- * @param scope       scope of this exception
- * @param code        unique code of this exception
- * @param name        special name for this exception
+ * @property description detailed information about exception
+ * @property scope       scope of this exception
+ * @property code        unique code of this exception
+ * @property name        special name for this exception
  *
  * @category errors
  */
@@ -36,11 +36,11 @@ class PrivmxException internal constructor(
     override fun toString(): String = full
 
     /**
-     * Returns exception code as `unsigned int` converted to `long`.
+     * Returns exception code as [UInt].
      *
      * @return Exception code
      */
-    fun getCode(): Long = code.toULong().toLong()
+    fun getCode(): UInt = code.toUInt()
 
     /**
      * Returns full information about exception as a formatted string.
