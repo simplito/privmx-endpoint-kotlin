@@ -12,9 +12,6 @@ package com.simplito.kotlin.privmx_endpoint_extra.policies
 
 /**
  * Contains special policies values.
- * Creates instance of [SpecialPolicyValue].
- *
- * @param value raw policy value
  */
 enum class SpecialPolicyValue(override val value: String) : PolicyValue {
     /**
