@@ -45,11 +45,11 @@ class EventDispatcher(
      * @param callback block of code to call when the specified event has been caught
      * @return `true` if the channel is not already subscribed
      */
-    suspend fun register(
+    suspend fun <T> register(
         channel: String,
         type: String,
         context: Any,
-        callback: EventCallback<*>
+        callback: EventCallback<T>
     ): Boolean {
         val needSubscribe = channelHasNoCallbacks(channel)
         getCallbacks(getFormattedType(channel, type)).add(Pair(context, callback))
@@ -63,7 +63,7 @@ class EventDispatcher(
      * @param event event data to emit
     </T> */
     suspend fun <T> emit(event: Event<out T>) {
-        val callbacks = getCallbacks(getFormattedType(event.channel!!, event.type!!))
+        val callbacks = getCallbacks(getFormattedType(event.channel, event.type))
         for (p in callbacks) {
             try {
                 try {
