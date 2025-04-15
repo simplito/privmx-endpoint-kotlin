@@ -16,7 +16,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 fun interface EventCallback<T: Any>{
-    operator fun invoke(event: T)
+    operator fun invoke(eventData: T)
 }
 /**
  * Implements a list of registered event callbacks.
