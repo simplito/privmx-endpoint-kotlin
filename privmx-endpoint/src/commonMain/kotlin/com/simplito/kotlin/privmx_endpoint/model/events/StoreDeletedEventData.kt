@@ -13,7 +13,7 @@ package com.simplito.kotlin.privmx_endpoint.model.events
 /**
  * Holds information about deleted Store.
  *
- * @param storeId ID of the deleted Store.
+ * @property storeId ID of the deleted Store.
  *
  * @category core
  * @group Events

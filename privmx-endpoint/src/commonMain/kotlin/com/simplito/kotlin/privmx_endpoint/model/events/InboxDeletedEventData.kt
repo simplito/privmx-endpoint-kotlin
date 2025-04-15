@@ -13,15 +13,9 @@ package com.simplito.kotlin.privmx_endpoint.model.events
 /**
  * Holds information about deleted Inbox.
  *
- * @param inboxId ID of the deleted Inbox.
+ * @property inboxId ID of the deleted Inbox.
  *
  * @category core
  * @group Events
  */
-data class InboxDeletedEventData
-(
-    /**
-     * ID of the deleted Inbox.
-     */
-    val inboxId: String?
-)
+data class InboxDeletedEventData(val inboxId: String?)

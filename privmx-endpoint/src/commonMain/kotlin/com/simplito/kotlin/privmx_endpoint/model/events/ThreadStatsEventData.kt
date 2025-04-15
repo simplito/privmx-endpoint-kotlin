@@ -13,24 +13,15 @@ package com.simplito.kotlin.privmx_endpoint.model.events
 /**
  * Holds information about changes in a Thread's statistics.
  *
- * @param threadId ID of the changed Thread.
- * @param lastMsgDate Timestamp of the most recent Thread message.
- * @param messagesCount Updated number of messages in the Thread.
+ * @property threadId ID of the changed Thread.
+ * @property lastMsgDate Timestamp of the most recent Thread message.
+ * @property messagesCount Updated number of messages in the Thread.
  *
  * @category core
  * @group Events
  */
 data class ThreadStatsEventData(
-    /**
-     * ID of the changed Thread.
-     */
     val threadId: String?,
-    /**
-     * Timestamp of the most recent Thread message.
-     */
     val lastMsgDate: Long?,
-    /**
-     * Updated number of messages in the Thread.
-     */
     val messagesCount: Long?
 )
