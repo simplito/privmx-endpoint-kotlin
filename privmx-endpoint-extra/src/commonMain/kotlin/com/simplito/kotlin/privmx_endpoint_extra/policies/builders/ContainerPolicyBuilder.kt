@@ -16,6 +16,9 @@ import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
 import com.simplito.kotlin.privmx_endpoint_extra.policies.ContainerPolicyValue
 import com.simplito.kotlin.privmx_endpoint_extra.policies.SpecialPolicyValue
 
+/**
+ * Scope for creating [ContainerPolicyWithoutItem].
+ */
 interface ContainerPolicyWithoutItemBuilderScope {
     /**
      * Sets [ContainerPolicyWithoutItem.get] policy value
@@ -66,12 +69,15 @@ interface ContainerPolicyWithoutItemBuilderScope {
     fun ownerCanBeRemovedFromManagers(policyValue: SpecialPolicyValue): ContainerPolicyBuilder
 }
 
+/**
+ * Scope for creating [ContainerPolicy].
+ */
 interface ContainerPolicyBuilderScope : ContainerPolicyWithoutItemBuilderScope {
     /**
      * Sets the access policy for items within the container.
      *
      * @param item the item access policy
-     * @return  [ContainerPolicyBuilder]
+     * @return  [ContainerPolicyBuilder] instance to allow for method chaining.
      */
     fun item(item: ItemPolicy): ContainerPolicyBuilder
 }
@@ -180,19 +186,17 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
  * This function allows building a full container policy, including item-level access rules.
  * If a [currentPolicy] is provided, its settings will be used as a base.
  *
- *
- *
  * ### Example:
  * ```
  * val policy = containerPolicy {
- *     get(...)
- *     update(...)
+ *     get(ContainerPolicyValues.DEFAULT)
  *     item(ItemPolicy(...))
+ *     update(...)
  * }
  * ```
  *
  * @param currentPolicy optional existing policy to use as a base
- * @param buildBlock DSL block to configure the new containerPolicy
+ * @param buildBlock container-level policy configuration
  * @return [ContainerPolicy]
  */
 fun containerPolicy(
@@ -207,15 +211,15 @@ fun containerPolicy(
  *
  * ### Example:
  * ```
- * val policy = containerPolicy {
- *     get(...)
- *     update(...)
+ * val policy = containerPolicyWithoutItem {
+ *     get(ContainerPolicyValues.DEFAULT)
  *     item(ItemPolicy(...))
+ *     update(...)
  * }
  * ```
  *
  * @param currentPolicy optional existing policy to use as a base
- * @param buildBlock DSL block to configure the container-level policy
+ * @param buildBlock container-level policy configuration
  * @return [ContainerPolicyWithoutItem]
  */
 fun containerPolicyWithoutItem(

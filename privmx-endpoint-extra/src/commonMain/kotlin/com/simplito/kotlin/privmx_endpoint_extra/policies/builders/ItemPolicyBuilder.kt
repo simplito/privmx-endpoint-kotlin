@@ -3,7 +3,11 @@ package com.simplito.kotlin.privmx_endpoint_extra.policies.builders
 import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
 import com.simplito.kotlin.privmx_endpoint_extra.policies.ContainerPolicyValue
 import com.simplito.kotlin.privmx_endpoint_extra.policies.ItemPolicyValue
+import com.simplito.kotlin.privmx_endpoint_extra.policies.ItemPolicyValues
 
+/**
+ * Scope for creating [ItemPolicy].
+ */
 interface ItemPolicyBuilderScope {
     /**
      * Sets [ItemPolicy.get] policy value for reading (getting) an item.
@@ -66,13 +70,12 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
     private var delete: String? = null
 
     /**
-     * Creates instance of [ItemPolicyBuilder] initialized with Bridge's default policy values.
+     * Initializes [ItemPolicyBuilder] with Bridge's default policy values.
      */
     constructor()
 
     /**
-     * Creates instance of [ItemPolicyBuilder]
-     * from existing [ItemPolicy] instance.
+     * Initializes [ItemPolicyBuilder] from existing [ItemPolicy] instance.
      *
      * @param itemPolicy the existing [ItemPolicy] instance to copy values from.
      */
@@ -112,7 +115,7 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
 /**
  * Builds an [ItemPolicy] using a DSL-style builder block.
  *
- * This function allows building a new [ItemPolicy]
+ * This function allows building a new [ItemPolicy].
  * If a [currentPolicy] is provided, its settings will be used as a base.
  *
  * ### Example:
@@ -129,7 +132,8 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
  * @return the resulting [ItemPolicy] after applying the builder block
  */
 fun itemPolicy(
-    currentPolicy: ItemPolicy? = null, buildBlock: ItemPolicyBuilderScope.() -> Unit
+    currentPolicy: ItemPolicy? = null,
+    buildBlock: ItemPolicyBuilderScope.() -> Unit
 ) = currentPolicy.builder().apply(buildBlock).build()
 
 private fun ItemPolicy?.builder() = this?.let { ItemPolicyBuilder(it) } ?: ItemPolicyBuilder()
