@@ -31,7 +31,7 @@ import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
  * @param <T> the type of data contained in the Event.
  * @category core
 </T> */
-sealed class EventType<out Any>(
+sealed class EventType<out T>(
     /**
      * Channel of this event type.
      */
