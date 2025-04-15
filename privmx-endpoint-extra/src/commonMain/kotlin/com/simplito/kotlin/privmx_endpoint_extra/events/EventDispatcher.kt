@@ -21,8 +21,7 @@ import kotlinx.coroutines.sync.withLock
  *
  * @category core
  */
-//TODO: Try to use function type instead of SAM/functional interface
-fun interface EventCallback<T>{
+fun interface EventCallback<T> {
     /**
      * Called to handle data from a captured event.
      *
@@ -31,11 +30,11 @@ fun interface EventCallback<T>{
     operator fun invoke(event: Event<out T>)
 }
 
-//typealias EventCallback<T>  = (event: Event<out T>) -> Unit
-
 /**
  * Implements a list of registered event callbacks.
- *
+ * @param onRemoveEntryKey callback triggered when all events
+ *                         from channel entry have been removed
+ *                         (it can also unsubscribe from the channel)
  * @category core
  */
 class EventDispatcher(
@@ -95,7 +94,7 @@ class EventDispatcher(
     }
 
     /**
-     * Removes all callbacks registered by [.register]. It's identified by given Context.
+     * Removes all callbacks registered by [EventDispatcher.register]. It's identified by given Context.
      *
      * @param context callback identifier
      */
