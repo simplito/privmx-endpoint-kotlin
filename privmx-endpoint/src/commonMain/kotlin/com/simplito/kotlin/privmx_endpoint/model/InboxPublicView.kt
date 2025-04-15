@@ -13,25 +13,15 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds Inbox public information.
  *
- * @param inboxId    ID of the Inbox.
- * @param version    Version of the Inbox.
- * @param publicMeta Inbox public metadata.
+ * @property inboxId    ID of the Inbox.
+ * @property version    Version of the Inbox.
+ * @property publicMeta Inbox public metadata.
  *
  * @category inbox
  * @group Inbox
  */
-class InboxPublicView
-    (
-    /**
-     * ID of the Inbox.
-     */
+class InboxPublicView(
     var inboxId: String?,
-    /**
-     * Version of the Inbox.
-     */
     var version: Long?,
-    /**
-     * Inbox public metadata.
-     */
     var publicMeta: ByteArray?
 )

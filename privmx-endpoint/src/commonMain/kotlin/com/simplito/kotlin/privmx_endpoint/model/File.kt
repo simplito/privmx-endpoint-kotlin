@@ -13,44 +13,21 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds information about the file.
  *
- * @param info         File's information created by server.
- * @param publicMeta   File's public metadata.
- * @param privateMeta  File's private metadata.
- * @param size         File's size.
- * @param authorPubKey Public key of the author of the file.
- * @param statusCode   Status code of retrieval and decryption of the `File`.
+ * @property info         File's information created by server.
+ * @property publicMeta   File's public metadata.
+ * @property privateMeta  File's private metadata.
+ * @property size         File's size.
+ * @property authorPubKey Public key of the author of the file.
+ * @property statusCode   Status code of retrieval and decryption of the file.
  *
  * @category store
  * @group Store
  */
 class File(
-    /**
-     * File's information created by server.
-     */
     var info: ServerFileInfo?,
-
-    /**
-     * File's public metadata.
-     */
     var publicMeta: ByteArray?,
-
-    /**
-     * File's private metadata.
-     */
     var privateMeta: ByteArray?,
-
-    /**
-     * File's size.
-     */
     var size: Long?,
-
-    /**
-     * Public key of the author of the file.
-     */
     var authorPubKey: String?,
-
-    /**
-     * Status code of retrieval and decryption of the file.
-     */
     var statusCode: Long?
 )

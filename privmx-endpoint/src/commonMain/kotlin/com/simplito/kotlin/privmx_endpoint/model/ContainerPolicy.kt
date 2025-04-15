@@ -13,45 +13,24 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Contains container and its items policies.
  *
- * @param get                             determines who can get a container
- * @param update                          determines who can update a container
- * @param delete                          determines who can delete a container
- * @param updatePolicy                    determines who can update policy
- * @param updaterCanBeRemovedFromManagers determines whether the updater can be removed from the list of managers
- * @param ownerCanBeRemovedFromManagers   determines whether the owner can be removed from the list of managers
- * @param item                            policy for container's items
+ * @param get                             Determines who can get a container.
+ * @param update                          Determines who can update a container.
+ * @param delete                          Determines who can delete a container.
+ * @param updatePolicy                    Determines who can update policy.
+ * @param updaterCanBeRemovedFromManagers Determines whether the updater can be removed from the list of managers.
+ * @param ownerCanBeRemovedFromManagers   Determines whether the owner can be removed from the list of managers.
+ * @property item                            Policy for container's items.
  *
  * @category core
  * @group Core
  */
 class ContainerPolicy(
-    /**
-     * Determines who can get a container
-     */
     get: String?,
-    /**
-     * Determines who can update a container
-     */
     update: String?,
-    /**
-     * determines who can delete a container
-     */
     delete: String?,
-    /**
-     * Determines who can update policy
-     */
     updatePolicy: String?,
-    /**
-     * Determines whether the updater can be removed from the list of managers
-     */
     updaterCanBeRemovedFromManagers: String?,
-    /**
-     * Determines whether the owner can be removed from the list of managers
-     */
     ownerCanBeRemovedFromManagers: String?,
-    /**
-     * Policy for container's items
-     */
     val item: ItemPolicy?
 ) : ContainerPolicyWithoutItem(
     get,

@@ -13,85 +13,40 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds all available information about a Store.
  *
- * @param storeId               ID of the Store.
- * @param contextId             ID of the Context.
- * @param createDate            Store creation timestamp.
- * @param creator               ID of the Store.
- * @param lastModificationDate  Store last modification timestamp.
- * @param lastFileDate          Timestamp of the last created file.
- * @param lastModifier          ID of the user who last modified the Store.
- * @param users                 List of users (their IDs) with access to the Store.
- * @param managers              List of users (their IDs) with management rights.
- * @param version               Version number (changes on updates).
- * @param publicMeta            Store's public metadata.
- * @param privateMeta           Store's private metadata.
- * @param policy                Store's policies.
- * @param filesCount            Total number of files in the Store.
- * @param statusCode            Status code of retrieval and decryption of the `Store`.
+ * @property storeId               ID of the Store.
+ * @property contextId             ID of the Context.
+ * @property createDate            Store creation timestamp.
+ * @property creator               ID of the user who created the Store.
+ * @property lastModificationDate  Store last modification timestamp.
+ * @property lastFileDate          Timestamp of the last created file.
+ * @property lastModifier          ID of the user who last modified the Store.
+ * @property users                 List of users (their IDs) with access to the Store.
+ * @property managers              List of users (their IDs) with management rights.
+ * @property version               Version number (changes on updates).
+ * @property publicMeta            Store's public metadata.
+ * @property privateMeta           Store's private metadata.
+ * @property policy                Store's policies.
+ * @property filesCount            Total number of files in the Store.
+ * @property statusCode            Status code of retrieval and decryption of the `Store`.
  *
  * @category store
  * @group Store
  */
 class Store
 (
-    /**
-     * ID of the Store.
-     */
     var storeId: String?,
-    /**
-     * ID of the Context.
-     */
     var contextId: String?,
-    /**
-     * Store creation timestamp.
-     */
     var createDate: Long?,
-    /**
-     * ID of the user who created the Store.
-     */
     var creator: String?,
-    /**
-     * Store last modification timestamp.
-     */
     var lastModificationDate: Long?,
-    /**
-     * Timestamp of the last created file.
-     */
     var lastFileDate: Long?,
-    /**
-     * ID of the user who last modified the Store.
-     */
     var lastModifier: String?,
-    /**
-     * List of users (their IDs) with access to the Store.
-     */
     var users: List<String?>?,
-    /**
-     * List of users (their IDs) with management rights.
-     */
     var managers: List<String?>?,
-    /**
-     * Version number (changes on updates).
-     */
     var version: Long?,
-    /**
-     * Store's public metadata.
-     */
     var publicMeta: ByteArray?,
-    /**
-     * Store's private metadata.
-     */
     var privateMeta: ByteArray?,
-    /**
-     * Store's policies
-     */
     var policy: ContainerPolicy?,
-    /**
-     * Total number of files in the Store.
-     */
     var filesCount: Long?,
-    /**
-     * Status code of retrieval and decryption of the `Store`.
-     */
     var statusCode: Long?
 )
