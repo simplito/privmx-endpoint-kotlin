@@ -11,10 +11,13 @@
 package com.simplito.kotlin.privmx_endpoint_extra.lib
 
 import com.simplito.kotlin.privmx_endpoint.model.Event
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventCallback
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventDispatcher
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
 import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
+import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
 
 /**
  * Extends [BasicPrivmxEndpoint] with event callbacks dispatcher.
@@ -24,13 +27,19 @@ import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
  * @param bridgeUrl      Bridge's Endpoint URL
  * @param solutionId     `SolutionId` of the current project
  * @param userPrivateKey user private key used to authorize; generated from:
- * [Modules.CryptoApi.generatePrivateKey] or
- * [Modules.CryptoApi.derivePrivateKey]
- *
+ * [CryptoApi.generatePrivateKey] or [CryptoApi.derivePrivateKey2]
+ * @throws IllegalStateException thrown if there is an exception during init modules
+ * @throws PrivmxException       thrown if there is a problem during login
+ * @throws NativeException       thrown if there is an **unknown** problem during login
  * @category core
  */
 class PrivmxEndpoint
-    (
+@Throws(
+    IllegalStateException::class,
+    PrivmxException::class,
+    NativeException::class
+)
+constructor(
     enableModule: Set<Modules>,
     userPrivateKey: String,
     solutionId: String,
@@ -48,10 +57,10 @@ class PrivmxEndpoint
     /**
      * Registers callbacks with the specified type.
      *
+     * @param T         type of data passed to callback
      * @param context   an object that identifies callbacks in the list
      * @param eventType type of event to listen to
      * @param callback  a block of code to execute when event was handled
-     * @param <T>       type of data passed to callback
      * @throws RuntimeException thrown when method encounters an exception during subscribing on channel.
      */
     @Throws(RuntimeException::class)
@@ -70,7 +79,7 @@ class PrivmxEndpoint
     }
 
     /**
-     * Unregisters all callbacks registered by [.registerCallback] and identified with given Context.
+     * Unregisters all callbacks registered by [registerCallback] and identified with given Context.
      *
      * @param context an object that identifies callbacks in the list.
      */
@@ -79,7 +88,7 @@ class PrivmxEndpoint
     }
 
     /**
-     * Unregisters all callbacks registered by [.registerCallback].
+     * Unregisters all callbacks registered by [registerCallback].
      */
     suspend fun unregisterAll() {
         eventDispatcher.unbindAll()
