@@ -1,6 +1,6 @@
 //
-// PrivMX Endpoint Java.
-// Copyright © 2024 Simplito sp. z o.o.
+// PrivMX Endpoint Kotlin.
+// Copyright © 2025 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
 // This software is Licensed under the MIT License.
@@ -22,5 +22,5 @@ data class StoreDeletedEventData(
     /**
      * ID of the deleted Store.
      */
-    val storeId: String?
+    val storeId: String
 )

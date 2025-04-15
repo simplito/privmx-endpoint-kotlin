@@ -1,6 +1,3 @@
-import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.DokkaBaseConfiguration
-import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
@@ -13,9 +10,7 @@ plugins {
 
 group = "com.simplito.kotlin"
 version = "1.0.0"
-//TODO: JvmNativeTarget is implementation contains jni wrapper (maybe contains from Java lib)
-//TODO: How to load jni wrapper?
-//TODO: All implementations for non jvm in nativeTarget
+
 kotlin {
     jvm()
     androidTarget {
@@ -25,14 +20,19 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_1_8)
         }
     }
+
     listOf(
         iosSimulatorArm64(),
-        iosX64(),
         iosArm64(),
     ).forEach {
         it.compilations.getByName("main") {
             cinterops {
-                val libprivmxendpoint by creating
+                val libprivmxendpoint by creating {
+                    this.extraOpts = listOf(
+                        "-libraryPath", "src/nativeInterop/cinterop/privmx-endpoint/${it.name}/lib",
+                        "-compilerOpts", "-Isrc/nativeInterop/cinterop/privmx-endpoint/${it.name}/include"
+                    )
+                }
             }
         }
     }
@@ -41,21 +41,18 @@ kotlin {
         listOf(
             iosSimulatorArm64Main.get(),
             iosArm64Main.get(),
-            iosX64Main.get()
         ).forEach {
             it.dependsOn(iosMain.get())
         }
-        val iosMain by getting {
+
+        val iosMain by getting{
             dependsOn(commonMain.get())
         }
+
         val androidMain by getting{
             dependsOn(jvmMain.get())
         }
-        val commonMain by getting {
-            dependencies {
-                //put your multiplatform dependencies here
-            }
-        }
+
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlin.test)
@@ -65,7 +62,7 @@ kotlin {
 }
 
 android {
-    namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
+    namespace = "com.simplito.kotlin.privmx-endpoint"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -73,15 +70,6 @@ android {
 }
 
 publishing {
-    afterEvaluate {
-        publications.withType<MavenPublication>().onEach {
-            it.artifactId = it.artifactId.replace("library", "privmx-endpoint")
-        }
-        publications.forEach {
-            println("Publication: ${it.name}")
-        }
-    }
-
     val properties = Properties()
     properties.load(file(rootDir.absolutePath + "/local.properties").inputStream())
     val repositoryURL: String = properties.getProperty("repositoryURL")

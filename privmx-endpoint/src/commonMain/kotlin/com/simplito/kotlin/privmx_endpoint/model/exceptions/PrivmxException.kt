@@ -1,6 +1,6 @@
 //
-// PrivMX Endpoint Java.
-// Copyright © 2024 Simplito sp. z o.o.
+// PrivMX Endpoint Kotlin.
+// Copyright © 2025 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
 // This software is Licensed under the MIT License.
@@ -21,12 +21,13 @@ package com.simplito.kotlin.privmx_endpoint.model.exceptions
  *
  * @category errors
  */
-class PrivmxException internal constructor(
-    message: String?,
-    val description: String? = null,
-    val scope: String? = null,
+class PrivmxException
+internal constructor(
+    message: String,
+    val description: String,
+    val scope: String,
     private val code: Int,
-    val name: String? = ""
+    val name: String
 ) : RuntimeException(message) {
     /**
      * Returns full information about the exception.
@@ -48,13 +49,11 @@ class PrivmxException internal constructor(
      * @return Full information about exception in JSON-like format
      */
     val full: String
-        get() = buildString {
-            append("{\n")
-            append("\"name\" : \"$name\",\n")
-            append("\"scope\" : \"$scope\",\n")
-            append("\"msg\" : \"$message\",\n")
-            append("\"code\" : ${getCode()},\n")
-            append("\"description\" : \"$description\"\n")
-            append("}\n")
-        }
+        get() = "{\n" +
+                "\"name\" : \"" + name + "\",\n" +
+                "\"scope\" : \"" + scope + "\",\n" +
+                "\"msg\" : \"" + message + "\",\n" +
+                "\"code\" : " + getCode() + ",\n" +
+                "\"description\" : \"" + description + "\"\n" +
+                "}\n"
 }

@@ -1,6 +1,6 @@
 //
-// PrivMX Endpoint Java.
-// Copyright © 2024 Simplito sp. z o.o.
+// PrivMX Endpoint Kotlin.
+// Copyright © 2025 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
 // This software is Licensed under the MIT License.
@@ -24,13 +24,40 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @category inbox
  * @group Inbox
  */
-class InboxEntry
-    (
-    var entryId: String?,
-    var inboxId: String?,
-    var data: ByteArray?,
-    var files: List<File?>?,
-    var authorPubKey: String?,
-    var createDate: Long?,
-    var statusCode: Long?
-)
+data class InboxEntry(
+    val entryId: String,
+    val inboxId: String,
+    val data: ByteArray,
+    val files: List<File>,
+    val authorPubKey: String,
+    val createDate: Long?,
+    val statusCode: Long?
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as InboxEntry
+
+        if (createDate != other.createDate) return false
+        if (statusCode != other.statusCode) return false
+        if (entryId != other.entryId) return false
+        if (inboxId != other.inboxId) return false
+        if (!data.contentEquals(other.data)) return false
+        if (files != other.files) return false
+        if (authorPubKey != other.authorPubKey) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = createDate?.hashCode() ?: 0
+        result = 31 * result + (statusCode?.hashCode() ?: 0)
+        result = 31 * result + entryId.hashCode()
+        result = 31 * result + inboxId.hashCode()
+        result = 31 * result + data.contentHashCode()
+        result = 31 * result + files.hashCode()
+        result = 31 * result + authorPubKey.hashCode()
+        return result
+    }
+}
