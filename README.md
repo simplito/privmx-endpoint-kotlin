@@ -88,10 +88,10 @@ repositories {
 }
 
 dependencies {
-    implementation("com.simplito.java:privmx-endpoint-extra:$privmxLibVersion")
+    implementation("com.simplito.kotlin:privmx-endpoint-extra:$privmxLibVersion")
 
     // Use privmx-endpoint for the base Kotlin library:
-    // implementation("com.simplito.java:privmx-endpoint:$privmxLibVersion")
+    // implementation("com.simplito.kotlin:privmx-endpoint:$privmxLibVersion")
 }
 ```
 
@@ -120,10 +120,10 @@ repositories {
 }
 
 dependencies {
-    implementation("com.simplito.java:privmx-endpoint-extra:$privmxLibVersion")
+    implementation("com.simplito.kotlin:privmx-endpoint-extra:$privmxLibVersion")
 
     // Use privmx-endpoint for the base Kotlin library:
-    // implementation("com.simplito.java:privmx-endpoint:$privmxLibVersion")
+    // implementation("com.simplito.kotlin:privmx-endpoint:$privmxLibVersion")
 }
 ```
 
