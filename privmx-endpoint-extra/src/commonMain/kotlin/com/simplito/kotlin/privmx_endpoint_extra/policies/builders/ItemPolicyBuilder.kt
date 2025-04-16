@@ -13,7 +13,6 @@ package com.simplito.kotlin.privmx_endpoint_extra.policies.builders
 import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
 import com.simplito.kotlin.privmx_endpoint_extra.policies.ContainerPolicyValue
 import com.simplito.kotlin.privmx_endpoint_extra.policies.ItemPolicyValue
-import com.simplito.kotlin.privmx_endpoint_extra.policies.ItemPolicyValues
 
 /**
  * Scope for creating [ItemPolicy].
@@ -123,7 +122,7 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
 }
 
 /**
- * Builds an [ItemPolicy] using a DSL-style builder block.
+ * Builds an [ItemPolicy] using a DSL builder block.
  *
  * This function allows building a new [ItemPolicy].
  * If a [currentPolicy] is provided, its settings will be used as a base.

@@ -13,11 +13,11 @@ package com.simplito.kotlin.privmx_endpoint.modules.core
 
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
-import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
 /**
- * Manages a connection between the Endpoint and the Bridge server.
+ * Manages a connection between the PrivMX Endpoint and PrivMX Bridge server.
  *
  * @category core
  */
@@ -28,7 +28,7 @@ expect class Connection : AutoCloseable {
          *
          * @param userPrivKey user's private key
          * @param solutionId  ID of the Solution
-         * @param bridgeUrl   Bridge's Endpoint URL
+         * @param bridgeUrl   PrivMX Bridge server URL
          * @return Connection object
          * @throws PrivmxException thrown when method encounters an exception.
          * @throws NativeException thrown when method encounters an unknown exception.
@@ -42,7 +42,7 @@ expect class Connection : AutoCloseable {
          * Connects to PrivMX Bridge server as a guest user.
          *
          * @param solutionId ID of the Solution
-         * @param bridgeUrl  Bridge's Endpoint URL
+         * @param bridgeUrl  PrivMX Bridge server URL
          * @return Connection object
          * @throws PrivmxException thrown when method encounters an exception.
          * @throws NativeException thrown when method encounters an unknown exception.

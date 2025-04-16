@@ -182,7 +182,7 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
 }
 
 /**
- * Creates or updates a [ContainerPolicy] using a builder DSL.
+ * Creates or updates a [ContainerPolicy] using a DSL builder.
  * This function allows building a full container policy, including item-level access rules.
  * If a [currentPolicy] is provided, its settings will be used as a base.
  *
@@ -204,7 +204,7 @@ fun containerPolicy(
 ) = currentPolicy.builder().apply(buildBlock).build()
 
 /**
- * Creates or updates a [ContainerPolicyWithoutItem] using a builder DSL.
+ * Creates or updates a [ContainerPolicyWithoutItem] using a DSL builder.
  *
  * This function allows building container-level policies only.
  * If a [currentPolicy] is provided, its settings will be used as a base.
@@ -213,7 +213,6 @@ fun containerPolicy(
  * ```
  * val policy = containerPolicyWithoutItem {
  *     get(ContainerPolicyValues.DEFAULT)
- *     item(ItemPolicy(...))
  *     update(...)
  * }
  * ```

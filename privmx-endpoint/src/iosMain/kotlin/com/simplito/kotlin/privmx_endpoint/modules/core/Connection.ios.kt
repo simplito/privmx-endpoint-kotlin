@@ -41,7 +41,7 @@ import libprivmxendpoint.pson_free_value
 import libprivmxendpoint.pson_new_object
 
 /**
- * Manages a connection between the Endpoint and the Bridge server.
+ * Manages a connection between the PrivMX Endpoint and PrivMX Bridge server.
  *
  * @category core
  */
@@ -60,7 +60,7 @@ actual class Connection private constructor() : AutoCloseable {
          *
          * @param userPrivKey user's private key
          * @param solutionId  ID of the Solution
-         * @param bridgeUrl   Bridge's Endpoint URL
+         * @param bridgeUrl   PrivMX Bridge server URL
          * @return Connection object
          * @throws PrivmxException thrown when method encounters an exception.
          * @throws NativeException thrown when method encounters an unknown exception.
@@ -91,7 +91,7 @@ actual class Connection private constructor() : AutoCloseable {
          * Connects to PrivMX Bridge server as a guest user.
          *
          * @param solutionId ID of the Solution
-         * @param bridgeUrl  Bridge's Endpoint URL
+         * @param bridgeUrl  PrivMX Bridge server URL
          * @return Connection object
          * @throws PrivmxException thrown when method encounters an exception.
          * @throws NativeException thrown when method encounters an unknown exception.
@@ -149,10 +149,10 @@ actual class Connection private constructor() : AutoCloseable {
     ): PagingList<Context> = memScoped {
         val args = makeArgs(
             mapOfWithNulls(
-            "skip" to skip.pson,
-            "limit" to limit.pson,
-            "sortOrder" to sortOrder.pson,
-            lastId?.let { "lastId" to lastId.pson }).pson
+                "skip" to skip.pson,
+                "limit" to limit.pson,
+                "sortOrder" to sortOrder.pson,
+                lastId?.let { "lastId" to lastId.pson }).pson
         )
         val result = allocPointerTo<pson_value>()
         try {

@@ -13,11 +13,11 @@ package com.simplito.kotlin.privmx_endpoint_extra.lib
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
 import com.simplito.kotlin.privmx_endpoint.modules.inbox.InboxApi
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
 import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
 import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
-import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
 
 /**
  * A collection of all PrivMX Endpoint modules. It represents a single connection to PrivMX Bridge.
@@ -25,7 +25,7 @@ import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
  * @constructor Initializes modules and connects to PrivMX Bridge server using given parameters.
  * @param enableModule   set of modules to initialize; should contain [Modules.THREAD]
  * to enable Thread module or [Modules.STORE] to enable Store module
- * @param bridgeUrl      Bridge's Endpoint URL
+ * @param bridgeUrl      PrivMX Bridge server URL
  * @param solutionId     `SolutionId` of the current project
  * @param userPrivateKey user private key used to authorize; generated from:
  * [CryptoApi.generatePrivateKey] or [CryptoApi.derivePrivateKey2]

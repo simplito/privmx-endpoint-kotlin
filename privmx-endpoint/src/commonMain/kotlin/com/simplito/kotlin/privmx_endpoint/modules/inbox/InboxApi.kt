@@ -22,7 +22,6 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
 import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
-import kotlin.jvm.JvmOverloads
 
 /**
  * Manages PrivMX Bridge Inboxes and Entries.
@@ -124,7 +123,7 @@ constructor(
     fun getInbox(inboxId: String): Inbox
 
     /**
-     * Gets s list of Inboxes in given Context.
+     * Gets a list of Inboxes in given Context.
      *
      * @param contextId ID of the Context to get Inboxes from
      * @param skip      skip number of elements to skip from result

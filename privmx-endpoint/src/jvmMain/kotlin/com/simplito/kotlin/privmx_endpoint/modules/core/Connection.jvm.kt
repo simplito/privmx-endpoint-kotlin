@@ -18,12 +18,15 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
 /**
- * Manages a connection between the Endpoint and the Bridge server.
+ * Manages a connection between the PrivMX Endpoint and PrivMX Bridge server.
  *
  * @category core
  */
-actual class Connection private constructor(private val api: Long?,private val connectionId: Long?) : AutoCloseable {
-    actual companion object{
+actual class Connection private constructor(
+    private val api: Long?,
+    private val connectionId: Long?
+) : AutoCloseable {
+    actual companion object {
         init {
             LibLoader.load()
         }
@@ -33,7 +36,7 @@ actual class Connection private constructor(private val api: Long?,private val c
          *
          * @param userPrivKey user's private key
          * @param solutionId  ID of the Solution
-         * @param bridgeUrl   Bridge's Endpoint URL
+         * @param bridgeUrl PrivMX Bridge server URL
          * @return Connection object
          * @throws PrivmxException thrown when method encounters an exception.
          * @throws NativeException thrown when method encounters an unknown exception.
@@ -52,7 +55,7 @@ actual class Connection private constructor(private val api: Long?,private val c
          * Connects to PrivMX Bridge server as a guest user.
          *
          * @param solutionId ID of the Solution
-         * @param bridgeUrl  Bridge's Endpoint URL
+         * @param bridgeUrl  PrivMX Bridge server URL
          * @return Connection object
          * @throws PrivmxException thrown when method encounters an exception.
          * @throws NativeException thrown when method encounters an unknown exception.
@@ -127,6 +130,6 @@ actual class Connection private constructor(private val api: Long?,private val c
      */
     actual external fun disconnect()
 
-    private external fun  deinit();
+    private external fun deinit()
 }
 

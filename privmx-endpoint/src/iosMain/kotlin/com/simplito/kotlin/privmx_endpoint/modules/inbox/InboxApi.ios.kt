@@ -252,7 +252,7 @@ actual constructor(
     }
 
     /**
-     * Gets s list of Inboxes in given Context.
+     * Gets a list of Inboxes in given Context.
      *
      * @param contextId ID of the Context to get Inboxes from
      * @param skip      skip number of elements to skip from result
@@ -484,11 +484,11 @@ actual constructor(
     actual fun deleteEntry(inboxEntryId: String) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(inboxEntryId.pson)
-        try{
+        try {
             privmx_endpoint_execInboxApi(nativeInboxApi.value, 11, args, pson_result.ptr)
             pson_result.value?.asResponse?.getResultOrThrow()
             Unit
-        }finally {
+        } finally {
             pson_free_result(pson_result.value)
             pson_free_value(args)
         }

@@ -48,8 +48,8 @@ actual constructor(
     private var api: Long? = null
 
     init {
-        val tmpThreadApi = if(threadApi == null) ThreadApi(connection) else null
-        val tmpStoreApi = if(storeApi == null) StoreApi(connection) else null
+        val tmpThreadApi = if (threadApi == null) ThreadApi(connection) else null
+        val tmpStoreApi = if (storeApi == null) StoreApi(connection) else null
 
         api = init(
             connection,
@@ -147,7 +147,7 @@ actual constructor(
     actual external fun getInbox(inboxId: String): Inbox
 
     /**
-     * Gets s list of Inboxes in given Context.
+     * Gets a list of Inboxes in given Context.
      *
      * @param contextId ID of the Context to get Inboxes from
      * @param skip      skip number of elements to skip from result
@@ -441,7 +441,11 @@ actual constructor(
     }
 
     @Throws(IllegalStateException::class)
-    private external fun init(connection: Connection, threadApi: ThreadApi, storeApi: StoreApi): Long?
+    private external fun init(
+        connection: Connection,
+        threadApi: ThreadApi,
+        storeApi: StoreApi
+    ): Long?
 
     @Throws(IllegalStateException::class)
     private external fun deinit()
