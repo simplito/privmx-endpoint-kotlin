@@ -67,6 +67,11 @@ android {
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
+    externalNativeBuild{
+        cmake{
+            path = project(":jni-wrapper").layout.projectDirectory.file("src/cpp/CMakeLists.txt").asFile
+        }
+    }
 }
 
 publishing {
