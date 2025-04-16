@@ -1,6 +1,6 @@
 //
-// PrivMX Endpoint Java.
-// Copyright © 2024 Simplito sp. z o.o.
+// PrivMX Endpoint Kotlin.
+// Copyright © 2025 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
 // This software is Licensed under the MIT License.
@@ -16,60 +16,57 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @category thread
  * @group Thread
  */
-class Message(
-    info: ServerMessageInfo?,
-    publicMeta: ByteArray?,
-    privateMeta: ByteArray?,
-    data: ByteArray?,
-    authorPubKey: String?,
-    statusCode: Long?
-) {
-    /**
-     * Message's information created by server.
-     */
-    var info: ServerMessageInfo?
+data class Message(
+    val info: ServerMessageInfo,
 
     /**
      * Message's public metadata.
      */
-    var publicMeta: ByteArray?
+    val publicMeta: ByteArray,
 
     /**
      * Message's private metadata.
      */
-    var privateMeta: ByteArray?
+    val privateMeta: ByteArray,
 
     /**
      * Message's data.
      */
-    var data: ByteArray?
+    val data: ByteArray,
 
     /**
      * Public key of the author of the message.
      */
-    var authorPubKey: String?
+    val authorPubKey: String,
 
     /**
      * Status code of retrieval and decryption of the `Message`.
      */
-    var statusCode: Long?
+    val statusCode: Long?
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
 
-    /**
-     * Creates instance of `Message`.
-     *
-     * @param info         Message's information created by server.
-     * @param publicMeta   Message's public metadata.
-     * @param privateMeta  Message's private metadata.
-     * @param data         Message's data.
-     * @param authorPubKey Public key of the author of the message.
-     * @param statusCode   Status code of retrieval and decryption of the `Message`.
-     */
-    init {
-        this.info = info
-        this.publicMeta = publicMeta
-        this.privateMeta = privateMeta
-        this.authorPubKey = authorPubKey
-        this.data = data
-        this.statusCode = statusCode
+        other as Message
+
+        if (statusCode != other.statusCode) return false
+        if (info != other.info) return false
+        if (!publicMeta.contentEquals(other.publicMeta)) return false
+        if (!privateMeta.contentEquals(other.privateMeta)) return false
+        if (!data.contentEquals(other.data)) return false
+        if (authorPubKey != other.authorPubKey) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = statusCode?.hashCode() ?: 0
+        result = 31 * result + info.hashCode()
+        result = 31 * result + publicMeta.contentHashCode()
+        result = 31 * result + privateMeta.contentHashCode()
+        result = 31 * result + data.contentHashCode()
+        result = 31 * result + authorPubKey.hashCode()
+        return result
     }
 }

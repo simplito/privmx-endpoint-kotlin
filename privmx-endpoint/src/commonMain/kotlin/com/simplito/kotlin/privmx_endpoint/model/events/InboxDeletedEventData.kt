@@ -1,6 +1,6 @@
 //
-// PrivMX Endpoint Java.
-// Copyright © 2024 Simplito sp. z o.o.
+// PrivMX Endpoint Kotlin.
+// Copyright © 2025 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
 // This software is Licensed under the MIT License.
@@ -24,5 +24,5 @@ data class InboxDeletedEventData
     /**
      * ID of the deleted Inbox.
      */
-    val inboxId: String?
+    val inboxId: String
 )

@@ -1,6 +1,6 @@
 //
-// PrivMX Endpoint Java.
-// Copyright © 2024 Simplito sp. z o.o.
+// PrivMX Endpoint Kotlin.
+// Copyright © 2025 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
 // This software is Licensed under the MIT License.
@@ -16,32 +16,14 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @category core
  * @group Core
  */
-class UserWithPubKey {
+data class UserWithPubKey(
     /**
      * ID of the user.
      */
-    var userId: String? = null
+    val userId: String,
 
     /**
      * User's public key.
      */
-    var pubKey: String? = null
-
-    /**
-     * Creates instance of `UserWithPubKey`.
-     */
-    constructor()
-
-    /**
-     * Creates instance of `UserWithPubKey`.
-     * @param userId ID of the user.
-     * @param pubKey User's public key.
-     */
-    constructor(
-        userId: String?,
-        pubKey: String?
-    ) {
-        this.userId = userId
-        this.pubKey = pubKey
-    }
-}
+    val pubKey: String
+)

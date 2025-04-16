@@ -1,6 +1,6 @@
 //
-// PrivMX Endpoint Java.
-// Copyright © 2024 Simplito sp. z o.o.
+// PrivMX Endpoint Kotlin.
+// Copyright © 2025 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
 // This software is Licensed under the MIT License.
@@ -20,13 +20,13 @@ data class ThreadDeletedMessageEventData
  * Creates instance of `ThreadDeletedMessageEventData`.
  * @param threadId ID of the deleted message's Thread.
  * @param messageId ID of the deleted Message.
- */ internal constructor(
+ */(
     /**
      * ID of the deleted message's Thread.
      */
-    val threadId: String?,
+    val threadId: String,
     /**
      * ID of the deleted Message.
      */
-    val messageId: String?
+    val messageId: String
 )

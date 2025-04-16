@@ -1,6 +1,6 @@
 //
-// PrivMX Endpoint Java.
-// Copyright © 2024 Simplito sp. z o.o.
+// PrivMX Endpoint Kotlin.
+// Copyright © 2025 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
 // This software is Licensed under the MIT License.
@@ -16,7 +16,7 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @category inbox
  * @group Inbox
  */
-class InboxEntry
+data class InboxEntry
 /**
  * Creates instance of `InboxEntry`.
  *
@@ -31,29 +31,57 @@ class InboxEntry
     /**
      * ID of the entry.
      */
-    var entryId: String?,
+    val entryId: String,
     /**
      * ID of the Inbox.
      */
-    var inboxId: String?,
+    val inboxId: String,
     /**
      * Entry data.
      */
-    var data: ByteArray?,
+    val data: ByteArray,
     /**
      * List of files attached to the entry.
      */
-    var files: List<File?>?,
+    val files: List<File>,
     /**
      * Public key of the author of an entry.
      */
-    var authorPubKey: String?,
+    val authorPubKey: String,
     /**
      * Inbox entry creation timestamp.
      */
-    var createDate: Long?,
+    val createDate: Long?,
     /**
      * Status code of retrieval and decryption of the `Inbox` entry.
      */
-    var statusCode: Long?
-)
+    val statusCode: Long?
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as InboxEntry
+
+        if (createDate != other.createDate) return false
+        if (statusCode != other.statusCode) return false
+        if (entryId != other.entryId) return false
+        if (inboxId != other.inboxId) return false
+        if (!data.contentEquals(other.data)) return false
+        if (files != other.files) return false
+        if (authorPubKey != other.authorPubKey) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = createDate?.hashCode() ?: 0
+        result = 31 * result + (statusCode?.hashCode() ?: 0)
+        result = 31 * result + entryId.hashCode()
+        result = 31 * result + inboxId.hashCode()
+        result = 31 * result + data.contentHashCode()
+        result = 31 * result + files.hashCode()
+        result = 31 * result + authorPubKey.hashCode()
+        return result
+    }
+}

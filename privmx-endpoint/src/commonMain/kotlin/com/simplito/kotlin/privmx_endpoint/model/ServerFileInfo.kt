@@ -1,6 +1,6 @@
 //
-// PrivMX Endpoint Java.
-// Copyright © 2024 Simplito sp. z o.o.
+// PrivMX Endpoint Kotlin.
+// Copyright © 2025 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
 // This software is Licensed under the MIT License.
@@ -16,7 +16,7 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @category store
  * @group Store
  */
-class ServerFileInfo
+data class ServerFileInfo
 /**
  * Creates instance of `ServerFileInfo`.
  *
@@ -28,17 +28,17 @@ class ServerFileInfo
     /**
      * ID of the Store.
      */
-    var storeId: String?,
+    val storeId: String,
     /**
      * ID of the file.
      */
-    var fileId: String?,
+    val fileId: String,
     /**
      * File's creation timestamp.
      */
-    var createDate: Long?,
+    val createDate: Long?,
     /**
      * ID of the user who created the file.
      */
-    var author: String?
+    val author: String
 )

@@ -1,6 +1,6 @@
 //
-// PrivMX Endpoint Java.
-// Copyright © 2024 Simplito sp. z o.o.
+// PrivMX Endpoint Kotlin.
+// Copyright © 2025 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
 // This software is Licensed under the MIT License.
@@ -16,7 +16,7 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @category inbox
  * @group Inbox
  */
-class InboxPublicView
+data class InboxPublicView
 /**
  * Creates instance of `InboxPublicView`.
  *
@@ -27,13 +27,33 @@ class InboxPublicView
     /**
      * ID of the Inbox.
      */
-    var inboxId: String?,
+    val inboxId: String,
     /**
      * Version of the Inbox.
      */
-    var version: Long?,
+    val version: Long?,
     /**
      * Inbox public metadata.
      */
-    var publicMeta: ByteArray?
-)
+    val publicMeta: ByteArray
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as InboxPublicView
+
+        if (version != other.version) return false
+        if (inboxId != other.inboxId) return false
+        if (!publicMeta.contentEquals(other.publicMeta)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = version?.hashCode() ?: 0
+        result = 31 * result + inboxId.hashCode()
+        result = 31 * result + publicMeta.contentHashCode()
+        return result
+    }
+}

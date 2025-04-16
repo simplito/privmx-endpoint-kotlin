@@ -1,6 +1,6 @@
 //
-// PrivMX Endpoint Java.
-// Copyright © 2024 Simplito sp. z o.o.
+// PrivMX Endpoint Kotlin.
+// Copyright © 2025 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
 // This software is Licensed under the MIT License.
@@ -17,51 +17,26 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @category core
  * @group Events
 </T> */
-class Event<T> {
+class Event<T: Any>(
     /**
      * Type of the event.
      */
-    var type: String? = null
+    val type: String,
 
     /**
      * The event channel.
      */
-    var channel: String? = null
+    val channel: String,
 
 
     /**
      * ID of connection for this event.
      */
-    var connectionId: Long? = null
+    val connectionId: Long?,
 
     /**
      * The data payload associated with the event.
      * The type of this data is determined by the generic type parameter `T`.
      */
-    var data: T? = null
-
-    /**
-     * Creates instance of Event model.
-     */
-    internal constructor()
-
-    /**
-     * Creates instance of Event model.
-     *
-     * @param type type of event as text
-     * @param channel event channel
-     * @param connectionId ID of connection for this event
-     * @param data event data
-     */
-    constructor(
-        type: String?,
-        channel: String?,
-        connectionId: Long?,
-        data: T?
-    ) {
-        this.type = type
-        this.channel = channel
-        this.connectionId = connectionId
-        this.data = data
-    }
-}
+    val data: T
+)

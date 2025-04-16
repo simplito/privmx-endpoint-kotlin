@@ -1,6 +1,6 @@
 //
-// PrivMX Endpoint Java.
-// Copyright © 2024 Simplito sp. z o.o.
+// PrivMX Endpoint Kotlin.
+// Copyright © 2025 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
 // This software is Licensed under the MIT License.
@@ -23,7 +23,10 @@ class ContainerPolicy(
     updatePolicy: String?,
     updaterCanBeRemovedFromManagers: String?,
     ownerCanBeRemovedFromManagers: String?,
-    item: ItemPolicy?
+    /**
+     * Policy for container's items.
+     */
+    val item: ItemPolicy?
 ) : ContainerPolicyWithoutItem(
     get,
     update,
@@ -31,24 +34,4 @@ class ContainerPolicy(
     updatePolicy,
     updaterCanBeRemovedFromManagers,
     ownerCanBeRemovedFromManagers
-) {
-    /**
-     * Policy for container's items.
-     */
-    val item: ItemPolicy?
-
-    /**
-     * Creates instance of [ContainerPolicy].
-     *
-     * @param get                             determines who can get a container
-     * @param update                          determines who can update a container
-     * @param delete                          determines who can delete a container
-     * @param updatePolicy                    determines who can update policy
-     * @param updaterCanBeRemovedFromManagers determines whether the updater can be removed from the list of managers
-     * @param ownerCanBeRemovedFromManagers   determines whether the owner can be removed from the list of managers
-     * @param item                            policy for container's items
-     */
-    init {
-        this.item = item
-    }
-}
+)
