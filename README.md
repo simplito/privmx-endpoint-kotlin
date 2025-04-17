@@ -184,7 +184,7 @@ and headers under:
 
 If your `sourceSets` are split into platform-specific modules (e.g. iosMain, androidMain, jvmMain),
 and you use different logic per platform, you can include the dependency in jvmMain, iosMain, or
-keep it in commonMain if your code works across all targets.
+keep it in commonMain if your code works across all targets. 
 
 Example with platform-specific dependency:
 
@@ -195,3 +195,30 @@ val jvmMain by getting {
     }
 }
 ```
+
+## Preparing the Repository for Development
+
+### 1. Clone the repository
+
+```
+git clone https://github.com/your-org/privmx-endpoint-kotlin.git
+cd privmx-endpoint-kotlin
+```
+
+### 2. Install native libraries
+
+Depending on the platform you're targeting, you may need to install or prepare the native libraries.
+Download the appropriate files from
+the [GitHub releases](https://github.com/simplito/privmx-endpoint-kolin/releases), matching the
+version of the privmx-endpoint-kotlin library you're using.
+
+## License information
+
+**PrivMX Endpoint Kotlin**\
+Copyright © 2024 Simplito sp. z o.o.
+
+This project is part of the PrivMX Platform (https://privmx.dev). \
+This project is Licensed under the MIT License.
+
+PrivMX Endpoint and PrivMX Bridge are licensed under the PrivMX Free License.\
+See the License for the specific language governing permissions and limitations under the License.
