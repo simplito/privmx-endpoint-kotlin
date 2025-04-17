@@ -1,4 +1,4 @@
-## PrivMX Endpoint Kotlin
+# PrivMX Endpoint Kotlin
 
 This repository provides Kotlin wrappers for the native C++ library used by PrivMX to handle
 end-to-end (e2e) encryption.
@@ -127,6 +127,71 @@ dependencies {
 }
 ```
 
-### Shared Libraries
+### Native Libraries
 
 For Android, place the native libraries in the `src/main/jniLibs` directory.
+
+## Running on Kotlin Multiplatform (KMP)
+
+How to use PrivMX Endpoint Kotlin in your Kotlin Multiplatform (KMP) project:
+
+### Add the dependencies
+
+In your `build.gradle.kts` add the appropriate dependency in the commonMain or
+platform-specific source set. For example:
+
+```
+kotlin {
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation("com.simplito.kotlin:privmx-endpoint-extra:$privmxLibVersion")
+            }
+        }
+    }
+}
+```
+
+### Native libraries
+
+Make sure native libraries are available depending on the platform.
+
+#### JVM
+
+You must provide the native files and run your app with:
+
+`-Djava.library.path=<path_to_native_libraries>`
+
+#### Android
+
+You must provide the native files into a specific location in your project:
+
+`src/main/jniLibs/<abi>/`
+
+where `abi` can be one of the supported targets: armeabi-v7a, arm64-v8a, x86 or x86_64.
+
+#### iOS
+
+C interop is already preconfigured. The project assumes you have compiled native libraries under:
+
+`src/nativeInterop/cinterop/privmx-endpoint/<platform>/lib`
+
+and headers under:
+
+`src/nativeInterop/cinterop/privmx-endpoint/<platform>/include`
+
+### Platform-specific setup (optional)
+
+If your `sourceSets` are split into platform-specific modules (e.g. iosMain, androidMain, jvmMain),
+and you use different logic per platform, you can include the dependency in jvmMain, iosMain, or
+keep it in commonMain if your code works across all targets.
+
+Example with platform-specific dependency:
+
+```
+val jvmMain by getting {
+    dependencies {
+        implementation("com.simplito.kotlin:privmx-endpoint-extra:$privmxLibVersion")
+    }
+}
+```
