@@ -22,7 +22,7 @@ interface ItemPolicyBuilderScope {
      * Sets [ItemPolicy.get] policy value for reading (getting) an item.
      *
      * @param policyValue the rule determining who can read an item
-     * @return [ItemPolicyBuilderScope] instance to allow for method chaining.
+     * @return [ItemPolicyBuilderScope] instance to allow for method chaining
      */
     fun get(policyValue: ItemPolicyValue): ItemPolicyBuilderScope
 
@@ -30,7 +30,7 @@ interface ItemPolicyBuilderScope {
      * Sets [ItemPolicy.listMy] policy value for listing items owned by the current user.
      *
      * @param policyValue the rule determining who can list their own items
-     * @return [ItemPolicyBuilderScope] instance to allow for method chaining.
+     * @return [ItemPolicyBuilderScope] instance to allow for method chaining
      */
     fun listMy(policyValue: ContainerPolicyValue): ItemPolicyBuilderScope
 
@@ -38,7 +38,7 @@ interface ItemPolicyBuilderScope {
      * Sets [ItemPolicy.listAll] policy value for listing all items in the container.
      *
      * @param policyValue the rule determining who can list all items
-     * @return [ItemPolicyBuilderScope] instance to allow for method chaining.
+     * @return [ItemPolicyBuilderScope] instance to allow for method chaining
      */
     fun listAll(policyValue: ContainerPolicyValue): ItemPolicyBuilderScope
 
@@ -46,7 +46,7 @@ interface ItemPolicyBuilderScope {
      * Sets [ItemPolicy.create] policy value for creating new items in the container.
      *
      * @param policyValue the rule determining who can create items
-     * @return [ItemPolicyBuilderScope] instance to allow for method chaining.
+     * @return [ItemPolicyBuilderScope] instance to allow for method chaining
      */
     fun create(policyValue: ContainerPolicyValue): ItemPolicyBuilderScope
 
@@ -54,7 +54,7 @@ interface ItemPolicyBuilderScope {
      * Sets [ItemPolicy.update] policy value for updating items.
      *
      * @param policyValue the rule determining who can modify items
-     * @return [ItemPolicyBuilderScope] instance to allow for method chaining.
+     * @return [ItemPolicyBuilderScope] instance to allow for method chaining
      */
     fun update(policyValue: ItemPolicyValue): ItemPolicyBuilderScope
 
@@ -62,7 +62,7 @@ interface ItemPolicyBuilderScope {
      * Sets [ItemPolicy.delete] policy value for deleting items.
      *
      * @param policyValue the rule determining who can delete items
-     * @return [ItemPolicyBuilderScope] instance to allow for method chaining.
+     * @return [ItemPolicyBuilderScope] instance to allow for method chaining
      */
     fun delete(policyValue: ItemPolicyValue): ItemPolicyBuilderScope
 }
@@ -86,7 +86,7 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
     /**
      * Initializes [ItemPolicyBuilder] from existing [ItemPolicy] instance.
      *
-     * @param itemPolicy the existing [ItemPolicy] instance to copy values from.
+     * @param itemPolicy the existing [ItemPolicy] instance to copy values from
      */
     constructor(itemPolicy: ItemPolicy) : this() {
         this.get = itemPolicy.get
@@ -101,7 +101,7 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
      * Sets [ItemPolicy.get] policy value for reading (getting) an item.
      *
      * @param policyValue the rule determining who can read an item
-     * @return [ItemPolicyBuilder] instance to allow for method chaining.
+     * @return [ItemPolicyBuilder] instance to allow for method chaining
      */
     override fun get(policyValue: ItemPolicyValue): ItemPolicyBuilder =
         apply { this.get = policyValue.value }
@@ -110,7 +110,7 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
      * Sets [ItemPolicy.listMy] policy value for listing items owned by the current user.
      *
      * @param policyValue the rule determining who can list their own items
-     * @return [ItemPolicyBuilder] instance to allow for method chaining.
+     * @return [ItemPolicyBuilder] instance to allow for method chaining
      */
     override fun listMy(policyValue: ContainerPolicyValue): ItemPolicyBuilder =
         apply { this.listMy = policyValue.value }
@@ -119,7 +119,7 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
      * Sets [ItemPolicy.listAll] policy value for listing all items in the container.
      *
      * @param policyValue the rule determining who can list all items
-     * @return [ItemPolicyBuilder] instance to allow for method chaining.
+     * @return [ItemPolicyBuilder] instance to allow for method chaining
      */
     override fun listAll(policyValue: ContainerPolicyValue): ItemPolicyBuilder =
         apply { this.listAll = policyValue.value }
@@ -128,7 +128,7 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
      * Sets [ItemPolicy.create] policy value for creating new items in the container.
      *
      * @param policyValue the rule determining who can create items
-     * @return [ItemPolicyBuilder] instance to allow for method chaining.
+     * @return [ItemPolicyBuilder] instance to allow for method chaining
      */
     override fun create(policyValue: ContainerPolicyValue): ItemPolicyBuilder =
         apply { this.create = policyValue.value }
@@ -137,7 +137,7 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
      * Sets [ItemPolicy.update] policy value for updating items.
      *
      * @param policyValue the rule determining who can modify items
-     * @return [ItemPolicyBuilder] instance to allow for method chaining.
+     * @return [ItemPolicyBuilder] instance to allow for method chaining
      */
     override fun update(policyValue: ItemPolicyValue): ItemPolicyBuilder =
         apply { this.update = policyValue.value }
@@ -146,7 +146,7 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
      * Sets [ItemPolicy.delete] policy value for deleting items.
      *
      * @param policyValue the rule determining who can delete items
-     * @return [ItemPolicyBuilder] instance to allow for method chaining.
+     * @return [ItemPolicyBuilder] instance to allow for method chaining
      */
     override fun delete(policyValue: ItemPolicyValue): ItemPolicyBuilder =
         apply { this.delete = policyValue.value }
@@ -154,7 +154,7 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
     /**
      * Creates [ItemPolicy] from current state.
      *
-     * @return new [ItemPolicy] instance created from this builder policies.
+     * @return new [ItemPolicy] instance created from this builder policies
      */
     fun build() = ItemPolicy(
         get, listMy, listAll, create, update, delete
