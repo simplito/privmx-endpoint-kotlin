@@ -18,8 +18,6 @@ import kotlinx.coroutines.sync.withLock
 /**
  * Represents a callback for catching events data.
  * @param T type of the caught event data
- *
- * @category core
  */
 fun interface EventCallback<T> {
     /**
@@ -35,7 +33,6 @@ fun interface EventCallback<T> {
  * @param onRemoveEntryKey callback triggered when all events
  *                         from channel entry have been removed
  *                         (it can also unsubscribe from the channel)
- * @category core
  */
 class EventDispatcher(
     private val onRemoveEntryKey: (removedKey: String) -> Unit

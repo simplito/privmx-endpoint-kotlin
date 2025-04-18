@@ -36,8 +36,6 @@ import kotlinx.io.files.SystemFileSystem
  * Manages certificates, Platform sessions, and active connections.
  * Implements event loop that can be started using [startListening].
  * Contains instance of [CryptoApi].
- *
- * @category core
  */
 class PrivmxEndpointContainer() : AutoCloseable {
 

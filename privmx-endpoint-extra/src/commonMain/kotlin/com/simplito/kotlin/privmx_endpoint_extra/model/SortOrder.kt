@@ -13,8 +13,6 @@ package com.simplito.kotlin.privmx_endpoint_extra.model
 
 /**
  * Constant values for sort order to use in PrivmxEndpoint lists methods.
- *
- * @category core
  */
 object SortOrder {
     /**

@@ -32,8 +32,6 @@ import libprivmxendpoint.pson_free_value
 
 /**
  * Defines cryptographic methods.
- *
- * @category crypto
  */
 @OptIn(ExperimentalForeignApi::class)
 actual class CryptoApi : AutoCloseable {

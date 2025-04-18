@@ -41,9 +41,7 @@ import libprivmxendpoint.pson_free_value
 import libprivmxendpoint.pson_new_object
 
 /**
- * Manages a connection between the PrivMX Endpoint and PrivMX Bridge server.
- *
- * @category core
+ * Manages a connection between the PrivMX Endpoint and PrivMX Bridge server
  */
 @OptIn(ExperimentalForeignApi::class)
 actual class Connection private constructor() : AutoCloseable {
@@ -62,11 +60,8 @@ actual class Connection private constructor() : AutoCloseable {
          * @param solutionId  ID of the Solution
          * @param bridgeUrl   PrivMX Bridge server URL
          * @return Connection object
-         * @throws PrivmxException thrown when method encounters an exception.
-         * @throws NativeException thrown when method encounters an unknown exception.
-         * @event type: libConnected
-         * channel: -
-         * @payload: [Unit]
+         * @throws PrivmxException thrown when method encounters an exception
+         * @throws NativeException thrown when method encounters an unknown exception
          */
         @Throws(PrivmxException::class, NativeException::class)
         actual fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String): Connection =
@@ -93,11 +88,8 @@ actual class Connection private constructor() : AutoCloseable {
          * @param solutionId ID of the Solution
          * @param bridgeUrl  PrivMX Bridge server URL
          * @return Connection object
-         * @throws PrivmxException thrown when method encounters an exception.
-         * @throws NativeException thrown when method encounters an unknown exception.
-         * @event type: libConnected
-         * channel: -
-         * payload: [Unit]
+         * @throws PrivmxException thrown when method encounters an exception
+         * @throws NativeException thrown when method encounters an unknown exception
          */
         @Throws(PrivmxException::class, NativeException::class)
         actual fun connectPublic(
@@ -122,8 +114,8 @@ actual class Connection private constructor() : AutoCloseable {
          * Allows to set path to the SSL certificate file.
          *
          * @param certsPath path to file
-         * @throws PrivmxException thrown when method encounters an exception.
-         * @throws NativeException thrown when method encounters an unknown exception.
+         * @throws PrivmxException thrown when method encounters an exception
+         * @throws NativeException thrown when method encounters an unknown exception
          */
         @Throws(PrivmxException::class, NativeException::class)
         actual fun setCertsPath(certsPath: String): Unit = memScoped {
@@ -139,9 +131,9 @@ actual class Connection private constructor() : AutoCloseable {
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
      * @return list of Contexts
-     * @throws IllegalStateException thrown when instance is not connected.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is not connected
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
     actual fun listContexts(
@@ -168,15 +160,9 @@ actual class Connection private constructor() : AutoCloseable {
     /**
      * Disconnects from PrivMX Bridge server.
      *
-     * @throws IllegalStateException thrown when instance is not connected or closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @event type: libDisconnected
-     * channel: -
-     * payload: [Unit]
-     * @event type: libPlatformDisconnected
-     * channel: -
-     * payload: [Unit]
+     * @throws IllegalStateException thrown when instance is not connected or closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
     actual fun disconnect() = memScoped {

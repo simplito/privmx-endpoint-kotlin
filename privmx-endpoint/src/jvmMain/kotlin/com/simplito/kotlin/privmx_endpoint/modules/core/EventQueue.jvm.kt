@@ -26,8 +26,8 @@ actual object EventQueue {
      * Puts the break event on the events queue.
      * You can use it to break the [EventQueue.waitEvent].
      *
-     * @throws PrivmxException thrown when method encounters an exception.
-     * @throws NativeException thrown when method encounters an unknown exception.
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     @JvmStatic
@@ -48,8 +48,8 @@ actual object EventQueue {
      * Gets the first event from the events queue.
      *
      * @return Event data if any available otherwise return null
-     * @throws PrivmxException thrown when method encounters an exception.
-     * @throws NativeException thrown when method encounters an unknown exception.
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(
         PrivmxException::class,

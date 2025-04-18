@@ -19,8 +19,6 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
 /**
  * Manages a connection between the PrivMX Endpoint and PrivMX Bridge server.
- *
- * @category core
  */
 actual class Connection private constructor(
     private val api: Long?,
@@ -38,11 +36,8 @@ actual class Connection private constructor(
          * @param solutionId  ID of the Solution
          * @param bridgeUrl PrivMX Bridge server URL
          * @return Connection object
-         * @throws PrivmxException thrown when method encounters an exception.
-         * @throws NativeException thrown when method encounters an unknown exception.
-         * @event type: libConnected
-         * channel: -
-         * @payload: [Unit]
+         * @throws PrivmxException thrown when method encounters an exception
+         * @throws NativeException thrown when method encounters an unknown exception
          */
         @JvmStatic
         actual external fun connect(
@@ -57,11 +52,8 @@ actual class Connection private constructor(
          * @param solutionId ID of the Solution
          * @param bridgeUrl  PrivMX Bridge server URL
          * @return Connection object
-         * @throws PrivmxException thrown when method encounters an exception.
-         * @throws NativeException thrown when method encounters an unknown exception.
-         * @event type: libConnected
-         * channel: -
-         * payload: [Unit]
+         * @throws PrivmxException thrown when method encounters an exception
+         * @throws NativeException thrown when method encounters an unknown exception
          */
         @JvmStatic
         actual external fun connectPublic(
@@ -73,8 +65,8 @@ actual class Connection private constructor(
          * Allows to set path to the SSL certificate file.
          *
          * @param certsPath path to file
-         * @throws PrivmxException thrown when method encounters an exception.
-         * @throws NativeException thrown when method encounters an unknown exception.
+         * @throws PrivmxException thrown when method encounters an exception
+         * @throws NativeException thrown when method encounters an unknown exception
          */
         @JvmStatic
         actual external fun setCertsPath(certsPath: String)
@@ -103,9 +95,9 @@ actual class Connection private constructor(
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
      * @return list of Contexts
-     * @throws IllegalStateException thrown when instance is not connected.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is not connected
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     @JvmOverloads
     actual external fun listContexts(
@@ -118,15 +110,9 @@ actual class Connection private constructor(
     /**
      * Disconnects from PrivMX Bridge server.
      *
-     * @throws IllegalStateException thrown when instance is not connected or closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @event type: libDisconnected
-     * channel: -
-     * payload: [Unit]
-     * @event type: libPlatformDisconnected
-     * channel: -
-     * payload: [Unit]
+     * @throws IllegalStateException thrown when instance is not connected or closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     actual external fun disconnect()
 

@@ -15,8 +15,6 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
 /**
  * Defines cryptographic methods.
- *
- * @category crypto
  */
 expect class CryptoApi() : AutoCloseable {
 

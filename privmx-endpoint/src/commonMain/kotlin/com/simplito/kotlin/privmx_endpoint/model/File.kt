@@ -13,15 +13,12 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds information about the file.
  *
- * @property info         File's information created by server.
- * @property publicMeta   File's public metadata.
- * @property privateMeta  File's private metadata.
- * @property size         File's size.
- * @property authorPubKey Public key of the author of the file.
- * @property statusCode   Status code of retrieval and decryption of the file.
- *
- * @category store
- * @group Store
+ * @property info         File's information created by server
+ * @property publicMeta   File's public metadata
+ * @property privateMeta  File's private metadata
+ * @property size         File's size
+ * @property authorPubKey Public key of the author of the file
+ * @property statusCode   Status code of retrieval and decryption of the file
  */
 data class File(
     val info: ServerFileInfo,

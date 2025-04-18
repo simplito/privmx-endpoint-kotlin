@@ -12,8 +12,6 @@ package com.simplito.kotlin.privmx_endpoint_extra.model
 
 /**
  * Available modules for PrivMX Endpoint.
- *
- * @category core
  */
 enum class Modules {
     /**

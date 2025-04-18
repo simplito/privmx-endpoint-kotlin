@@ -38,76 +38,76 @@ import com.simplito.kotlin.privmx_endpoint.utils.PsonValue.PsonObject
 import kotlin.collections.get
 
 internal fun PsonObject.toContext(): Context = Context(
-        this["userId"]?.typedValue(),
-        this["contextId"]?.typedValue()
+        this["userId"]?.typedValue()!!,
+        this["contextId"]?.typedValue()!!
     )
 
 internal fun PsonObject.toThread(): Thread = Thread(
-    this["contextId"]?.typedValue(),
-    this["threadId"]?.typedValue(),
+    this["contextId"]?.typedValue()!!,
+    this["threadId"]?.typedValue()!!,
     this["createDate"]?.typedValue(),
-    this["creator"]?.typedValue(),
+    this["creator"]?.typedValue()!!,
     this["lastModificationDate"]?.typedValue(),
-    this["lastModifier"]?.typedValue(),
-    this["users"]?.typedList()?.map { it.typedValue() },
-    this["managers"]?.typedList()?.map { it.typedValue() },
+    this["lastModifier"]?.typedValue()!!,
+    this["users"]?.typedList()!!.map { it.typedValue()},
+    this["managers"]?.typedList()!!.map { it.typedValue() },
     this["version"]?.typedValue(),
     this["lastMsgDate"]?.typedValue(),
-    this["publicMeta"]?.typedValue(),
-    this["privateMeta"]?.typedValue(),
-    (this["policy"] as PsonObject?)?.toContainerPolicy(),
-    this["messagesCount"]?.typedValue(),
+    this["publicMeta"]?.typedValue()!!,
+    this["privateMeta"]?.typedValue()!!,
+    (this["policy"] as PsonObject?)!!.toContainerPolicy(),
+    this["messagesCount"]?.typedValue()!!,
     this["statusCode"]?.typedValue(),
 )
 
 internal fun PsonObject.toStore(): Store = Store(
-    this["storeId"]?.typedValue(),
-    this["contextId"]?.typedValue(),
+    this["storeId"]?.typedValue()!!,
+    this["contextId"]?.typedValue()!!,
     this["createDate"]?.typedValue(),
-    this["creator"]?.typedValue(),
+    this["creator"]?.typedValue()!!,
     this["lastModificationDate"]?.typedValue(),
     this["lastFileDate"]?.typedValue(),
-    this["lastModifier"]?.typedValue(),
-    this["users"]?.typedList()?.map { it.typedValue() },
-    this["managers"]?.typedList()?.map { it.typedValue() },
+    this["lastModifier"]?.typedValue()!!,
+    this["users"]?.typedList()!!.map { it.typedValue() },
+    this["managers"]?.typedList()!!.map { it.typedValue() },
     this["version"]?.typedValue(),
-    this["publicMeta"]?.typedValue(),
-    this["privateMeta"]?.typedValue(),
-    (this["policy"] as PsonObject?)?.toContainerPolicy(),
+    this["publicMeta"]?.typedValue()!!,
+    this["privateMeta"]?.typedValue()!!,
+    (this["policy"] as PsonObject?)!!.toContainerPolicy(),
     this["filesCount"]?.typedValue(),
     this["statusCode"]?.typedValue()
 )
 
 internal fun PsonObject.toInbox(): Inbox = Inbox(
-    this["inboxId"]?.typedValue(),
-    this["contextId"]?.typedValue(),
+    this["inboxId"]?.typedValue()!!,
+    this["contextId"]?.typedValue()!!,
     this["createDate"]?.typedValue(),
-    this["creator"]?.typedValue(),
+    this["creator"]?.typedValue()!!,
     this["lastModificationDate"]?.typedValue(),
-    this["lastModifier"]?.typedValue(),
-    this["users"]?.typedList()?.map { it.typedValue() },
-    this["managers"]?.typedList()?.map { it.typedValue() },
+    this["lastModifier"]?.typedValue()!!,
+    this["users"]?.typedList()!!.map { it.typedValue() },
+    this["managers"]?.typedList()!!.map { it.typedValue() },
     this["version"]?.typedValue(),
-    this["publicMeta"]?.typedValue(),
-    this["privateMeta"]?.typedValue(),
+    this["publicMeta"]?.typedValue()!!,
+    this["privateMeta"]?.typedValue()!!,
     (this["filesConfig"] as PsonObject?)?.toFilesConfig(),
-    (this["policy"] as PsonObject?)?.toContainerPolicy(),
+    (this["policy"] as PsonObject?)!!.toContainerPolicy(),
     this["statusCode"]?.typedValue()
 )
 
 internal fun PsonObject.toInboxPublicView(): InboxPublicView =
     InboxPublicView(
-        this["inboxId"]?.typedValue(),
+        this["inboxId"]?.typedValue()!!,
         this["version"]?.typedValue(),
-        this["publicMeta"]?.typedValue()
+        this["publicMeta"]?.typedValue()!!
     )
 
 internal fun PsonObject.toInboxEntry(): InboxEntry = InboxEntry(
-    this["entryId"]?.typedValue(),
-    this["inboxId"]?.typedValue(),
-    this["data"]?.typedValue(),
-    this["files"]?.typedList()?.map { (it as PsonObject).toFile() },
-    this["authorPubKey"]?.typedValue(),
+    this["entryId"]?.typedValue()!!,
+    this["inboxId"]?.typedValue()!!,
+    this["data"]?.typedValue()!!,
+    this["files"]?.typedList()!!.map { (it as PsonObject).toFile() },
+    this["authorPubKey"]?.typedValue()!!,
     this["createDate"]?.typedValue(),
     this["statusCode"]?.typedValue(),
 )
@@ -141,45 +141,45 @@ internal fun PsonObject.toItemPolicy(): ItemPolicy = ItemPolicy(
 )
 
 internal fun PsonObject.toMessage() = Message(
-    (this["info"] as PsonObject?)?.toServerMessageInfo(),
-    this["publicMeta"]?.typedValue(),
-    this["privateMeta"]?.typedValue(),
-    this["data"]?.typedValue(),
-    this["authorPubKey"]?.typedValue(),
+    (this["info"] as PsonObject?)!!.toServerMessageInfo(),
+    this["publicMeta"]?.typedValue()!!,
+    this["privateMeta"]?.typedValue()!!,
+    this["data"]?.typedValue()!!,
+    this["authorPubKey"]?.typedValue()!!,
     this["statusCode"]?.typedValue()
 )
 
 internal fun PsonObject.toFile() = File(
-    (this["info"] as PsonObject?)?.toServerFileInfo(),
-    this["publicMeta"]?.typedValue(),
-    this["privateMeta"]?.typedValue(),
+    (this["info"] as PsonObject?)!!.toServerFileInfo(),
+    this["publicMeta"]?.typedValue()!!,
+    this["privateMeta"]?.typedValue()!!,
     this["size"]?.typedValue(),
-    this["authorPubKey"]?.typedValue(),
+    this["authorPubKey"]?.typedValue()!!,
     this["statusCode"]?.typedValue()
 )
 
 internal fun PsonObject.toServerMessageInfo() = ServerMessageInfo(
-    this["threadId"]?.typedValue(),
-    this["messageId"]?.typedValue(),
+    this["threadId"]?.typedValue()!!,
+    this["messageId"]?.typedValue()!!,
     this["createDate"]?.typedValue(),
-    this["author"]?.typedValue()
+    this["author"]?.typedValue()!!
 )
 
 internal fun PsonObject.toServerFileInfo() = ServerFileInfo(
-    this["storeId"]?.typedValue(),
-    this["fileId"]?.typedValue(),
+    this["storeId"]?.typedValue()!!,
+    this["fileId"]?.typedValue()!!,
     this["createDate"]?.typedValue(),
-    this["author"]?.typedValue()
+    this["author"]?.typedValue()!!
 )
 
 internal fun <T> PsonObject.toPagingList(mapper: PsonObject.() -> T) = PagingList(
     this["totalAvailable"]?.typedValue(),
-    this["readItems"]?.typedList()?.map { (it as PsonObject).mapper() }
+    this["readItems"]?.typedList()!!.map { (it as PsonObject).mapper() }
 )
 
 internal fun PsonObject.toEvent(): Event<*> = Event(
-    this["type"]?.typedValue(),
-    this["channel"]?.typedValue(),
+    this["type"]?.typedValue()!!,
+    this["channel"]?.typedValue()!!,
     this["connectionId"]?.typedValue(),
     (this["data"] as PsonObject?)?.let {
         println(it.type)
@@ -188,42 +188,42 @@ internal fun PsonObject.toEvent(): Event<*> = Event(
 )
 
 internal fun PsonObject.toInboxDeletedEventData() = InboxDeletedEventData(
-    this["inboxId"]?.typedValue()
+    this["inboxId"]?.typedValue()!!
 )
 
 internal fun PsonObject.toInboxEntryDeletedEventData() = InboxEntryDeletedEventData(
-    this["inboxId"]?.typedValue(),
-    this["entryId"]?.typedValue()
+    this["inboxId"]?.typedValue()!!,
+    this["entryId"]?.typedValue()!!
 )
 
 internal fun PsonObject.toStoreDeletedEventData() = StoreDeletedEventData(
-    this["storeId"]?.typedValue(),
+    this["storeId"]?.typedValue()!!,
 )
 
 internal fun PsonObject.toStoreFileDeletedEventData() = StoreFileDeletedEventData(
-    this["fileId"]?.typedValue(),
-    this["contextId"]?.typedValue(),
-    this["storeId"]?.typedValue(),
+    this["fileId"]?.typedValue()!!,
+    this["contextId"]?.typedValue()!!,
+    this["storeId"]?.typedValue()!!,
 )
 
 internal fun PsonObject.toStoreStatsChangedEventData() = StoreStatsChangedEventData(
-    this["storeId"]?.typedValue(),
-    this["contextId"]?.typedValue(),
+    this["storeId"]?.typedValue()!!,
+    this["contextId"]?.typedValue()!!,
     this["lastFileDate"]?.typedValue(),
     this["filesCount"]?.typedValue(),
 )
 
 internal fun PsonObject.toThreadDeletedEventData() = ThreadDeletedEventData(
-    this["threadId"]?.typedValue()
+    this["threadId"]?.typedValue()!!
 )
 
 internal fun PsonObject.toThreadDeletedMessageEventData() = ThreadDeletedMessageEventData(
-    this["threadId"]?.typedValue(),
-    this["messageId"]?.typedValue(),
+    this["threadId"]?.typedValue()!!,
+    this["messageId"]?.typedValue()!!,
 )
 
 internal fun PsonObject.toThreadStatsEventData() = ThreadStatsEventData(
-    this["threadId"]?.typedValue(),
+    this["threadId"]?.typedValue()!!,
     this["lastMsgDate"]?.typedValue(),
     this["messagesCount"]?.typedValue(),
 )

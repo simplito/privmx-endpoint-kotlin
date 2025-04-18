@@ -23,8 +23,6 @@ import kotlin.String
 
 /**
  * Defines cryptographic methods.
- *
- * @category crypto
  */
 actual class CryptoApi : AutoCloseable {
 

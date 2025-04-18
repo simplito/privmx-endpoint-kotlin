@@ -13,15 +13,12 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Contains container's policies.
  *
- * @property get                             Determines who can get a container.
- * @property update                          Determines who can update a container.
- * @property delete                          Determines who can delete a container.
- * @property updatePolicy                    Determines who can update policy.
- * @property updaterCanBeRemovedFromManagers Determines whether the updater can be removed from the list of managers.
- * @property ownerCanBeRemovedFromManagers   Determines whether the owner can be removed from the list of managers.
- *
- * @category core
- * @group Core
+ * @property get                             Determines who can get a container
+ * @property update                          Determines who can update a container
+ * @property delete                          Determines who can delete a container
+ * @property updatePolicy                    Determines who can update policy
+ * @property updaterCanBeRemovedFromManagers Determines whether the updater can be removed from the list of managers
+ * @property ownerCanBeRemovedFromManagers   Determines whether the owner can be removed from the list of managers
  */
 open class ContainerPolicyWithoutItem(
     val get: String?,

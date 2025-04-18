@@ -13,12 +13,9 @@ package com.simplito.kotlin.privmx_endpoint.model.events
 /**
  * Holds information about a file deleted from Store.
  *
- * @property fileId ID of the deleted file.
- * @property contextId ID of the Store's Context.
- * @property storeId ID of the deleted file's Store.
- *
- * @category core
- * @group Events
+ * @property fileId ID of the deleted file
+ * @property contextId ID of the Store's Context
+ * @property storeId ID of the deleted file's Store
  */
 data class StoreFileDeletedEventData(
     val fileId: String,

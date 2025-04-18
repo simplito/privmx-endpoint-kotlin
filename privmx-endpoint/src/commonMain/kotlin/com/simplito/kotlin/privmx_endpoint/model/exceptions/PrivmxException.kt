@@ -18,8 +18,6 @@ package com.simplito.kotlin.privmx_endpoint.model.exceptions
  * @property scope       scope of this exception
  * @property code        unique code of this exception
  * @property name        special name for this exception
- *
- * @category errors
  */
 class PrivmxException
 internal constructor(

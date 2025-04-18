@@ -24,7 +24,7 @@ interface ContainerPolicyWithoutItemBuilderScope {
      * Sets [ContainerPolicyWithoutItem.get] policy value
      *
      * @param policyValue the rule determining who can get container
-     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
+     * @return [ContainerPolicyBuilder] instance to allow for method chaining
      */
     fun get(policyValue: ContainerPolicyValue): ContainerPolicyBuilder
 
@@ -32,7 +32,7 @@ interface ContainerPolicyWithoutItemBuilderScope {
      * ets [ContainerPolicyWithoutItem.update] policy value.
      *
      * @param policyValue the rule determining who can update container
-     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
+     * @return [ContainerPolicyBuilder] instance to allow for method chaining
      */
     fun update(policyValue: ContainerPolicyValue): ContainerPolicyBuilder
 
@@ -40,7 +40,7 @@ interface ContainerPolicyWithoutItemBuilderScope {
      * Sets [ContainerPolicyWithoutItem.delete] policy value.
      *
      * @param policyValue the rule determining who can delete container
-     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
+     * @return [ContainerPolicyBuilder] instance to allow for method chaining
      */
     fun delete(policyValue: ContainerPolicyValue): ContainerPolicyBuilder
 
@@ -48,15 +48,15 @@ interface ContainerPolicyWithoutItemBuilderScope {
      * Sets [ContainerPolicyWithoutItem.updatePolicy] policy value.
      *
      * @param policyValue the access rule for modifying container policies
-     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
+     * @return [ContainerPolicyBuilder] instance to allow for method chaining
      */
     fun updatePolicy(policyValue: ContainerPolicyValue): ContainerPolicyBuilder
 
     /**
      * Sets [ContainerPolicyWithoutItem.updaterCanBeRemovedFromManagers] policy value.
      *
-     * @param policyValue the special rule indicating if user who can update the container can be removed from the list of managers.
-     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
+     * @param policyValue the special rule indicating if user who can update the container can be removed from the list of managers
+     * @return [ContainerPolicyBuilder] instance to allow for method chaining
      */
     fun updaterCanBeRemovedFromManagers(policyValue: SpecialPolicyValue): ContainerPolicyBuilder
 
@@ -64,7 +64,7 @@ interface ContainerPolicyWithoutItemBuilderScope {
      * Sets [ContainerPolicyWithoutItem.ownerCanBeRemovedFromManagers] policy value.
      *
      * @param policyValue the special rule indicating if removal is allowed
-     * @return [ContainerPolicyBuilder] instance to allow for method chaining.
+     * @return [ContainerPolicyBuilder] instance to allow for method chaining
      */
     fun ownerCanBeRemovedFromManagers(policyValue: SpecialPolicyValue): ContainerPolicyBuilder
 }
@@ -77,7 +77,7 @@ interface ContainerPolicyBuilderScope : ContainerPolicyWithoutItemBuilderScope {
      * Sets the access policy for items within the container.
      *
      * @param item the item access policy
-     * @return  [ContainerPolicyBuilder] instance to allow for method chaining.
+     * @return  [ContainerPolicyBuilder] instance to allow for method chaining
      */
     fun item(item: ItemPolicy): ContainerPolicyBuilder
 }
@@ -103,7 +103,7 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
      * Creates instance of [ContainerPolicyBuilder]
      * initialized with policy values from existing [ContainerPolicy] instance.
      *
-     * @param containerPolicy the existing [ContainerPolicy] instance to copy values from.
+     * @param containerPolicy the existing [ContainerPolicy] instance to copy values from
      */
     constructor(containerPolicy: ContainerPolicy) {
         this.get = containerPolicy.get
@@ -119,7 +119,7 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
      * Creates instance of [ContainerPolicyBuilder]
      * initialized with policy values from existing [ContainerPolicyWithoutItem] instance.
      *
-     * @param containerPolicyWithoutItem the existing [ContainerPolicyWithoutItem] instance to copy values from.
+     * @param containerPolicyWithoutItem the existing [ContainerPolicyWithoutItem] instance to copy values from
      */
     constructor(containerPolicyWithoutItem: ContainerPolicyWithoutItem) {
         this.get = containerPolicyWithoutItem.get
@@ -154,7 +154,7 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
     /**
      * Creates [ContainerPolicyWithoutItem] from current state.
      *
-     * @return new [ContainerPolicyWithoutItem] instance created from this builder policies.
+     * @return new [ContainerPolicyWithoutItem] instance created from this builder policies
      */
     fun buildWithoutItem() = ContainerPolicyWithoutItem(
         get,
@@ -168,7 +168,7 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
     /**
      * Creates [ContainerPolicy] from current state.
      *
-     * @return new [ContainerPolicy] instance created from this builder policies.
+     * @return new [ContainerPolicy] instance created from this builder policies
      */
     fun build() = ContainerPolicy(
         get,
