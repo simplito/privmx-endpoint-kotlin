@@ -1,26 +1,24 @@
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+@file:OptIn(ExperimentalEncodingApi::class)
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
     id("maven-publish")
+    id("signing")
 }
 
 group = "com.simplito.kotlin"
 version = "1.0.0"
 
 kotlin {
-    jvm()
-    androidTarget {
-        publishLibraryVariants("release")
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    jvm{
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_1_8)
         }
     }
-
     listOf(
         iosSimulatorArm64(),
         iosArm64(),
@@ -29,8 +27,10 @@ kotlin {
             cinterops {
                 val libprivmxendpoint by creating {
                     this.extraOpts = listOf(
-                        "-libraryPath", "src/nativeInterop/cinterop/privmx-endpoint/${it.name}/lib",
-                        "-compilerOpts", "-Isrc/nativeInterop/cinterop/privmx-endpoint/${it.name}/include"
+                        "-libraryPath",
+                        "src/nativeInterop/cinterop/privmx-endpoint/${it.name}/lib",
+                        "-compilerOpts",
+                        "-Isrc/nativeInterop/cinterop/privmx-endpoint/${it.name}/include"
                     )
                 }
             }
@@ -45,12 +45,8 @@ kotlin {
             it.dependsOn(iosMain.get())
         }
 
-        val iosMain by getting{
+        val iosMain by getting {
             dependsOn(commonMain.get())
-        }
-
-        val androidMain by getting{
-            dependsOn(jvmMain.get())
         }
 
         val commonTest by getting {
@@ -61,66 +57,32 @@ kotlin {
     }
 }
 
-android {
-    namespace = "com.simplito.kotlin.privmx-endpoint"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
-    }
-    externalNativeBuild{
-        cmake{
-            path = project(":jni-wrapper").layout.projectDirectory.file("src/cpp/CMakeLists.txt").asFile
-        }
-    }
-}
-
 publishing {
-    val properties = Properties()
-    properties.load(file(rootDir.absolutePath + "/local.properties").inputStream())
-    val repositoryURL: String = properties.getProperty("repositoryURL")
     repositories {
+        val localProperties = Properties().apply {
+            load(file(rootDir.absolutePath + "/local.properties").inputStream())
+        }
+        val repositoryURL: String = localProperties.getProperty("repositoryURL")
         maven {
-            name = "localFiles"
+            name = "localRepo"
             url = uri(repositoryURL)
         }
     }
+
+    publications {
+        withType<MavenPublication>().configureEach {
+            groupId = "com.simplito.kotlin"
+            version = project.version as String
+            pom {
+                name = "PrivMX Endpoint Kotlin"
+                description =
+                    "PrivMX Endpoint Kotlin is a minimal wrapper library declaring native functions in Kotlin using JNI."
+            }
+        }
+    }
 }
 
-//mavenPublishing {
-//    val properties = Properties()
-//    properties.load(file(rootDir.absolutePath + "/local.properties").inputStream())
-//    val repositoryURL: String = properties.getProperty("repositoryURL")
-//    publishToMavenCentral("")
-//    publishToMavenCentral(repositoryURL)
-////    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-//
-//    signAllPublications()
-//
-//    coordinates(group.toString(), "library", version.toString())
-//
-//    pom {
-//        name = ""
-//        description = "A library."
-//        inceptionYear = "2024"
-//        url = "https://github.com/kotlin/multiplatform-library-template/"
-//        licenses {
-//            license {
-//                name = "XXX"
-//                url = "YYY"
-//                distribution = "ZZZ"
-//            }
-//        }
-//        developers {
-//            developer {
-//                id = "XXX"
-//                name = "YYY"
-//                url = "ZZZ"
-//            }
-//        }
-//        scm {
-//            url = "XXX"
-//            connection = "YYY"
-//            developerConnection = "ZZZ"
-//        }
-//    }
-//}
+signing {
+    useGpgCmd()
+    sign(publishing.publications)
+}
