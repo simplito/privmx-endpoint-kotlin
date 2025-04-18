@@ -88,6 +88,9 @@ listOf(
         }
     }
 
+    val emptyJavadocJar = currentProject.tasks.register<Jar>("emptyJavadocJar"){
+        archiveClassifier = "javadoc"
+    }
 
     currentProject.afterEvaluate {
         val publishingExtension = currentProject.extensions.getByType<PublishingExtension>()
@@ -95,6 +98,9 @@ listOf(
             .publications
             .withType<MavenPublication>()
             .configureEach {
+                if(name == "jvm") {
+                    artifact(emptyJavadocJar)
+                }
                 configurePom()
                 currentProject.createZipPublicationTask(publishingExtension, this)
                 currentProject.createUploadPublicationTask(publishingExtension, this)
