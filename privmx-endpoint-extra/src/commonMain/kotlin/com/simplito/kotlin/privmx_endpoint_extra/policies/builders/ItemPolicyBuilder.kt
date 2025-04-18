@@ -97,22 +97,58 @@ class ItemPolicyBuilder : ItemPolicyBuilderScope {
         this.delete = itemPolicy.delete
     }
 
-    override fun get(policyValue: ItemPolicyValue): ItemPolicyBuilderScope =
+    /**
+     * Sets [ItemPolicy.get] policy value for reading (getting) an item.
+     *
+     * @param policyValue the rule determining who can read an item
+     * @return [ItemPolicyBuilder] instance to allow for method chaining.
+     */
+    override fun get(policyValue: ItemPolicyValue): ItemPolicyBuilder =
         apply { this.get = policyValue.value }
 
-    override fun listMy(policyValue: ContainerPolicyValue): ItemPolicyBuilderScope =
+    /**
+     * Sets [ItemPolicy.listMy] policy value for listing items owned by the current user.
+     *
+     * @param policyValue the rule determining who can list their own items
+     * @return [ItemPolicyBuilder] instance to allow for method chaining.
+     */
+    override fun listMy(policyValue: ContainerPolicyValue): ItemPolicyBuilder =
         apply { this.listMy = policyValue.value }
 
-    override fun listAll(policyValue: ContainerPolicyValue): ItemPolicyBuilderScope =
+    /**
+     * Sets [ItemPolicy.listAll] policy value for listing all items in the container.
+     *
+     * @param policyValue the rule determining who can list all items
+     * @return [ItemPolicyBuilder] instance to allow for method chaining.
+     */
+    override fun listAll(policyValue: ContainerPolicyValue): ItemPolicyBuilder =
         apply { this.listAll = policyValue.value }
 
-    override fun create(policyValue: ContainerPolicyValue): ItemPolicyBuilderScope =
+    /**
+     * Sets [ItemPolicy.create] policy value for creating new items in the container.
+     *
+     * @param policyValue the rule determining who can create items
+     * @return [ItemPolicyBuilder] instance to allow for method chaining.
+     */
+    override fun create(policyValue: ContainerPolicyValue): ItemPolicyBuilder =
         apply { this.create = policyValue.value }
 
-    override fun update(policyValue: ItemPolicyValue): ItemPolicyBuilderScope =
+    /**
+     * Sets [ItemPolicy.update] policy value for updating items.
+     *
+     * @param policyValue the rule determining who can modify items
+     * @return [ItemPolicyBuilder] instance to allow for method chaining.
+     */
+    override fun update(policyValue: ItemPolicyValue): ItemPolicyBuilder =
         apply { this.update = policyValue.value }
 
-    override fun delete(policyValue: ItemPolicyValue): ItemPolicyBuilderScope =
+    /**
+     * Sets [ItemPolicy.delete] policy value for deleting items.
+     *
+     * @param policyValue the rule determining who can delete items
+     * @return [ItemPolicyBuilder] instance to allow for method chaining.
+     */
+    override fun delete(policyValue: ItemPolicyValue): ItemPolicyBuilder =
         apply { this.delete = policyValue.value }
 
     /**
