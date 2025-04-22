@@ -60,6 +60,8 @@ actual class CryptoApi : AutoCloseable {
      *
      * @param randomSeed optional string used as the base to generate the new key
      * @return Generated ECC key in WIF format
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun generatePrivateKey(randomSeed: String): String = memScoped {
@@ -90,6 +92,8 @@ actual class CryptoApi : AutoCloseable {
      * @param password the password used to generate the new key
      * @param salt     random string (additional input for the hashing function)
      * @return generated ECC key in WIF format
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun derivePrivateKey2(password: String, salt: String): String = memScoped {
@@ -116,6 +120,8 @@ actual class CryptoApi : AutoCloseable {
      *
      * @param privateKey private ECC key in WIF format
      * @return Generated ECC key in BASE58DER format
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun derivePublicKey(privateKey: String): String = memScoped {
@@ -143,6 +149,8 @@ actual class CryptoApi : AutoCloseable {
      * @param data         buffer to encrypt
      * @param symmetricKey key used to encrypt data
      * @return Encrypted data buffer
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun encryptDataSymmetric(
@@ -173,6 +181,8 @@ actual class CryptoApi : AutoCloseable {
      * @param data         buffer to decrypt
      * @param symmetricKey key used to decrypt data
      * @return Plain (decrypted) data buffer
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun decryptDataSymmetric(
@@ -203,6 +213,8 @@ actual class CryptoApi : AutoCloseable {
      * @param data       data the buffer to sign
      * @param privateKey the key used to sign data
      * @return Signature of data
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun signData(data: ByteArray, privateKey: String): ByteArray = memScoped {
@@ -305,6 +317,11 @@ actual class CryptoApi : AutoCloseable {
         }
     }
 
+    /**
+     * Frees memory.
+     *
+     * @throws Exception when instance is currently closed.
+     */
     actual override fun close() {
         if (_nativeCryptoApi.value == null) return
         privmx_endpoint_freeCryptoApi(_nativeCryptoApi.value)
