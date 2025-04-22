@@ -31,6 +31,7 @@ expect class Connection : AutoCloseable {
          * @throws PrivmxException thrown when method encounters an exception
          * @throws NativeException thrown when method encounters an unknown exception
          */
+        @Throws(PrivmxException::class, NativeException::class)
         fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String): Connection
 
         /**
@@ -42,6 +43,7 @@ expect class Connection : AutoCloseable {
          * @throws PrivmxException thrown when method encounters an exception
          * @throws NativeException thrown when method encounters an unknown exception
          */
+        @Throws(PrivmxException::class, NativeException::class)
         fun connectPublic(solutionId: String, bridgeUrl: String): Connection
 
         /**
@@ -51,6 +53,7 @@ expect class Connection : AutoCloseable {
          * @throws PrivmxException thrown when method encounters an exception
          * @throws NativeException thrown when method encounters an unknown exception
          */
+        @Throws(PrivmxException::class, NativeException::class)
         fun setCertsPath(certsPath: String)
     }
 
@@ -66,6 +69,7 @@ expect class Connection : AutoCloseable {
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun listContexts(
         skip: Long, limit: Long, sortOrder: String = "desc", lastId: String? = null
     ): PagingList<Context>
@@ -84,6 +88,7 @@ expect class Connection : AutoCloseable {
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun disconnect()
 
     /**

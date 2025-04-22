@@ -40,6 +40,7 @@ actual class Connection private constructor(
          * @throws NativeException thrown when method encounters an unknown exception
          */
         @JvmStatic
+        @Throws(PrivmxException::class, NativeException::class)
         actual external fun connect(
             userPrivKey: String,
             solutionId: String,
@@ -56,6 +57,7 @@ actual class Connection private constructor(
          * @throws NativeException thrown when method encounters an unknown exception
          */
         @JvmStatic
+        @Throws(PrivmxException::class, NativeException::class)
         actual external fun connectPublic(
             solutionId: String,
             bridgeUrl: String,
@@ -69,6 +71,7 @@ actual class Connection private constructor(
          * @throws NativeException thrown when method encounters an unknown exception
          */
         @JvmStatic
+        @Throws(PrivmxException::class, NativeException::class)
         actual external fun setCertsPath(certsPath: String)
     }
 
@@ -100,6 +103,7 @@ actual class Connection private constructor(
      * @throws NativeException       thrown when method encounters an unknown exception
      */
     @JvmOverloads
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun listContexts(
         skip: Long,
         limit: Long,
@@ -114,6 +118,7 @@ actual class Connection private constructor(
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      */
+    @Throws(PrivmxException::class, NativeException::class)
     actual external fun disconnect()
 
     private external fun deinit()

@@ -183,6 +183,7 @@ actual class Connection private constructor() : AutoCloseable {
      * Gets the ID of the current connection.
      *
      * @return ID of the connection
+     * @throws IllegalStateException thrown when instance is not connected or closed
      */
     @Throws(IllegalStateException::class)
     actual fun getConnectionId(): Long? = memScoped {

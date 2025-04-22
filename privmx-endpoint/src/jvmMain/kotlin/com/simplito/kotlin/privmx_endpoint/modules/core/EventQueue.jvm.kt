@@ -29,8 +29,8 @@ actual object EventQueue {
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      */
-    @Throws(PrivmxException::class, NativeException::class)
     @JvmStatic
+    @Throws(PrivmxException::class, NativeException::class)
     actual external fun emitBreakEvent()
 
     /**
@@ -40,8 +40,8 @@ actual object EventQueue {
      * @throws PrivmxException thrown when method encounters an exception.
      * @throws NativeException thrown when method encounters an unknown exception.
      */
-    @Throws(PrivmxException::class, NativeException::class)
     @JvmStatic
+    @Throws(PrivmxException::class, NativeException::class)
     actual external fun waitEvent(): Event<*>
 
     /**
@@ -51,10 +51,10 @@ actual object EventQueue {
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      */
+    @JvmStatic
     @Throws(
         PrivmxException::class,
         NativeException::class
     )
-    @JvmStatic
     actual external fun getEvent(): Event<*>?
 }
