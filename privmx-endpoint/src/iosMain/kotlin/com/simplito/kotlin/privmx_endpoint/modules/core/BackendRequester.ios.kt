@@ -39,6 +39,8 @@ actual object BackendRequester {
      * @param paramsAsJson API method's parameters in JSON format
      *
      * @return JSON String representing raw server response
+     * @throws PrivmxException thrown when method encounters an exception.
+     * @throws NativeException thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun backendRequest(
@@ -71,7 +73,6 @@ actual object BackendRequester {
      *
      * @return JSON String representing raw server response
      */
-    @Throws(PrivmxException::class, NativeException::class)
     actual fun backendRequest(
         serverUrl: String, method: String, paramsAsJson: String
     ): String = memScoped {
@@ -104,7 +105,6 @@ actual object BackendRequester {
      *
      * @return JSON String representing raw server response
      */
-    @Throws(PrivmxException::class, NativeException::class)
     actual fun backendRequest(
         serverUrl: String,
         apiKeyId: String,

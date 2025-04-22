@@ -1,6 +1,9 @@
 package com.simplito.kotlin.privmx_endpoint.modules.core
 
 import com.simplito.kotlin.privmx_endpoint.LibLoader
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import kotlin.Throws
 
 /**
  * 'BackendRequester' provides functions to call PrivMX Bridge API.
@@ -19,7 +22,10 @@ actual object BackendRequester {
      * @param paramsAsJson API method's parameters in JSON format
      *
      * @return JSON String representing raw server response
+     * @throws PrivmxException thrown when method encounters an exception.
+     * @throws NativeException thrown when method encounters an unknown exception.
      */
+    @Throws(PrivmxException::class, NativeException::class)
     @JvmStatic
     actual external fun backendRequest(
         serverUrl: String,
