@@ -106,7 +106,8 @@
     border: none;
     border-radius: var(--size-s1);
     background: rgba(0, 0, 0, 0);
-    font-size: 0
+    font-size: 0;
+    color: var(--color-text-dt)
 }
 
 #pages-search:focus-visible {
@@ -479,6 +480,25 @@ html, .app-root {
 
 .custom-header-icons{
     color: var(--color-text-dt);
+}
+
+.custom-back-button{
+    color: var(--color-text-dt);
+    align-items: center;
+    display: flex;
+    font-size: 14px;
+    border-radius: 6px;
+    padding: 8px 6px;
+    -webkit-transition: background-color 200ms linear;
+    -ms-transition: background-color 200ms linear;
+    transition: background-color 200ms linear;
+}
+
+.custom-back-button:hover{
+    background-color: hsla(193,24%,22%,0.5);
+    -webkit-transition: background-color 200ms linear;
+    -ms-transition: background-color 200ms linear;
+    transition: background-color 200ms linear;
 }
 
 /*# sourceMappingURL=main.css.map*/

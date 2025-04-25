@@ -13,9 +13,6 @@
         </button>
 
 
-        <a style="color:white" href="https://privmxdocs.test.simplito.com">
-            Back
-        </a>
         <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
             API
         </div>
@@ -30,9 +27,9 @@
                 <a class="navigation-controls--btn navigation-controls--btn_homepage" id="homepage-link"
                    href="${homepageLink}"></a>
             </#if>
-            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
-                    type="button">Switch theme
-            </button>
+<#--            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"-->
+<#--                    type="button">Switch theme-->
+<#--            </button>-->
         </div>
     </nav>
 </#macro>
