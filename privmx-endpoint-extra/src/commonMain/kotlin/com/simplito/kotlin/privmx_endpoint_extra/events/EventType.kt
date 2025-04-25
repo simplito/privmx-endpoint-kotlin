@@ -32,7 +32,7 @@ import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpoint
  * @param T the type of data contained in the Event.
  * @category core
  */
-sealed class EventType<out Any>(
+sealed class EventType<T: Any>(
     /**
      * Channel of this event type.
      */

@@ -21,14 +21,15 @@ import kotlinx.coroutines.sync.withLock
  *
  * @category core
  */
-fun interface EventCallback<T> {
+fun interface EventCallback<T: Any>{
     /**
      * Called to handle data from a captured event.
      *
-     *  @param event the caught event
+     *  @param eventData the caught event data
      */
-    operator fun invoke(event: Event<out T>)
+    operator fun invoke(eventData: T)
 }
+
 
 /**
  * Implements a list of registered event callbacks.
@@ -55,11 +56,11 @@ class EventDispatcher(
      * @param callback block of code to call when the specified event has been caught
      * @return `true` if the channel is not already subscribed
      */
-    suspend fun register(
+    suspend fun <T: Any> register(
         channel: String,
         type: String,
         context: Any,
-        callback: EventCallback<*>
+        callback: EventCallback<T>
     ): Boolean {
         val needSubscribe = channelHasNoCallbacks(channel)
         getCallbacks(getFormattedType(channel, type)).add(Pair(context, callback))
@@ -72,15 +73,16 @@ class EventDispatcher(
      * @param T     type of event data
      * @param event event data to emit
     </T> */
-    suspend fun <T> emit(event: Event<out T>) {
-        val callbacks = getCallbacks(getFormattedType(event.channel!!, event.type!!))
+    @Suppress("UNCHECKED_CAST")
+    suspend fun <T: Any> emit(event: Event<out T>) {
+        val callbacks = getCallbacks(getFormattedType(event.channel, event.type))
         for (p in callbacks) {
             try {
                 try {
-                    (p.callback as EventCallback<T>)(event)
-                } catch (ignored: Exception) {
+                    (p.callback as EventCallback<T>)(event.data)
+                } catch (_: Exception) {
                 }
-            } catch (e: ClassCastException) {
+            } catch (_: ClassCastException) {
                 println("Cannot process event: issue with cast event data")
             }
         }
@@ -127,5 +129,5 @@ class EventDispatcher(
     }
 
 
-    private data class Pair(val context: Any, val callback: EventCallback<*>)
+    private data class Pair(val context: Any, val callback: EventCallback<out Any>)
 }

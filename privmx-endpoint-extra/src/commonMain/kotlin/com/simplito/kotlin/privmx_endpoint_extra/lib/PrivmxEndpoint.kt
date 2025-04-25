@@ -64,7 +64,7 @@ constructor(
      * @throws RuntimeException thrown when method encounters an exception during subscribing on channel.
      */
     @Throws(RuntimeException::class)
-    suspend fun <T> registerCallback(
+    suspend fun <T: Any> registerCallback(
         context: Any,
         eventType: EventType<T>,
         callback: EventCallback<T>
