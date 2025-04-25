@@ -6,6 +6,8 @@ import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.dokka.gradle.AbstractDokkaTask
+import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
+import org.jetbrains.dokka.gradle.DokkaTaskPartial
 import java.net.URLEncoder
 import java.util.Properties
 import kotlin.apply
@@ -35,44 +37,12 @@ listOf(
     project(":privmx-endpoint"),
     project(":privmx-endpoint-extra"),
 ).forEach { currentProject ->
-
     currentProject.apply(plugin = "org.jetbrains.dokka")
-    val dokkaTaskConfiguration: AbstractDokkaTask.() -> Unit = {
-        outputDirectory.set(file(layout.buildDirectory.file("customHtml")))
-//        val indexFile = outputDirectory.file("index.html").get().asFile
-//        val svgFile = outputDirectory.file("ui-kit/assets/theme-toggle.svg").get().asFile
-        pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
-            templatesDir = file(rootProject.layout.projectDirectory.file("docs/templates"))
-            customAssets = listOf(
-                rootProject.layout.projectDirectory.file("docs/fonts/Manrope-VariableFont_wght.ttf").asFile
-            )
-            customStyleSheets = listOf(
-                rootProject.layout.projectDirectory.file("docs/styles/style.css").asFile,
-                rootProject.layout.projectDirectory.file("docs/styles/main.css").asFile,
-                rootProject.layout.projectDirectory.file("docs/styles/font-manrope-auto.css").asFile
-            )
-        }
-        doLast {
-            copy {
-                from(rootProject.layout.projectDirectory.file("docs/fonts"))
-                into(outputDirectory.file("styles/fonts"))
-            }
-        }
-//        doLast {
-//            val content = svgFile.readText().replace(Regex("rgba\\([^\\)]*\\)"), "currentColor")
-//            val buttonTag =
-//                "<button class=\"navigation-controls--btn custom-header-icons\" id=\"theme-toggle-button\" type=\"button\">$content</button>"
-//            indexFile.readText(Charsets.UTF_8).replace(
-//                Regex(
-//                    "<button class=\"navigation-controls--btn navigation-controls--btn_theme\"[^<]*</button>",
-//                    RegexOption.MULTILINE
-//                ), buttonTag
-//            ).let {
-//                indexFile.writeText(it)
-//            }
-//        }
-    }
+
     currentProject.tasks.register<DokkaTask>("customHtml") {
+        dokkaTaskConfiguration()
+    }
+    currentProject.tasks.register<DokkaTaskPartial>("customHtmlPartial") {
         dokkaTaskConfiguration()
     }
     currentProject.tasks.withType<DokkaTask>().configureEach {
@@ -88,7 +58,7 @@ listOf(
         }
     }
 
-    val emptyJavadocJar = currentProject.tasks.register<Jar>("emptyJavadocJar"){
+    val emptyJavadocJar = currentProject.tasks.register<Jar>("emptyJavadocJar") {
         archiveClassifier = "javadoc"
     }
 
@@ -98,7 +68,7 @@ listOf(
             .publications
             .withType<MavenPublication>()
             .configureEach {
-                if(name == "jvm") {
+                if (name == "jvm") {
                     artifact(emptyJavadocJar)
                 }
                 configurePom()
@@ -115,8 +85,14 @@ listOf(
     }
 }
 
-fun MavenPublication.configurePom(){
-    pom{
+@Suppress("DEPRECATION")
+tasks.register<DokkaMultiModuleTask>("customHtmlMultiModule") {
+    dokkaTaskConfiguration()
+    addSubprojectChildTasks("customHtmlPartial")
+}
+
+fun MavenPublication.configurePom() {
+    pom {
         url = "https://privmx.dev"
         licenses {
             license {
@@ -138,7 +114,10 @@ fun MavenPublication.configurePom(){
     }
 }
 
-fun Project.createZipPublicationTask(publishing: PublishingExtension, publication: MavenPublication): Zip {
+fun Project.createZipPublicationTask(
+    publishing: PublishingExtension,
+    publication: MavenPublication
+): Zip {
     val repoFile =
         file((publishing.repositories.named("localRepo").get() as MavenArtifactRepository).url)
     val packageDirName =
@@ -160,7 +139,10 @@ fun Project.createZipPublicationTask(publishing: PublishingExtension, publicatio
 }
 
 @OptIn(ExperimentalEncodingApi::class)
-fun Project.createUploadPublicationTask( publishing: PublishingExtension, publication: MavenPublication): DefaultTask {
+fun Project.createUploadPublicationTask(
+    publishing: PublishingExtension,
+    publication: MavenPublication
+): DefaultTask {
     val username = localProperties.getProperty("mavenUsername")
     val password = localProperties.getProperty("mavenPassword")
     val repoFile =
@@ -175,11 +157,19 @@ fun Project.createUploadPublicationTask( publishing: PublishingExtension, public
             val httpEntity = MultipartEntityBuilder.create()
                 .addBinaryBody("bundle", zipFile)
                 .build()
-            val deploymentName = when(publication.name){
-                "kotlinMultiplatform" -> URLEncoder.encode("${publication.pom.name.get()} ${publication.version}","UTF-8")
-                else -> URLEncoder.encode("${publication.pom.name.get()}-${publication.name} ${publication.version}","UTF-8")
+            val deploymentName = when (publication.name) {
+                "kotlinMultiplatform" -> URLEncoder.encode(
+                    "${publication.pom.name.get()} ${publication.version}",
+                    "UTF-8"
+                )
+
+                else -> URLEncoder.encode(
+                    "${publication.pom.name.get()}-${publication.name} ${publication.version}",
+                    "UTF-8"
+                )
             }
-            val post = HttpPost("https://central.sonatype.com/api/v1/publisher/upload?name=$deploymentName")
+            val post =
+                HttpPost("https://central.sonatype.com/api/v1/publisher/upload?name=$deploymentName")
             post.entity = httpEntity
 
             val token = Base64.Default.encode("$username:$password".encodeToByteArray())
@@ -191,6 +181,27 @@ fun Project.createUploadPublicationTask( publishing: PublishingExtension, public
                 }"
             )
             client.close()
+        }
+    }
+}
+
+val Project.dokkaTaskConfiguration: AbstractDokkaTask.() -> Unit get() = {
+    outputDirectory.set(file(layout.buildDirectory.file("customHtml")))
+    pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
+        templatesDir = file(rootProject.layout.projectDirectory.file("docs/templates"))
+        customAssets = listOf(
+            rootProject.layout.projectDirectory.file("docs/fonts/Manrope-VariableFont_wght.ttf").asFile
+        )
+        customStyleSheets = listOf(
+            rootProject.layout.projectDirectory.file("docs/styles/style.css").asFile,
+            rootProject.layout.projectDirectory.file("docs/styles/main.css").asFile,
+            rootProject.layout.projectDirectory.file("docs/styles/font-manrope-auto.css").asFile
+        )
+    }
+    doLast {
+        copy {
+            from(rootProject.layout.projectDirectory.file("docs/fonts"))
+            into(outputDirectory.file("styles/fonts"))
         }
     }
 }
