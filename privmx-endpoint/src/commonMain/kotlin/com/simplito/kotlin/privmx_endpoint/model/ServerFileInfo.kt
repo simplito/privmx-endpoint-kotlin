@@ -13,32 +13,17 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds file's information created by server.
  *
+ * @property storeId    ID of the Store.
+ * @property fileId     ID of the file.
+ * @property createDate File's creation timestamp.
+ * @property author     ID of the user who created the file.
+ *
  * @category store
  * @group Store
  */
-data class ServerFileInfo
-/**
- * Creates instance of `ServerFileInfo`.
- *
- * @param storeId    ID of the Store.
- * @param fileId     ID of the file.
- * @param createDate File's creation timestamp.
- * @param author     ID of the user who created the file.
- */(
-    /**
-     * ID of the Store.
-     */
+data class ServerFileInfo(
     val storeId: String,
-    /**
-     * ID of the file.
-     */
     val fileId: String,
-    /**
-     * File's creation timestamp.
-     */
     val createDate: Long?,
-    /**
-     * ID of the user who created the file.
-     */
     val author: String
 )

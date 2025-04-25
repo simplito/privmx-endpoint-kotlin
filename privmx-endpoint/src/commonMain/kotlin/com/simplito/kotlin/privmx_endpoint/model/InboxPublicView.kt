@@ -13,28 +13,16 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds Inbox public information.
  *
+ * @property inboxId    ID of the Inbox.
+ * @property version    Version of the Inbox.
+ * @property publicMeta Inbox public metadata.
+ *
  * @category inbox
  * @group Inbox
  */
-data class InboxPublicView
-/**
- * Creates instance of `InboxPublicView`.
- *
- * @param inboxId    ID of the Inbox.
- * @param version    Version of the Inbox.
- * @param publicMeta Inbox public metadata.
- */(
-    /**
-     * ID of the Inbox.
-     */
+data class InboxPublicView(
     val inboxId: String,
-    /**
-     * Version of the Inbox.
-     */
     val version: Long?,
-    /**
-     * Inbox public metadata.
-     */
     val publicMeta: ByteArray
 ) {
     override fun equals(other: Any?): Boolean {

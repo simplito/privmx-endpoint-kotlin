@@ -22,14 +22,18 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
 import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
-import kotlin.jvm.JvmOverloads
 
 /**
  * Manages PrivMX Bridge Inboxes and Entries.
- *
+ * @param connection active connection to PrivMX Bridge
+ * @param threadApi  instance of [ThreadApi] created on passed Connection
+ * @param storeApi   instance of [StoreApi] created on passed Connection
+ * @throws IllegalStateException when one of the passed parameters is closed.
  * @category inbox
  */
-expect class InboxApi(
+expect class InboxApi
+@Throws(IllegalStateException::class)
+constructor(
     connection: Connection,
     threadApi: ThreadApi? = null,
     storeApi: StoreApi? = null
@@ -119,7 +123,7 @@ expect class InboxApi(
     fun getInbox(inboxId: String): Inbox
 
     /**
-     * Gets s list of Inboxes in given Context.
+     * Gets a list of Inboxes in given Context.
      *
      * @param contextId ID of the Context to get Inboxes from
      * @param skip      skip number of elements to skip from result
@@ -141,7 +145,6 @@ expect class InboxApi(
         sortOrder: String = "desc",
         lastId: String? = null
     ): PagingList<Inbox>
-
 
     /**
      * Gets public data of given Inbox.
@@ -308,7 +311,6 @@ expect class InboxApi(
         inboxFileHandle: Long,
         dataChunk: ByteArray
     )
-
 
     /**
      * Opens a file to read.

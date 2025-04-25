@@ -12,14 +12,13 @@ package com.simplito.kotlin.privmx_endpoint.model.events
 
 /**
  * Holds information about deleted Store.
+ *
+ * @property storeId ID of the deleted Store.
+ *
  * @category core
  * @group Events
  */
-data class StoreDeletedEventData
-/**
- * Creates instance of `StoreDeletedEventData`.
- * @param storeId ID of the deleted Store.
- */(
+data class StoreDeletedEventData(
     /**
      * ID of the deleted Store.
      */

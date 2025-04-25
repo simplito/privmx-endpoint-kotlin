@@ -21,10 +21,13 @@ import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 
 /**
  * Manages PrivMX Bridge Stores and Files.
- *
+ * @param connection active connection to PrivMX Bridge
+ * @throws IllegalStateException when given [Connection] is not connected
  * @category store
  */
-expect class StoreApi(connection: Connection) : AutoCloseable {
+expect class StoreApi
+@Throws(IllegalStateException::class)
+constructor(connection: Connection) : AutoCloseable {
     /**
      * Creates a new Store in given Context.
      *

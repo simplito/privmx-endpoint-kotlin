@@ -11,10 +11,10 @@
 package com.simplito.kotlin.privmx_endpoint_extra.policies
 
 /**
- * Base class for all policies values.
+ * Base interface for all policies values.
+ *
+ * @property value Raw policy value
  */
-
-interface PolicyValue
-{
+interface PolicyValue {
     val value: String
 }

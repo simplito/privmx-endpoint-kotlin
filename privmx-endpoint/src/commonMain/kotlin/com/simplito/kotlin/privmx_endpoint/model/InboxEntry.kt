@@ -13,48 +13,24 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds information about Inbox entry.
  *
+ * @property entryId      ID of the entry.
+ * @property inboxId      ID of the Inbox.
+ * @property data         Entry data.
+ * @property files        List of files attached to the entry.
+ * @property authorPubKey Public key of the author of an entry.
+ * @property createDate   Inbox entry creation timestamp.
+ * @property statusCode   Status code of retrieval and decryption of the Inbox entry.
+ *
  * @category inbox
  * @group Inbox
  */
-data class InboxEntry
-/**
- * Creates instance of `InboxEntry`.
- *
- * @param entryId      ID of the entry.
- * @param inboxId      ID of the Inbox.
- * @param data         Entry data.
- * @param files        List of files attached to the entry.
- * @param authorPubKey Public key of the author of an entry.
- * @param createDate   Inbox entry creation timestamp.
- * @param statusCode   Status code of retrieval and decryption of the `Inbox` entry.
- */(
-    /**
-     * ID of the entry.
-     */
+data class InboxEntry(
     val entryId: String,
-    /**
-     * ID of the Inbox.
-     */
     val inboxId: String,
-    /**
-     * Entry data.
-     */
     val data: ByteArray,
-    /**
-     * List of files attached to the entry.
-     */
     val files: List<File>,
-    /**
-     * Public key of the author of an entry.
-     */
     val authorPubKey: String,
-    /**
-     * Inbox entry creation timestamp.
-     */
     val createDate: Long?,
-    /**
-     * Status code of retrieval and decryption of the `Inbox` entry.
-     */
     val statusCode: Long?
 ) {
     override fun equals(other: Any?): Boolean {

@@ -85,34 +85,6 @@ actual class CryptoApi : AutoCloseable {
 
     /**
      * Generates a new private ECC key from a password using pbkdf2.
-     *
-     * @param password the password used to generate the new key
-     * @param salt     random string (additional input for the hashing function)
-     * @return Generated ECC key in WIF format
-     */
-    @Deprecated("Use {@link CryptoApi#derivePrivateKey2(String, String)} instead.")
-    @Throws(PrivmxException::class, NativeException::class)
-    actual fun derivePrivateKey(password: String, salt: String): String = memScoped {
-        val result = allocPointerTo<pson_value>()
-        val args = makeArgs(password.pson, salt.pson)
-        try {
-            privmx_endpoint_execCryptoApi(
-                nativeCryptoApi.value,
-                3,
-                args,
-                result.ptr
-            )
-                result.value!!.asResponse
-                ?.getResultOrThrow()
-                ?.typedValue()!!
-        } finally {
-            pson_free_result(result.value)
-            pson_free_value(args)
-        }
-    }
-
-    /**
-     * Generates a new private ECC key from a password using pbkdf2.
      * This version of the derive function has a rounds count increased to 200k.
      * This makes using this function a safer choice, but it makes the received key
      * different than in the original version.

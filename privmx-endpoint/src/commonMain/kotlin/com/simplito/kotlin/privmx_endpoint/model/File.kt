@@ -13,39 +13,22 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds information about the file.
  *
+ * @property info         File's information created by server.
+ * @property publicMeta   File's public metadata.
+ * @property privateMeta  File's private metadata.
+ * @property size         File's size.
+ * @property authorPubKey Public key of the author of the file.
+ * @property statusCode   Status code of retrieval and decryption of the file.
+ *
  * @category store
  * @group Store
  */
 data class File(
-
-    /**
-     * File's information created by server.
-     */
     val info: ServerFileInfo,
-
-    /**
-     * File's public metadata.
-     */
     val publicMeta: ByteArray,
-
-    /**
-     * File's private metadata.
-     */
     val privateMeta: ByteArray,
-
-    /**
-     * File's size.
-     */
     val size: Long?,
-
-    /**
-     * Public key of the author of the file.
-     */
     val authorPubKey: String,
-
-    /**
-     * Status code of retrieval and decryption of the file.
-     */
     val statusCode: Long?
 ) {
     override fun equals(other: Any?): Boolean {

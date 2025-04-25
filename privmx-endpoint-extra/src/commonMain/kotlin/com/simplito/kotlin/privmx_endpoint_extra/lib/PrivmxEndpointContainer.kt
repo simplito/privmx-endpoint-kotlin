@@ -31,23 +31,23 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
-import kotlin.collections.get
 
 /**
  * Manages certificates, Platform sessions, and active connections.
- * Implements event loop that can be started using [.startListening].
+ * Implements event loop that can be started using [startListening].
  * Contains instance of [CryptoApi].
  *
  * @category core
  */
-class PrivmxEndpointContainer : AutoCloseable {
-    private val privmxEndpoints = mutableMapOf<Long, PrivmxEndpoint>()
+class PrivmxEndpointContainer() : AutoCloseable {
 
+    private val privmxEndpoints = mutableMapOf<Long, PrivmxEndpoint>()
 
     /**
      * Instance of [CryptoApi].
      */
     val cryptoApi: CryptoApi = CryptoApi()
+
     private val containerScope =
         CoroutineScope(Dispatchers.Default + CoroutineName("EndpointContainer") + CoroutineExceptionHandler { context, exception ->
             println("${exception.message}")
@@ -57,13 +57,14 @@ class PrivmxEndpointContainer : AutoCloseable {
         Dispatchers.Default + CoroutineName("Event-loop-scope") + CoroutineExceptionHandler { context, exception ->
             println("${exception.message}")
         }
+
     private val connectionsMutex = Mutex()
 
     private val eventLoopJob = containerScope.launch(eventLoopContext, CoroutineStart.LAZY) {
         while (isActive) {
             try {
                 val event = EventQueue.waitEvent()
-                onNewEvent(event!! as Event<out Any>)
+                onNewEvent(event as Event<out Any>)
             } catch (e: Exception) {
                 println("Catch event exception: " + e.message)
             }
@@ -83,26 +84,22 @@ class PrivmxEndpointContainer : AutoCloseable {
      *
      * @param connectionId Id of connection
      * @return Active connection
-     * @throws IllegalStateException if certificate is not set successfully
      */
-    fun getEndpoint(connectionId: Long?): PrivmxEndpoint {
-        return privmxEndpoints.get(connectionId)!!
+    fun getEndpoint(connectionId: Long): PrivmxEndpoint? {
+        return privmxEndpoints[connectionId]
     }
 
-    val endpointIDs: Set<Long?>
-        /**
-         * Returns set of all active connection's IDs.
-         *
-         * @return set of all active connection's IDs
-         * @throws IllegalStateException if certificate is not set successfully
-         */
-        get() = privmxEndpoints.keys
+    /**
+     * Set of all active connection's IDs
+     */
+    val endpointIDs: Set<Long?> = privmxEndpoints.keys
 
     /**
      * Sets path to the certificate used to create a secure connection to PrivMX Bridge.
      * It checks whether a .pem file with certificate exists in `certsPath` and uses it if it does.
      *
      * @param certsPath path to file with .pem certificate
+     * @throws IllegalArgumentException if `certsPath` is incorrect
      * @throws PrivmxException if there is an error while setting `certsPath`
      * @throws NativeException if there is an unknown error during set `certsPath`
      */
@@ -118,17 +115,18 @@ class PrivmxEndpointContainer : AutoCloseable {
      * Creates a new connection.
      *
      * @param enableModule   set of modules to initialize
-     * @param bridgeUrl      Bridge's Endpoint URL
+     * @param bridgeUrl      PrivMX Bridge server URL
      * @param solutionId     `SolutionId` of the current project
      * @param userPrivateKey user private key used to authorize; generated from:
-     * [CryptoApi.generatePrivateKey] or
-     * [CryptoApi.derivePrivateKey]
+     * [CryptoApi.generatePrivateKey] or [CryptoApi.derivePrivateKey2]
      * @return Created connection
-     * @throws IllegalStateException when certPath is not set up
      * @throws PrivmxException       if there is a problem during login
      * @throws NativeException       if there is an unknown problem during login
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(
+        PrivmxException::class,
+        NativeException::class
+    )
     fun connect(
         enableModule: Set<Modules>,
         userPrivateKey: String,
@@ -236,9 +234,5 @@ class PrivmxEndpointContainer : AutoCloseable {
             containerScope.cancel()
         } catch (_: Exception) {
         }
-    }
-
-    companion object {
-        private val TAG = "[PrivmxEndpointContainer]"
     }
 }

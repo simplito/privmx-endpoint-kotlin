@@ -13,72 +13,40 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds all available information about a Thread.
  *
+ * @property contextId                 ID of the Thread's Context.
+ * @property threadId                  ID of the Thread.
+ * @property createDate                Thread creation timestamp.
+ * @property creator                   ID of the user who created the Thread.
+ * @property lastModificationDate      Thread last modification timestamp.
+ * @property lastModifier              ID of the user who last modified the Thread.
+ * @property users                     List of users (their IDs) with access to the Thread.
+ * @property managers                  List of users (their IDs) with management rights.
+ * @property version                   Version number (changes on updates).
+ * @property lastMsgDate               Timestamp of the last posted message.
+ * @property publicMeta                Thread's public metadata.
+ * @property privateMeta               Thread's private metadata.
+ * @property policy                    Thread's policies
+ * @property messagesCount             Total number of messages in the Thread.
+ * @property statusCode                Status code of retrieval and decryption of the `Thread`.
+ *
  * @category thread
  * @group Thread
  */
 data class Thread(
-    /**
-     * ID of the Thread's Context.
-     */
     val contextId: String,
-    /**
-     * ID of the Thread.
-     */
     val threadId: String,
-    /**
-     * Thread creation timestamp.
-     */
     val createDate: Long?,
-    /**
-     * ID of the user who created the Thread.
-     */
     val creator: String,
-    /**
-     * Thread last modification timestamp.
-     */
     val lastModificationDate: Long?,
-    /**
-     * ID of the user who last modified the Thread.
-     */
     val lastModifier: String,
-    /**
-     * List of users (their IDs) with access to the Thread.
-     */
     val users: List<String>,
-    /**
-     * List of users (their IDs) with management rights.
-     */
     val managers: List<String>,
-    /**
-     * Version number (changes on updates).
-     */
     val version: Long?,
-    /**
-     * Timestamp of the last posted message.
-     */
     val lastMsgDate: Long?,
-    /**
-     * Thread's public metadata.
-     */
     val publicMeta: ByteArray,
-    /**
-     * Thread's private metadata.
-     */
     val privateMeta: ByteArray,
-
-    /**
-     * Total number of messages in the Thread.
-     */
-    val messagesCount: Long?,
-
-    /**
-     * Thread's policies
-     */
     val policy: ContainerPolicy,
-
-    /**
-     * Status code of retrieval and decryption of the `Thread`.
-     */
+    val messagesCount: Long?,
     val statusCode: Long?
 ) {
     override fun equals(other: Any?): Boolean {

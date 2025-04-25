@@ -24,13 +24,14 @@ import com.simplito.kotlin.privmx_endpoint.model.events.StoreStatsChangedEventDa
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
+import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpoint
 
 /**
  * Defines the structure to register PrivMX Bridge event callbacks using [PrivmxEndpoint.registerCallback].
  *
- * @param <T> the type of data contained in the Event.
+ * @param T the type of data contained in the Event.
  * @category core
-</T> */
+ */
 sealed class EventType<T: Any>(
     /**
      * Channel of this event type.
@@ -42,38 +43,141 @@ sealed class EventType<T: Any>(
     val eventType: String,
 ) {
 
+    /**
+     * Predefined event type that captures successful platform connection events.
+     */
     data object ConnectedEvent : EventType<Unit>("", "libConnected")
 
+    /**
+     * Predefined event type to catch special events.
+     * This type could be used to emit/handle events with custom implementations (e.g. to break event loops).
+     */
     data object LibBreakEvent : EventType<Unit>("", "libBreak")
 
+    /**
+     * Predefined event type to catch disconnection events.
+     */
     data object DisconnectedEvent : EventType<Unit>("", "libDisconnected")
 
+    /**
+     * Predefined event type to catch created Thread events.
+     */
     data object ThreadCreatedEvent : EventType<Unit>("thread", "threadCreated")
+
+    /**
+     * Predefined event type to catch updated Thread events.
+     */
     data object ThreadUpdatedEvent : EventType<Thread>("thread", "threadUpdated")
+
+    /**
+     * Predefined event type to catch updated Thread stats events.
+     */
     data object ThreadStatsChangedEvent : EventType<ThreadStatsEventData>("thread", "threadStats")
+
+    /**
+     * Predefined event type to catch deleted Thread events.
+     */
     data object ThreadDeletedEvent : EventType<ThreadDeletedEventData>("thread", "threadDeleted")
+
+    /**
+     * Predefined event type to catch created Store events.
+     */
     data object StoreCreatedEvent : EventType<Store>("store", "storeCreated")
+
+    /**
+     * Predefined event type to catch updated Store events.
+     */
     data object StoreUpdatedEvent : EventType<Store>("store", "storeUpdated")
-    data object StoreStatsChangedEvent : EventType<StoreStatsChangedEventData>("store", "storeStatsChanged")
+
+    /**
+     * Predefined event type to catch updated Store stats events.
+     */
+    data object StoreStatsChangedEvent :
+        EventType<StoreStatsChangedEventData>("store", "storeStatsChanged")
+
+    /**
+     * Predefined event type to catch deleted Store stats events.
+     */
     data object StoreDeletedEvent : EventType<StoreDeletedEventData>("store", "storeDeleted")
-    data class ThreadNewMessageEvent(val threadId: String): EventType<Message>("thread/$threadId/messages","threadNewMessage")
 
-    data class ThreadMessageUpdatedEvent(val threadId: String): EventType<Message>("thread/$threadId/messages","threadUpdatedMessage")
+    /**
+     * Type to register on new message Events.
+     *
+     * @property threadId ID of the Thread to observe
+     */
+    data class ThreadNewMessageEvent(val threadId: String) :
+        EventType<Message>("thread/$threadId/messages", "threadNewMessage")
 
-    data class ThreadMessageDeletedEvent(val threadId: String): EventType<ThreadDeletedMessageEventData>(
-        "thread/$threadId/messages","threadMessageDeleted")
+    /**
+     * Type to register on message update Events.
+     *
+     * @property threadId ID of the Thread to observe
+     */
+    data class ThreadMessageUpdatedEvent(val threadId: String) :
+        EventType<Message>("thread/$threadId/messages", "threadUpdatedMessage")
 
-    data class StoreFileCreatedEvent(val storeId: String): EventType<File>("store/$storeId/files","storeFileCreated")
+    /**
+     * Type to register on deleted message Events.
+     *
+     * @property threadId ID of the Thread to observe
+     */
+    data class ThreadMessageDeletedEvent(val threadId: String) :
+        EventType<ThreadDeletedMessageEventData>(
+            "thread/$threadId/messages", "threadMessageDeleted"
+        )
 
-    data class StoreFileUpdatedEvent(val storeId: String): EventType<File>("store/$storeId/files","storeFileUpdated")
+    /**
+     * Type to register on created file Events.
+     *
+     * @property storeId ID of the store to observe
+     */
+    data class StoreFileCreatedEvent(val storeId: String) :
+        EventType<File>("store/$storeId/files", "storeFileCreated")
 
-    data class StoreFileDeletedEvent(val storeId: String): EventType<StoreFileDeletedEventData>("store/$storeId/files","storeFileDeleted")
+    /**
+     * Type to register on file update Events.
+     *
+     * @property storeId ID of the Store to observe
+     */
+    data class StoreFileUpdatedEvent(val storeId: String) :
+        EventType<File>("store/$storeId/files", "storeFileUpdated")
 
-    data object InboxCreatedEvent: EventType<Inbox>("inbox","inboxCreated")
-    data object InboxUpdatedEvent: EventType<Inbox>("inbox","inboxUpdated")
-    data object InboxDeletedEvent: EventType<InboxDeletedEventData>("inbox","inboxDeleted")
+    /**
+     * Type to register on deleted file Events.
+     *
+     * @property storeId ID of the Store to observe
+     */
+    data class StoreFileDeletedEvent(val storeId: String) :
+        EventType<StoreFileDeletedEventData>("store/$storeId/files", "storeFileDeleted")
 
-    data class InboxEntryCreatedEvent(val inboxId: String): EventType<InboxEntry>("inbox/$inboxId/entries", "inboxEntryCreated")
+    /**
+     * Predefined event type to catch created Inbox events.
+     */
+    data object InboxCreatedEvent : EventType<Inbox>("inbox", "inboxCreated")
 
-    data class InboxEntryDeletedEvent(val inboxId: String): EventType<InboxEntryDeletedEventData>("inbox/$inboxId/entries", "inboxEntryDeleted")
+     /**
+     * Predefined event type to catch update Inbox events.
+     */
+    data object InboxUpdatedEvent : EventType<Inbox>("inbox", "inboxUpdated")
+
+    /**
+     * Predefined event type to catch deleted Inbox events.
+     */
+    data object InboxDeletedEvent : EventType<InboxDeletedEventData>("inbox", "inboxDeleted")
+
+    /**
+     * Type to register on created entry Events.
+     *
+     * @property inboxId ID of the Inbox to observe
+     */
+    data class InboxEntryCreatedEvent(val inboxId: String) :
+        EventType<InboxEntry>("inbox/$inboxId/entries", "inboxEntryCreated")
+
+    /**
+     * Type to register on deleting entries Events.
+     *
+     * @property inboxId ID of the Inbox to observe
+     */
+    data class InboxEntryDeletedEvent(val inboxId: String) :
+        EventType<InboxEntryDeletedEventData>("inbox/$inboxId/entries", "inboxEntryDeleted")
 }
