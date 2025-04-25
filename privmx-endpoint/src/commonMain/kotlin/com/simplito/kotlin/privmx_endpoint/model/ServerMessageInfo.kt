@@ -13,13 +13,10 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds message's information created by server.
  *
- * @property threadId   ID of the message's Thread.
- * @property messageId  ID of the message.
- * @property createDate Message's creation timestamp.
- * @property author     ID of the user who created the message.
- *
- * @category thread
- * @group Thread
+ * @property threadId   ID of the message's Thread
+ * @property messageId  ID of the message
+ * @property createDate Message's creation timestamp
+ * @property author     ID of the user who created the message
  */
 data class ServerMessageInfo(
     val threadId: String,

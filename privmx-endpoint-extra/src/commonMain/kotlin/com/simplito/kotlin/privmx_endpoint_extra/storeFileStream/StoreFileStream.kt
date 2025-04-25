@@ -17,8 +17,6 @@ import kotlin.jvm.JvmStatic
 
 /**
  * Base class for Store file streams. Implements progress listeners.
- *
- * @category store
  */
 abstract class StoreFileStream
 /**

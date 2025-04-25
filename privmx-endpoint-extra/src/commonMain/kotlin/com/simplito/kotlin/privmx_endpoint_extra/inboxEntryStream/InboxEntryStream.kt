@@ -39,8 +39,6 @@ import kotlin.jvm.JvmOverloads
  *  This class simplifies interacting with the Inbox API for sending entries,
  * especially when dealing with multiple files. It manages the lifecycle of the entry creation
  * process, including file uploads and final entry submission.
- *
- * @category inbox
  */
 @OptIn(ExperimentalAtomicApi::class)
 class InboxEntryStream private constructor(
@@ -68,7 +66,7 @@ class InboxEntryStream private constructor(
      * and wait for completion.
      *
      * @param fileStreamExecutor the executor service responsible for executing file sending tasks
-     * @throws IllegalStateException If the stream is not in the [State.PREPARED] state.
+     * @throws IllegalStateException If the stream is not in the [State.PREPARED] state
      */
     @Throws(IllegalStateException::class)
     @JvmOverloads

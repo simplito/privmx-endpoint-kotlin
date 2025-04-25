@@ -32,7 +32,6 @@ import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
  * @throws IllegalStateException thrown if there is an exception during init modules
  * @throws PrivmxException       thrown if there is a problem during login
  * @throws NativeException       thrown if there is an **unknown** problem during login
- * @category core
  */
 open class BasicPrivmxEndpoint
 @Throws(

@@ -31,7 +31,6 @@ import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
  * @throws IllegalStateException thrown if there is an exception during init modules
  * @throws PrivmxException       thrown if there is a problem during login
  * @throws NativeException       thrown if there is an **unknown** problem during login
- * @category core
  */
 class PrivmxEndpoint
 @Throws(
@@ -61,7 +60,7 @@ constructor(
      * @param context   an object that identifies callbacks in the list
      * @param eventType type of event to listen to
      * @param callback  a block of code to execute when event was handled
-     * @throws RuntimeException thrown when method encounters an exception during subscribing on channel.
+     * @throws RuntimeException thrown when method encounters an exception during subscribing on channel
      */
     @Throws(RuntimeException::class)
     suspend fun <T: Any> registerCallback(
@@ -81,7 +80,7 @@ constructor(
     /**
      * Unregisters all callbacks registered by [registerCallback] and identified with given Context.
      *
-     * @param context an object that identifies callbacks in the list.
+     * @param context an object that identifies callbacks in the list
      */
     suspend fun unregisterCallbacks(context: Any) {
         eventDispatcher.unbind(context)

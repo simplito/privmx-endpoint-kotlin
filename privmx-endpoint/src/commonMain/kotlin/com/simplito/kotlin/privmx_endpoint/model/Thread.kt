@@ -13,24 +13,21 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds all available information about a Thread.
  *
- * @property contextId                 ID of the Thread's Context.
- * @property threadId                  ID of the Thread.
- * @property createDate                Thread creation timestamp.
- * @property creator                   ID of the user who created the Thread.
- * @property lastModificationDate      Thread last modification timestamp.
- * @property lastModifier              ID of the user who last modified the Thread.
- * @property users                     List of users (their IDs) with access to the Thread.
- * @property managers                  List of users (their IDs) with management rights.
- * @property version                   Version number (changes on updates).
- * @property lastMsgDate               Timestamp of the last posted message.
- * @property publicMeta                Thread's public metadata.
- * @property privateMeta               Thread's private metadata.
+ * @property contextId                 ID of the Thread's Context
+ * @property threadId                  ID of the Thread
+ * @property createDate                Thread creation timestamp
+ * @property creator                   ID of the user who created the Thread
+ * @property lastModificationDate      Thread last modification timestamp
+ * @property lastModifier              ID of the user who last modified the Thread
+ * @property users                     List of users (their IDs) with access to the Thread
+ * @property managers                  List of users (their IDs) with management rights
+ * @property version                   Version number (changes on updates)
+ * @property lastMsgDate               Timestamp of the last posted message
+ * @property publicMeta                Thread's public metadata
+ * @property privateMeta               Thread's private metadata
  * @property policy                    Thread's policies
- * @property messagesCount             Total number of messages in the Thread.
- * @property statusCode                Status code of retrieval and decryption of the `Thread`.
- *
- * @category thread
- * @group Thread
+ * @property messagesCount             Total number of messages in the Thread
+ * @property statusCode                Status code of retrieval and decryption of the `Thread`
  */
 data class Thread(
     val contextId: String,
