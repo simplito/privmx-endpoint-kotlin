@@ -13,11 +13,8 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Contains ID of user and the corresponding public key.
  *
- * @property userId ID of the user.
- * @property pubKey User's public key.
- *
- * @category core
- * @group Core
+ * @property userId ID of the user
+ * @property pubKey User's public key
  */
 data class UserWithPubKey(
     val userId: String,

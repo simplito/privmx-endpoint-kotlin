@@ -29,8 +29,7 @@ import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpoint
 /**
  * Defines the structure to register PrivMX Bridge event callbacks using [PrivmxEndpoint.registerCallback].
  *
- * @param T the type of data contained in the Event.
- * @category core
+ * @param T the type of data contained in the Event
  */
 sealed class EventType<T: Any>(
     /**

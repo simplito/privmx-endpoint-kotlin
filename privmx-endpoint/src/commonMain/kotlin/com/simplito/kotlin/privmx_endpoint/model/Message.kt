@@ -13,15 +13,12 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds information about the Message.
  *
- * @property info         Message's information created by server.
- * @property publicMeta   Message's public metadata.
- * @property privateMeta  Message's private metadata.
- * @property data         Message's data.
- * @property authorPubKey Public key of the author of the message.
- * @property statusCode   Status code of retrieval and decryption of the `Message`.
- *
- * @category thread
- * @group Thread
+ * @property info         Message's information created by server
+ * @property publicMeta   Message's public metadata
+ * @property privateMeta  Message's private metadata
+ * @property data         Message's data
+ * @property authorPubKey Public key of the author of the message
+ * @property statusCode   Status code of retrieval and decryption of the `Message`
  */
 data class Message(
     val info: ServerMessageInfo,

@@ -16,8 +16,6 @@ import kotlin.jvm.JvmOverloads
  * Thrown when a PrivMX Endpoint method encounters an unknown exception.
  *
  * @param message information about the exception
- *
- * @category errors
  */
 class NativeException
 @JvmOverloads

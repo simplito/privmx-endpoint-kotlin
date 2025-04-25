@@ -21,8 +21,6 @@ import kotlin.jvm.JvmStatic
 
 /**
  * Manages handle for file writing.
- *
- * @category store
  */
 class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi) :
     StoreFileStream(handle, storeApi) {

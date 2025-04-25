@@ -12,14 +12,11 @@ package com.simplito.kotlin.privmx_endpoint.model
 
 /**
  * Represents a generic event caught by PrivMX Endpoint.
- * @param T             The type of data associated with the event.
- * @property type          Type of the event.
- * @property channel       The event channel.
- * @property connectionId  ID of connection for this event.
- * @property data          The data payload associated with the event.
- *
- * @category core
- * @group Events
+ * @param T             The type of data associated with the event
+ * @property type          Type of the event
+ * @property channel       The event channel
+ * @property connectionId  ID of connection for this event
+ * @property data          The data payload associated with the event
  */
 class Event<T: Any>(
     val type: String,

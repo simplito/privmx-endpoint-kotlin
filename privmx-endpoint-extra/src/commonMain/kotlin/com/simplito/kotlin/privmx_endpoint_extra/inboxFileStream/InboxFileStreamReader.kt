@@ -22,8 +22,6 @@ import kotlin.jvm.JvmStatic
 
 /**
  * Manages handle for file reading from Inbox.
- *
- * @category inbox
  */
 class InboxFileStreamReader private constructor(
     fileHandle: Long,
