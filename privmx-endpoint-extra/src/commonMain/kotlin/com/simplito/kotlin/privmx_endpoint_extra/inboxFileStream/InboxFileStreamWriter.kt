@@ -22,8 +22,6 @@ import kotlin.jvm.JvmStatic
 
 /**
  * Manages handle for file writing.
- *
- * @category inbox
  */
 class InboxFileStreamWriter private constructor(handle: Long, inboxApi: InboxApi) :
     InboxFileStream(handle, inboxApi) {

@@ -20,8 +20,6 @@ import kotlin.jvm.JvmStatic
 
 /**
  * Manages handle for file reading.
- *
- * @category store
  */
 class StoreFileStreamReader private constructor(handle: Long, api: StoreApi) :
     StoreFileStream(handle, api) {

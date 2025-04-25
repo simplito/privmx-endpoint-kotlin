@@ -13,23 +13,20 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds all available information about an Inbox.
  *
- * @property inboxId              ID of the Inbox.
- * @property contextId            ID of the Context.
- * @property createDate           Inbox creation timestamp.
- * @property creator              ID of the user who created the Inbox.
- * @property lastModificationDate Inbox last modification timestamp.
- * @property lastModifier         ID of the user who last modified the Inbox.
- * @property users                List of users (their IDs) with access to the Inbox.
- * @property managers             List of users (their IDs) with management rights.
- * @property version              Version number (changes on updates).
- * @property publicMeta           Inbox public metadata.
- * @property privateMeta          Inbox private metadata.
- * @property filesConfig          Inbox files configuration.
- * @property policy               Inbox policies.
- * @property statusCode           Status code of retrieval and decryption of the Inbox.
- *
- * @category inbox
- * @group Inbox
+ * @property inboxId              ID of the Inbox
+ * @property contextId            ID of the Context
+ * @property createDate           Inbox creation timestamp
+ * @property creator              ID of the user who created the Inbox
+ * @property lastModificationDate Inbox last modification timestamp
+ * @property lastModifier         ID of the user who last modified the Inbox
+ * @property users                List of users (their IDs) with access to the Inbox
+ * @property managers             List of users (their IDs) with management rights
+ * @property version              Version number (changes on updates)
+ * @property publicMeta           Inbox public metadata
+ * @property privateMeta          Inbox private metadata
+ * @property filesConfig          Inbox files configuration
+ * @property policy               Inbox policies
+ * @property statusCode           Status code of retrieval and decryption of the Inbox
  */
 data class Inbox(
     val inboxId: String,

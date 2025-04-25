@@ -13,16 +13,13 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds information about Inbox entry.
  *
- * @property entryId      ID of the entry.
- * @property inboxId      ID of the Inbox.
- * @property data         Entry data.
- * @property files        List of files attached to the entry.
- * @property authorPubKey Public key of the author of an entry.
- * @property createDate   Inbox entry creation timestamp.
- * @property statusCode   Status code of retrieval and decryption of the Inbox entry.
- *
- * @category inbox
- * @group Inbox
+ * @property entryId      ID of the entry
+ * @property inboxId      ID of the Inbox
+ * @property data         Entry data
+ * @property files        List of files attached to the entry
+ * @property authorPubKey Public key of the author of an entry
+ * @property createDate   Inbox entry creation timestamp
+ * @property statusCode   Status code of retrieval and decryption of the Inbox entry
  */
 data class InboxEntry(
     val entryId: String,

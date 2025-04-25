@@ -31,14 +31,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
-import kotlin.collections.get
 
 /**
  * Manages certificates, Platform sessions, and active connections.
  * Implements event loop that can be started using [startListening].
  * Contains instance of [CryptoApi].
- *
- * @category core
  */
 class PrivmxEndpointContainer() : AutoCloseable {
 
@@ -116,7 +113,7 @@ class PrivmxEndpointContainer() : AutoCloseable {
      * Creates a new connection.
      *
      * @param enableModule   set of modules to initialize
-     * @param bridgeUrl      Bridge's Endpoint URL
+     * @param bridgeUrl      PrivMX Bridge server URL
      * @param solutionId     `SolutionId` of the current project
      * @param userPrivateKey user private key used to authorize; generated from:
      * [CryptoApi.generatePrivateKey] or [CryptoApi.derivePrivateKey2]

@@ -57,8 +57,7 @@ import libprivmxendpoint.pson_new_array
  * @param connection active connection to PrivMX Bridge
  * @param threadApi  instance of [ThreadApi] created on passed Connection
  * @param storeApi   instance of [StoreApi] created on passed Connection
- * @throws IllegalStateException when one of the passed parameters is closed.
- * @category inbox
+ * @throws IllegalStateException when one of the passed parameters is closed
  */
 @OptIn(ExperimentalForeignApi::class)
 actual class InboxApi
@@ -128,12 +127,9 @@ actual constructor(
      * @param filesConfig overrides default file configuration
      * @param policies    additional container access policies
      * @return ID of the created Inbox
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
-     * @event type: inboxCreated
-     * channel: inbox
-     * payload: [Inbox]
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -180,12 +176,9 @@ actual constructor(
      * @param force               force update (without checking version)
      * @param forceGenerateNewKey force to regenerate a key for the Inbox
      * @param policies            additional container access policies
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
-     * @event type: inboxUpdated
-     * channel: inbox
-     * payload: [Inbox]
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -231,9 +224,9 @@ actual constructor(
      *
      * @param inboxId ID of the Inbox to get
      * @return Information about the Inbox
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -252,7 +245,7 @@ actual constructor(
     }
 
     /**
-     * Gets s list of Inboxes in given Context.
+     * Gets a list of Inboxes in given Context.
      *
      * @param contextId ID of the Context to get Inboxes from
      * @param skip      skip number of elements to skip from result
@@ -260,9 +253,9 @@ actual constructor(
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
      * @return list of Inboxes
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -295,9 +288,9 @@ actual constructor(
      *
      * @param inboxId ID of the Inbox to get
      * @return Public accessible information about the Inbox
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -319,12 +312,9 @@ actual constructor(
      * Deletes an Inbox by given Inbox ID.
      *
      * @param inboxId ID of the Inbox to delete
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
-     * @event type: inboxDeleted
-     * channel: inbox
-     * payload: [InboxDeletedEventData]
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -350,9 +340,9 @@ actual constructor(
      * @param data             entry data to send
      * @param inboxFileHandles optional list of file handles that will be sent with the request
      * @return Inbox handle
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -381,12 +371,9 @@ actual constructor(
      * You do not have to be logged in to call this function.
      *
      * @param inboxHandle ID of the Inbox to which the request applies
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
-     * @event type: inboxEntryCreated
-     * channel: inbox/&lt;inboxId&gt;/entries
-     * payload: [InboxEntry]
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -409,9 +396,9 @@ actual constructor(
      *
      * @param inboxEntryId ID of an entry to read from the Inbox
      * @return Data of the selected entry stored in the Inbox
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -438,9 +425,9 @@ actual constructor(
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
      * @return list of entries
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -471,12 +458,9 @@ actual constructor(
      * Deletes an entry from an Inbox.
      *
      * @param inboxEntryId ID of an entry to delete
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
-     * @event type: inboxEntryDeleted
-     * channel: inbox/&lt;inboxId&gt;/entries
-     * payload: [InboxEntryDeletedEventData]
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -484,11 +468,11 @@ actual constructor(
     actual fun deleteEntry(inboxEntryId: String) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(inboxEntryId.pson)
-        try{
+        try {
             privmx_endpoint_execInboxApi(nativeInboxApi.value, 11, args, pson_result.ptr)
             pson_result.value?.asResponse?.getResultOrThrow()
             Unit
-        }finally {
+        } finally {
             pson_free_result(pson_result.value)
             pson_free_value(args)
         }
@@ -502,9 +486,9 @@ actual constructor(
      * @param privateMeta private file's metadata
      * @param fileSize    size of the file to send
      * @return File handle
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -533,9 +517,9 @@ actual constructor(
      * @param inboxHandle     handle to the prepared Inbox entry
      * @param inboxFileHandle handle to the file where the uploaded chunk belongs
      * @param dataChunk       file chunk to send
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -562,9 +546,9 @@ actual constructor(
      *
      * @param fileId ID of the file to read
      * @return Handle to read file data
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -589,9 +573,9 @@ actual constructor(
      * @param fileHandle handle to the file
      * @param length     size of data to read
      * @return File data chunk
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -615,9 +599,9 @@ actual constructor(
      *
      * @param fileHandle handle to the file
      * @param position   sets new cursor position
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -642,9 +626,9 @@ actual constructor(
      *
      * @param fileHandle handle to the file
      * @return ID of closed file
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -666,9 +650,9 @@ actual constructor(
     /**
      * Subscribes for the Inbox module main events.
      *
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -689,9 +673,9 @@ actual constructor(
     /**
      * Subscribes for the Inbox module main events.
      *
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -713,9 +697,9 @@ actual constructor(
      * Subscribes for events in given Inbox.
      *
      * @param inboxId ID of the Inbox to subscribe
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -739,9 +723,9 @@ actual constructor(
      * Unsubscribes from events in given Inbox.
      *
      * @param inboxId ID of the Inbox to unsubscribe
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -762,7 +746,7 @@ actual constructor(
     /**
      * Frees memory.
      *
-     * @throws Exception when instance is currently closed.
+     * @throws Exception when instance is currently closed
      */
     actual override fun close() {
         if (_nativeInboxApi.value == null) return

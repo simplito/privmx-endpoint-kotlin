@@ -225,7 +225,7 @@ class ContainerPolicyBuilder : ContainerPolicyBuilderScope {
 }
 
 /**
- * Creates or updates a [ContainerPolicy] using a builder DSL.
+ * Creates or updates a [ContainerPolicy] using a DSL builder.
  * This function allows building a full container policy, including item-level access rules.
  * If a [currentPolicy] is provided, its settings will be used as a base.
  *
