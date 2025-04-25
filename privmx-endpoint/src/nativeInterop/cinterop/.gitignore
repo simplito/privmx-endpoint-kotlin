@@ -1,1 +1,3 @@
-privmx-endpoint/*/*
+privmx-endpoint/**/*
+!privmx-endpoint/*/
+!privmx-endpoint/*/*
