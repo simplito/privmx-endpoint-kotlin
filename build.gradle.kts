@@ -8,6 +8,8 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.dokka.gradle.AbstractDokkaTask
 import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
 import org.jetbrains.dokka.gradle.DokkaTaskPartial
+import org.jetbrains.dokka.versioning.VersioningConfiguration
+import org.jetbrains.dokka.versioning.VersioningPlugin
 import java.net.URLEncoder
 import java.util.Properties
 import kotlin.apply
@@ -18,13 +20,12 @@ plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.androidLibrary) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
-    alias(libs.plugins.vanniktech.mavenPublish) apply false
     id("org.jetbrains.dokka") version "2.0.0"
 }
-
 buildscript {
     dependencies {
         classpath("org.jetbrains.dokka:dokka-base:2.0.0")
+        classpath("org.jetbrains.dokka:versioning-plugin:2.0.0")
     }
 }
 
@@ -37,14 +38,10 @@ version = libs.versions.publishPrivmxEndpoint.get()
 listOf(
     project(":privmx-endpoint"),
     project(":privmx-endpoint-extra"),
-).forEach { currentProject ->
+).forEach { currentProject: Project ->
     currentProject.apply(plugin = "org.jetbrains.dokka")
-
-    currentProject.tasks.register<DokkaTask>("customHtml") {
-        dokkaTaskConfiguration()
-    }
-    currentProject.tasks.register<DokkaTaskPartial>("customHtmlPartial") {
-        dokkaTaskConfiguration()
+    currentProject.tasks.register<DokkaTaskPartial>("privmxEndpointHtmlPartial") {
+        (currentProject.dokkaTaskConfiguration)()
     }
     currentProject.tasks.withType<DokkaTask>().configureEach {
         dokkaSourceSets {
@@ -87,9 +84,53 @@ listOf(
 }
 
 @Suppress("DEPRECATION")
-tasks.register<DokkaMultiModuleTask>("customHtmlMultiModule") {
+tasks.register<DokkaMultiModuleTask>("privmxEndpointHtmlMultiModule") {
+    addSubprojectChildTasks("privmxEndpointHtmlPartial")
     dokkaTaskConfiguration()
-    addSubprojectChildTasks("customHtmlPartial")
+    // This can be any persistent folder where
+    // you store documentation by version
+    val docVersionsDir = outputDirectory.asFile.get().resolve("version")
+
+    // The version for which you are currently generating docs
+    val currentVersion = project.version.toString()
+
+    // Set the output to a folder with all other versions
+    // as you'll need the current version for future builds
+    val currentDocsDir = docVersionsDir.resolve(currentVersion)
+
+    val latestDocsDir = docVersionsDir.resolve("latest")
+
+    outputDirectory.set(currentDocsDir)
+
+    pluginConfiguration<VersioningPlugin, VersioningConfiguration> {
+        olderVersionsDir = docVersionsDir
+        version = currentVersion
+    }
+
+    doLast {
+        // Copy custom fonts
+        copy {
+            from(rootProject.layout.projectDirectory.file("docs/fonts"))
+            into(outputDirectory.file("styles/fonts"))
+        }
+
+
+        // This folder contains the latest documentation with all
+        // previous versions included, so it's ready to be published.
+        // Make sure it's copied and not moved - you'll still need this
+        // version for future builds
+        println(currentDocsDir.copyRecursively(latestDocsDir, overwrite = true))
+
+
+        // Only once current documentation has been safely moved,
+        // remove previous versions bundled in it. They will not
+        // be needed in future builds, it's just overhead.
+        currentDocsDir.resolve("older").deleteRecursively()
+    }
+    plugins.dependencies.addAll(listOf(
+        dependencies.create("org.jetbrains.dokka:all-modules-page-plugin:2.0.0"),
+        dependencies.create("org.jetbrains.dokka:versioning-plugin:2.0.0"),
+    ))
 }
 
 fun MavenPublication.configurePom() {
@@ -186,23 +227,21 @@ fun Project.createUploadPublicationTask(
     }
 }
 
-val Project.dokkaTaskConfiguration: AbstractDokkaTask.() -> Unit get() = {
-    outputDirectory.set(file(layout.buildDirectory.file("customHtml")))
-    pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
-        templatesDir = file(rootProject.layout.projectDirectory.file("docs/templates"))
-        customAssets = listOf(
-            rootProject.layout.projectDirectory.file("docs/fonts/Manrope-VariableFont_wght.ttf").asFile
-        )
-        customStyleSheets = listOf(
-            rootProject.layout.projectDirectory.file("docs/styles/style.css").asFile,
-            rootProject.layout.projectDirectory.file("docs/styles/main.css").asFile,
-            rootProject.layout.projectDirectory.file("docs/styles/font-manrope-auto.css").asFile
-        )
-    }
-    doLast {
-        copy {
-            from(rootProject.layout.projectDirectory.file("docs/fonts"))
-            into(outputDirectory.file("styles/fonts"))
+val Project.dokkaTaskConfiguration: AbstractDokkaTask.() -> Unit
+    get() = {
+        moduleName = project.name
+        val taskName = when(this){
+            is DokkaTaskPartial -> "privmxEndpointHtmlPartial"
+            is DokkaMultiModuleTask -> "privmxEndpointHtmlMultiModule"
+            else -> "privmxEndpointHtml"
+        }
+        outputDirectory.set(file(layout.buildDirectory.file("dokka/$taskName")))
+        pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
+            templatesDir = file(rootProject.layout.projectDirectory.file("docs/templates"))
+            customStyleSheets = listOf(
+                rootProject.layout.projectDirectory.file("docs/styles/style.css").asFile,
+                rootProject.layout.projectDirectory.file("docs/styles/main.css").asFile,
+                rootProject.layout.projectDirectory.file("docs/styles/font-manrope-auto.css").asFile
+            )
         }
     }
-}
