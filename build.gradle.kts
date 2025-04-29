@@ -32,6 +32,7 @@ val localProperties = Properties().apply {
     load(file(rootDir.absolutePath + "/local.properties").inputStream())
 }
 
+version = libs.versions.publishPrivmxEndpoint.get()
 
 listOf(
     project(":privmx-endpoint"),

@@ -8,7 +8,8 @@ plugins {
 }
 
 group = "com.simplito.kotlin"
-version = "1.0.0"
+version = libs.versions.publishPrivmxEndpoint.get()
+
 kotlin {
     jvm{
         compilerOptions {
