@@ -11,23 +11,15 @@
     <script>document.documentElement.classList.replace("no-js", "js");</script>
     <#-- This script doesn't need to be there but it is nice to have
     since app in dark mode doesn't 'blink' (class is added before it is rendered) -->
-    <script>
-        window.addEventListener('load', function () {
-            let searchBtn = document.getElementById("pages-search")
-            let searchBtnSvg = searchBtn.getElementsByTagName("svg").item(0)
-            searchBtnSvg.setAttribute("fill", "currentColor")
-            let searchBtnPath = searchBtnSvg.getElementsByTagName("path").item(0)
-            searchBtnPath.removeAttribute("fill")
-        });
-    </script>
-    <script>const themeStorage = localStorage.getItem("theme")
+    <script>const themeStorage = localStorage.getItem("dokka-dark-mode")
         if (themeStorage == null) {
             const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
             if (osDarkSchemePreferred === true) {
                 document.getElementsByTagName("html")[0].classList.add("theme-dark")
             }
         } else {
-            if (themeStorage === "dark") {
+            const savedDarkMode = JSON.parse(themeStorage)
+            if(savedDarkMode === true) {
                 document.getElementsByTagName("html")[0].classList.add("theme-dark")
             }
         }
@@ -40,16 +32,8 @@
 <div class="root">
     <@header.display/>
     <div id="container">
-        <div class="sidebar" id="leftColumn">
+        <div class="sidebar with-background" id="leftColumn">
             <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
-                <a role="button" class="custom-back-button"
-                   href="https://docs.privmx.dev">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m15 18-6-6 6-6"></path>
-                    </svg>
-                    <span>Back to Start</span>
-                </a>
                 <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
                     data-role="dropdown-listbox">
                     <div class="dropdown--header">
@@ -60,7 +44,7 @@
                             </span>
                         <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
                             <i class="ui-kit-icon ui-kit-icon_cross"></i>
-                        </button class="button">
+                        </button>
                     </div>
                     <div class="sidebar--inner" id="sideMenu"></div>
                 </ul>
