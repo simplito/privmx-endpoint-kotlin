@@ -17,9 +17,10 @@
  * Copyright 2014-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 :root {
-    --color-key-blue: rgb(48, 127, 255);
-    --color-key-blue-50: rgb(48, 127, 255, 0.5);
-    --color-background-nav: hsl(120,3%,94%);
+    --toc-color: var(--default-font-color);
+    --color-key-blue: var(--sidemenu-section-active-background-color);
+    --color-key-blue-50: var(--sidemenu-section-active-background-color);
+    --color-background-nav: hsl(207, 75%, 5%);
     --color-background-nav-dt: hsl(207, 75%, 5%);
     --color-background-page: rgb(255, 255, 255);
     --color-background-page-dt: rgb(38, 38, 40);
@@ -495,10 +496,66 @@ html, .app-root {
 }
 
 .custom-back-button:hover{
-    background-color: hsla(193,24%,22%,0.5);
+    background-color: hsla(193,24%,22%,0.2);
     -webkit-transition: background-color 200ms linear;
     -ms-transition: background-color 200ms linear;
     transition: background-color 200ms linear;
 }
 
+.sidebar.with-background{
+    background-color: var(--sidebar-background-color);
+    color: var(--color-text-dt)
+}
+
+.privmx-logo{
+    display: inline-flex;
+    margin-left: 15px;
+    font-size: 15px;
+    align-items: center;
+    font-weight: 500;
+    color: var(--color-text-dt);
+}
+
+.privmx-logo .privmx{
+    display: flex;
+    align-items: center;
+}
+
+.privmx-logo .docs{
+    padding: 4px;
+    margin-left: 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 16px;
+    font-family: "JetBrains Mono";
+    align-items: baseline;
+    background-color: hsla(193,24%,22%,0.2);
+}
+
+.toc--part[data-active] > .toc--row .toc--button, .toc--part[data-active] > .toc--row .toc--link{
+    background-color: var(--sidemenu-section-active-background-color);
+    color: var(--sidemenu-section-active-color);
+}
+
+.toc--part[data-active] > .toc--row .toc--button:hover, .toc--part[data-active] > .toc--row .toc--link:hover {
+    background-color: var(--sidemenu-section-active-background-color);
+    color: var(--sidemenu-section-active-color);
+}
+
+.navigation.with-border{
+    border-bottom: 1px solid var(--border-color);
+}
+
+.versions-dropdown-button{
+    color: var(--color-text-dt)
+}
+
+.versions-dropdown-button.button_dropdown:after{
+    filter: invert(0);
+}
+
+.button_dropdown_active:hover, .theme-dark .button_dropdown_active:hover {
+    background-color: rgba(0, 224, 105,0.1);
+    color: rgb(0, 224, 105);
+}
 /*# sourceMappingURL=main.css.map*/
