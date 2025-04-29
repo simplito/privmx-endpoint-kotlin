@@ -17,4 +17,3 @@ rootProject.name = "privmx-endpoint-kotlin"
 include(":privmx-endpoint-extra")
 include(":privmx-endpoint")
 include(":jni-wrapper")
-include(":library-test")
