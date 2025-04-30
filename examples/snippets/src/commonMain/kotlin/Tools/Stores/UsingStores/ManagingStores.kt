@@ -1,10 +1,10 @@
 package Tools.Stores.UsingStores
 
-import com.simplito.java.privmx_endpoint.model.UserWithPubKey
-import com.simplito.java.privmx_endpoint_extra.lib.PrivmxEndpoint
-import com.simplito.java.privmx_endpoint_extra.lib.PrivmxEndpointContainer
-import com.simplito.java.privmx_endpoint_extra.model.Modules
-import com.simplito.java.privmx_endpoint_extra.model.SortOrder
+import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpoint
+import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpointContainer
+import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
+import com.simplito.kotlin.privmx_endpoint_extra.model.SortOrder
 
 // START: Initial Assumptions Snippets
 /*
@@ -95,7 +95,7 @@ fun modifyingStores() {
             newManagers,
             store.publicMeta,
             newPrivateMeta,
-            store.version,
+            store.version!!,
             false
         )
     }

@@ -1,16 +1,16 @@
 package Stacks.Kotlin.inboxes
 
 import Stacks.Kotlin.contextId
-import com.simplito.java.privmx_endpoint.model.FilesConfig
-import com.simplito.java.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
+import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import Stacks.Kotlin.endpointSession
 import Stacks.Kotlin.user1Id
 import Stacks.Kotlin.user1PublicKey
 import Stacks.Kotlin.user2Id
 import Stacks.Kotlin.user2PublicKey
-import com.simplito.java.privmx_endpoint.model.Inbox
-import com.simplito.java.privmx_endpoint.modules.inbox.InboxApi
-import com.simplito.java.privmx_endpoint_extra.model.SortOrder
+import com.simplito.kotlin.privmx_endpoint.model.Inbox
+import com.simplito.kotlin.privmx_endpoint.modules.inbox.InboxApi
+import com.simplito.kotlin.privmx_endpoint_extra.model.SortOrder
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -228,7 +228,7 @@ fun renamingInbox() {
         inbox.publicMeta,
         newInboxNameAsPrivateMeta.encodeToByteArray(),
         inbox.filesConfig,
-        inbox.version,
+        inbox.version!!,
         false
     )
 }
@@ -268,7 +268,7 @@ fun removingUser() {
         inbox.publicMeta,
         inbox.privateMeta,
         inbox.filesConfig,
-        inbox.version,
+        inbox.version!!,
         false
     )
 }

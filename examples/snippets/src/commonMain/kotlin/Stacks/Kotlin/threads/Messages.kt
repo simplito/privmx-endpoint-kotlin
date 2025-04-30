@@ -1,7 +1,7 @@
 package Stacks.Kotlin.threads
 
-import com.simplito.java.privmx_endpoint.model.Message
-import com.simplito.java.privmx_endpoint_extra.model.SortOrder
+import com.simplito.kotlin.privmx_endpoint.model.Message
+import com.simplito.kotlin.privmx_endpoint_extra.model.SortOrder
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

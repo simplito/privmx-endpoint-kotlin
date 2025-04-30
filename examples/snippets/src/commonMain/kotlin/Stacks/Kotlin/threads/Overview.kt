@@ -1,18 +1,18 @@
 package Stacks.Kotlin.threads
 
 import Stacks.Kotlin.contextId
-import com.simplito.java.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import Stacks.Kotlin.endpointSession
 import Stacks.Kotlin.user1Id
 import Stacks.Kotlin.user1PublicKey
 import Stacks.Kotlin.user2Id
 import Stacks.Kotlin.user2PublicKey
-import com.simplito.java.privmx_endpoint.model.Thread
-import com.simplito.java.privmx_endpoint.modules.thread.ThreadApi
+import com.simplito.kotlin.privmx_endpoint.model.Thread
+import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import com.simplito.java.privmx_endpoint_extra.model.SortOrder
+import com.simplito.kotlin.privmx_endpoint_extra.model.SortOrder
 
 @Serializable
 data class ThreadPublicMeta(val tags: List<String>)
@@ -183,7 +183,7 @@ fun renamingThread() {
         managers,
         thread.publicMeta,
         newThreadNameAsPrivateMeta.encodeToByteArray(),
-        thread.version,
+        thread.version!!,
         false
     )
 }
@@ -222,7 +222,7 @@ fun removingUser() {
         managers,
         thread.publicMeta,
         thread.privateMeta,
-        thread.version,
+        thread.version!!,
         false
     )
 }

@@ -1,10 +1,10 @@
 package Stacks.Kotlin.events
 
-import com.simplito.java.privmx_endpoint_extra.events.EventType
+import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
 import Stacks.Kotlin.endpointSession
 
 // START: Connection events snippets
-fun handlingConnectionEvents(){
+suspend fun handlingConnectionEvents(){
     val callbacksId = "CALLBACKS_ID"
 
     endpointSession.registerCallback(
@@ -25,7 +25,7 @@ fun handlingConnectionEvents(){
 
 
 // START: Threads events snippets
-fun handlingThreadEvents(){
+suspend fun handlingThreadEvents(){
     val callbacksId = "CALLBACKS_ID"
 
     endpointSession.registerCallback(
@@ -57,7 +57,7 @@ fun handlingThreadEvents(){
     }
 }
 
-fun handlingMessageEvents(){
+suspend fun handlingMessageEvents(){
     val callbacksId = "CALLBACKS_ID"
     val threadID = "THREAD_ID"
 
@@ -86,7 +86,7 @@ fun handlingMessageEvents(){
 
 
 // START: Stores events snippets
-fun handlingStoreEvents(){
+suspend fun handlingStoreEvents(){
     val callbacksId = "CALLBACKS_ID"
 
     endpointSession.registerCallback(
@@ -118,7 +118,7 @@ fun handlingStoreEvents(){
     }
 }
 
-fun handlingFileEvents(){
+suspend fun handlingFileEvents(){
     val callbacksId = "CALLBACKS_ID"
     val storeID = "STORE_ID"
 
@@ -147,7 +147,7 @@ fun handlingFileEvents(){
 
 
 // START: Inboxes events snippets
-fun handlingInboxEvents(){
+suspend fun handlingInboxEvents(){
     val callbacksId = "CALLBACKS_ID"
 
     endpointSession.registerCallback(
@@ -172,7 +172,7 @@ fun handlingInboxEvents(){
     }
 }
 
-fun handlingEntriesEvents(){
+suspend fun handlingEntriesEvents(){
     val callbacksId = "CALLBACKS_ID"
     val inboxID = "INBOX_ID"
 

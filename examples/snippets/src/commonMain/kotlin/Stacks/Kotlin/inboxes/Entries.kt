@@ -2,12 +2,12 @@ package Stacks.Kotlin.inboxes
 
 import Stacks.Kotlin.bridgeUrl
 import Stacks.Kotlin.solutionId
-import com.simplito.java.privmx_endpoint.model.File
-import com.simplito.java.privmx_endpoint.model.InboxEntry
-import com.simplito.java.privmx_endpoint.modules.core.Connection
-import com.simplito.java.privmx_endpoint.modules.inbox.InboxApi
-import com.simplito.java.privmx_endpoint_extra.model.SortOrder
-import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStream
+import com.simplito.kotlin.privmx_endpoint.model.File
+import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
+import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.modules.inbox.InboxApi
+import com.simplito.kotlin.privmx_endpoint_extra.model.SortOrder
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -57,7 +57,7 @@ fun sendInboxEntryBasic() {
     publicInboxApi.prepareEntry(
         inboxID,
         Json.encodeToString(inboxPublicEntryData).encodeToByteArray(),
-    ).let {
+    )?.let {
         publicInboxApi.sendEntry(it)
     }
 }
@@ -74,7 +74,7 @@ fun sendInboxEntryWithFiles() {
             filePublicMeta,
             filePrivateMeta,
             it.size.toLong()
-        )
+        )!!
     }
 
     // 2. Prepare entry
@@ -90,7 +90,7 @@ fun sendInboxEntryWithFiles() {
         inboxID,
         Json.encodeToString(inboxPublicEntryData).encodeToByteArray(),
         fileHandles
-    )
+    )!!
     // 3. Write files
     fileContents.zip(fileHandles).forEach { (content, fileHandle) ->
         publicInboxApi.writeToFile(inboxHandle, fileHandle, content)
@@ -160,7 +160,7 @@ fun readingEntry() {
 
     val files: List<File> = inboxEntry.files
     val filesContent: List<ByteArray> = files.map { file ->
-        inboxApi.openFile(file.info.fileId)
+        inboxApi.openFile(file.info.fileId)!!
             .let { fileHandle ->
                 var fileContent = ByteArray(0)
                 do {

@@ -2,10 +2,10 @@ package Stacks.Kotlin.events
 
 import Stacks.Kotlin.endpointContainer
 import Stacks.Kotlin.endpointSession
-import com.simplito.java.privmx_endpoint_extra.events.EventType
+import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
 
 // START: Quick start snippets
-fun quickStart(){
+suspend fun quickStart(){
     // Step 1: Start the event loop
     endpointContainer.startListening()
 
@@ -25,12 +25,12 @@ fun quickStart(){
 
 
 // START: Unregister callbacks snippets
-fun unregisterCallbacksById(){
+suspend fun unregisterCallbacksById(){
     val callbacksID = "CALLBACKS_ID"
     endpointSession.unregisterCallbacks(callbacksID)
 }
 
-fun unregisterCallbacksForConnection(){
+suspend fun unregisterCallbacksForConnection(){
     endpointSession.unregisterAll()
 }
 // END: Unregister callbacks snippets

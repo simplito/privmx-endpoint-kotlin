@@ -1,8 +1,8 @@
 package Tools.Threads.UsingThreads
 
-import com.simplito.java.privmx_endpoint_extra.events.EventType
+import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
 
-fun handlingThreadAndMessageEvents() {
+suspend fun handlingThreadAndMessageEvents() {
     val callbacksID = "CALLBACK_ID"
     val threadID = "THREAD_ID"
     // Starting the Event Loop
@@ -21,6 +21,6 @@ fun handlingThreadAndMessageEvents() {
         callbacksID,
         EventType.ThreadNewMessageEvent(threadID)
     ){ newMessage ->
-        println(newMessage.info?.messageId)
+        println(newMessage.info.messageId)
     }
 }

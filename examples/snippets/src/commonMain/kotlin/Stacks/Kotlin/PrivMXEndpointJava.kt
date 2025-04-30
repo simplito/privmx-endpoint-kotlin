@@ -3,9 +3,9 @@ package Stacks.Kotlin
 import Stacks.Kotlin.inboxes.inboxApi
 import Stacks.Kotlin.stores.storeApi
 import Stacks.Kotlin.threads.threadApi
-import com.simplito.java.privmx_endpoint_extra.lib.PrivmxEndpoint
-import com.simplito.java.privmx_endpoint_extra.lib.PrivmxEndpointContainer
-import com.simplito.java.privmx_endpoint_extra.model.Modules
+import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpoint
+import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpointContainer
+import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
 
 lateinit var endpointContainer: PrivmxEndpointContainer
 lateinit var endpointSession: PrivmxEndpoint
@@ -58,7 +58,7 @@ fun makeConnection(){
 }
 
 fun getEndpoint(){
-    endpointContainer.getEndpoint(endpointSession.connection.connectionId)
+    endpointContainer.getEndpoint(endpointSession.connection.getConnectionId()!!)
 }
 
 fun close(){
@@ -70,14 +70,14 @@ fun disconnectAll(){
 }
 
 fun disconnectById(){
-    endpointContainer.disconnect(endpointSession.connection.connectionId)
+    endpointContainer.disconnect(endpointSession.connection.getConnectionId()!!)
 }
 
 //setup global connection variables
 private fun setupConnection(ct: PrivmxEndpointContainer, conn: PrivmxEndpoint){
     endpointContainer = ct
     endpointSession = conn
-    threadApi = endpointSession.threadApi
-    storeApi = endpointSession.storeApi
-    inboxApi = endpointSession.inboxApi
+    threadApi = endpointSession.threadApi!!
+    storeApi = endpointSession.storeApi!!
+    inboxApi = endpointSession.inboxApi!!
 }

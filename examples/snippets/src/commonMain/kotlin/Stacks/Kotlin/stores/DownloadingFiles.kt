@@ -1,9 +1,11 @@
 package Stacks.Kotlin.stores
 
-import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStream
-import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStreamReader
-import java.io.File
-import java.io.OutputStream
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStreamReader
+import kotlinx.io.Sink
+import kotlinx.io.buffered
+import kotlinx.io.files.Path
+import kotlinx.io.files.SystemFileSystem
 
 fun downloadFileBasic() {
     val fileID = "FILE_ID"
@@ -22,10 +24,9 @@ fun downloadFileBasic() {
 
 fun downloadFileUsingStreams() {
     val fileID = "FILE_ID"
-    val file = File("PATH_TO_FILE")
-    val outputStream: OutputStream = file.outputStream()
+    val sink: Sink = SystemFileSystem.sink(Path("PATH_TO_FILE")).buffered()
     val streamController = object: StoreFileStream.Controller(){
-        override fun onChunkProcessed(processedBytes: Long?) {
+        override fun onChunkProcessed(processedBytes: Long) {
             super.onChunkProcessed(processedBytes)
             println("Full read size: $processedBytes")
         }
@@ -34,7 +35,7 @@ fun downloadFileUsingStreams() {
     val closedFileID = StoreFileStreamReader.openFile(
         storeApi,
         fileID,
-        outputStream,
+        sink,
         streamController
     )
 }

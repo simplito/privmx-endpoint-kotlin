@@ -1,17 +1,18 @@
 package Stacks.Kotlin.stores
 
-import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStream
-import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStreamWriter
-import com.simplito.java.privmx_endpoint_extra.model.SortOrder
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStreamWriter
+import com.simplito.kotlin.privmx_endpoint_extra.model.SortOrder
+import kotlinx.io.buffered
+import kotlinx.io.files.FileSystem
+import kotlinx.io.files.Path
+import kotlinx.io.files.SystemFileSystem
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.io.File
-import java.io.InputStream
-import java.nio.file.Files
 
 data class FileItem(
-    val file: com.simplito.java.privmx_endpoint.model.File,
+    val file: com.simplito.kotlin.privmx_endpoint.model.File,
     val decodedPrivateMeta: FilePrivateMeta
 )
 
@@ -62,15 +63,17 @@ fun uploadFileWithMeta() {
 
 fun uploadFileUsingStreams() {
     val storeID = "STORE_ID"
-    val file = File("PATH_TO_FILE")
-    val inputStream: InputStream = file.inputStream()
+    val filePath = Path("PATH_TO_FILE")
+    val fileMimetype = "FILE_MIMETYPE"
+    val fileMetadata = SystemFileSystem.metadataOrNull(filePath)!!
+    val source = SystemFileSystem.source(filePath).buffered()
     val publicMeta = ByteArray(0)
     val privateMeta = FilePrivateMeta(
-        name = file.name,
-        mimetype = Files.probeContentType(file.toPath())
+        name = filePath.name.substringBeforeLast("."),
+        mimetype = fileMimetype
     )
     val streamController = object : StoreFileStream.Controller() {
-        override fun onChunkProcessed(processedBytes: Long?) {
+        override fun onChunkProcessed(processedBytes: Long) {
             super.onChunkProcessed(processedBytes)
             println("Processed size: $processedBytes")
         }
@@ -81,8 +84,8 @@ fun uploadFileUsingStreams() {
         storeID,
         publicMeta,
         Json.encodeToString(privateMeta).encodeToByteArray(),
-        inputStream.available().toLong(),
-        inputStream,
+        fileMetadata.size,
+        source,
         streamController
     )
 }
@@ -164,10 +167,11 @@ fun changingFileName() {
 
 fun overwritingFileContent() {
     val fileID = "FILE_ID"
-    val newFile = File("PATH_TO_FILE")
-    val inputStream: InputStream = newFile.inputStream()
+    val newFilePath = Path("PATH_TO_FILE")
+    val fileMetadata = SystemFileSystem.metadataOrNull(newFilePath)!!
+    val source = SystemFileSystem.source(newFilePath).buffered()
     val streamController = object : StoreFileStream.Controller() {
-        override fun onChunkProcessed(processedBytes: Long?) {
+        override fun onChunkProcessed(processedBytes: Long) {
             super.onChunkProcessed(processedBytes)
             println("Processed size: $processedBytes")
         }
@@ -179,8 +183,8 @@ fun overwritingFileContent() {
         fileID,
         file.publicMeta,
         file.privateMeta,
-        inputStream.available().toLong(),
-        inputStream,
+        fileMetadata.size,
+        source,
         streamController
     )
 }

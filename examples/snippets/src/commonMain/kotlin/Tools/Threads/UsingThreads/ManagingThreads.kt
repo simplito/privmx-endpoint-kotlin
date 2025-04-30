@@ -1,11 +1,10 @@
 package Tools.Threads.UsingThreads
 
-import com.simplito.java.privmx_endpoint.model.UserWithPubKey
-import com.simplito.java.privmx_endpoint_extra.lib.PrivmxEndpoint
-import com.simplito.java.privmx_endpoint_extra.lib.PrivmxEndpointContainer
-import com.simplito.java.privmx_endpoint_extra.model.Modules
-import com.simplito.java.privmx_endpoint_extra.model.SortOrder
-import java.nio.charset.StandardCharsets
+import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpoint
+import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpointContainer
+import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
+import com.simplito.kotlin.privmx_endpoint_extra.model.SortOrder
 
 // START: Initial Assumptions Snippets
 /*
@@ -88,7 +87,7 @@ fun modifyingThreads() {
             UserWithPubKey(user1Id, user1PublicKey),
             UserWithPubKey(user2Id, user2PublicKey),
         )
-        val newPrivateMeta = "New thread name".toByteArray(StandardCharsets.UTF_8)
+        val newPrivateMeta = "New thread name".encodeToByteArray()
 
         threadApi.updateThread(
             threadID,
@@ -96,7 +95,7 @@ fun modifyingThreads() {
             newManagers,
             thread.publicMeta,
             newPrivateMeta,
-            thread.version,
+            thread.version!!,
             false
         )
     }

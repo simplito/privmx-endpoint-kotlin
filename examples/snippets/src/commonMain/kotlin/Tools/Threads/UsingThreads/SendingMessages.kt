@@ -1,6 +1,6 @@
 package Tools.Threads.UsingThreads
 
-import com.simplito.java.privmx_endpoint_extra.lib.PrivmxEndpointContainer
+import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpointContainer
 
 fun sendingMessages(){
     val threadId = "THREAD_ID"

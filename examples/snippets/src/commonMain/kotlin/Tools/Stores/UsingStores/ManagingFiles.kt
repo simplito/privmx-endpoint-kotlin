@@ -1,6 +1,6 @@
 package Tools.Stores.UsingStores
 
-import com.simplito.java.privmx_endpoint_extra.model.SortOrder
+import com.simplito.kotlin.privmx_endpoint_extra.model.SortOrder
 
 fun listingFiles() {
     val storeID = "STORE_ID"

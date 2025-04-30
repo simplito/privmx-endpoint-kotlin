@@ -1,8 +1,10 @@
 package Tools.Stores.UsingStores
 
-import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStream
-import com.simplito.java.privmx_endpoint_extra.storeFileStream.StoreFileStreamWriter
-import java.io.FileInputStream
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStream
+import com.simplito.kotlin.privmx_endpoint_extra.storeFileStream.StoreFileStreamWriter
+import kotlinx.io.buffered
+import kotlinx.io.files.Path
+import kotlinx.io.files.SystemFileSystem
 
 fun uploadingSmallFiles() {
     val storeID = "STORE_ID"
@@ -31,15 +33,16 @@ fun uploadingFilesStream() {
             println("Uploaded bytes: $processedBytes")
         }
     }
-
-    val fileId = FileInputStream("PATH_TO_FILE").use { inputStream ->
+    val filePath = Path("PATH_TO_FILE")
+    val fileSize = SystemFileSystem.metadataOrNull(filePath)!!.size
+    val fileId = SystemFileSystem.source(filePath).use { source ->
         StoreFileStreamWriter.createFile(
-            endpointSession.storeApi,
+            endpointSession.storeApi!!,
             storeID,
             publicMeta,
             privateMeta,
-            inputStream.available().toLong(),
-            inputStream,
+            fileSize,
+            source.buffered(),
             controller
         )
     }

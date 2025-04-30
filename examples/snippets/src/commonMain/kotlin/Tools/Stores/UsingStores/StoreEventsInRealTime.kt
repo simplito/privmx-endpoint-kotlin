@@ -1,8 +1,8 @@
 package Tools.Stores.UsingStores
 
-import com.simplito.java.privmx_endpoint_extra.events.EventType
+import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
 
-fun handlingStoreEvents() {
+suspend fun handlingStoreEvents() {
     val callbacksID = "CALLBACK_ID"
     val storeID = "STORE_ID"
 
