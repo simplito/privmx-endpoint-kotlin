@@ -17,8 +17,6 @@ import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 plugins {
-    alias(libs.plugins.androidApplication) apply false
-    alias(libs.plugins.androidLibrary) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
     id("org.jetbrains.dokka") version "2.0.0"
 }
@@ -26,6 +24,8 @@ buildscript {
     dependencies {
         classpath("org.jetbrains.dokka:dokka-base:2.0.0")
         classpath("org.jetbrains.dokka:versioning-plugin:2.0.0")
+        classpath("org.apache.httpcomponents:httpclient:4.5.14")
+        classpath("org.apache.httpcomponents:httpmime:4.5.14")
     }
 }
 
