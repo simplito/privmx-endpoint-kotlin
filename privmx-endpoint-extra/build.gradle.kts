@@ -29,7 +29,7 @@ kotlin {
             dependencies {
                 implementation(project(":privmx-endpoint"))
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.6.0")
+                api(libs.kotlinx.io.core)
             }
         }
         val commonTest by getting {
@@ -41,7 +41,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.simplito.kotlin.privmx-endpoint-extra"
+    namespace = "com.simplito.kotlin.privmx_endpoint_extra"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
