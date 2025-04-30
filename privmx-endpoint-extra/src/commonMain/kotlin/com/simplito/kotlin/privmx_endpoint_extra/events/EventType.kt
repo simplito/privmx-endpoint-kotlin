@@ -61,7 +61,7 @@ sealed class EventType<T: Any>(
     /**
      * Predefined event type to catch created Thread events.
      */
-    data object ThreadCreatedEvent : EventType<Unit>("thread", "threadCreated")
+    data object ThreadCreatedEvent : EventType<Thread>("thread", "threadCreated")
 
     /**
      * Predefined event type to catch updated Thread events.
