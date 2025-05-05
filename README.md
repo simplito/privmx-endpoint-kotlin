@@ -117,7 +117,7 @@ You have to pass path to PrivMX Endpoint native libraries directory by configuri
 Before build your project you have to attach PrivMX Endpoint native libraries to Android build process by adding them 
 to jniLibs sourceSet directory (`src/main/jniLibs` by default) for each architecture.
 
-**You can download pre-compiled zipped native binaries for each supported Android platform from [GitHub Releases](https://github.com/simplito/privmx-endpoint-kotlin/releases).**
+**You can download pre-compiled zipped native binaries for each supported Android architecture from [GitHub Releases](https://github.com/simplito/privmx-endpoint-kotlin/releases).**
 
 #### Required permissions
 PrivMX Endpoint requires to add the following permissions to your AndroidManifest.xml:
