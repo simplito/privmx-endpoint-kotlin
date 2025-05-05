@@ -13,16 +13,8 @@ package com.simplito.kotlin.privmx_endpoint.model
 
 /**
  * Contains base Context information.
- * @category core
- * @group Core
+ *
+ * @property userId        ID of the user requesting information
+ * @property contextId     ID of the Context
  */
-data class Context(
-    /**
-     * ID of the user requesting information.
-     */
-    val userId: String,
-    /**
-     * ID of the Context.
-     */
-    val contextId: String
-)
+data class Context(val userId: String, val contextId: String)

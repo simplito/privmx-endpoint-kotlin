@@ -13,70 +13,37 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds all available information about a Store.
  *
- * @category store
- * @group Store
+ * @property storeId               ID of the Store
+ * @property contextId             ID of the Context
+ * @property createDate            Store creation timestamp
+ * @property creator               ID of the user who created the Store
+ * @property lastModificationDate  Store last modification timestamp
+ * @property lastFileDate          Timestamp of the last created file
+ * @property lastModifier          ID of the user who last modified the Store
+ * @property users                 List of users (their IDs) with access to the Store
+ * @property managers              List of users (their IDs) with management rights
+ * @property version               Version number (changes on updates)
+ * @property publicMeta            Store's public metadata
+ * @property privateMeta           Store's private metadata
+ * @property policy                Store's policies
+ * @property filesCount            Total number of files in the Store
+ * @property statusCode            Status code of retrieval and decryption of the `Store`
  */
-data class Store
-(
-    /**
-     * ID of the Store.
-     */
+data class Store(
     val storeId: String,
-    /**
-     * ID of the Context.
-     */
     val contextId: String,
-    /**
-     * Store creation timestamp.
-     */
     val createDate: Long?,
-    /**
-     * ID of the user who created the Store.
-     */
     val creator: String,
-    /**
-     * Store last modification timestamp.
-     */
     val lastModificationDate: Long?,
-    /**
-     * Timestamp of the last created file.
-     */
     val lastFileDate: Long?,
-    /**
-     * ID of the user who last modified the Store.
-     */
     val lastModifier: String,
-    /**
-     * List of users (their IDs) with access to the Store.
-     */
     val users: List<String>,
-    /**
-     * List of users (their IDs) with management rights.
-     */
     val managers: List<String>,
-    /**
-     * Version number (changes on updates).
-     */
     val version: Long?,
-    /**
-     * Store's public metadata.
-     */
     val publicMeta: ByteArray,
-    /**
-     * Store's private metadata.
-     */
     val privateMeta: ByteArray,
-    /**
-     * Store's policies
-     */
     val policy: ContainerPolicy,
-    /**
-     * Total number of files in the Store.
-     */
     val filesCount: Long?,
-    /**
-     * Status code of retrieval and decryption of the `Store`.
-     */
     val statusCode: Long?
 ) {
     override fun equals(other: Any?): Boolean {

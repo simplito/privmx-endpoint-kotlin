@@ -10,68 +10,43 @@
 //
 package com.simplito.kotlin.privmx_endpoint.model.exceptions
 
-import kotlin.jvm.JvmOverloads
-
 /**
  * Thrown when a PrivMX Endpoint method encounters an exception.
  *
- * @category errors
+ * @param message     brief  information about exception
+ * @property description detailed information about exception
+ * @property scope       scope of this exception
+ * @property code        unique code of this exception
+ * @property name        special name for this exception
  */
 class PrivmxException
-/**
- * Creates instance of `PrivmxException`.
- *
- * @param message     brief  information about exception
- * @param description detailed information about exception
- * @param scope       scope of this exception
- * @param code        unique code of this exception
- * @param name        special name for this exception
- */
-@JvmOverloads
 internal constructor(
-    override val message: String,
-    /**
-     * Detailed description of the exception.
-     */
+    message: String,
     val description: String,
-    /**
-     * Scope of the exception.
-     */
     val scope: String,
-    /**
-     * Code of the exception.
-     */
     private val code: Int,
-    /**
-     * Native Exception name.
-     */
     val name: String
 ) : RuntimeException(message) {
     /**
      * Returns full information about the exception.
      *
-     *
-     * See: [.getFull].
-     *
-     * @return Full information about exception
+     * @return Full information about the exception as a JSON-like string
      */
-    override fun toString(): String = this.full
+    override fun toString(): String = full
 
     /**
-     * Returns exception code as `unsigned int` converted to `long`.
+     * Returns exception code as [UInt].
      *
      * @return Exception code
      */
-    fun getCode(): ULong {
-        return code.toULong()
-    }
+    fun getCode(): UInt = code.toUInt()
 
+    /**
+     * Returns full information about exception as a formatted string.
+     *
+     * @return Full information about exception in JSON-like format
+     */
     val full: String
-        /**
-         * Returns full information about exception.
-         *
-         * @return Full information about exception
-         */
         get() = "{\n" +
                 "\"name\" : \"" + name + "\",\n" +
                 "\"scope\" : \"" + scope + "\",\n" +

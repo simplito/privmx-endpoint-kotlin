@@ -18,8 +18,6 @@ import kotlin.jvm.JvmStatic
 
 /**
  * Base class for Inbox file streams.
- *
- * @category inbox
  */
 abstract class InboxFileStream
 /**
@@ -40,7 +38,7 @@ abstract class InboxFileStream
     /**
      * Gets size of sent data.
      *
-     * @return size of sent data.
+     * @return size of sent data
      */
     var processedBytes: Long = 0L
         private set

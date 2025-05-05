@@ -13,83 +13,35 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Holds all available information about an Inbox.
  *
- * @category inbox
- * @group Inbox
+ * @property inboxId              ID of the Inbox
+ * @property contextId            ID of the Context
+ * @property createDate           Inbox creation timestamp
+ * @property creator              ID of the user who created the Inbox
+ * @property lastModificationDate Inbox last modification timestamp
+ * @property lastModifier         ID of the user who last modified the Inbox
+ * @property users                List of users (their IDs) with access to the Inbox
+ * @property managers             List of users (their IDs) with management rights
+ * @property version              Version number (changes on updates)
+ * @property publicMeta           Inbox public metadata
+ * @property privateMeta          Inbox private metadata
+ * @property filesConfig          Inbox files configuration
+ * @property policy               Inbox policies
+ * @property statusCode           Status code of retrieval and decryption of the Inbox
  */
-data class Inbox
-/**
- * Creates instance of `Inbox`.
- *
- * @param inboxId              ID of the Inbox.
- * @param contextId            ID of the Context.
- * @param createDate           Inbox creation timestamp.
- * @param creator              ID of the user who created the Inbox.
- * @param lastModificationDate Inbox last modification timestamp.
- * @param lastModifier         ID of the user who last modified the Inbox.
- * @param users                List of users (their IDs) with access to the Inbox.
- * @param managers             List of users (their IDs) with management rights.
- * @param version              Version number (changes on updates).
- * @param publicMeta           Inbox public metadata.
- * @param privateMeta          Inbox private metadata.
- * @param filesConfig          Inbox files configuration.
- * @param policy               Inbox policies.
- * @param statusCode           Status code of retrieval and decryption of the `Inbox`.
- */(
-    /**
-     * ID of the Inbox.
-     */
+data class Inbox(
     val inboxId: String,
-    /**
-     * ID of the Context.
-     */
     val contextId: String,
-    /**
-     * Inbox creation timestamp.
-     */
     val createDate: Long?,
-    /**
-     * ID of the user who created the Inbox.
-     */
     val creator: String,
-    /**
-     * Inbox last modification timestamp.
-     */
     val lastModificationDate: Long?,
-    /**
-     * ID of the user who last modified the Inbox.
-     */
     val lastModifier: String,
-    /**
-     * List of users (their IDs) with access to the Inbox.
-     */
     val users: List<String>,
-    /**
-     * List of users (their IDs) with management rights.
-     */
     val managers: List<String>,
-    /**
-     * Version number (changes on updates).
-     */
     val version: Long?,
-    /**
-     * Inbox public metadata.
-     */
     val publicMeta: ByteArray,
-    /**
-     * Inbox private metadata.
-     */
     val privateMeta: ByteArray,
-    /**
-     * Inbox files configuration.
-     */
     val filesConfig: FilesConfig?,
-    /**
-     * Inbox policies.
-     */
     val policy: ContainerPolicyWithoutItem,
-    /**
-     * Status code of retrieval and decryption of the `Inbox`.
-     */
     val statusCode: Long?
 ) {
     override fun equals(other: Any?): Boolean {

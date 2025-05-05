@@ -21,10 +21,12 @@ import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 
 /**
  * Manages Threads and messages.
- *
- * @category thread
+ * @param connection active connection to PrivMX Bridge
+ * @throws IllegalStateException when given [Connection] is not connected
  */
-expect class ThreadApi(connection: Connection) : AutoCloseable {
+expect class ThreadApi
+@Throws(IllegalStateException::class)
+constructor(connection: Connection) : AutoCloseable {
 
     /**
      * Creates a new Thread in given Context.
@@ -37,12 +39,9 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      * @param privateMeta private (encrypted) metadata
      * @param policies    additional container access policies
      * @return ID of the created Thread
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @event type: threadCreated
-     * channel: thread
-     * payload: [Thread]
+     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun createThread(
@@ -67,12 +66,9 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      * @param force               force update (without checking version)
      * @param forceGenerateNewKey force to regenerate a key for the Thread
      * @param policies            additional container access policies
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @event type: threadUpdated
-     * channel: thread
-     * payload: [Thread]
+     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun updateThread(
@@ -92,9 +88,9 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      *
      * @param threadId ID of Thread to get
      * @return Information about the Thread
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun getThread(threadId: String): Thread
@@ -125,12 +121,9 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      * Deletes a Thread by given Thread ID.
      *
      * @param threadId ID of the Thread to delete
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @event type: threadDeleted
-     * channel: thread
-     * payload: [ThreadDeletedEventData]
+     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun deleteThread(threadId: String)
@@ -143,15 +136,9 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      * @param privateMeta private message metadata
      * @param data        content of the message
      * @return ID of the new message
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @event type: threadNewMessage
-     * channel: thread/&lt;threadId&gt;/messages
-     * payload: [Message]
-     * @event type: threadStats
-     * channel: thread
-     * payload: [ThreadStatsEventData]
+     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun sendMessage(
@@ -166,9 +153,9 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      *
      * @param messageId ID of the message to get
      * @return Message with matching id
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun getMessage(messageId: String): Message
@@ -182,9 +169,9 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
      * @return list of messages
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun listMessages(
@@ -200,12 +187,9 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      * Deletes a message by given message ID.
      *
      * @param messageId ID of the message to delete
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @event type: threadMessageDeleted
-     * channel: thread/&lt;threadId&gt;/messages
-     * payload: [ThreadDeletedMessageEventData]
+     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun deleteMessage(messageId: String)
@@ -217,12 +201,9 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      * @param publicMeta  public message metadata
      * @param privateMeta private message metadata
      * @param data        new content of the message
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     * @event type: threadUpdatedMessage
-     * channel: thread/&lt;threadId&gt;/messages
-     * payload: [Message]
+     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun updateMessage(
@@ -235,9 +216,9 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
     /**
      * Subscribes for the Thread module main events.
      *
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun subscribeForThreadEvents()
@@ -245,9 +226,9 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
     /**
      * Unsubscribes from the Thread module main events.
      *
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun unsubscribeFromThreadEvents()
@@ -256,9 +237,9 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      * Subscribes for events in given Thread.
      *
      * @param threadId ID of the Thread to subscribe
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun subscribeForMessageEvents(threadId: String)
@@ -267,9 +248,9 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
      * Unsubscribes from events in given Thread.
      *
      * @param threadId ID of the Thread to unsubscribe
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun unsubscribeFromMessageEvents(threadId: String)
@@ -277,7 +258,7 @@ expect class ThreadApi(connection: Connection) : AutoCloseable {
     /**
      * Frees memory.
      *
-     * @throws Exception when instance is currently closed.
+     * @throws Exception when instance is currently closed
      */
     override fun close()
 }

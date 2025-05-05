@@ -13,10 +13,4 @@ package com.simplito.kotlin.privmx_endpoint_extra.policies
 /**
  * Contains value for Container policies.
  */
-open class ContainerPolicyValue
-/**
- * Creates instance of [ContainerPolicyValue].
- *
- * @param value raw policy value
- */
-internal constructor(override val value: String) : PolicyValue
+open class ContainerPolicyValue internal constructor(override val value: String) : PolicyValue

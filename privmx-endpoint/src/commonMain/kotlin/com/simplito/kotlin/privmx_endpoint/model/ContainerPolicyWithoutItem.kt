@@ -13,42 +13,18 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Contains container's policies.
  *
- * @category core
- * @group Core
+ * @property get                             Determines who can get a container
+ * @property update                          Determines who can update a container
+ * @property delete                          Determines who can delete a container
+ * @property updatePolicy                    Determines who can update policy
+ * @property updaterCanBeRemovedFromManagers Determines whether the updater can be removed from the list of managers
+ * @property ownerCanBeRemovedFromManagers   Determines whether the owner can be removed from the list of managers
  */
-open class ContainerPolicyWithoutItem
-/**
- * Creates instance of [ContainerPolicyWithoutItem].
- *
- * @param get                             determines who can get a container
- * @param update                          determines who can update a container
- * @param delete                          determines who can delete a container
- * @param updatePolicy                    determines who can update policy
- * @param updaterCanBeRemovedFromManagers determines whether the updater can be removed from the list of managers
- * @param ownerCanBeRemovedFromManagers   determines whether the owner can be removed from the list of managers
- */(
-    /**
-     * Determines who can get a container.
-     */
+open class ContainerPolicyWithoutItem(
     val get: String?,
-    /**
-     * Determines who can update a container.
-     */
     val update: String?,
-    /**
-     * Determines who can delete a container.
-     */
     val delete: String?,
-    /**
-     * Determines who can update policy.
-     */
     val updatePolicy: String?,
-    /**
-     * Determines whether the updater can be removed from the list of managers.
-     */
     val updaterCanBeRemovedFromManagers: String?,
-    /**
-     * Determines whether the owner can be removed from the list of managers.
-     */
     val ownerCanBeRemovedFromManagers: String?
 )

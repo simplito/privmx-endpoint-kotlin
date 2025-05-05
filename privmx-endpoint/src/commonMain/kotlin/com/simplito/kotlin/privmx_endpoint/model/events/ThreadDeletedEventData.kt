@@ -13,16 +13,6 @@ package com.simplito.kotlin.privmx_endpoint.model.events
 /**
  * Holds information about a deleted Thread.
  *
- * @category core
- * @group Events
+ * @property threadId ID of the deleted Thread
  */
-data class ThreadDeletedEventData
-/**
- * Creates instance of `ThreadDeletedEventData`.
- * @param threadId ID of the deleted Thread.
- */(
-    /**
-     * ID of the deleted Thread.
-     */
-    val threadId: String
-)
+data class ThreadDeletedEventData(val threadId: String)

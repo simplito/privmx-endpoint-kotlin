@@ -20,10 +20,10 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 expect object EventQueue {
     /**
      * Puts the break event on the events queue.
-     * You can use it to break the [.waitEvent].
+     * You can use it to break the [EventQueue.waitEvent].
      *
-     * @throws PrivmxException thrown when method encounters an exception.
-     * @throws NativeException thrown when method encounters an unknown exception.
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     fun emitBreakEvent()
@@ -32,12 +32,19 @@ expect object EventQueue {
      * Waits for event on current thread.
      *
      * @return Caught event
-     * @throws PrivmxException thrown when method encounters an exception.
-     * @throws NativeException thrown when method encounters an unknown exception.
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     fun waitEvent(): Event<*>
 
+    /**
+     * Gets the first event from the events queue.
+     *
+     * @return Event data if any available otherwise return null
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     */
     @Throws(
         PrivmxException::class,
         NativeException::class

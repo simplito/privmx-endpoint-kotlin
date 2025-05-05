@@ -11,32 +11,34 @@
 package com.simplito.kotlin.privmx_endpoint_extra.lib
 
 import com.simplito.kotlin.privmx_endpoint.model.Event
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventCallback
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventDispatcher
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
 import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
+import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
 
 /**
  * Extends [BasicPrivmxEndpoint] with event callbacks dispatcher.
- *
- * @category core
- */
-class PrivmxEndpoint
-/**
- * Calls [BasicPrivmxEndpoint.BasicPrivmxEndpoint].
  *
  * @param enableModule   set of modules to initialize; should contain [Modules.THREAD]
  * to enable Thread module or [Modules.STORE] to enable Store module
  * @param bridgeUrl      Bridge's Endpoint URL
  * @param solutionId     `SolutionId` of the current project
  * @param userPrivateKey user private key used to authorize; generated from:
- * [CryptoApi.generatePrivateKey] or
- * [CryptoApi.derivePrivateKey]
+ * [CryptoApi.generatePrivateKey] or [CryptoApi.derivePrivateKey2]
  * @throws IllegalStateException thrown if there is an exception during init modules
  * @throws PrivmxException       thrown if there is a problem during login
  * @throws NativeException       thrown if there is an **unknown** problem during login
  */
-    (
+class PrivmxEndpoint
+@Throws(
+    IllegalStateException::class,
+    PrivmxException::class,
+    NativeException::class
+)
+constructor(
     enableModule: Set<Modules>,
     userPrivateKey: String,
     solutionId: String,
@@ -54,12 +56,12 @@ class PrivmxEndpoint
     /**
      * Registers callbacks with the specified type.
      *
+     * @param T         type of data passed to callback
      * @param context   an object that identifies callbacks in the list
      * @param eventType type of event to listen to
      * @param callback  a block of code to execute when event was handled
-     * @param <T>       type of data passed to callback
-     * @throws RuntimeException thrown when method encounters an exception during subscribing on channel.
-    </T> */
+     * @throws RuntimeException thrown when method encounters an exception during subscribing on channel
+     */
     @Throws(RuntimeException::class)
     suspend fun <T: Any> registerCallback(
         context: Any,
@@ -76,16 +78,16 @@ class PrivmxEndpoint
     }
 
     /**
-     * Unregisters all callbacks registered by [.registerCallback] and identified with given Context.
+     * Unregisters all callbacks registered by [registerCallback] and identified with given Context.
      *
-     * @param context an object that identifies callbacks in the list.
+     * @param context an object that identifies callbacks in the list
      */
     suspend fun unregisterCallbacks(context: Any) {
         eventDispatcher.unbind(context)
     }
 
     /**
-     * Unregisters all callbacks registered by [.registerCallback].
+     * Unregisters all callbacks registered by [registerCallback].
      */
     suspend fun unregisterAll() {
         eventDispatcher.unbindAll()

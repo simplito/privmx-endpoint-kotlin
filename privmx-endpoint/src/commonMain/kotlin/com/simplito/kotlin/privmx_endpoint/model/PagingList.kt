@@ -14,17 +14,8 @@ package com.simplito.kotlin.privmx_endpoint.model
 /**
  * Contains results of listing methods.
  *
- * @param <T> type of items stored in list.
- * @category core
- * @group Core
-</T> */
-class PagingList<T>(
-    /**
-     * Total items available to get.
-     */
-    val totalAvailable: Long?,
-    /**
-     * List of items read during single method call.
-     */
-    val readItems: List<T>
-)
+ * @param T type of items stored in list.
+ * @property totalAvailable    Total items available to get
+ * @property readItems         List of items read during single method call
+*/
+class PagingList<T>(val totalAvailable: Long?, val readItems: List<T>)

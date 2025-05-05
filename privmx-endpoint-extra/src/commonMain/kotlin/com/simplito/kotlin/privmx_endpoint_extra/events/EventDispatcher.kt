@@ -15,13 +15,25 @@ import com.simplito.kotlin.privmx_endpoint.model.Event
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
+/**
+ * Represents a callback for catching events data.
+ * @param T type of the caught event data
+ */
 fun interface EventCallback<T: Any>{
+    /**
+     * Called to handle data from a captured event.
+     *
+     *  @param eventData the caught event data
+     */
     operator fun invoke(eventData: T)
 }
+
+
 /**
  * Implements a list of registered event callbacks.
- *
- * @category core
+ * @param onRemoveEntryKey callback triggered when all events
+ *                         from channel entry have been removed
+ *                         (it can also unsubscribe from the channel)
  */
 class EventDispatcher(
     private val onRemoveEntryKey: (removedKey: String) -> Unit
@@ -55,7 +67,7 @@ class EventDispatcher(
     /**
      * Emits specified event. It should only be called by event loops.
      *
-     * @param <T>   type of event data
+     * @param T     type of event data
      * @param event event data to emit
     </T> */
     @Suppress("UNCHECKED_CAST")
@@ -81,7 +93,7 @@ class EventDispatcher(
     }
 
     /**
-     * Removes all callbacks registered by [.register]. It's identified by given Context.
+     * Removes all callbacks registered by [EventDispatcher.register]. It's identified by given Context.
      *
      * @param context callback identifier
      */
