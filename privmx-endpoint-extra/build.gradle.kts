@@ -25,7 +25,7 @@ kotlin {
             dependencies {
                 implementation(project(":privmx-endpoint"))
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.6.0")
+                api(libs.kotlinx.io.core)
             }
         }
         val commonTest by getting {

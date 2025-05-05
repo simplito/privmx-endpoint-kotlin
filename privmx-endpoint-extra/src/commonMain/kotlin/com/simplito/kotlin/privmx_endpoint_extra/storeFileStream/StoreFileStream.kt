@@ -1,6 +1,6 @@
 //
-// PrivMX Endpoint Java Extra.
-// Copyright © 2024 Simplito sp. z o.o.
+// PrivMX Endpoint Kotlin Extra.
+// Copyright © 2025 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
 // This software is Licensed under the MIT License.
@@ -42,7 +42,6 @@ abstract class StoreFileStream
         /**
          * Constant value with optimal size of reading/sending data.
          */
-        @JvmStatic
         const val OPTIMAL_SEND_SIZE: Long = 128 * 1024L
 
     }
