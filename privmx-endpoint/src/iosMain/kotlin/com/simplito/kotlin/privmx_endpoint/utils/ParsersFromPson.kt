@@ -55,8 +55,8 @@ internal fun PsonObject.toThread(): Thread = Thread(
     this["lastMsgDate"]?.typedValue(),
     this["publicMeta"]!!.typedValue(),
     this["privateMeta"]!!.typedValue(),
-    this["messagesCount"]?.typedValue(),
     (this["policy"] as PsonObject).toContainerPolicy(),
+    this["messagesCount"]?.typedValue(),
     this["statusCode"]?.typedValue(),
 )
 
