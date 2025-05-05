@@ -1,21 +1,17 @@
-import com.vanniktech.maven.publish.SonatypeHost
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
     id("maven-publish")
+    id("signing")
 }
 
 group = "com.simplito.kotlin"
-version = "1.0.0"
+version = libs.versions.publishPrivmxEndpoint.get()
+
 kotlin {
-    jvm()
-    androidTarget {
-        publishLibraryVariants("release")
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    jvm{
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_1_8)
         }
@@ -40,61 +36,31 @@ kotlin {
     }
 }
 
-android {
-    namespace = "com.simplito.kotlin.privmx-endpoint-extra"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
-    }
-}
-
 publishing {
     val properties = Properties()
     properties.load(file(rootDir.absolutePath + "/local.properties").inputStream())
     val repositoryURL: String = properties.getProperty("repositoryURL")
     repositories {
         maven {
-            name = "localFiles"
+            name = "localRepo"
             url = uri(repositoryURL)
+        }
+    }
+
+    publications {
+        withType<MavenPublication>().configureEach {
+            groupId = "com.simplito.kotlin"
+            version = project.version as String
+            pom {
+                name = "PrivMX Endpoint Kotlin Extra"
+                description =
+                    "PrivMX Endpoint Kotlin Extra is an extension of Privmx Endpoint Kotlin. It's extended with additional logic that makes using our libraries simpler and less error-prone."
+            }
         }
     }
 }
 
-//mavenPublishing {
-//    val properties = Properties()
-//    properties.load(file(rootDir.absolutePath + "/local.properties").inputStream())
-//    val repositoryURL: String = properties.getProperty("repositoryURL")
-//    publishToMavenCentral("")
-//    publishToMavenCentral(repositoryURL)
-////    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-//
-//    signAllPublications()
-//
-//    coordinates(group.toString(), "library", version.toString())
-//
-//    pom {
-//        name = ""
-//        description = "A library."
-//        inceptionYear = "2024"
-//        url = "https://github.com/kotlin/multiplatform-library-template/"
-//        licenses {
-//            license {
-//                name = "XXX"
-//                url = "YYY"
-//                distribution = "ZZZ"
-//            }
-//        }
-//        developers {
-//            developer {
-//                id = "XXX"
-//                name = "YYY"
-//                url = "ZZZ"
-//            }
-//        }
-//        scm {
-//            url = "XXX"
-//            connection = "YYY"
-//            developerConnection = "ZZZ"
-//        }
-//    }
-//}
+signing {
+    useGpgCmd()
+    sign(publishing.publications)
+}

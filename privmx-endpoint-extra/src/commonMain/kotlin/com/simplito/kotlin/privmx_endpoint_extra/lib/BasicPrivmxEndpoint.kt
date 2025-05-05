@@ -76,7 +76,6 @@ constructor(
      *
      * @throws Exception when instance is currently closed
      */
-    @Throws(Exception::class)
     override fun close() {
         threadApi?.close()
         storeApi?.close()
