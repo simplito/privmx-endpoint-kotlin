@@ -7,7 +7,7 @@ PrivMX is a privacy-focused platform designed to offer secure collaboration solu
 robust encryption across various data types and communication methods. This project enables seamless
 integration of PrivMX’s encryption functionalities in Java/Kotlin applications, preserving the
 security and performance of the original C++ library while making its capabilities accessible in the
-JVM ecosystem.
+Kotlin multiplatform projects.
 
 ## About PrivMX
 
@@ -32,7 +32,7 @@ making its encryption features accessible to developers using Java/Kotlin.
 
 PrivMX Endpoint Kotlin Extra is the fundamental **recommended library** for utilizing the platform
 in the majority of cases. It encompasses all the essential logic that simplifies and secures the
-usage of our libraries. It can be utilized on Java Virtual Machines (JVM).
+usage of our libraries.
 
 #### This library implements:
 
@@ -47,7 +47,7 @@ usage of our libraries. It can be utilized on Java Virtual Machines (JVM).
 PrivMX Endpoint Kotlin is the fundamental wrapper library, essential for the Platform’s operational
 functionality. It utilizes JNI to declare native functions in Kotlin. As the most minimalist library
 available, it provides the highest degree of flexibility in customizing the Platform to meet your
-specific requirements. It is compatible with Java Virtual Machines (JVM).
+specific requirements.
 
 This library implements models, exception catching, and the following modules:
 
@@ -60,162 +60,73 @@ This library implements models, exception catching, and the following modules:
 
 ## Supported platforms
 
-This Kotlin Multiplatform project is built with cross-platform compatibility and supports the
-following platforms:
+* JVM (minimum JDK 8)
+  * Android
+    * arm64-v8a
+    * armeabi-v7a
+    * x86
+    * x86_64
+  * Darwin
+    * arm64
+  * Linux
+    * x86_64 (comming soon)
+  * Windows
+    * x86_64 (comming soon)
+* iOS
+  * arm64
+  * arm64Simulator
 
-- **Android** - through the JVM target, making it easy to integrate with existing Android projects
-  and fully compatible with the Android SDK.
-- **iOS** - including both physical devices and simulators, allowing shared logic to run natively
-  within iOS applications.
+## Usage
 
-The use of Kotlin Multiplatform ensures that core functionalities are implemented once and reused
-across supported platforms.
+### Add Dependencies
 
-## Minimal Supported JDK Version
+1. Add `mavenCentral()` repository to your `settings.gradle.kts`:
 
-This project requires at least JDK 8 for compiling and running the Kotlin code. Make sure to use JDK
-8 or a later version for full compatibility with the Android target and JVM support.
-
-## Running on JVM
-
-### Dependencies
-
-In your project's `build.gradle.kts` add the necessary dependencies:
-
-```
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation("com.simplito.kotlin:privmx-endpoint-extra:$privmxLibVersion")
-
-    // Use privmx-endpoint for the base Kotlin library:
-    // implementation("com.simplito.kotlin:privmx-endpoint:$privmxLibVersion")
+```groovy
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
 }
 ```
 
-### Shared Libraries
+2. Add dependency to `build.gradle.kts`:
 
-For Kotlin projects, you need to install the shared native libraries in a specific path and pass
-that path when running application:
-
-`-Djava.library.path=<path_to_native_libraries>`
-
-## Running on Android
-
-### Permissions
-
-Add the Internet permission (for network access) to your AndroidManifest.xml:
-
-`<uses-permission android:name="android.permission.INTERNET" />`
-
-### Dependencies
-
-The Android setup uses the same Gradle dependencies as the JVM setup:
-
-```
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation("com.simplito.kotlin:privmx-endpoint-extra:$privmxLibVersion")
-
-    // Use privmx-endpoint for the base Kotlin library:
-    // implementation("com.simplito.kotlin:privmx-endpoint:$privmxLibVersion")
-}
-```
-
-### Native Libraries
-
-For Android, place the native libraries in the `src/main/jniLibs` directory.
-
-## Running on Kotlin Multiplatform (KMP)
-
-How to use PrivMX Endpoint Kotlin in your Kotlin Multiplatform (KMP) project:
-
-### Add the dependencies
-
-In your `build.gradle.kts` add the appropriate dependency in the commonMain or
-platform-specific source set. For example:
-
-```
+```groovy
 kotlin {
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation("com.simplito.kotlin:privmx-endpoint-extra:$privmxLibVersion")
-            }
-        }
+  sourceSets {
+    val commonMain by getting {
+      dependencies {
+        implementation("com.simplito.kotlin:privmx-endpoint:$privmxLibVersion")
+        // optionally you can add privmx-endpoint-extra dependency
+//        implementation("com.simplito.kotlin:privmx-endpoint-extra:$privmxLibVersion")
+      }
     }
+  }
 }
 ```
 
-### Native libraries
+### JVM
+You have to pass path to PrivMX Endpoint native libraries directory by configuring 
+`-Djava.library.path=<path-to-your-libraries-dir>` system property during run application.
 
-Make sure native libraries are available depending on the platform.
+**You can download pre-compiled zipped native binaries for each supported JVM platform from [GitHub Releases](https://github.com/simplito/privmx-endpoint-kotlin/releases).**
 
-#### JVM
+### Android
+#### Native libraries
+Before build your project you have to attach PrivMX Endpoint native libraries to Android build process by adding them 
+to jniLibs sourceSet directory (`src/main/jniLibs` by default) for each architecture.
 
-You must provide the native files and run your app with:
+**You can download pre-compiled zipped native binaries for each supported Android platform from [GitHub Releases](https://github.com/simplito/privmx-endpoint-kotlin/releases).**
 
-`-Djava.library.path=<path_to_native_libraries>`
-
-#### Android
-
-You must provide the native files into a specific location in your project:
-
-`src/main/jniLibs/<abi>/`
-
-where `abi` can be one of the supported targets: armeabi-v7a, arm64-v8a, x86 or x86_64.
-
-#### iOS
-
-C interop is already preconfigured. The project assumes you have compiled native libraries under:
-
-`src/nativeInterop/cinterop/privmx-endpoint/<platform>/lib`
-
-and headers under:
-
-`src/nativeInterop/cinterop/privmx-endpoint/<platform>/include`
-
-### Platform-specific setup (optional)
-
-If your `sourceSets` are split into platform-specific modules (e.g. iosMain, androidMain, jvmMain),
-and you use different logic per platform, you can include the dependency in jvmMain, iosMain, or
-keep it in commonMain if your code works across all targets. 
-
-Example with platform-specific dependency:
-
-```
-val jvmMain by getting {
-    dependencies {
-        implementation("com.simplito.kotlin:privmx-endpoint-extra:$privmxLibVersion")
-    }
-}
-```
-
-## Preparing the Repository for Development
-
-### 1. Clone the repository
-
-```
-git clone https://github.com/your-org/privmx-endpoint-kotlin.git
-cd privmx-endpoint-kotlin
-```
-
-### 2. Install native libraries
-
-Depending on the platform you're targeting, you may need to install or prepare the native libraries.
-Download the appropriate files from
-the [GitHub releases](https://github.com/simplito/privmx-endpoint-kolin/releases), matching the
-version of the privmx-endpoint-kotlin library you're using.
+#### Required permissions
+PrivMX Endpoint requires to add the following permissions to your AndroidManifest.xml:
+* `<uses-permission android:name="android.permission.INTERNET" />`  
 
 ## License information
 
 **PrivMX Endpoint Kotlin**\
-Copyright © 2024 Simplito sp. z o.o.
+Copyright © 2025 Simplito sp. z o.o.
 
 This project is part of the PrivMX Platform (https://privmx.dev). \
 This project is Licensed under the MIT License.
