@@ -30,11 +30,11 @@ making its encryption features accessible to developers using Java/Kotlin.
 
 ### 1. PrivMX Endpoint Kotlin Extra
 
-PrivMX Endpoint Kotlin Extra is the fundamental **recommended library** for utilizing the platform
+PrivMX Endpoint Kotlin Extra is the fundamental **recommended library** for using the platform
 in the majority of cases. It encompasses all the essential logic that simplifies and secures the
 usage of our libraries.
 
-#### This library implements:
+This library implements:
 
 - Enums and static fields to minimize errors while invoking the methods.
 - `PrivMXEndpoint` for managing the connection and registering callbacks for any events.
@@ -44,9 +44,9 @@ usage of our libraries.
 
 ### 2. PrivMX Endpoint Kotlin
 
-PrivMX Endpoint Kotlin is the fundamental wrapper library, essential for the Platform’s operational
-functionality. It utilizes JNI to declare native functions in Kotlin. As the most minimalist library
-available, it provides the highest degree of flexibility in customizing the Platform to meet your
+PrivMX Endpoint Kotlin is the minimal wrapper library, essential for the platform’s operational
+functionality. It declares native functions in Kotlin using JNI. As the most minimalist library
+available, it provides the highest degree of flexibility in customizing the platform to meet your
 specific requirements.
 
 This library implements models, exception catching, and the following modules:
@@ -58,7 +58,7 @@ This library implements models, exception catching, and the following modules:
 - `StoreApi` - Methods for managing Stores and sending/reading files.
 - `InboxApi` - Methods for managing Inboxes and entries.
 
-## Supported platforms
+## Supported Platforms
 
 * JVM (minimum JDK 8)
   * Android
@@ -113,17 +113,17 @@ You have to pass path to PrivMX Endpoint native libraries directory by configuri
 **You can download pre-compiled zipped native binaries for each supported JVM platform from [GitHub Releases](https://github.com/simplito/privmx-endpoint-kotlin/releases).**
 
 ### Android
-#### Native libraries
+#### Native Libraries
 Before build your project you have to attach PrivMX Endpoint native libraries to Android build process by adding them 
-to jniLibs sourceSet directory (`src/main/jniLibs` by default) for each architecture.
+to jniLibs sourceSet directory (`src/main/jniLibs` by default) for each supported ABI.
 
-**You can download pre-compiled zipped native binaries for each supported Android architecture from [GitHub Releases](https://github.com/simplito/privmx-endpoint-kotlin/releases).**
+**You can download pre-compiled zipped native binaries for each supported Android ABI from [GitHub Releases](https://github.com/simplito/privmx-endpoint-kotlin/releases).**
 
-#### Required permissions
+#### Required Permissions
 PrivMX Endpoint requires to add the following permissions to your AndroidManifest.xml:
 * `<uses-permission android:name="android.permission.INTERNET" />`  
 
-## License information
+## License Information
 
 **PrivMX Endpoint Kotlin**\
 Copyright © 2025 Simplito sp. z o.o.
