@@ -135,7 +135,7 @@ actual class Connection private constructor() : AutoCloseable {
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      */
-    @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
+    @Throws( PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun listContexts(
         skip: Long, limit: Long, sortOrder: String, lastId: String?
     ): PagingList<Context> = memScoped {
@@ -164,7 +164,7 @@ actual class Connection private constructor() : AutoCloseable {
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      */
-    @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
+    @Throws( PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun disconnect() = memScoped {
         val args = pson_new_object()
         val result = allocPointerTo<pson_value>().apply {

@@ -14,6 +14,11 @@ group = "com.simplito.kotlin"
 version = libs.versions.publishPrivmxEndpoint.get()
 
 kotlin {
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     jvm{
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_1_8)
