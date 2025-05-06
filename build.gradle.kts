@@ -1,3 +1,6 @@
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.impl.client.HttpClients
@@ -26,6 +29,7 @@ buildscript {
         classpath("org.jetbrains.dokka:versioning-plugin:2.0.0")
         classpath("org.apache.httpcomponents:httpclient:4.5.14")
         classpath("org.apache.httpcomponents:httpmime:4.5.14")
+        classpath(libs.kotlinx.serialization.json)
     }
 }
 
@@ -106,7 +110,15 @@ tasks.register<DokkaMultiModuleTask>("privmxEndpointHtmlMultiModule") {
         olderVersionsDir = docVersionsDir
         version = currentVersion
     }
-
+    val latestVersion: String? = latestDocsDir.resolve("version.json").let {
+        if (!it.exists()) {
+            return@let null
+        }
+        return@let it.reader().use { reader ->
+            Json.parseToJsonElement(reader.readText()).jsonObject["version"]?.jsonPrimitive?.content
+        }
+    }
+    outputs.upToDateWhen { latestDocsDir.exists() && latestVersion == currentVersion }
     doLast {
         // Copy custom fonts
         copy {
