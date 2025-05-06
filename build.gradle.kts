@@ -92,7 +92,7 @@ tasks.register<DokkaMultiModuleTask>("privmxEndpointHtmlMultiModule") {
     val docVersionsDir = outputDirectory.asFile.get().resolve("version")
 
     // The version for which you are currently generating docs
-    val currentVersion = project.version.toString()
+    val currentVersion = project.docsVersion
 
     // Set the output to a folder with all other versions
     // as you'll need the current version for future builds
@@ -127,10 +127,12 @@ tasks.register<DokkaMultiModuleTask>("privmxEndpointHtmlMultiModule") {
         // be needed in future builds, it's just overhead.
         currentDocsDir.resolve("older").deleteRecursively()
     }
-    plugins.dependencies.addAll(listOf(
-        dependencies.create("org.jetbrains.dokka:all-modules-page-plugin:2.0.0"),
-        dependencies.create("org.jetbrains.dokka:versioning-plugin:2.0.0"),
-    ))
+    plugins.dependencies.addAll(
+        listOf(
+            dependencies.create("org.jetbrains.dokka:all-modules-page-plugin:2.0.0"),
+            dependencies.create("org.jetbrains.dokka:versioning-plugin:2.0.0"),
+        )
+    )
 }
 
 fun MavenPublication.configurePom() {
@@ -230,7 +232,8 @@ fun Project.createUploadPublicationTask(
 val Project.dokkaTaskConfiguration: AbstractDokkaTask.() -> Unit
     get() = {
         moduleName = project.name
-        val taskName = when(this){
+        moduleVersion = docsVersion
+        val taskName = when (this) {
             is DokkaTaskPartial -> "privmxEndpointHtmlPartial"
             is DokkaMultiModuleTask -> "privmxEndpointHtmlMultiModule"
             else -> "privmxEndpointHtml"
@@ -245,3 +248,6 @@ val Project.dokkaTaskConfiguration: AbstractDokkaTask.() -> Unit
             )
         }
     }
+
+val Project.docsVersion: String
+    get() = Regex("[0-9]+.[0-9]+").find(version.toString())?.value ?: "unspecified"
