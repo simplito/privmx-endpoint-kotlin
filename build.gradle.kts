@@ -133,6 +133,36 @@ tasks.register<DokkaMultiModuleTask>("privmxEndpointHtmlMultiModule") {
     ))
 }
 
+tasks.register("privmxEndpointHtmlExtractCurrentDocs") {
+    group = "documentation"
+    description =
+        "Extracts existing documentation for generate or regenerate documentation with current project version"
+    val docsDir = layout.buildDirectory.asFile.get().resolve("dokka/privmxEndpointHtmlMultiModule/")
+    val docVersionsDir = docsDir.resolve("version")
+    val docCurrentDir = docsDir.resolve("current")
+    val currentVersion: String? = docCurrentDir.resolve("version.json").let {
+        if (!it.exists()) {
+            return@let null
+        }
+        return@let it.reader().use { reader ->
+            Json.parseToJsonElement(reader.readText()).jsonObject["version"]?.jsonPrimitive?.content
+        }
+    }
+    doFirst {
+        //move older version
+        docCurrentDir.resolve("older").listFiles()?.forEach {
+            it.copyRecursively(docVersionsDir.resolve(it.name), true)
+        }
+        //move latest version
+        docCurrentDir.listFiles()?.filter { it.name != "older" }?.filter {
+            it.copyRecursively(
+                docVersionsDir.resolve("${currentVersion ?: "unspecified"}/${it.name}"),
+                true
+            )
+        }
+    }
+}
+
 fun MavenPublication.configurePom() {
     pom {
         url = "https://privmx.dev"
