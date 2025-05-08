@@ -88,7 +88,8 @@ internal fun psonMapper(psonValue: CPointer<pson_value>): PsonValue<Any>? = memS
         PSON_ARRAY -> {
             val psonBinarySize = alloc<ULongVar>()
             pson_get_array_size(psonValue, psonBinarySize.ptr)
-            return PsonValue.PsonArray<PsonValue<Any>>(
+            @Suppress("UNCHECKED_CAST")
+            return PsonValue.PsonArray(
                 (0uL..<psonBinarySize.value).map { offset ->
                     psonMapper(pson_get_array_value(psonValue, offset)!!)
                 }.toList() as List<PsonValue<Any>>
