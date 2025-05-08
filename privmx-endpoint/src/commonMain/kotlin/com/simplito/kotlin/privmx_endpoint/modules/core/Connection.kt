@@ -14,6 +14,7 @@ package com.simplito.kotlin.privmx_endpoint.modules.core
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
+import com.simplito.kotlin.privmx_endpoint.model.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
@@ -96,6 +97,19 @@ expect class Connection : AutoCloseable {
      * @return ID of the connection
      */
     fun getConnectionId(): Long?
+
+    /**
+     * Sets user's custom verification callback.
+     *
+     * The feature allows the developer to set up a callback for user verification.
+     * A developer can implement an interface and pass the implementation to the function.
+     * Each time data is read from the container, a callback will be triggered, allowing the developer to validate the sender in an external service,
+     * e.g. Developers Application Server or PKI Server.
+     *
+     * @param userVerifier an implementation of the [UserVerifierInterface]
+     * @throws IllegalStateException thrown when instance is not connected.
+     */
+    fun setUserVerifier(userVerifier: UserVerifierInterface)
 
     /**
      * Disconnects from PrivMX Bridge server.
