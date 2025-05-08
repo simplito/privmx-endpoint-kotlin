@@ -64,7 +64,7 @@ constructor(
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         filesConfig: FilesConfig? = null,
-        policies: ContainerPolicyWithoutItem? = null
+        policies: ContainerPolicyWithoutItem? = null,
     ): String
 
     /**
@@ -123,6 +123,7 @@ constructor(
      * @param limit     limit of elements to return for query
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
      * @return list of Inboxes
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -136,7 +137,8 @@ constructor(
         skip: Long,
         limit: Long,
         sortOrder: String = "desc",
-        lastId: String? = null
+        lastId: String? = null,
+        queryAsJson: String? = null
     ): PagingList<Inbox>
 
     /**
@@ -225,6 +227,7 @@ constructor(
      * @param limit     limit of elements to return for query
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
      * @return list of entries
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -238,7 +241,8 @@ constructor(
         skip: Long,
         limit: Long,
         sortOrder: String = "desc",
-        lastId: String? = null
+        lastId: String? = null,
+        queryAsJson: String? = null
     ): PagingList<InboxEntry>
 
     /**

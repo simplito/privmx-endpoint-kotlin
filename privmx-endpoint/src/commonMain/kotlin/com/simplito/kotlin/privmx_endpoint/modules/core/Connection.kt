@@ -34,7 +34,12 @@ expect class Connection : AutoCloseable {
          * @throws NativeException thrown when method encounters an unknown exception
          */
         @Throws(PrivmxException::class, NativeException::class)
-        fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String, verificationOptions: PKIVerificationOptions? = null): Connection
+        fun connect(
+            userPrivKey: String,
+            solutionId: String,
+            bridgeUrl: String,
+            verificationOptions: PKIVerificationOptions? = null
+        ): Connection
 
         /**
          * Connects to PrivMX Bridge server as a guest user.
@@ -47,7 +52,11 @@ expect class Connection : AutoCloseable {
          * @throws NativeException thrown when method encounters an unknown exception
          */
         @Throws(PrivmxException::class, NativeException::class)
-        fun connectPublic(solutionId: String, bridgeUrl: String, verificationOptions: PKIVerificationOptions? = null): Connection
+        fun connectPublic(
+            solutionId: String,
+            bridgeUrl: String,
+            verificationOptions: PKIVerificationOptions? = null
+        ): Connection
 
         /**
          * Allows to set path to the SSL certificate file.
@@ -67,6 +76,7 @@ expect class Connection : AutoCloseable {
      * @param limit     limit of elements to return for query
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
      * @return list of Contexts
      * @throws IllegalStateException thrown when instance is not connected
      * @throws PrivmxException       thrown when method encounters an exception
@@ -74,7 +84,10 @@ expect class Connection : AutoCloseable {
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun listContexts(
-        skip: Long, limit: Long, sortOrder: String = "desc", lastId: String? = null
+        skip: Long, limit: Long,
+        sortOrder: String = "desc",
+        lastId: String? = null,
+        queryAsJson: String? = null
     ): PagingList<Context>
 
     /**

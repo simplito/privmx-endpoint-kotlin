@@ -111,6 +111,7 @@ constructor(connection: Connection) : AutoCloseable {
      * @param limit     limit of elements to return for query
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
      * @return list of Stores
      * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
@@ -126,7 +127,8 @@ constructor(connection: Connection) : AutoCloseable {
         skip: Long,
         limit: Long,
         sortOrder: String = "desc",
-        lastId: String? = null
+        lastId: String? = null,
+        queryAsJson: String? = null
     ): PagingList<Store>
 
     /**
@@ -264,6 +266,7 @@ constructor(connection: Connection) : AutoCloseable {
      * @param limit     limit of elements to return for query
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
      * @return list of files
      * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
@@ -279,7 +282,8 @@ constructor(connection: Connection) : AutoCloseable {
         skip: Long,
         limit: Long,
         sortOrder: String = "desc",
-        lastId: String? = null
+        lastId: String? = null,
+        queryAsJson: String? = null
     ): PagingList<File>
 
     /**
