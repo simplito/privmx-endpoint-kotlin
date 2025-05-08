@@ -12,6 +12,7 @@
 package com.simplito.kotlin.privmx_endpoint.modules.core
 
 import com.simplito.kotlin.privmx_endpoint.model.Context
+import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
@@ -27,24 +28,26 @@ expect class Connection : AutoCloseable {
          * @param userPrivKey user's private key
          * @param solutionId  ID of the Solution
          * @param bridgeUrl   PrivMX Bridge server URL
+         * @param verificationOptions
          * @return Connection object
          * @throws PrivmxException thrown when method encounters an exception
          * @throws NativeException thrown when method encounters an unknown exception
          */
         @Throws(PrivmxException::class, NativeException::class)
-        fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String): Connection
+        fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String, verificationOptions: PKIVerificationOptions? = null): Connection
 
         /**
          * Connects to PrivMX Bridge server as a guest user.
          *
          * @param solutionId ID of the Solution
          * @param bridgeUrl  PrivMX Bridge server URL
+         * @param verificationOptions
          * @return Connection object
          * @throws PrivmxException thrown when method encounters an exception
          * @throws NativeException thrown when method encounters an unknown exception
          */
         @Throws(PrivmxException::class, NativeException::class)
-        fun connectPublic(solutionId: String, bridgeUrl: String): Connection
+        fun connectPublic(solutionId: String, bridgeUrl: String, verificationOptions: PKIVerificationOptions? = null): Connection
 
         /**
          * Allows to set path to the SSL certificate file.
