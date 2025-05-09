@@ -13,6 +13,7 @@ package com.simplito.kotlin.privmx_endpoint.modules.core
 
 import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.Context
+import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
@@ -45,6 +46,7 @@ actual class Connection private constructor(
             userPrivKey: String,
             solutionId: String,
             bridgeUrl: String,
+            verificationOptions: PKIVerificationOptions?
         ): Connection
 
         /**
@@ -61,6 +63,7 @@ actual class Connection private constructor(
         actual external fun connectPublic(
             solutionId: String,
             bridgeUrl: String,
+            verificationOptions: PKIVerificationOptions?
         ): Connection
 
         /**
