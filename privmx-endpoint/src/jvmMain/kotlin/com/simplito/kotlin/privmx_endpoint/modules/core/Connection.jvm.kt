@@ -13,7 +13,9 @@ package com.simplito.kotlin.privmx_endpoint.modules.core
 
 import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.Context
+import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
+import com.simplito.kotlin.privmx_endpoint.model.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
@@ -45,6 +47,7 @@ actual class Connection private constructor(
             userPrivKey: String,
             solutionId: String,
             bridgeUrl: String,
+            verificationOptions: PKIVerificationOptions?
         ): Connection
 
         /**
@@ -61,6 +64,7 @@ actual class Connection private constructor(
         actual external fun connectPublic(
             solutionId: String,
             bridgeUrl: String,
+            verificationOptions: PKIVerificationOptions?
         ): Connection
 
         /**
@@ -97,6 +101,7 @@ actual class Connection private constructor(
      * @param limit     limit of elements to return for query
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
      * @return list of Contexts
      * @throws IllegalStateException thrown when instance is not connected
      * @throws PrivmxException       thrown when method encounters an exception
@@ -108,8 +113,22 @@ actual class Connection private constructor(
         skip: Long,
         limit: Long,
         sortOrder: String,
-        lastId: String?
+        lastId: String?,
+        queryAsJson: String?
     ): PagingList<Context>
+
+    /**
+     * Sets user's custom verification callback.
+     *
+     * The feature allows the developer to set up a callback for user verification.
+     * A developer can implement an interface and pass the implementation to the function.
+     * Each time data is read from the container, a callback will be triggered, allowing the developer to validate the sender in an external service,
+     * e.g. Developers Application Server or PKI Server.
+     *
+     * @param userVerifier an implementation of the [UserVerifierInterface]
+     * @throws IllegalStateException thrown when instance is not connected.
+     */
+    actual external fun setUserVerifier(userVerifier: UserVerifierInterface)
 
     /**
      * Disconnects from PrivMX Bridge server.
