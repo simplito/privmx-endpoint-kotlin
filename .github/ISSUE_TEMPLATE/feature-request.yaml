@@ -1,0 +1,38 @@
+name: Feature request
+description: Suggest an idea for this project
+title: "[FEATURE]:"
+labels: [ 'enhancement' ]
+assignees:
+  - "djenczewski"
+body:
+  - type: textarea
+    id: Problem
+    attributes:
+      label: Problem
+      placeholder: Briefly describe the problem your feature request addresses.
+    validations:
+      required: true
+  - type: textarea
+    id: Proposed-Solution
+    attributes:
+      label: Proposed Solution
+      placeholder: Describe the desired solution clearly and concisely.
+    validations:
+      required: true
+  - type: textarea
+    id: Alternatives-Considered
+    attributes:
+      label: Alternatives Considered
+      placeholder: Describe any alternative solutions or features you have thought about.
+  - type: textarea
+    id: Additional-Context
+    attributes:
+      label: Additional Context
+      placeholder: Add any other context or attach screenshots related to the feature request here.
+  - type: checkboxes
+    id: feature-request-unique-confirmation
+    attributes:
+      label: "Search the feature requests assigned to this project to ensure you're not duplicating."
+      options:
+        - label: I confirm that this feature request has not already been logged.
+          required: true

@@ -1,0 +1,108 @@
+name: Bug report
+description: Create a report to help us improve
+title: "[BUG]: "
+labels: [ 'bug' ]
+assignees:
+  - "djenczewski"
+body:
+  - type: textarea
+    id: Description
+    attributes:
+      label: Description
+      placeholder: Briefly describe the issue.
+    validations:
+      required: true
+  - type: textarea
+    id: Steps-to-Reproduce
+    attributes:
+      label: Steps to Reproduce
+      placeholder: "1. Go to '...'
+
+            2. Click on '...'
+
+            3. Scroll to '...'
+            
+            4. Observe the error.
+      "
+    validations:
+      required: true
+  - type: textarea
+    id: Expected-Behavior
+    attributes:
+      label: Expected Behavior
+      placeholder: "Describe what you expected to happen."
+    validations:
+      required: true
+  - type: textarea
+    id: Screenshots-or-Logs
+    attributes:
+      label: Screenshots or Logs
+      placeholder: "If applicable, attach screenshots or relevant logs to help illustrate the issue."
+  - type: textarea
+    id: Additional-Context
+    attributes:
+      label: Additional Context
+      placeholder: Add any other context about the problem here.
+  - type: markdown
+    id: Device-Details
+    attributes:
+      value: "## **Device Details**"
+  - type: input
+    id: Device
+    attributes:
+      label: Device
+      placeholder: "Google Pixel 9"
+  - type: input
+    id: Os-Version
+    attributes:
+      label: Operating system and version
+      placeholder: "Android 15"
+  - type: input
+    id: cpu-arch
+    attributes:
+      label: CPU Architecture or Android ABI
+      placeholder: "x86 / arm64-v8a"
+  - type: markdown
+    id: package-used
+    attributes:
+      value: "## **Endpoint Library Used**"
+  - type: dropdown
+    id: package-name
+    attributes:
+      label: Package name
+      options:
+        - PrivMX Endpoint
+        - PrivMX Endpoint Extra
+    validations:
+      required: true
+  - type: input
+    id: package-version
+    attributes:
+      label: Package version
+      placeholder: ">=2.0 / 2.0.5"
+    validations:
+      required: true
+  - type: markdown
+    id: Project-Details
+    attributes:
+      value: "## **Project Details**"
+  - type: input
+    id: Language
+    attributes:
+      label: Language
+      placeholder: "Java 21 / Kotlin 2.0"
+  - type: input
+    id: Environment-Version
+    attributes:
+      label: Environment
+      placeholder: "Android Studio Ladybug 2024.2.2"
+  - type: markdown
+    attributes:
+      value: "## **Optionally**"
+  - type: input
+    attributes:
+      label: "Link to the reproducible code repository."
+  - type: textarea
+    attributes:
+      label: Include the specific code block causing the error in a code snippet
+      render: java
