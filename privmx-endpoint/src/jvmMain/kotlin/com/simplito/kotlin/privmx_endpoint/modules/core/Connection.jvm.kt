@@ -15,6 +15,7 @@ import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
+import com.simplito.kotlin.privmx_endpoint.model.UserInfo
 import com.simplito.kotlin.privmx_endpoint.model.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
@@ -129,6 +130,15 @@ actual class Connection private constructor(
      * @throws IllegalStateException thrown when instance is not connected.
      */
     actual external fun setUserVerifier(userVerifier: UserVerifierInterface)
+
+    /**
+     * Gets a list of users of given context.
+     *
+     * @param contextId ID of the context
+     * @return vector containing a list of users Info
+     */
+    @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
+    actual external fun getContextUsers(contextId: String): List<UserInfo>
 
     /**
      * Disconnects from PrivMX Bridge server.
