@@ -12,10 +12,10 @@ expect object Base32 {
     /**
      * Decodes string in Base32 to buffer.
      *
-     * @param base32_data string to decode
+     * @param base32Data string to decode
      * @return buffer with decoded data
      */
-    fun decode(base32_data: String): ByteArray
+    fun decode(base32Data: String): ByteArray
 
     /**
      * Checks if given string is in Base32 format.

@@ -12,10 +12,10 @@ expect object Hex {
     /**
      * Decodes string in Hex to buffer.
      *
-     * @param hex_data string to decode
+     * @param hexData string to decode
      * @return buffer with decoded data
      */
-    fun decode(hex_data: String): ByteArray
+    fun decode(hexData: String): ByteArray
 
     /**
      * Checks if given string is in Hex format.

@@ -12,10 +12,10 @@ expect object Base64 {
     /**
      * Decodes string in Base64 to buffer.
      *
-     * @param base64_data string to decode
+     * @param base64Data string to decode
      * @return buffer with decoded data
      */
-    fun decode(base64_data: String): ByteArray
+    fun decode(base64Data: String): ByteArray
 
     /**
      * Checks if given string is in Base64 format.
