@@ -147,6 +147,7 @@ actual constructor(
      * @param limit     limit of elements to return for query
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
      * @return list of Inboxes
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -157,7 +158,12 @@ actual constructor(
     )
     @JvmOverloads
     actual external fun listInboxes(
-        contextId: String, skip: Long, limit: Long, sortOrder: String, lastId: String?
+        contextId: String,
+        skip: Long,
+        limit: Long,
+        sortOrder: String,
+        lastId: String?,
+        queryAsJson: String?
     ): PagingList<Inbox>
 
     /**
@@ -244,6 +250,7 @@ actual constructor(
      * @param limit     limit of elements to return for query
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
      * @return list of entries
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -254,7 +261,12 @@ actual constructor(
     )
     @JvmOverloads
     actual external fun listEntries(
-        inboxId: String, skip: Long, limit: Long, sortOrder: String, lastId: String?
+        inboxId: String,
+        skip: Long,
+        limit: Long,
+        sortOrder: String,
+        lastId: String?,
+        queryAsJson: String?
     ): PagingList<InboxEntry>
 
     /**
