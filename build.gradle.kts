@@ -46,8 +46,6 @@ listOf(
     currentProject.apply(plugin = "org.jetbrains.dokka")
     currentProject.tasks.register<DokkaTaskPartial>("privmxEndpointHtmlPartial") {
         (currentProject.dokkaTaskConfiguration)()
-    }
-    currentProject.tasks.withType<DokkaTask>().configureEach {
         dokkaSourceSets {
             configureEach {
                 documentedVisibilities.set(
@@ -56,6 +54,7 @@ listOf(
                         Visibility.PROTECTED
                     )
                 )
+                includes.from(currentProject.file("README.md"))
             }
         }
     }
@@ -131,7 +130,7 @@ tasks.register<DokkaMultiModuleTask>("privmxEndpointHtmlMultiModule") {
         // previous versions included, so it's ready to be published.
         // Make sure it's copied and not moved - you'll still need this
         // version for future builds
-        println(currentDocsDir.copyRecursively(latestDocsDir, overwrite = true))
+        currentDocsDir.copyRecursively(latestDocsDir, overwrite = true)
 
 
         // Only once current documentation has been safely moved,
@@ -283,6 +282,9 @@ val Project.dokkaTaskConfiguration: AbstractDokkaTask.() -> Unit
         outputDirectory.set(file(layout.buildDirectory.file("dokka/$taskName")))
         pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
             templatesDir = file(rootProject.layout.projectDirectory.file("docs/templates"))
+            customAssets = listOf(
+                rootProject.layout.projectDirectory.file("docs/images/logo-icon.svg").asFile,
+            )
             customStyleSheets = listOf(
                 rootProject.layout.projectDirectory.file("docs/styles/style.css").asFile,
                 rootProject.layout.projectDirectory.file("docs/styles/main.css").asFile,
