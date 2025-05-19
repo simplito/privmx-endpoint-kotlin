@@ -10,6 +10,8 @@
 //
 package com.simplito.kotlin.privmx_endpoint.model.exceptions
 
+import kotlin.jvm.JvmOverloads
+
 /**
  * Thrown when a PrivMX Endpoint method encounters an exception.
  *
@@ -20,12 +22,13 @@ package com.simplito.kotlin.privmx_endpoint.model.exceptions
  * @property name        special name for this exception
  */
 class PrivmxException
+@JvmOverloads
 internal constructor(
     message: String,
     val description: String,
     val scope: String,
     private val code: Int,
-    val name: String
+    val name: String = ""
 ) : RuntimeException(message) {
     /**
      * Returns full information about the exception.
