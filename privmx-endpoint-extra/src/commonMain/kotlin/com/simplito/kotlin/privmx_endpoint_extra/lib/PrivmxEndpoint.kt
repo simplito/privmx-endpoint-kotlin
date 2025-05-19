@@ -199,7 +199,7 @@ constructor(
     ) {
         companion object {
             fun fromString(channel: String): Channel? {
-                return Regex("(?<module>(?:(?!/).)*)(/(?<instanceId>(?:(?!/).)*)/(?<type>(?:(?!/).)*))?")
+                return Regex("(?<module>(?:(?!/).)*)(?:/(?<instanceId>(?:(?!/).)*)/(?<type>(?:(?!/).)*))?")
                     .find(channel)
                     ?.run {
                         val (module, instanceId, type) = this.destructured
