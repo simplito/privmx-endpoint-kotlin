@@ -61,7 +61,7 @@ JniContextUtils::Object JniContextUtils::getObject(jobject obj) {
 jthrowable
 JniContextUtils::coreException2jthrowable(privmx::endpoint::core::Exception exception_c) {
     jclass exceptionCls = _env->FindClass(
-            "com/simplito/java/privmx_endpoint/model/exceptions/PrivmxException");
+            "com/simplito/kotlin/privmx_endpoint/model/exceptions/PrivmxException");
     jmethodID initExceptionMID = _env->GetMethodID(exceptionCls, "<init>",
                                                    "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V");
     return (jthrowable) _env->NewObject(
@@ -109,29 +109,4 @@ bool JniContextUtils::nullCheck(void *value, std::string value_name) {
         return true;
     }
     return false;
-}
-
-void JniContextUtils::callVoidEndpointApi(const std::function<void()> &fun) {
-    try {
-        fun();
-    } catch (const privmx::endpoint::core::Exception &e) {
-        _env->Throw(coreException2jthrowable(e));
-    } catch (const IllegalStateException &e) {
-        _env->ThrowNew(
-                _env->FindClass("java/lang/IllegalStateException"),
-                e.what()
-        );
-    } catch (const std::exception &e) {
-        _env->ThrowNew(
-                _env->FindClass(
-                        "com/simplito/java/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        _env->ThrowNew(
-                _env->FindClass(
-                        "com/simplito/java/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
-    }
 }

@@ -92,7 +92,7 @@ parseContainerPolicy(JniContextUtils &ctx, jobject containerPolicy) {
 
     jfieldID item = ctx->GetFieldID(policyClass,
                                     "item",
-                                    "Lcom/simplito/java/privmx_endpoint/model/ItemPolicy;");
+                                    "Lcom/simplito/kotlin/privmx_endpoint/model/ItemPolicy;");
     jstring value;
     if ((value = (jstring) ctx->GetObjectField(containerPolicy, get)) != NULL) {
         result.get = ctx.jString2string(value);
@@ -155,7 +155,7 @@ parseItemPolicy(JniContextUtils &ctx, jobject itemPolicy) {
 privmx::endpoint::inbox::FilesConfig parseFilesConfig(JniContextUtils &ctx, jobject filesConfig) {
     auto result = privmx::endpoint::inbox::FilesConfig();
     jclass filesConfigCls = ctx->FindClass(
-            "com/simplito/java/privmx_endpoint/model/FilesConfig");
+            "com/simplito/kotlin/privmx_endpoint/model/FilesConfig");
     jfieldID minCountFID = ctx->GetFieldID(filesConfigCls, "minCount", "Ljava/lang/Long;");
     jfieldID maxCountFID = ctx->GetFieldID(filesConfigCls, "maxCount", "Ljava/lang/Long;");
     jfieldID maxFileSizeFID = ctx->GetFieldID(filesConfigCls, "maxFileSize", "Ljava/lang/Long;");
@@ -173,7 +173,7 @@ privmx::endpoint::inbox::FilesConfig parseFilesConfig(JniContextUtils &ctx, jobj
 jobject initEvent(JniContextUtils &ctx, std::string type, std::string channel, int64_t connectionId,
                   jobject data_j) {
     if (type.empty()) return nullptr;
-    jclass eventCls = ctx->FindClass("com/simplito/java/privmx_endpoint/model/Event");
+    jclass eventCls = ctx->FindClass("com/simplito/kotlin/privmx_endpoint/model/Event");
     jmethodID eventInitMID = ctx->GetMethodID(eventCls, "<init>", "()V");
     jfieldID eventTypeFieldID = ctx->GetFieldID(eventCls, "type", "Ljava/lang/String;");
     jfieldID eventDataFieldID = ctx->GetFieldID(eventCls, "data", "Ljava/lang/Object;");

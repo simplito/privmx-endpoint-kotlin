@@ -14,10 +14,8 @@
 
 #include <string>
 #include <jni.h>
-#include <functional>
 #include <privmx/endpoint/core/Exception.hpp>
 #include "privmx/endpoint/core/Exception.hpp"
-#include "exceptions.h"
 
 class JniContextUtils {
 public:
@@ -61,33 +59,6 @@ public:
 
     bool nullCheck(void *value, std::string value_name);
 
-    template<typename T>
-    void callResultEndpointApi(T *result, const std::function<T()> &fun) {
-        try {
-            *result = fun();
-        } catch (const privmx::endpoint::core::Exception &e) {
-            _env->Throw(coreException2jthrowable(e));
-        } catch (const IllegalStateException &e) {
-            _env->ThrowNew(
-                    _env->FindClass("java/lang/IllegalStateException"),
-                    e.what()
-            );
-        } catch (const std::exception &e) {
-            _env->ThrowNew(
-                    _env->FindClass(
-                            "com/simplito/java/privmx_endpoint/model/exceptions/NativeException"),
-                    e.what()
-            );
-        } catch (...) {
-            _env->ThrowNew(
-                    _env->FindClass(
-                            "com/simplito/java/privmx_endpoint/model/exceptions/NativeException"),
-                    "Unknown exception"
-            );
-        }
-    }
-
-    void callVoidEndpointApi(const std::function<void()> &fun);
 
 private:
     JNIEnv *_env;
