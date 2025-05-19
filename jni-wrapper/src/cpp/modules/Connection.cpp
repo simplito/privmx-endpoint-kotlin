@@ -130,7 +130,6 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_core_Connection_disconnect(
     JniContextUtils ctx(env);
     try {
         getConnection(env, thiz)->disconnect();
-        Java_com_simplito_kotlin_privmx_1endpoint_modules_core_Connection_deinit(env, thiz);
     } catch (const privmx::endpoint::core::Exception &e) {
         env->Throw(ctx.coreException2jthrowable(e));
     } catch (const IllegalStateException &e) {
