@@ -87,7 +87,15 @@ actual class Connection private constructor(
      * disconnects from PrivMX Bridge and frees memory making this instance not reusable.
      */
     actual override fun close() {
-        deinit()
+        if (api != null) {
+            try {
+                disconnect()
+            } catch (e: PrivmxException) {
+                //if endpoint not throw exception about disconnected state
+                if (e.getCode() != 131073u) throw e
+            }
+            deinit()
+        }
     }
 
     /**
