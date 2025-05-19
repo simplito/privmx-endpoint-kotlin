@@ -215,8 +215,12 @@ private fun convertToPson(value: PsonValue<Any>): CPointer<pson_value> = memScop
         is PsonValue.PsonFloat -> pson_new_float32(value.getValue())
         is PsonValue.PsonNull -> pson_new_null()
         is PsonValue.PsonBinary -> {
-            value.getValue().usePinned { pinned ->
-                pson_new_binary(pinned.addressOf(0), value.getValue().size.toULong())
+            if(value.getValue().isEmpty()){
+                pson_new_binary(alloc<ByteVar>().ptr, value.getValue().size.toULong())
+            }else {
+                value.getValue().usePinned { pinned ->
+                    pson_new_binary(pinned.addressOf(0), value.getValue().size.toULong())
+                }
             }
         }
 

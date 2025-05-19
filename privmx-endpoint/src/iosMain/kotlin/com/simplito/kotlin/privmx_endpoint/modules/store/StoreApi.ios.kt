@@ -109,7 +109,7 @@ actual constructor(connection: Connection) :
             managers.map { it.pson }.pson,
             publicMeta.pson,
             privateMeta.pson,
-            policies?.pson
+            policies?.pson ?: KPSON_NULL
         )
         try {
             privmx_endpoint_execStoreApi(nativeStoreApi.value, 1, args, pson_result.ptr)

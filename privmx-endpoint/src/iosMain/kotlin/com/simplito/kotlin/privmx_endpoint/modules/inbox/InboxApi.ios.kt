@@ -29,6 +29,7 @@ import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
 import com.simplito.kotlin.privmx_endpoint.utils.asResponse
 import com.simplito.kotlin.privmx_endpoint.utils.makeArgs
 import com.simplito.kotlin.privmx_endpoint.utils.mapOfWithNulls
+import com.simplito.kotlin.privmx_endpoint.utils.nullablePson
 import com.simplito.kotlin.privmx_endpoint.utils.pson
 import com.simplito.kotlin.privmx_endpoint.utils.toInbox
 import com.simplito.kotlin.privmx_endpoint.utils.toInboxEntry
@@ -355,7 +356,7 @@ actual constructor(
             inboxId.pson,
             data.pson,
             inboxFileHandles.map { it.pson }.pson,
-            userPrivKey?.pson,
+            userPrivKey.nullablePson,
         )
         try {
             privmx_endpoint_execInboxApi(nativeInboxApi.value, 7, args, pson_result.ptr)
