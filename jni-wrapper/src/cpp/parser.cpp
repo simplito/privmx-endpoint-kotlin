@@ -174,34 +174,24 @@ jobject initEvent(JniContextUtils &ctx, std::string type, std::string channel, i
                   jobject data_j) {
     if (type.empty()) return nullptr;
     jclass eventCls = ctx->FindClass("com/simplito/kotlin/privmx_endpoint/model/Event");
-    jmethodID eventInitMID = ctx->GetMethodID(eventCls, "<init>", "()V");
-    jfieldID eventTypeFieldID = ctx->GetFieldID(eventCls, "type", "Ljava/lang/String;");
-    jfieldID eventDataFieldID = ctx->GetFieldID(eventCls, "data", "Ljava/lang/Object;");
-    jfieldID eventConnectionIdFieldID = ctx->GetFieldID(eventCls, "connectionId",
-                                                        "Ljava/lang/Long;");
-    jfieldID eventChannelFieldID = ctx->GetFieldID(eventCls, "channel", "Ljava/lang/String;");
-    jobject event_j = ctx->NewObject(eventCls, eventInitMID);
-    ctx->SetObjectField(
-            event_j,
-            eventTypeFieldID,
-            ctx->NewStringUTF(type.c_str())
-    );
-    ctx->SetObjectField(
-            event_j,
-            eventDataFieldID,
+    jmethodID eventInitMID = ctx->GetMethodID(
+            eventCls,
+            "<init>",
+            "("
+            "Ljava/lang/String;"
+            "Ljava/lang/String;"
+            "Ljava/lang/Long;"
+            "Ljava/lang/Object;"
+            ")V"
+            );
+    return ctx->NewObject(
+            eventCls,
+            eventInitMID,
+            ctx->NewStringUTF(type.c_str()),
+            ctx->NewStringUTF(channel.c_str()),
+            ctx.long2jLong(connectionId),
             data_j
     );
-    ctx->SetObjectField(
-            event_j,
-            eventConnectionIdFieldID,
-            ctx.long2jLong(connectionId)
-    );
-    ctx->SetObjectField(
-            event_j,
-            eventChannelFieldID,
-            ctx->NewStringUTF(channel.c_str())
-    );
-    return event_j;
 }
 
 jobject
@@ -415,7 +405,7 @@ parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core::Event> 
                     event->type,
                     event->channel,
                     event->connectionId,
-                    nullptr
+                    ctx.getKotlinUnit()
             );
         }
     } catch (const std::exception &e) {
