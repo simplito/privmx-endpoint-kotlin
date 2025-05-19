@@ -110,3 +110,9 @@ bool JniContextUtils::nullCheck(void *value, std::string value_name) {
     }
     return false;
 }
+
+jobject JniContextUtils::getKotlinUnit() {
+    jclass unitCls = _env->FindClass("kotlin/Unit");
+    jfieldID unitInstanceFID = _env->GetStaticFieldID(unitCls, "INSTANCE", "Lkotlin/Unit;");
+    return _env->GetStaticObjectField(unitCls, unitInstanceFID);
+}

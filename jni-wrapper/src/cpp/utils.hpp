@@ -57,6 +57,8 @@ public:
 
     jobject int2jInteger(int value);
 
+    jobject getKotlinUnit();
+
     bool nullCheck(void *value, std::string value_name);
 
 
