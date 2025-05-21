@@ -9,7 +9,7 @@ import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
  * @property extKey BIP-39 mnemonic
  * @property entropy BIP-39 entropy
  */
-data class BIP39_t(
+data class BIP39(
     val mnemonic: String,
     val extKey: ExtKey,
     val entropy: ByteArray
@@ -18,7 +18,7 @@ data class BIP39_t(
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as BIP39_t
+        other as BIP39
 
         if (mnemonic != other.mnemonic) return false
         if (extKey != other.extKey) return false
