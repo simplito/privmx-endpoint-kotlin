@@ -26,6 +26,8 @@ import com.simplito.kotlin.privmx_endpoint.model.ServerFileInfo
 import com.simplito.kotlin.privmx_endpoint.model.ServerMessageInfo
 import com.simplito.kotlin.privmx_endpoint.model.Store
 import com.simplito.kotlin.privmx_endpoint.model.Thread
+import com.simplito.kotlin.privmx_endpoint.model.UserInfo
+import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxEntryDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreDeletedEventData
@@ -35,12 +37,21 @@ import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue.PsonObject
-import kotlin.collections.get
 
 internal fun PsonObject.toContext(): Context = Context(
-        this["userId"]!!.typedValue(),
-        this["contextId"]!!.typedValue()
-    )
+    this["userId"]!!.typedValue(),
+    this["contextId"]!!.typedValue()
+)
+
+internal fun PsonObject.toUserWithPubKey(): UserWithPubKey = UserWithPubKey(
+    this["userId"]!!.typedValue(),
+    this["pubKey"]!!.typedValue()
+)
+
+internal fun PsonObject.toUserInfo(): UserInfo = UserInfo(
+    (this["user"] as PsonObject).toUserWithPubKey(),
+    this["isActive"]!!.typedValue()
+)
 
 internal fun PsonObject.toThread(): Thread = Thread(
     this["contextId"]!!.typedValue(),

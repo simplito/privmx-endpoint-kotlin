@@ -14,6 +14,7 @@ package com.simplito.kotlin.privmx_endpoint.modules.core
 import cnames.structs.pson_value
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
+import com.simplito.kotlin.privmx_endpoint.model.UserInfo
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.utils.PsonResponse
@@ -25,6 +26,7 @@ import com.simplito.kotlin.privmx_endpoint.utils.pson
 import com.simplito.kotlin.privmx_endpoint.utils.psonMapper
 import com.simplito.kotlin.privmx_endpoint.utils.toContext
 import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
+import com.simplito.kotlin.privmx_endpoint.utils.toUserInfo
 import com.simplito.kotlin.privmx_endpoint.utils.typedValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.allocPointerTo
@@ -195,6 +197,21 @@ actual class Connection private constructor() : AutoCloseable {
         try {
             privmx_endpoint_execConnection(nativeConnection.value, 2, args, result.ptr)
             result.value!!.asResponse?.getResultOrThrow()?.typedValue()
+        } finally {
+            pson_free_result(result.value)
+            pson_free_value(args)
+        }
+    }
+
+    @Throws(exceptionClasses = [IllegalStateException::class, PrivmxException::class, NativeException::class])
+    actual fun getContextUsers(contextId: String): List<UserInfo> = memScoped {
+        val result = allocPointerTo<pson_value>()
+        val args = makeArgs(contextId.pson)
+        try {
+            privmx_endpoint_execConnection(nativeConnection.value, 5, args, result.ptr)
+            val contextUsersList =
+                result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonArray<*>
+            contextUsersList.getValue().map { (it as PsonValue.PsonObject).toUserInfo() }
         } finally {
             pson_free_result(result.value)
             pson_free_value(args)
