@@ -30,7 +30,7 @@ expect class Connection : AutoCloseable {
          * @param userPrivKey user's private key
          * @param solutionId  ID of the Solution
          * @param bridgeUrl   PrivMX Bridge server URL
-         * @param verificationOptions
+         * @param verificationOptions PrivMX Bridge server instance verification options using a PKI server
          * @return Connection object
          * @throws PrivmxException thrown when method encounters an exception
          * @throws NativeException thrown when method encounters an unknown exception
@@ -48,7 +48,7 @@ expect class Connection : AutoCloseable {
          *
          * @param solutionId ID of the Solution
          * @param bridgeUrl  PrivMX Bridge server URL
-         * @param verificationOptions
+         * @param verificationOptions PrivMX Bridge server instance verification options using a PKI server
          * @return Connection object
          * @throws PrivmxException thrown when method encounters an exception
          * @throws NativeException thrown when method encounters an unknown exception
@@ -108,17 +108,23 @@ expect class Connection : AutoCloseable {
      * e.g. Developers Application Server or PKI Server.
      *
      * @param userVerifier an implementation of the [UserVerifierInterface]
-     * @throws IllegalStateException thrown when instance is not connected.
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    fun setUserVerifier(userVerifier: UserVerifierInterface)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun setUserVerifier(userVerifier: UserVerifierInterface): Unit
 
     /**
      * Gets a list of users of given context.
      *
      * @param contextId ID of the context
      * @return vector containing a list of users Info
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun getContextUsers(contextId: String): List<UserInfo>
 
     /**
