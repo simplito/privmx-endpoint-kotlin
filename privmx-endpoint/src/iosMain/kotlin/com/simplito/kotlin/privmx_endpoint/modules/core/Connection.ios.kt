@@ -13,10 +13,12 @@ package com.simplito.kotlin.privmx_endpoint.modules.core
 
 import cnames.structs.pson_value
 import com.simplito.kotlin.privmx_endpoint.model.Context
+import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserInfo
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.kotlin.privmx_endpoint.utils.KPSON_NULL
 import com.simplito.kotlin.privmx_endpoint.utils.PsonResponse
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
 import com.simplito.kotlin.privmx_endpoint.utils.asResponse
@@ -61,15 +63,26 @@ actual class Connection private constructor() : AutoCloseable {
          * @param userPrivKey user's private key
          * @param solutionId  ID of the Solution
          * @param bridgeUrl   PrivMX Bridge server URL
+         * @param verificationOptions PrivMX Bridge server instance verification options using a PKI server
          * @return Connection object
          * @throws PrivmxException thrown when method encounters an exception
          * @throws NativeException thrown when method encounters an unknown exception
          */
         @Throws(PrivmxException::class, NativeException::class)
-        actual fun connect(userPrivKey: String, solutionId: String, bridgeUrl: String): Connection =
+        actual fun connect(
+            userPrivKey: String,
+            solutionId: String,
+            bridgeUrl: String,
+            verificationOptions: PKIVerificationOptions?
+        ): Connection =
             Connection().apply {
                 memScoped {
-                    val args = makeArgs(userPrivKey.pson, solutionId.pson, bridgeUrl.pson)
+                    val args = makeArgs(
+                        userPrivKey.pson,
+                        solutionId.pson,
+                        bridgeUrl.pson,
+                        verificationOptions?.pson ?: KPSON_NULL
+                    )
                     val result = allocPointerTo<pson_value>().apply {
                         value = pson_new_object()
                     }
@@ -89,6 +102,7 @@ actual class Connection private constructor() : AutoCloseable {
          *
          * @param solutionId ID of the Solution
          * @param bridgeUrl  PrivMX Bridge server URL
+         * @param verificationOptions PrivMX Bridge server instance verification options using a PKI server
          * @return Connection object
          * @throws PrivmxException thrown when method encounters an exception
          * @throws NativeException thrown when method encounters an unknown exception
@@ -97,10 +111,15 @@ actual class Connection private constructor() : AutoCloseable {
         actual fun connectPublic(
             solutionId: String,
             bridgeUrl: String,
+            verificationOptions: PKIVerificationOptions?
         ): Connection = Connection().apply {
             memScoped {
                 val result = allocPointerTo<pson_value>()
-                val args = makeArgs(solutionId.pson, bridgeUrl.pson)
+                val args = makeArgs(
+                    solutionId.pson,
+                    bridgeUrl.pson,
+                    verificationOptions?.pson ?: KPSON_NULL
+                )
                 try {
                     privmx_endpoint_newConnection(_nativeConnection.ptr)
                     privmx_endpoint_execConnection(nativeConnection.value, 1, args, result.ptr)

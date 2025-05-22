@@ -15,6 +15,7 @@ import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
 import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
+import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 
 internal val ItemPolicy.pson: PsonValue.PsonObject
@@ -61,6 +62,12 @@ internal val FilesConfig.pson: PsonValue.PsonObject
         "maxCount" to maxCount.nullablePson,
         "maxFileSize" to maxFileSize.nullablePson,
         "maxWholeUploadSize" to maxWholeUploadSize.nullablePson,
+    ).pson
+
+internal val PKIVerificationOptions.pson: PsonValue.PsonObject
+    get() = mapOfWithNulls(
+        "bridgePubKey" to bridgePubKey.nullablePson,
+        "bridgeInstanceId" to bridgeInstanceId.nullablePson
     ).pson
 
 internal val String.pson: PsonValue.PsonString
