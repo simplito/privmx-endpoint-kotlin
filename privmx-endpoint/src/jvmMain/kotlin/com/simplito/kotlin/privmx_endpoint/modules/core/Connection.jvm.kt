@@ -108,8 +108,7 @@ actual class Connection private constructor(
         skip: Long,
         limit: Long,
         sortOrder: String,
-        lastId: String?,
-        queryAsJson: String?
+        lastId: String?
     ): PagingList<Context>
 
     /**
