@@ -36,6 +36,7 @@ import com.simplito.kotlin.privmx_endpoint.model.events.StoreStatsChangedEventDa
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
+import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue.PsonObject
 
 internal fun PsonObject.toContext(): Context = Context(
@@ -261,6 +262,7 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "inbox\$Inbox" to PsonObject::toInbox,
 )
 
+internal fun PsonObject.toExtKey(): ExtKey = ExtKey()
 
 @Throws(ClassCastException::class)
 internal inline fun <reified T : Any> PsonValue<Any>.typedValue(): T {
