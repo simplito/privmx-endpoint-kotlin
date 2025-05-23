@@ -11,7 +11,7 @@
 
 package com.simplito.kotlin.privmx_endpoint.utils
 
-import com.simplito.java.privmx_endpoint.model.BIP39_t
+import com.simplito.java.privmx_endpoint.model.BIP39
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.Event
@@ -265,7 +265,7 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
 
 internal fun PsonObject.toExtKey(): ExtKey = ExtKey()
 
-internal fun PsonObject.toBip39(): BIP39_t = BIP39_t(
+internal fun PsonObject.toBip39(): BIP39 = BIP39(
     this["mnemonic"]!!.typedValue(),
     (this["extKey"] as PsonObject?)?.toExtKey()!!,
     this["entropy"]?.typedValue()!!

@@ -12,7 +12,7 @@
 package com.simplito.kotlin.privmx_endpoint.modules.crypto
 
 import cnames.structs.pson_value
-import com.simplito.java.privmx_endpoint.model.BIP39_t
+import com.simplito.java.privmx_endpoint.model.BIP39
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.utils.KPSON_NULL
@@ -345,7 +345,7 @@ actual class CryptoApi : AutoCloseable {
     actual fun generateBip39(
         strength: Long?,
         password: String?
-    ): BIP39_t = memScoped {
+    ): BIP39 = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             strength?.pson ?: KPSON_NULL,
@@ -370,7 +370,7 @@ actual class CryptoApi : AutoCloseable {
     actual fun fromMnemonic(
         mnemonic: String,
         password: String?
-    ): BIP39_t = memScoped {
+    ): BIP39 = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             mnemonic.pson,
@@ -395,7 +395,7 @@ actual class CryptoApi : AutoCloseable {
     actual fun fromEntropy(
         entropy: ByteArray,
         password: String?
-    ): BIP39_t = memScoped {
+    ): BIP39 = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             entropy.pson,
