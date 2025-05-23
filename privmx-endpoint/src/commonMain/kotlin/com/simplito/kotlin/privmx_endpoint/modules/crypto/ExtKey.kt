@@ -97,17 +97,19 @@ expect class ExtKey : AutoCloseable {
     fun getPublicKeyAsBase58Address(): String
 
     /**
+     * Gets the chain code of Extended Key.
+     *
      * @return Raw chain code
-     * //     * @brief Gets the chain code of Extended Key.     //todo
      */
     @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
     fun getChainCode(): ByteArray
 
     /**
+     * Validates a signature of a message.
+     *
      * @param message   data used on validation
      * @param signature signature of data to verify
      * @return message validation result
-     * //     * @brief Validates a signature of a message.      //todo
      */
     @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
     fun verifyCompactSignatureWithHash(message: ByteArray, signature: ByteArray): Boolean
