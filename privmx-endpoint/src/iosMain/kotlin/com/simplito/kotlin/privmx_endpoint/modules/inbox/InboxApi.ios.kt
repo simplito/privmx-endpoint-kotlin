@@ -261,7 +261,7 @@ actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun listInboxes(
-        contextId: String, skip: Long, limit: Long, sortOrder: String, lastId: String?
+        contextId: String, skip: Long, limit: Long, sortOrder: String, lastId: String?, queryAsJson: String?
     ): PagingList<Inbox> = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -269,7 +269,9 @@ actual constructor(
                 "skip" to skip.pson,
                 "limit" to limit.pson,
                 "sortOrder" to sortOrder.pson,
-                lastId?.let { "lastId" to lastId.pson }).pson
+                lastId?.let { "lastId" to lastId.pson },
+                queryAsJson?.let { "queryAsJson" to queryAsJson.pson }
+            ).pson
         )
         try {
             privmx_endpoint_execInboxApi(nativeInboxApi.value, 4, args, pson_result.ptr)
@@ -424,6 +426,7 @@ actual constructor(
      * @param limit     limit of elements to return for query
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
      * @return list of entries
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -433,7 +436,7 @@ actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun listEntries(
-        inboxId: String, skip: Long, limit: Long, sortOrder: String, lastId: String?
+        inboxId: String, skip: Long, limit: Long, sortOrder: String, lastId: String?, queryAsJson: String?
     ): PagingList<InboxEntry> = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -441,7 +444,9 @@ actual constructor(
                 "skip" to skip.pson,
                 "limit" to limit.pson,
                 "sortOrder" to sortOrder.pson,
-                lastId?.let { "lastId" to lastId.pson }).pson
+                lastId?.let { "lastId" to lastId.pson },
+                queryAsJson?.let { "queryAsJson" to queryAsJson.pson }
+            ).pson
         )
         try {
             privmx_endpoint_execInboxApi(nativeInboxApi.value, 10, args, pson_result.ptr)
