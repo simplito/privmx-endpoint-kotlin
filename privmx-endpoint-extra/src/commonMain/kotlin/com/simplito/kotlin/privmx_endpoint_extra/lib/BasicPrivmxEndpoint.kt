@@ -14,6 +14,7 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
+import com.simplito.kotlin.privmx_endpoint.modules.event.EventApi
 import com.simplito.kotlin.privmx_endpoint.modules.inbox.InboxApi
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
 import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
@@ -72,6 +73,12 @@ constructor(
     ) else null
 
     /**
+     * Reference to CustomEvent module.
+     */
+    val eventApi: EventApi? =
+        if (enableModule.contains(Modules.CUSTOM_EVENT)) EventApi(connection) else null
+
+    /**
      * Disconnects from PrivMX Bridge and frees memory.
      *
      * @throws Exception when instance is currently closed
@@ -80,6 +87,7 @@ constructor(
         threadApi?.close()
         storeApi?.close()
         inboxApi?.close()
+        eventApi?.close()
         connection.close()
     }
 }
