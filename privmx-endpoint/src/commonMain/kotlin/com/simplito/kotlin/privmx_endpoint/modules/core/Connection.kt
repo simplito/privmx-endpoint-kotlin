@@ -137,6 +137,15 @@ expect class Connection : AutoCloseable {
     fun getContextUsers(contextId: String): List<UserInfo>
 
     /**
+     * Gets a list of users of given context.
+     *
+     * @param contextId ID of the context
+     * @return vector containing a list of users Info
+     */
+    @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
+    fun getContextUsers(contextId: String): List<UserInfo>
+
+    /**
      * Disconnects from PrivMX Bridge server.
      *
      * @throws IllegalStateException thrown when instance is not connected or closed
