@@ -208,6 +208,7 @@ actual constructor(connection: Connection) :
      * @param limit     limit of elements to return for query
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
      * @return list of Stores
      * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
@@ -219,7 +220,8 @@ actual constructor(connection: Connection) :
         skip: Long,
         limit: Long,
         sortOrder: String,
-        lastId: String?
+        lastId: String?,
+        queryAsJson: String?
     ): PagingList<Store> = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -228,7 +230,8 @@ actual constructor(connection: Connection) :
                 "skip" to skip.pson,
                 "limit" to limit.pson,
                 "sortOrder" to sortOrder.pson,
-                lastId?.let { "lastId" to lastId.pson }
+                lastId?.let { "lastId" to lastId.pson },
+                queryAsJson?.let { "queryAsJson" to queryAsJson.pson }
             ).pson
         )
         try {
@@ -477,6 +480,7 @@ actual constructor(connection: Connection) :
      * @param limit     limit of elements to return for query
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
      * @return list of files
      * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
@@ -492,7 +496,8 @@ actual constructor(connection: Connection) :
         skip: Long,
         limit: Long,
         sortOrder: String,
-        lastId: String?
+        lastId: String?,
+        queryAsJson: String?
     ): PagingList<File> = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -501,7 +506,8 @@ actual constructor(connection: Connection) :
                 "skip" to skip.pson,
                 "limit" to limit.pson,
                 "sortOrder" to sortOrder.pson,
-                lastId?.let { "lastId" to lastId.pson }
+                lastId?.let { "lastId" to lastId.pson },
+                queryAsJson?.let { "queryAsJson" to queryAsJson.pson }
             ).pson
         )
         try {
