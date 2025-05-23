@@ -12,11 +12,15 @@
 package com.simplito.kotlin.privmx_endpoint.modules.crypto
 
 import cnames.structs.pson_value
+import com.simplito.java.privmx_endpoint.model.BIP39_t
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.kotlin.privmx_endpoint.utils.KPSON_NULL
+import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
 import com.simplito.kotlin.privmx_endpoint.utils.asResponse
 import com.simplito.kotlin.privmx_endpoint.utils.makeArgs
 import com.simplito.kotlin.privmx_endpoint.utils.pson
+import com.simplito.kotlin.privmx_endpoint.utils.toBip39
 import com.simplito.kotlin.privmx_endpoint.utils.typedValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.allocPointerTo
@@ -305,6 +309,161 @@ actual class CryptoApi : AutoCloseable {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
                 6,
+                args,
+                result.ptr
+            )
+            result.value!!.asResponse
+                ?.getResultOrThrow()
+                ?.typedValue()!!
+        } finally {
+            pson_free_result(result.value)
+            pson_free_value(args)
+        }
+    }
+
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class])
+    actual fun convertPGPAsn1KeyToBase58DERKey(pgpKey: String): String = memScoped {
+        val result = allocPointerTo<pson_value>()
+        val args = makeArgs(pgpKey.pson)
+        try {
+            privmx_endpoint_execCryptoApi(
+                nativeCryptoApi.value,
+                17,
+                args,
+                result.ptr
+            )
+            result.value!!.asResponse
+                ?.getResultOrThrow()
+                ?.typedValue()!!
+        } finally {
+            pson_free_result(result.value)
+            pson_free_value(args)
+        }
+    }
+
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class])
+    actual fun generateBip39(
+        strength: Long?,
+        password: String?
+    ): BIP39_t = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            strength?.pson ?: KPSON_NULL,
+            password?.pson ?: KPSON_NULL
+        )
+        try {
+            privmx_endpoint_execCryptoApi(
+                nativeCryptoApi.value,
+                11,
+                args,
+                pson_result.ptr
+            )
+            val result = pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+            result.toBip39()
+        } finally {
+            pson_free_result(pson_result.value)
+            pson_free_value(args)
+        }
+    }
+
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class])
+    actual fun fromMnemonic(
+        mnemonic: String,
+        password: String?
+    ): BIP39_t = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            mnemonic.pson,
+            password?.pson ?: KPSON_NULL
+        )
+        try {
+            privmx_endpoint_execCryptoApi(
+                nativeCryptoApi.value,
+                12,
+                args,
+                pson_result.ptr
+            )
+            val result = pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+            result.toBip39()
+        } finally {
+            pson_free_result(pson_result.value)
+            pson_free_value(args)
+        }
+    }
+
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class])
+    actual fun fromEntropy(
+        entropy: ByteArray,
+        password: String?
+    ): BIP39_t = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            entropy.pson,
+            password?.pson ?: KPSON_NULL
+        )
+        try {
+            privmx_endpoint_execCryptoApi(
+                nativeCryptoApi.value,
+                13,
+                args,
+                pson_result.ptr
+            )
+            val result = pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+            result.toBip39()
+        } finally {
+            pson_free_result(pson_result.value)
+            pson_free_value(args)
+        }
+    }
+
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class])
+    actual fun entropyToMnemonic(entropy: ByteArray): String = memScoped {
+        val result = allocPointerTo<pson_value>()
+        val args = makeArgs(entropy.pson)
+        try {
+            privmx_endpoint_execCryptoApi(
+                nativeCryptoApi.value,
+                14,
+                args,
+                result.ptr
+            )
+            result.value!!.asResponse
+                ?.getResultOrThrow()
+                ?.typedValue()!!
+        } finally {
+            pson_free_result(result.value)
+            pson_free_value(args)
+        }
+    }
+
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class])
+    actual fun mnemonicToEntropy(mnemonic: String): ByteArray = memScoped {
+        val result = allocPointerTo<pson_value>()
+        val args = makeArgs(mnemonic.pson)
+        try {
+            privmx_endpoint_execCryptoApi(
+                nativeCryptoApi.value,
+                15,
+                args,
+                result.ptr
+            )
+            result.value!!.asResponse
+                ?.getResultOrThrow()
+                ?.typedValue()!!
+        } finally {
+            pson_free_result(result.value)
+            pson_free_value(args)
+        }
+    }
+
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class])
+    actual fun mnemonicToSeed(mnemonic: String, password: String?): ByteArray = memScoped {
+        val result = allocPointerTo<pson_value>()
+        val args = makeArgs(mnemonic.pson)
+        try {
+            privmx_endpoint_execCryptoApi(
+                nativeCryptoApi.value,
+                16,
                 args,
                 result.ptr
             )
