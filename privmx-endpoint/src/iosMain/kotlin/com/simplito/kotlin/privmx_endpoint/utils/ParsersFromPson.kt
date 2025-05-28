@@ -12,6 +12,7 @@
 package com.simplito.kotlin.privmx_endpoint.utils
 
 import com.simplito.java.privmx_endpoint.model.BIP39
+import com.simplito.kotlin.privmx_endpoint.model.BridgeIdentity
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.Event
@@ -29,6 +30,7 @@ import com.simplito.kotlin.privmx_endpoint.model.Store
 import com.simplito.kotlin.privmx_endpoint.model.Thread
 import com.simplito.kotlin.privmx_endpoint.model.UserInfo
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint.model.VerificationRequest
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxEntryDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreDeletedEventData
@@ -269,6 +271,20 @@ internal fun PsonObject.toBip39(): BIP39 = BIP39(
     this["mnemonic"]!!.typedValue(),
     (this["extKey"] as PsonObject?)?.toExtKey()!!,
     this["entropy"]?.typedValue()!!
+)
+
+internal fun PsonObject.toBridgeIdentity(): BridgeIdentity = BridgeIdentity(
+    this["url"]!!.typedValue(),
+    this["pubKey"]!!.typedValue(),
+    this["instanceId"]!!.typedValue()
+)
+
+internal fun PsonObject.toVerificationRequest(): VerificationRequest = VerificationRequest(
+    this["contextId"]!!.typedValue(),
+    this["senderId"]!!.typedValue(),
+    this["senderPubKey"]!!.typedValue(),
+    this["date"]!!.typedValue(),
+    (this["extKey"] as PsonObject?)?.toBridgeIdentity()!!,
 )
 
 @Throws(ClassCastException::class)
