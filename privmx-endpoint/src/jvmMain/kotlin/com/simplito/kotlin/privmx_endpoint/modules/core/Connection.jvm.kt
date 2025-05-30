@@ -123,4 +123,3 @@ actual class Connection private constructor(
 
     private external fun deinit()
 }
-
