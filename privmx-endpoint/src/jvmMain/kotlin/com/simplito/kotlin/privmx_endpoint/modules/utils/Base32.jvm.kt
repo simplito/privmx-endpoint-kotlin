@@ -1,0 +1,27 @@
+package com.simplito.java.privmx_endpoint.model.utils
+
+actual object Base32 {
+    /**
+     * Encodes buffer to string in Base32 format.
+     *
+     * @param data buffer to encode
+     * @return string in Base32 format
+     */
+    actual external fun encode(data: ByteArray): String
+
+    /**
+     * Decodes string in Base32 to buffer.
+     *
+     * @param base32Data string to decode
+     * @return buffer with decoded data
+     */
+    actual external fun decode(base32Data: String): ByteArray
+
+    /**
+     * Checks if given string is in Base32 format.
+     *
+     * @param data string to check
+     * @return data check result
+     */
+    actual external fun `is`(data: String): Boolean
+}
