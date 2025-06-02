@@ -743,8 +743,7 @@ actual constructor(connection: Connection) :
      * @throws Exception when instance is currently closed
      */
     actual override fun close() {
-        if (_nativeStoreApi.value == null) return
-        privmx_endpoint_freeStoreApi(_nativeStoreApi.value)
+        privmx_endpoint_freeStoreApi(nativeStoreApi.value)
         _nativeStoreApi.value = null
     }
 }

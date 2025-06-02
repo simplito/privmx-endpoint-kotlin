@@ -203,7 +203,8 @@ actual class Connection private constructor() : AutoCloseable {
      * disconnects from PrivMX Bridge and frees memory making this instance not reusable.
      */
     actual override fun close() {
-        if (_nativeConnection.value == null) return
+        //Throws if native connection are closed
+        nativeConnection
         disconnect()
         privmx_endpoint_freeConnection(nativeConnection.value)
         _nativeConnection.value = null
