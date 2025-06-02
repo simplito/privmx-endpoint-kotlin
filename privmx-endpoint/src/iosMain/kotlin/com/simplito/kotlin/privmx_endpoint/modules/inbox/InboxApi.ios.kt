@@ -199,7 +199,6 @@ actual constructor(
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             inboxId.pson,
-            inboxId.pson,
             users.map { it.pson }.pson,
             managers.map { it.pson }.pson,
             publicMeta.pson,
