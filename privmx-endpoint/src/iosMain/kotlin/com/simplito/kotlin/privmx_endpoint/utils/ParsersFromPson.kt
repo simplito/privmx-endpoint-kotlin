@@ -116,7 +116,7 @@ internal fun PsonObject.toContainerPolicy(): ContainerPolicy =
     ContainerPolicy(
         this["get"]?.typedValue(),
         this["update"]?.typedValue(),
-        this["delete"]?.typedValue(),
+        this["delete_"]?.typedValue(),
         this["updatePolicy"]?.typedValue(),
         this["updaterCanBeRemovedFromManagers"]?.typedValue(),
         this["ownerCanBeRemovedFromManagers"]?.typedValue(),
@@ -137,7 +137,7 @@ internal fun PsonObject.toItemPolicy(): ItemPolicy = ItemPolicy(
     this["listAll"]?.typedValue(),
     this["create"]?.typedValue(),
     this["update"]?.typedValue(),
-    this["delete"]?.typedValue()
+    this["delete_"]?.typedValue()
 )
 
 internal fun PsonObject.toMessage() = Message(
