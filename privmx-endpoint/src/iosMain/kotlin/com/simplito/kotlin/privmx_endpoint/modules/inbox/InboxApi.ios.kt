@@ -735,8 +735,7 @@ actual constructor(
      * @throws Exception when instance is currently closed
      */
     actual override fun close() {
-        if (_nativeInboxApi.value == null) return
-        privmx_endpoint_freeInboxApi(_nativeInboxApi.value)
+        privmx_endpoint_freeInboxApi(nativeInboxApi.value)
         _nativeInboxApi.value = null
     }
 }
