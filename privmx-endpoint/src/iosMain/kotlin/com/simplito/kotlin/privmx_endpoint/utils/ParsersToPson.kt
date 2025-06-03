@@ -24,7 +24,7 @@ internal val ItemPolicy.pson: PsonValue.PsonObject
         "listAll" to listAll.nullablePson,
         "create" to create.nullablePson,
         "update" to update.nullablePson,
-        "delete" to delete.nullablePson,
+        "delete_" to delete.nullablePson,
     ).pson
 
 
@@ -38,7 +38,7 @@ internal val ContainerPolicy.pson: PsonValue.PsonObject
     get() = mapOfWithNulls(
         "get" to get.nullablePson,
         "update" to update.nullablePson,
-        "delete" to delete.nullablePson,
+        "delete_" to delete.nullablePson,
         "updatePolicy" to updatePolicy.nullablePson,
         "updaterCanBeRemovedFromManagers" to updaterCanBeRemovedFromManagers.nullablePson,
         "ownerCanBeRemovedFromManagers" to ownerCanBeRemovedFromManagers.nullablePson,
@@ -49,7 +49,7 @@ internal val ContainerPolicyWithoutItem.pson: PsonValue.PsonObject
     get() = mapOfWithNulls(
         "get" to get.nullablePson,
         "update" to update.nullablePson,
-        "delete" to delete.nullablePson,
+        "delete_" to delete.nullablePson,
         "updatePolicy" to updatePolicy.nullablePson,
         "updaterCanBeRemovedFromManagers" to updaterCanBeRemovedFromManagers.nullablePson,
         "ownerCanBeRemovedFromManagers" to ownerCanBeRemovedFromManagers.nullablePson,
