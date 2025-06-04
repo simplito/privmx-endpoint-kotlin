@@ -54,7 +54,7 @@ publishing {
             pom {
                 name = "PrivMX Endpoint Kotlin Extra"
                 description =
-                    "PrivMX Endpoint Kotlin Extra is an extension of Privmx Endpoint Kotlin. It's extended with additional logic that makes using our libraries simpler and less error-prone."
+                    "PrivMX Endpoint Kotlin Extra is an extension of PrivMX Endpoint Kotlin. It's extended with additional logic that makes using our libraries simpler and less error-prone."
             }
         }
     }
