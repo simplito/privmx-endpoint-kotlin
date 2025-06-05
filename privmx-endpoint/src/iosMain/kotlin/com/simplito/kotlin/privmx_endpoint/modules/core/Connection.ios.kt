@@ -209,7 +209,7 @@ actual class Connection private constructor() : AutoCloseable {
         try {
             disconnect()
         } catch (e: PrivmxException) {
-            //if endpoint not throw exception about disconnected state
+            //if PrivMX Endpoint doesn’t throw exception about disconnected state
             if (e.getCode() != 131073u) throw e
         }
         privmx_endpoint_freeConnection(nativeConnection.value)
