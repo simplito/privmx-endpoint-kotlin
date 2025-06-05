@@ -506,8 +506,7 @@ actual constructor(connection: Connection) : AutoCloseable {
      * @throws Exception when instance is currently closed
      */
     actual override fun close() {
-        if (_nativeThreadApi.value == null) return
-        privmx_endpoint_freeThreadApi(_nativeThreadApi.value)
+        privmx_endpoint_freeThreadApi(nativeThreadApi.value)
         _nativeThreadApi.value = null
     }
 }

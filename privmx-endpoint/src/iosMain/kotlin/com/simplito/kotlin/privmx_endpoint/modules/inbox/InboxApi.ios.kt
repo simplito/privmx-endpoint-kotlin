@@ -73,31 +73,17 @@ actual constructor(
 
     init {
         val tmpThreadApi = if (threadApi == null) {
-            memScoped {
-                allocPointerTo<cnames.structs.ThreadApi>().apply {
-                    privmx_endpoint_newThreadApi(
-                        connection.getConnectionPtr(),
-                        ptr,
-                    )
-                }
-            }
+            ThreadApi(connection)
         } else null
 
         val tmpStoreApi = if (storeApi == null) {
-            memScoped {
-                allocPointerTo<cnames.structs.StoreApi>().apply {
-                    privmx_endpoint_newStoreApi(
-                        connection.getConnectionPtr(),
-                        ptr,
-                    )
-                }
-            }
+            StoreApi(connection)
         } else null
 
         privmx_endpoint_newInboxApi(
             connection.getConnectionPtr(),
-            threadApi?.getThreadPtr(),
-            storeApi?.getStorePtr(),
+            (threadApi ?: tmpThreadApi)?.getThreadPtr(),
+            (storeApi ?: tmpStoreApi)?.getStorePtr(),
             _nativeInboxApi.ptr
         )
 
@@ -110,8 +96,8 @@ actual constructor(
             } finally {
                 pson_free_value(args)
                 pson_free_result(pson_result.value)
-                tmpThreadApi?.let { privmx_endpoint_freeThreadApi(it.value) }
-                tmpStoreApi?.let { privmx_endpoint_freeStoreApi(it.value) }
+                tmpThreadApi?.close()
+                tmpStoreApi?.close()
             }
         }
     }
@@ -198,7 +184,6 @@ actual constructor(
     ) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
-            inboxId.pson,
             inboxId.pson,
             users.map { it.pson }.pson,
             managers.map { it.pson }.pson,
@@ -750,8 +735,7 @@ actual constructor(
      * @throws Exception when instance is currently closed
      */
     actual override fun close() {
-        if (_nativeInboxApi.value == null) return
-        privmx_endpoint_freeInboxApi(_nativeInboxApi.value)
+        privmx_endpoint_freeInboxApi(nativeInboxApi.value)
         _nativeInboxApi.value = null
     }
 }

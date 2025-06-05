@@ -166,12 +166,13 @@ actual class Connection private constructor() : AutoCloseable {
      */
     @Throws( PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun disconnect() = memScoped {
-        val args = pson_new_object()
+        val args = makeArgs()
         val result = allocPointerTo<pson_value>().apply {
             value = pson_new_object()
         }
         try {
             privmx_endpoint_execConnection(nativeConnection.value, 4, args, result.ptr)
+            result.value?.asResponse?.getResultOrThrow()
             Unit
         } finally {
             pson_free_value(args)
@@ -203,8 +204,14 @@ actual class Connection private constructor() : AutoCloseable {
      * disconnects from PrivMX Bridge and frees memory making this instance not reusable.
      */
     actual override fun close() {
-        if (_nativeConnection.value == null) return
-        disconnect()
+        //Throws if native connection are closed
+        nativeConnection
+        try {
+            disconnect()
+        } catch (e: PrivmxException) {
+            //if PrivMX Endpoint doesn’t throw exception about disconnected state
+            if (e.getCode() != 131073u) throw e
+        }
         privmx_endpoint_freeConnection(nativeConnection.value)
         _nativeConnection.value = null
     }
