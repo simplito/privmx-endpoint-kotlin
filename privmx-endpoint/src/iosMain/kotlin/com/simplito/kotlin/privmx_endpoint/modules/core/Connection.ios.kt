@@ -233,29 +233,7 @@ actual class Connection private constructor() : AutoCloseable {
             pson_free_value(args)
         }
     }
-
-    private fun verifier(
-        args: CPointer<pson_value>?,
-        res: CPointer<CPointerVarOf<CPointer<pson_value>>>?
-    ): Int = memScoped {
-        try {
-            var args_k = (args as PsonValue.PsonArray<*>)
-                .getValue()
-                .map { (it as PsonValue.PsonObject).toVerificationRequest() }
-
-            var res_k = userVerifierInterface?.verify(args_k)
-            var list = res_k?.map { it.pson } ?: emptyList()
-            var res_c = allocArray<CPointerVar<pson_value>>(list.size)
-
-            (0 until list.size).forEach { i -> res_c[i] = list[i].typedValue() }
-            res?.pointed?.value = res_c.reinterpret()
-
-            return@memScoped 0
-        } catch (e: Exception) {
-            return@memScoped 1
-        }
-    }
-
+    
     @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
     actual fun setUserVerifier(userVerifier: UserVerifierInterface): Unit = memScoped {
         val result = allocPointerTo<pson_value>()
@@ -264,7 +242,7 @@ actual class Connection private constructor() : AutoCloseable {
         try {
             privmx_endpoint_setUserVerifier(
                 nativeConnection.value,
-                staticCFunction(::verifier),
+                staticCFunction(userVerifier::verifier),
                 res = result.ptr,
             )
         } finally {
