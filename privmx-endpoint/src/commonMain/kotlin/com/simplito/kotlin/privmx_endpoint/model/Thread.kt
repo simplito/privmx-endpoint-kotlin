@@ -28,6 +28,7 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property policy                    Thread's policies
  * @property messagesCount             Total number of messages in the Thread
  * @property statusCode                Status code of retrieval and decryption of the `Thread`
+ * @property schemaVersion                Version of the Thread data structure and how it is encoded/encrypted.
  */
 data class Thread(
     val contextId: String,
@@ -44,8 +45,64 @@ data class Thread(
     val privateMeta: ByteArray,
     val policy: ContainerPolicy,
     val messagesCount: Long?,
-    val statusCode: Long?
+    val statusCode: Long?,
+    val schemaVersion: Long?
 ) {
+    /**
+     * Holds all available information about a Thread.
+     *
+     * @property contextId                 ID of the Thread's Context
+     * @property threadId                  ID of the Thread
+     * @property createDate                Thread creation timestamp
+     * @property creator                   ID of the user who created the Thread
+     * @property lastModificationDate      Thread last modification timestamp
+     * @property lastModifier              ID of the user who last modified the Thread
+     * @property users                     List of users (their IDs) with access to the Thread
+     * @property managers                  List of users (their IDs) with management rights
+     * @property version                   Version number (changes on updates)
+     * @property lastMsgDate               Timestamp of the last posted message
+     * @property publicMeta                Thread's public metadata
+     * @property privateMeta               Thread's private metadata
+     * @property policy                    Thread's policies
+     * @property messagesCount             Total number of messages in the Thread
+     * @property statusCode                Status code of retrieval and decryption of the `Thread`
+     */
+    @Deprecated("Use primary constructor with new parameter.")
+    constructor(
+        contextId: String,
+        threadId: String,
+        createDate: Long?,
+        creator: String,
+        lastModificationDate: Long?,
+        lastModifier: String,
+        users: List<String>,
+        managers: List<String>,
+        version: Long?,
+        lastMsgDate: Long?,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
+        policy: ContainerPolicy,
+        messagesCount: Long?,
+        statusCode: Long?
+    ) : this(
+        contextId,
+        threadId,
+        createDate,
+        creator,
+        lastModificationDate,
+        lastModifier,
+        users,
+        managers,
+        version,
+        lastMsgDate,
+        publicMeta,
+        privateMeta,
+        policy,
+        messagesCount,
+        statusCode,
+        null
+    )
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -67,6 +124,7 @@ data class Thread(
         if (!publicMeta.contentEquals(other.publicMeta)) return false
         if (!privateMeta.contentEquals(other.privateMeta)) return false
         if (policy != other.policy) return false
+        if (schemaVersion != other.schemaVersion) return false
 
         return true
     }
@@ -87,6 +145,7 @@ data class Thread(
         result = 31 * result + publicMeta.contentHashCode()
         result = 31 * result + privateMeta.contentHashCode()
         result = 31 * result + policy.hashCode()
+        result = 31 * result + (schemaVersion.hashCode() ?: 0)
         return result
     }
 }

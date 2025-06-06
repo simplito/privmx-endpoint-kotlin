@@ -13,11 +13,11 @@ package com.simplito.kotlin.privmx_endpoint_extra.lib
 import com.simplito.kotlin.privmx_endpoint.model.Event
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventCallback
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventDispatcher
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
 import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
-import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
 
 /**
  * Extends [BasicPrivmxEndpoint] with event callbacks dispatcher.
@@ -145,6 +145,16 @@ constructor(
             }
             inboxApi.subscribeForInboxEvents()
         }
+
+        if (channel.module.startsWith("context") && eventApi != null) {
+            if (channel.type != null) {
+                if (channel.instanceId != null) {
+                    eventApi.subscribeForCustomEvents(channel.instanceId, channel.type)
+                } else {
+                    println("No contextId to subscribeChannel: " + channelStr)
+                }
+            }
+        }
     }
 
     private fun unsubscribeChannel(channelStr: String) {
@@ -189,6 +199,16 @@ constructor(
                 return
             }
             inboxApi.unsubscribeFromInboxEvents()
+        }
+
+        if (channel.module.startsWith("context") && eventApi != null) {
+            if (channel.type != null) {
+                if (channel.instanceId != null) {
+                    eventApi.unsubscribeFromCustomEvents(channel.instanceId, channel.type)
+                } else {
+                    println("No contextId to unsubscribeChannel: " + channelStr)
+                }
+            }
         }
     }
 

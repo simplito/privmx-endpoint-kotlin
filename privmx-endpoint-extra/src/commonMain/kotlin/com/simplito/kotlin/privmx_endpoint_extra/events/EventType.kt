@@ -16,6 +16,7 @@ import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
 import com.simplito.kotlin.privmx_endpoint.model.Message
 import com.simplito.kotlin.privmx_endpoint.model.Store
 import com.simplito.kotlin.privmx_endpoint.model.Thread
+import com.simplito.kotlin.privmx_endpoint.model.events.ContextCustomEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxEntryDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreDeletedEventData
@@ -179,4 +180,13 @@ sealed class EventType<T: Any>(
      */
     data class InboxEntryDeletedEvent(val inboxId: String) :
         EventType<InboxEntryDeletedEventData>("inbox/$inboxId/entries", "inboxEntryDeleted")
+
+    /**
+     * Type to register for custom Context Events.
+     *
+     * @param contextId   ID of the Context to observe
+     * @param channelName name of the Channel
+     */
+    data class ContextCustomEvent(val contextId: String, val channelName: String) :
+        EventType<ContextCustomEventData>("context/$contextId/$channelName", "contextCustom")
 }

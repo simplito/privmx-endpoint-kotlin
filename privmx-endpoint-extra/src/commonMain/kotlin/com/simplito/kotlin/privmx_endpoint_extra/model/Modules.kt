@@ -28,4 +28,9 @@ enum class Modules {
      * Inbox module case.
      */
     INBOX,
+
+    /**
+     * CustomEvent module case.
+     */
+    CUSTOM_EVENT,
 }
