@@ -6,8 +6,7 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property user       User publicKey and userId.
  * @property isActive    Is user connected to bridge.
  */
-class UserInfo
-    (
-    var user: UserWithPubKey,
-    var isActive: Boolean
+data class UserInfo(
+    val user: UserWithPubKey,
+    val isActive: Boolean
 )

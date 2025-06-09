@@ -6,14 +6,7 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property bridgePubKey Bridge public Key.
  * @property bridgeInstanceId Bridge instance Id given by PKI.
  */
-class PKIVerificationOptions (
-    /**
-     * Bridge public Key.
-     */
-    var bridgePubKey: String? = null,
-
-    /**
-     * Bridge instance Id given by PKI.
-     */
-    var bridgeInstanceId: String? = null
+data class PKIVerificationOptions (
+    val bridgePubKey: String? = null,
+    val bridgeInstanceId: String? = null
 )

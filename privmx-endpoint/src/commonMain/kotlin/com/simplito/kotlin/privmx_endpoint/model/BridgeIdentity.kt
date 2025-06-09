@@ -7,8 +7,8 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property pubKey Bridge public Key.
  * @property instanceId Bridge instance Id given by PKI.
  */
-class BridgeIdentity (
+data class BridgeIdentity (
     val url: String,
-    var pubKey: String? = null,
-    var instanceId: String? = null
+    val pubKey: String? = null,
+    val instanceId: String? = null
 )

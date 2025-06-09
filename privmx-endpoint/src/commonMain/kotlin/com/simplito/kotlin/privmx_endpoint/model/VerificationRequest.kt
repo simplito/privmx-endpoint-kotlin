@@ -8,11 +8,10 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property date         Creation date of the data.
  * @property bridgeIdentity Bridge Identity.
 */
-class VerificationRequest
-(
-    var contextId: String,
-    var senderId: String,
-    var senderPubKey: String,
-    var date: Long?,
-    var bridgeIdentity: BridgeIdentity? = null
+data class VerificationRequest(
+    val contextId: String,
+    val senderId: String,
+    val senderPubKey: String,
+    val date: Long?,
+    val bridgeIdentity: BridgeIdentity? = null
 )
