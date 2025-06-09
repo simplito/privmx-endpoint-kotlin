@@ -119,7 +119,7 @@ expect class Connection : AutoCloseable {
      * Gets a list of users of given context.
      *
      * @param contextId ID of the context
-     * @return vector containing a list of users Info
+     * @return list containing a list of users Info
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed

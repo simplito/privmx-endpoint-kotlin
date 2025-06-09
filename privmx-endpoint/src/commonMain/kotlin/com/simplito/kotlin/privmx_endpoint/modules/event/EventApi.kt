@@ -6,7 +6,7 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 
 /**
- * Manages PrivMX Bridge custom events.
+ * Manages PrivMX Bridge context custom events.
  */
 expect class EventApi : AutoCloseable {
 
@@ -17,7 +17,7 @@ expect class EventApi : AutoCloseable {
      * Emits the custom event on the given Context and channel.
      *
      * @param contextId   ID of the Context
-     * @param users       list of [UserWithPubKey] objects which defines the recipeints of the event
+     * @param users       list of [UserWithPubKey] objects which defines the recipients of the event
      * @param channelName name of the Channel
      * @param eventData   event's data
      * @throws IllegalStateException thrown when instance is closed

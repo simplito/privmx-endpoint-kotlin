@@ -120,7 +120,7 @@ expect class CryptoApi() : AutoCloseable {
     /**
      * Converts given public key in PGP format to its base58DER format.
      *
-     * //     * @param pemKey public key to convert
+     * @param pgpKey public key to convert
      * @return private key in base58DER format
      */
     @Throws(PrivmxException::class, NativeException::class)

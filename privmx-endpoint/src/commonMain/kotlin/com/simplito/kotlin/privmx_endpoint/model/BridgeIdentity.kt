@@ -1,11 +1,11 @@
 package com.simplito.kotlin.privmx_endpoint.model
 
 /**
- * Data send by client to all data informing where was it send
+ * Bridge server identification details.
  *
- * @property url Bridge URL
- * @property pubKey Bridge public Key
- * @property instanceId Bridge instance Id given by PKI
+ * @property url Bridge URL.
+ * @property pubKey Bridge public Key.
+ * @property instanceId Bridge instance Id given by PKI.
  */
 class BridgeIdentity (
     val url: String,
