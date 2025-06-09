@@ -16,6 +16,7 @@ import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserInfo
+import com.simplito.kotlin.privmx_endpoint.model.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.utils.KPSON_NULL
@@ -29,17 +30,27 @@ import com.simplito.kotlin.privmx_endpoint.utils.psonMapper
 import com.simplito.kotlin.privmx_endpoint.utils.toContext
 import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
 import com.simplito.kotlin.privmx_endpoint.utils.toUserInfo
+import com.simplito.kotlin.privmx_endpoint.utils.toVerificationRequest
 import com.simplito.kotlin.privmx_endpoint.utils.typedValue
+import kotlinx.cinterop.CPointer
+import kotlinx.cinterop.CPointerVar
+import kotlinx.cinterop.CPointerVarOf
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.allocArray
 import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.nativeHeap
+import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
+import kotlinx.cinterop.reinterpret
+import kotlinx.cinterop.set
+import kotlinx.cinterop.staticCFunction
 import kotlinx.cinterop.value
 import libprivmxendpoint.privmx_endpoint_execConnection
 import libprivmxendpoint.privmx_endpoint_freeConnection
 import libprivmxendpoint.privmx_endpoint_newConnection
 import libprivmxendpoint.privmx_endpoint_setCertsPath
+import libprivmxendpoint.privmx_endpoint_setUserVerifier
 import libprivmxendpoint.pson_free_result
 import libprivmxendpoint.pson_free_value
 import libprivmxendpoint.pson_new_object
@@ -54,6 +65,7 @@ actual class Connection private constructor() : AutoCloseable {
         get() = _nativeConnection.value?.let { _nativeConnection }
             ?: throw IllegalStateException("Connection has been closed.")
 
+    private var userVerifierInterface: UserVerifierInterface? = null
     internal fun getConnectionPtr() = nativeConnection.value
 
     actual companion object {
@@ -188,7 +200,7 @@ actual class Connection private constructor() : AutoCloseable {
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      */
-    @Throws( PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun disconnect() = memScoped {
         val args = pson_new_object()
         val result = allocPointerTo<pson_value>().apply {
@@ -221,8 +233,24 @@ actual class Connection private constructor() : AutoCloseable {
             pson_free_value(args)
         }
     }
+    
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun setUserVerifier(userVerifier: UserVerifierInterface): Unit = memScoped {
+        val result = allocPointerTo<pson_value>()
+        userVerifierInterface = userVerifier
 
-    @Throws(exceptionClasses = [IllegalStateException::class, PrivmxException::class, NativeException::class])
+        try {
+            privmx_endpoint_setUserVerifier(
+                nativeConnection.value,
+                staticCFunction(userVerifier::verifier),
+                res = result.ptr,
+            )
+        } finally {
+            pson_free_result(result.value)
+        }
+    }
+
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
     actual fun getContextUsers(contextId: String): List<UserInfo> = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs(contextId.pson)
