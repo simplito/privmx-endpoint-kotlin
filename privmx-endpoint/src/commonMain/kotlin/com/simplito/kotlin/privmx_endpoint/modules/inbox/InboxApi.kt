@@ -64,7 +64,7 @@ constructor(
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         filesConfig: FilesConfig? = null,
-        policies: ContainerPolicyWithoutItem? = null,
+        policies: ContainerPolicyWithoutItem? = null
     ): String
 
     /**
