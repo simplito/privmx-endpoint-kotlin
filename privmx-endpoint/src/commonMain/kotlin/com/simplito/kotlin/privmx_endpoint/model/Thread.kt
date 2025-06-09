@@ -115,6 +115,7 @@ data class Thread(
         if (lastMsgDate != other.lastMsgDate) return false
         if (messagesCount != other.messagesCount) return false
         if (statusCode != other.statusCode) return false
+        if (schemaVersion != other.schemaVersion) return false
         if (contextId != other.contextId) return false
         if (threadId != other.threadId) return false
         if (creator != other.creator) return false
@@ -124,7 +125,6 @@ data class Thread(
         if (!publicMeta.contentEquals(other.publicMeta)) return false
         if (!privateMeta.contentEquals(other.privateMeta)) return false
         if (policy != other.policy) return false
-        if (schemaVersion != other.schemaVersion) return false
 
         return true
     }
@@ -136,6 +136,7 @@ data class Thread(
         result = 31 * result + (lastMsgDate?.hashCode() ?: 0)
         result = 31 * result + (messagesCount?.hashCode() ?: 0)
         result = 31 * result + (statusCode?.hashCode() ?: 0)
+        result = 31 * result + (schemaVersion?.hashCode() ?: 0)
         result = 31 * result + contextId.hashCode()
         result = 31 * result + threadId.hashCode()
         result = 31 * result + creator.hashCode()
@@ -145,7 +146,6 @@ data class Thread(
         result = 31 * result + publicMeta.contentHashCode()
         result = 31 * result + privateMeta.contentHashCode()
         result = 31 * result + policy.hashCode()
-        result = 31 * result + (schemaVersion.hashCode() ?: 0)
         return result
     }
 }

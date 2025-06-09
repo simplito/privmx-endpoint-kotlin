@@ -61,11 +61,11 @@ data class File(
 
         if (size != other.size) return false
         if (statusCode != other.statusCode) return false
+        if (schemaVersion != other.schemaVersion) return false
         if (info != other.info) return false
         if (!publicMeta.contentEquals(other.publicMeta)) return false
         if (!privateMeta.contentEquals(other.privateMeta)) return false
         if (authorPubKey != other.authorPubKey) return false
-        if (schemaVersion != other.schemaVersion) return false
 
         return true
     }
@@ -73,11 +73,12 @@ data class File(
     override fun hashCode(): Int {
         var result = size?.hashCode() ?: 0
         result = 31 * result + (statusCode?.hashCode() ?: 0)
+        result = 31 * result + (schemaVersion?.hashCode() ?: 0)
         result = 31 * result + info.hashCode()
         result = 31 * result + publicMeta.contentHashCode()
         result = 31 * result + privateMeta.contentHashCode()
         result = 31 * result + authorPubKey.hashCode()
-        result = 31 * result + schemaVersion.hashCode()
         return result
     }
+
 }
