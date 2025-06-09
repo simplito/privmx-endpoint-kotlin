@@ -8,10 +8,9 @@ import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 /**
  * Manages PrivMX Bridge context custom events.
  */
-expect class EventApi : AutoCloseable {
-
-    @Throws(IllegalStateException::class)
-    constructor(connection: Connection)
+expect class EventApi
+@Throws(IllegalStateException::class)
+constructor(connection: Connection) : AutoCloseable {
 
     /**
      * Emits the custom event on the given Context and channel.
