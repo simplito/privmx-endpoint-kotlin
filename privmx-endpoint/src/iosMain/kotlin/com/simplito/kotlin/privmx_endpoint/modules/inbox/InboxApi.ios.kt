@@ -262,7 +262,12 @@ actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun listInboxes(
-        contextId: String, skip: Long, limit: Long, sortOrder: String, lastId: String?, queryAsJson: String?
+        contextId: String,
+        skip: Long,
+        limit: Long,
+        sortOrder: String,
+        lastId: String?,
+        queryAsJson: String?
     ): PagingList<Inbox> = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -440,7 +445,12 @@ actual constructor(
         PrivmxException::class, NativeException::class, IllegalStateException::class
     )
     actual fun listEntries(
-        inboxId: String, skip: Long, limit: Long, sortOrder: String, lastId: String?, queryAsJson: String?
+        inboxId: String,
+        skip: Long,
+        limit: Long,
+        sortOrder: String,
+        lastId: String?,
+        queryAsJson: String?
     ): PagingList<InboxEntry> = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
