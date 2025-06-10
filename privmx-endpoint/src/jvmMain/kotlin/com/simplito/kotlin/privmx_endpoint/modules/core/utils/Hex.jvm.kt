@@ -1,4 +1,4 @@
-package com.simplito.java.privmx_endpoint.model.utils
+package com.simplito.kotlin.privmx_endpoint.modules.core.utils
 
 actual object Hex {
     /**
@@ -15,7 +15,7 @@ actual object Hex {
      * @param hexData string to decode
      * @return buffer with decoded data
      */
-    actual external  fun decode(hexData: String): ByteArray
+    actual external fun decode(hexData: String): ByteArray
 
     /**
      * Checks if given string is in Hex format.
