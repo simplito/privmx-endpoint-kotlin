@@ -137,7 +137,7 @@ actual class Connection private constructor(
      * Gets a list of users of given context.
      *
      * @param contextId ID of the context
-     * @return vector containing a list of users Info
+     * @return list containing a list of users Info
      */
     @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
     actual external fun getContextUsers(contextId: String): List<UserInfo>
