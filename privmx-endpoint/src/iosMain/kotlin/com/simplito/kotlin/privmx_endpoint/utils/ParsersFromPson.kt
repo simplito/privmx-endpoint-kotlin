@@ -265,11 +265,10 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "inbox\$Inbox" to PsonObject::toInbox,
 )
 
-internal fun PsonObject.toExtKey(): ExtKey = ExtKey()
 
 internal fun PsonObject.toBip39(): BIP39 = BIP39(
     this["mnemonic"]!!.typedValue(),
-    (this["extKey"] as PsonObject?)?.toExtKey()!!,
+    ExtKey(this["extKey"] as PsonValue.PsonLong),
     this["entropy"]?.typedValue()!!
 )
 
