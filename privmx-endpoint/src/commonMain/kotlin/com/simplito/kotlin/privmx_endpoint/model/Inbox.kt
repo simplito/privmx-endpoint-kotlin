@@ -108,6 +108,7 @@ data class Inbox(
         if (lastModificationDate != other.lastModificationDate) return false
         if (version != other.version) return false
         if (statusCode != other.statusCode) return false
+        if (schemaVersion != other.schemaVersion) return false
         if (inboxId != other.inboxId) return false
         if (contextId != other.contextId) return false
         if (creator != other.creator) return false
@@ -118,7 +119,6 @@ data class Inbox(
         if (!privateMeta.contentEquals(other.privateMeta)) return false
         if (filesConfig != other.filesConfig) return false
         if (policy != other.policy) return false
-        if (schemaVersion != other.schemaVersion) return false
 
         return true
     }
@@ -128,6 +128,7 @@ data class Inbox(
         result = 31 * result + (lastModificationDate?.hashCode() ?: 0)
         result = 31 * result + (version?.hashCode() ?: 0)
         result = 31 * result + (statusCode?.hashCode() ?: 0)
+        result = 31 * result + (schemaVersion?.hashCode() ?: 0)
         result = 31 * result + inboxId.hashCode()
         result = 31 * result + contextId.hashCode()
         result = 31 * result + creator.hashCode()
@@ -138,8 +139,7 @@ data class Inbox(
         result = 31 * result + privateMeta.contentHashCode()
         result = 31 * result + (filesConfig?.hashCode() ?: 0)
         result = 31 * result + policy.hashCode()
-        result = 31 * result + (schemaVersion?.hashCode() ?: 0)
-
         return result
     }
+
 }

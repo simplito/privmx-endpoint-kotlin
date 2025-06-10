@@ -59,24 +59,24 @@ data class Message(
         other as Message
 
         if (statusCode != other.statusCode) return false
+        if (schemaVersion != other.schemaVersion) return false
         if (info != other.info) return false
         if (!publicMeta.contentEquals(other.publicMeta)) return false
         if (!privateMeta.contentEquals(other.privateMeta)) return false
         if (!data.contentEquals(other.data)) return false
         if (authorPubKey != other.authorPubKey) return false
-        if (schemaVersion != other.schemaVersion) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = statusCode?.hashCode() ?: 0
+        result = 31 * result + (schemaVersion?.hashCode() ?: 0)
         result = 31 * result + info.hashCode()
         result = 31 * result + publicMeta.contentHashCode()
         result = 31 * result + privateMeta.contentHashCode()
         result = 31 * result + data.contentHashCode()
         result = 31 * result + authorPubKey.hashCode()
-        result = 31 * result + (schemaVersion.hashCode() ?: 0)
         return result
     }
 }

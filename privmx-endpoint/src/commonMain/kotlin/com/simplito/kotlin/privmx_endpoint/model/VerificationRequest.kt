@@ -1,19 +1,17 @@
 package com.simplito.kotlin.privmx_endpoint.model
 
 /**
- * Represents a request used for verifying a sender in a specific context.
  *
- * @param contextId    ID of the Context
- * @param senderId     ID of the sender
- * @param senderPubKey Public key of the sender
- * @param date         Creation date of the data
- * @param bridgeIdentity Bridge Identity
+ * @property contextId    ID of the Context.
+ * @property senderId     ID of the sender.
+ * @property senderPubKey Public key of the sender.
+ * @property date         Creation date of the data.
+ * @property bridgeIdentity Bridge Identity.
 */
-class VerificationRequest
-(
-    var contextId: String,
-    var senderId: String,
-    var senderPubKey: String,
-    var date: Long?,
-    var bridgeIdentity: BridgeIdentity? = null
+data class VerificationRequest(
+    val contextId: String,
+    val senderId: String,
+    val senderPubKey: String,
+    val date: Long?,
+    val bridgeIdentity: BridgeIdentity? = null
 )

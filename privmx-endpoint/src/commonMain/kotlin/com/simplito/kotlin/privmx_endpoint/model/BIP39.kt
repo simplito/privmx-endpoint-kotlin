@@ -6,7 +6,7 @@ import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
  * Class containing ECC generated key using BIP-39.
  *
  * @property mnemonic BIP-39 mnemonic
- * @property extKey BIP-39 mnemonic
+ * @property extKey BIP-39 Ecc Key
  * @property entropy BIP-39 entropy
  */
 data class BIP39(

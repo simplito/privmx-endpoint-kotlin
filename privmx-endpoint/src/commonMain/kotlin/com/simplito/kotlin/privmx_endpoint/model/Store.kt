@@ -115,6 +115,7 @@ data class Store(
         if (version != other.version) return false
         if (filesCount != other.filesCount) return false
         if (statusCode != other.statusCode) return false
+        if (schemaVersion != other.schemaVersion) return false
         if (storeId != other.storeId) return false
         if (contextId != other.contextId) return false
         if (creator != other.creator) return false
@@ -124,7 +125,6 @@ data class Store(
         if (!publicMeta.contentEquals(other.publicMeta)) return false
         if (!privateMeta.contentEquals(other.privateMeta)) return false
         if (policy != other.policy) return false
-        if (schemaVersion != other.schemaVersion) return false
 
         return true
     }
@@ -136,6 +136,7 @@ data class Store(
         result = 31 * result + (version?.hashCode() ?: 0)
         result = 31 * result + (filesCount?.hashCode() ?: 0)
         result = 31 * result + (statusCode?.hashCode() ?: 0)
+        result = 31 * result + (schemaVersion?.hashCode() ?: 0)
         result = 31 * result + storeId.hashCode()
         result = 31 * result + contextId.hashCode()
         result = 31 * result + creator.hashCode()
@@ -145,8 +146,7 @@ data class Store(
         result = 31 * result + publicMeta.contentHashCode()
         result = 31 * result + privateMeta.contentHashCode()
         result = 31 * result + policy.hashCode()
-        result = 31 * result + (schemaVersion?.hashCode() ?: 0)
-
         return result
     }
+
 }

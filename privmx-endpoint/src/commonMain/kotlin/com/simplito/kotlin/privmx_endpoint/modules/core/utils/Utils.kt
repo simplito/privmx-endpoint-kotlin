@@ -1,4 +1,4 @@
-package com.simplito.java.privmx_endpoint.model.utils
+package com.simplito.kotlin.privmx_endpoint.modules.core.utils
 
 expect object Utils {
     /**
@@ -14,7 +14,7 @@ expect object Utils {
      *
      * @param data      string to split
      * @param delimiter string which will be split
-     * @return vector containing all split parts
+     * @return list containing all split parts
      */
     fun split(data: String, delimiter: String): List<String>
 

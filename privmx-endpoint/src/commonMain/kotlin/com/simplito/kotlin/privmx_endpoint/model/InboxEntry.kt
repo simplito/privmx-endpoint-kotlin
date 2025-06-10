@@ -64,12 +64,12 @@ data class InboxEntry(
 
         if (createDate != other.createDate) return false
         if (statusCode != other.statusCode) return false
+        if (schemaVersion != other.schemaVersion) return false
         if (entryId != other.entryId) return false
         if (inboxId != other.inboxId) return false
         if (!data.contentEquals(other.data)) return false
         if (files != other.files) return false
         if (authorPubKey != other.authorPubKey) return false
-        if (schemaVersion != other.schemaVersion) return false
 
         return true
     }
@@ -77,12 +77,12 @@ data class InboxEntry(
     override fun hashCode(): Int {
         var result = createDate?.hashCode() ?: 0
         result = 31 * result + (statusCode?.hashCode() ?: 0)
+        result = 31 * result + (schemaVersion?.hashCode() ?: 0)
         result = 31 * result + entryId.hashCode()
         result = 31 * result + inboxId.hashCode()
         result = 31 * result + data.contentHashCode()
         result = 31 * result + files.hashCode()
         result = 31 * result + authorPubKey.hashCode()
-        result = 31 * result + schemaVersion.hashCode()
         return result
     }
 }
