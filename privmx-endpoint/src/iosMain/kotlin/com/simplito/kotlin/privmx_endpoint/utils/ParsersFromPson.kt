@@ -73,6 +73,7 @@ internal fun PsonObject.toThread(): Thread = Thread(
     (this["policy"] as PsonObject).toContainerPolicy(),
     this["messagesCount"]?.typedValue(),
     this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue()
 )
 
 internal fun PsonObject.toStore(): Store = Store(
@@ -90,7 +91,8 @@ internal fun PsonObject.toStore(): Store = Store(
     this["privateMeta"]!!.typedValue(),
     (this["policy"] as PsonObject).toContainerPolicy(),
     this["filesCount"]?.typedValue(),
-    this["statusCode"]?.typedValue()
+    this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue()
 )
 
 internal fun PsonObject.toInbox(): Inbox = Inbox(
@@ -107,7 +109,8 @@ internal fun PsonObject.toInbox(): Inbox = Inbox(
     this["privateMeta"]!!.typedValue(),
     (this["filesConfig"] as PsonObject?)?.toFilesConfig(),
     (this["policy"] as PsonObject).toContainerPolicy(),
-    this["statusCode"]?.typedValue()
+    this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue()
 )
 
 internal fun PsonObject.toInboxPublicView(): InboxPublicView =
@@ -125,6 +128,7 @@ internal fun PsonObject.toInboxEntry(): InboxEntry = InboxEntry(
     this["authorPubKey"]!!.typedValue(),
     this["createDate"]?.typedValue(),
     this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue()
 )
 
 internal fun PsonObject.toContainerPolicy(): ContainerPolicy =
@@ -161,7 +165,8 @@ internal fun PsonObject.toMessage() = Message(
     this["privateMeta"]!!.typedValue(),
     this["data"]!!.typedValue(),
     this["authorPubKey"]!!.typedValue(),
-    this["statusCode"]?.typedValue()
+    this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue()
 )
 
 internal fun PsonObject.toFile() = File(
@@ -170,7 +175,8 @@ internal fun PsonObject.toFile() = File(
     this["privateMeta"]!!.typedValue(),
     this["size"]?.typedValue(),
     this["authorPubKey"]!!.typedValue(),
-    this["statusCode"]?.typedValue()
+    this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue()
 )
 
 internal fun PsonObject.toServerMessageInfo() = ServerMessageInfo(
@@ -274,8 +280,8 @@ internal fun PsonObject.toBip39(): BIP39 = BIP39(
 
 internal fun PsonObject.toBridgeIdentity(): BridgeIdentity = BridgeIdentity(
     this["url"]!!.typedValue(),
-    this["pubKey"]!!.typedValue(),
-    this["instanceId"]!!.typedValue()
+    this["pubKey"]?.typedValue(),
+    this["instanceId"]?.typedValue()
 )
 
 internal fun PsonObject.toVerificationRequest(): VerificationRequest = VerificationRequest(
@@ -283,7 +289,7 @@ internal fun PsonObject.toVerificationRequest(): VerificationRequest = Verificat
     this["senderId"]!!.typedValue(),
     this["senderPubKey"]!!.typedValue(),
     this["date"]!!.typedValue(),
-    (this["extKey"] as PsonObject?)?.toBridgeIdentity()!!,
+    (this["bridgeIdentity"] as PsonObject?)?.toBridgeIdentity(),
 )
 
 @Throws(ClassCastException::class)
