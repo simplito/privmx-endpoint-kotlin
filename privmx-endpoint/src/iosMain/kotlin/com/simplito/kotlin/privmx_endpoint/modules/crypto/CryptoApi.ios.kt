@@ -15,10 +15,10 @@ import cnames.structs.pson_value
 import com.simplito.java.privmx_endpoint.model.BIP39
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
-import com.simplito.kotlin.privmx_endpoint.utils.KPSON_NULL
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
 import com.simplito.kotlin.privmx_endpoint.utils.asResponse
 import com.simplito.kotlin.privmx_endpoint.utils.makeArgs
+import com.simplito.kotlin.privmx_endpoint.utils.nullablePson
 import com.simplito.kotlin.privmx_endpoint.utils.pson
 import com.simplito.kotlin.privmx_endpoint.utils.toBip39
 import com.simplito.kotlin.privmx_endpoint.utils.typedValue
@@ -49,10 +49,10 @@ actual class CryptoApi : AutoCloseable {
         memScoped {
             val args = makeArgs()
             val result = allocPointerTo<pson_value>()
-            try{
+            try {
                 privmx_endpoint_execCryptoApi(nativeCryptoApi.value, 0, args, result.ptr)
                 result.value!!.asResponse?.getResultOrThrow()
-            }finally{
+            } finally {
                 pson_free_result(result.value)
                 pson_free_value(args)
             }
@@ -321,7 +321,7 @@ actual class CryptoApi : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class)
     actual fun convertPGPAsn1KeyToBase58DERKey(pgpKey: String): String = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs(pgpKey.pson)
@@ -341,15 +341,15 @@ actual class CryptoApi : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class)
     actual fun generateBip39(
         strength: Long?,
-        password: String?
+        password: String
     ): BIP39 = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
-            strength?.pson ?: KPSON_NULL,
-            password?.pson ?: KPSON_NULL
+            strength.nullablePson,
+            password.pson
         )
         try {
             privmx_endpoint_execCryptoApi(
@@ -366,15 +366,15 @@ actual class CryptoApi : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class)
     actual fun fromMnemonic(
         mnemonic: String,
-        password: String?
+        password: String
     ): BIP39 = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             mnemonic.pson,
-            password?.pson ?: KPSON_NULL
+            password.pson
         )
         try {
             privmx_endpoint_execCryptoApi(
@@ -391,15 +391,15 @@ actual class CryptoApi : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class)
     actual fun fromEntropy(
         entropy: ByteArray,
-        password: String?
+        password: String
     ): BIP39 = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             entropy.pson,
-            password?.pson ?: KPSON_NULL
+            password.pson
         )
         try {
             privmx_endpoint_execCryptoApi(
@@ -416,7 +416,7 @@ actual class CryptoApi : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class)
     actual fun entropyToMnemonic(entropy: ByteArray): String = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs(entropy.pson)
@@ -436,7 +436,7 @@ actual class CryptoApi : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class)
     actual fun mnemonicToEntropy(mnemonic: String): ByteArray = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs(mnemonic.pson)
@@ -456,10 +456,10 @@ actual class CryptoApi : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class])
-    actual fun mnemonicToSeed(mnemonic: String, password: String?): ByteArray = memScoped {
+    @Throws(PrivmxException::class, NativeException::class)
+    actual fun mnemonicToSeed(mnemonic: String, password: String): ByteArray = memScoped {
         val result = allocPointerTo<pson_value>()
-        val args = makeArgs(mnemonic.pson)
+        val args = makeArgs(mnemonic.pson, password.pson)
         try {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,
