@@ -1,5 +1,6 @@
 package com.simplito.kotlin.privmx_endpoint.modules.event
 
+import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
@@ -9,6 +10,11 @@ import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
  * Manages PrivMX Bridge custom events.
  */
 actual class EventApi : AutoCloseable {
+    companion object {
+        init {
+            LibLoader.load()
+        }
+    }
 
     @Throws(IllegalStateException::class)
     actual constructor(connection: Connection)

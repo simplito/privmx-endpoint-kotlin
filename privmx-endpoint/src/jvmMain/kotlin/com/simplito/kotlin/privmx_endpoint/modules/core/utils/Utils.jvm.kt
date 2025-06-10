@@ -1,6 +1,12 @@
 package com.simplito.kotlin.privmx_endpoint.modules.core.utils
 
+import com.simplito.kotlin.privmx_endpoint.LibLoader
+
 actual object Utils {
+    init {
+        LibLoader.load()
+    }
+
     /**
      * Removes all trailing whitespace.
      *

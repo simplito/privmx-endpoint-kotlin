@@ -1,6 +1,12 @@
 package com.simplito.kotlin.privmx_endpoint.modules.core.utils
 
+import com.simplito.kotlin.privmx_endpoint.LibLoader
+
 actual object Base64 {
+    init {
+        LibLoader.load()
+    }
+
     /**
      * Encodes buffer to string in Base64 format.
      *
