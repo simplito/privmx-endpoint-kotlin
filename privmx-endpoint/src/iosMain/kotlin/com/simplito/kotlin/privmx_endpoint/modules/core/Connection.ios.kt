@@ -30,20 +30,12 @@ import com.simplito.kotlin.privmx_endpoint.utils.psonMapper
 import com.simplito.kotlin.privmx_endpoint.utils.toContext
 import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
 import com.simplito.kotlin.privmx_endpoint.utils.toUserInfo
-import com.simplito.kotlin.privmx_endpoint.utils.toVerificationRequest
 import com.simplito.kotlin.privmx_endpoint.utils.typedValue
-import kotlinx.cinterop.CPointer
-import kotlinx.cinterop.CPointerVar
-import kotlinx.cinterop.CPointerVarOf
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.allocArray
 import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.nativeHeap
-import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
-import kotlinx.cinterop.reinterpret
-import kotlinx.cinterop.set
 import kotlinx.cinterop.staticCFunction
 import kotlinx.cinterop.value
 import libprivmxendpoint.privmx_endpoint_execConnection
@@ -233,12 +225,11 @@ actual class Connection private constructor() : AutoCloseable {
             pson_free_value(args)
         }
     }
-    
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun setUserVerifier(userVerifier: UserVerifierInterface): Unit = memScoped {
         val result = allocPointerTo<pson_value>()
         userVerifierInterface = userVerifier
-
         try {
             privmx_endpoint_setUserVerifier(
                 nativeConnection.value,
@@ -250,15 +241,16 @@ actual class Connection private constructor() : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getContextUsers(contextId: String): List<UserInfo> = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs(contextId.pson)
         try {
             privmx_endpoint_execConnection(nativeConnection.value, 5, args, result.ptr)
-            val contextUsersList =
-                result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonArray<*>
-            contextUsersList.getValue().map { (it as PsonValue.PsonObject).toUserInfo() }
+            val contextUsersList: List<PsonValue.PsonObject> = result.value!!.asResponse
+                ?.getResultOrThrow()!!
+                .typedValue()
+            contextUsersList.map { it.toUserInfo() }
         } finally {
             pson_free_result(result.value)
             pson_free_value(args)
