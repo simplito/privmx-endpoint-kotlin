@@ -1,5 +1,6 @@
-package com.simplito.java.privmx_endpoint.model.utils
+package com.simplito.kotlin.privmx_endpoint.modules.core.utils
 
+import cnames.structs.Utils
 import cnames.structs.pson_value
 import com.simplito.kotlin.privmx_endpoint.utils.asResponse
 import com.simplito.kotlin.privmx_endpoint.utils.makeArgs
@@ -19,7 +20,7 @@ import libprivmxendpoint.pson_free_value
 
 @OptIn(ExperimentalForeignApi::class)
 internal val _nativeUtils by lazy {
-    nativeHeap.allocPointerTo<cnames.structs.Utils>().apply {
+    nativeHeap.allocPointerTo<Utils>().apply {
         privmx_endpoint_newUtils(this.ptr)
     }
 }
