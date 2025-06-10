@@ -45,7 +45,7 @@ actual object Base64 {
         val args = makeArgs(data.pson)
         try {
             privmx_endpoint_execUtils(_nativeUtils.value, 9, args, pson_result.ptr)
-            pson_result.value!!.asResponse?.getResultOrThrow()?.typedValue<Boolean>() == true
+            pson_result.value!!.asResponse?.getResultOrThrow()?.typedValue()!!
         } finally {
             pson_free_value(args)
             pson_free_result(pson_result.value)
