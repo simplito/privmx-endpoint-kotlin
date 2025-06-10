@@ -1,4 +1,4 @@
-package com.simplito.java.privmx_endpoint.model.utils
+package com.simplito.kotlin.privmx_endpoint.modules.core.utils
 
 expect object Base64 {
     /**
