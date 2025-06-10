@@ -47,7 +47,7 @@ actual constructor(connection: Connection) : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun emitEvent(
         contextId: String, users: List<UserWithPubKey>, channelName: String, eventData: ByteArray
     ): Unit = memScoped {
@@ -64,7 +64,7 @@ actual constructor(connection: Connection) : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun subscribeForCustomEvents(contextId: String, channelName: String): Unit = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -79,13 +79,11 @@ actual constructor(connection: Connection) : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun unsubscribeFromCustomEvents(contextId: String, channelName: String): Unit =
         memScoped {
             val result = allocPointerTo<pson_value>()
-            val args = makeArgs(
-                contextId.pson, channelName.pson
-            )
+            val args = makeArgs(contextId.pson, channelName.pson)
             try {
                 privmx_endpoint_execEventApi(nativeEventApi.value, 3, args, result.ptr)
                 result.value?.asResponse?.getResultOrThrow()
@@ -96,8 +94,7 @@ actual constructor(connection: Connection) : AutoCloseable {
         }
 
     actual override fun close() {
-        if (_nativeEventApi.value == null) return
-        privmx_endpoint_freeEventApi(_nativeEventApi.value)
+        privmx_endpoint_freeEventApi(nativeEventApi.value)
         _nativeEventApi.value = null
     }
 }
