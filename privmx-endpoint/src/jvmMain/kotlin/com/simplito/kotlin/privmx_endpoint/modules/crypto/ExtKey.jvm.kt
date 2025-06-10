@@ -5,10 +5,39 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
 actual class ExtKey : AutoCloseable {
-    companion object {
+    actual companion object {
         init {
             LibLoader.load()
         }
+
+        /**
+         * Creates ExtKey from given seed.
+         *
+         * @param seed the seed used to generate Key
+         * @return ExtKey object
+         */
+        @JvmStatic
+        @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
+        actual external fun fromSeed(seed: ByteArray): ExtKey
+
+        /**
+         * Decodes ExtKey from Base58 format.
+         *
+         * @param base58 the ExtKey in Base58
+         * @return ExtKey object
+         */
+        @JvmStatic
+        @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
+        actual external fun fromBase58(base58: String): ExtKey
+
+        /**
+         * Generates a new ExtKey.
+         *
+         * @return ExtKey object
+         */
+        @JvmStatic
+        @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
+        actual external fun generateRandom(): ExtKey
     }
 
     private val key: Long
@@ -20,31 +49,6 @@ actual class ExtKey : AutoCloseable {
     @Throws(IllegalStateException::class)
     private external fun deinit()
 
-    /**
-     * Creates ExtKey from given seed.
-     *
-     * @param seed the seed used to generate Key
-     * @return ExtKey object
-     */
-    @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
-    actual external fun fromSeed(seed: ByteArray): ExtKey
-
-    /**
-     * Decodes ExtKey from Base58 format.
-     *
-     * @param base58 the ExtKey in Base58
-     * @return ExtKey object
-     */
-    @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
-    actual external fun fromBase58(base58: String): ExtKey
-
-    /**
-     * Generates a new ExtKey.
-     *
-     * @return ExtKey object
-     */
-    @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
-    actual external fun generateRandom(): ExtKey
 
     /**
      * Generates child ExtKey from a current ExtKey using BIP32.
