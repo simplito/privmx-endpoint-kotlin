@@ -131,6 +131,7 @@ actual class Connection private constructor(
      * @param userVerifier an implementation of the [UserVerifierInterface]
      * @throws IllegalStateException thrown when instance is not connected.
      */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun setUserVerifier(userVerifier: UserVerifierInterface)
 
     /**
@@ -139,7 +140,7 @@ actual class Connection private constructor(
      * @param contextId ID of the context
      * @return list containing a list of users Info
      */
-    @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun getContextUsers(contextId: String): List<UserInfo>
 
     /**
@@ -149,7 +150,7 @@ actual class Connection private constructor(
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun disconnect()
 
     private external fun deinit()
