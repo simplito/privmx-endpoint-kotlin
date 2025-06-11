@@ -9,15 +9,21 @@ import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 /**
  * Manages PrivMX Bridge custom events.
  */
-actual class EventApi : AutoCloseable {
+actual class EventApi
+actual constructor(connection: Connection) : AutoCloseable {
     companion object {
         init {
             LibLoader.load()
         }
     }
 
-    @Throws(IllegalStateException::class)
-    actual constructor(connection: Connection)
+    private val api: Long? = init(connection)
+
+    @Throws(java.lang.IllegalStateException::class)
+    private external fun init(connection: Connection): Long?
+
+    @Throws(java.lang.IllegalStateException::class)
+    private external fun deinit()
 
     /**
      * Emits the custom event on the given Context and channel.
@@ -73,5 +79,7 @@ actual class EventApi : AutoCloseable {
      *
      * @throws Exception when instance is currently closed.
      */
-    actual external override fun close()
+    actual override fun close() {
+        deinit()
+    }
 }

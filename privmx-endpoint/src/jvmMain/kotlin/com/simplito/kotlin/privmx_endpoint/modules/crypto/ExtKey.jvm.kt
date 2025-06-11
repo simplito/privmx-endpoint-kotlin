@@ -5,6 +5,13 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
 actual class ExtKey : AutoCloseable {
+
+    private val key: Long
+
+    private constructor(key: Long) {
+        this.key = key
+    }
+
     actual companion object {
         init {
             LibLoader.load()
@@ -39,15 +46,6 @@ actual class ExtKey : AutoCloseable {
         @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
         actual external fun generateRandom(): ExtKey
     }
-
-    private val key: Long
-
-    private constructor(key: Long) {
-        this.key = key
-    }
-
-    @Throws(IllegalStateException::class)
-    private external fun deinit()
 
 
     /**
@@ -142,6 +140,9 @@ actual class ExtKey : AutoCloseable {
      */
     @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
     actual external fun isPrivate(): Boolean
+
+    @Throws(IllegalStateException::class)
+    private external fun deinit()
 
     actual override fun close() {
         deinit()
