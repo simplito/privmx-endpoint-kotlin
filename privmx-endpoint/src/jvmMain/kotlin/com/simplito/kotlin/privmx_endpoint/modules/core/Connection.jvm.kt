@@ -44,6 +44,7 @@ actual class Connection private constructor(
          * @throws NativeException thrown when method encounters an unknown exception
          */
         @JvmStatic
+        @JvmOverloads
         @Throws(PrivmxException::class, NativeException::class)
         actual external fun connect(
             userPrivKey: String,
@@ -63,6 +64,7 @@ actual class Connection private constructor(
          * @throws NativeException thrown when method encounters an unknown exception
          */
         @JvmStatic
+        @JvmOverloads
         @Throws(PrivmxException::class, NativeException::class)
         actual external fun connectPublic(
             solutionId: String,
