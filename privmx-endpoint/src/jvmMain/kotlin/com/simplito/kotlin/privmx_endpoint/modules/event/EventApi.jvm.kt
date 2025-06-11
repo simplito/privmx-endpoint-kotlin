@@ -41,7 +41,7 @@ actual constructor(connection: Connection) : AutoCloseable {
     )
     actual external fun emitEvent(
         contextId: String,
-        users: MutableList<UserWithPubKey>,
+        users: List<UserWithPubKey>,
         channelName: String,
         eventData: ByteArray
     )
