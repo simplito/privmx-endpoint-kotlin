@@ -136,7 +136,7 @@ actual class CryptoApi : AutoCloseable {
      * Converts given public key in PGP format to its base58DER format.
      *
      * @param pgpKey public key to convert
-     * @return private key in base58DER format
+     * @return public key in base58DER format
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual external fun convertPGPAsn1KeyToBase58DERKey(pgpKey: String): String
