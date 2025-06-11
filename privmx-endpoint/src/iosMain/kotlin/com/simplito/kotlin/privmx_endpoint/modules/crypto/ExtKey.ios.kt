@@ -8,6 +8,7 @@ import com.simplito.kotlin.privmx_endpoint.utils.asResponse
 import com.simplito.kotlin.privmx_endpoint.utils.makeArgs
 import com.simplito.kotlin.privmx_endpoint.utils.pson
 import com.simplito.kotlin.privmx_endpoint.utils.typedValue
+import kotlinx.cinterop.CPointerVar
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.memScoped
@@ -22,37 +23,28 @@ import libprivmxendpoint.pson_free_result
 import libprivmxendpoint.pson_free_value
 
 @OptIn(ExperimentalForeignApi::class)
-actual class ExtKey() : AutoCloseable {
-    private val _nativeExtKey = nativeHeap.allocPointerTo<cnames.structs.ExtKey>()
+actual class ExtKey private constructor() : AutoCloseable {
+    private val _nativeExtKey: CPointerVar<cnames.structs.ExtKey> = nativeHeap.allocPointerTo()
     private val nativeExtKey
         get() = _nativeExtKey.value?.let { _nativeExtKey }
             ?: throw IllegalStateException("ExtKey has been closed.")
 
     internal fun getExtKey() = nativeExtKey.value
 
-    init {
-        privmx_endpoint_newExtKey(_nativeExtKey.ptr)
-    }
-
     internal constructor(ptr: PsonValue.PsonLong) : this() {
-        setPointer(ptr)
-    }
-
-    private fun setPointer(ptr: PsonValue.PsonLong) {
         _nativeExtKey.value = ptr.getValue().toCPointer()
     }
 
     actual companion object {
-        @Throws(exceptionClasses = [IllegalStateException::class, PrivmxException::class, NativeException::class])
+        @Throws(PrivmxException::class, NativeException::class)
         actual fun fromSeed(seed: ByteArray): ExtKey = memScoped {
             val pson_result = allocPointerTo<pson_value>()
             val args = makeArgs(seed.pson)
             try {
                 ExtKey().apply {
+                    privmx_endpoint_newExtKey(_nativeExtKey.ptr)
                     privmx_endpoint_execExtKey(_nativeExtKey.value, 0, args, pson_result.ptr)
-                    val result =
-                        pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonLong
-                    setPointer(result)
+                    pson_result.value?.asResponse?.getResultOrThrow()
                 }
             } finally {
                 pson_free_value(args)
@@ -60,16 +52,15 @@ actual class ExtKey() : AutoCloseable {
             }
         }
 
-        @Throws(exceptionClasses = [IllegalStateException::class, PrivmxException::class, NativeException::class])
+        @Throws(PrivmxException::class, NativeException::class)
         actual fun fromBase58(base58: String): ExtKey = memScoped {
             val pson_result = allocPointerTo<pson_value>()
             val args = makeArgs(base58.pson)
             try {
                 ExtKey().apply {
+                    privmx_endpoint_newExtKey(_nativeExtKey.ptr)
                     privmx_endpoint_execExtKey(_nativeExtKey.value, 1, args, pson_result.ptr)
-                    val result =
-                        pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonLong
-                    setPointer(result)
+                    pson_result.value?.asResponse?.getResultOrThrow()
                 }
             } finally {
                 pson_free_value(args)
@@ -77,16 +68,15 @@ actual class ExtKey() : AutoCloseable {
             }
         }
 
-        @Throws(exceptionClasses = [IllegalStateException::class, PrivmxException::class, NativeException::class])
+        @Throws(PrivmxException::class, NativeException::class)
         actual fun generateRandom(): ExtKey = memScoped {
             val pson_result = allocPointerTo<pson_value>()
             val args = makeArgs()
             try {
                 ExtKey().apply {
+                    privmx_endpoint_newExtKey(_nativeExtKey.ptr)
                     privmx_endpoint_execExtKey(_nativeExtKey.value, 2, args, pson_result.ptr)
-                    val result =
-                        pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonLong
-                    setPointer(result)
+                    pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonLong
                 }
             } finally {
                 pson_free_value(args)
@@ -95,7 +85,7 @@ actual class ExtKey() : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [IllegalStateException::class, PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun derive(index: Int): ExtKey = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(index.pson)
@@ -109,7 +99,7 @@ actual class ExtKey() : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [IllegalStateException::class, PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun deriveHardened(index: Int): ExtKey = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(index.pson)
@@ -123,7 +113,7 @@ actual class ExtKey() : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [IllegalStateException::class, PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getPrivatePartAsBase58(): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
@@ -138,7 +128,7 @@ actual class ExtKey() : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [IllegalStateException::class, PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getPublicPartAsBase58(): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
@@ -153,7 +143,7 @@ actual class ExtKey() : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [IllegalStateException::class, PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getPrivateKey(): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
@@ -168,7 +158,7 @@ actual class ExtKey() : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [IllegalStateException::class, PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getPublicKey(): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
@@ -183,7 +173,7 @@ actual class ExtKey() : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [IllegalStateException::class, PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getPrivateEncKey(): ByteArray = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
@@ -198,7 +188,7 @@ actual class ExtKey() : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [IllegalStateException::class, PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getPublicKeyAsBase58Address(): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
@@ -213,7 +203,7 @@ actual class ExtKey() : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [IllegalStateException::class, PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getChainCode(): ByteArray = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
@@ -228,7 +218,7 @@ actual class ExtKey() : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [IllegalStateException::class, PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun verifyCompactSignatureWithHash(
         message: ByteArray,
         signature: ByteArray
@@ -249,7 +239,7 @@ actual class ExtKey() : AutoCloseable {
         }
     }
 
-    @Throws(exceptionClasses = [IllegalStateException::class, PrivmxException::class, NativeException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun isPrivate(): Boolean = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs()
