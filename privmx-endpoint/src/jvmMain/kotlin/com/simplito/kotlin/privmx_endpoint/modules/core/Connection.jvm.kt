@@ -124,13 +124,14 @@ actual class Connection private constructor(
 
     /**
      * Sets user's custom verification callback.
-     *
      * The feature allows the developer to set up a callback for user verification.
      * A developer can implement an interface and pass the implementation to the function.
      * Each time data is read from the container, a callback will be triggered, allowing the developer to validate the sender in an external service,
-     * e.g. Developers Application Server or PKI Server.
+     * e.g. Developer's Application Server or PKI Server.
      *
      * @param userVerifier an implementation of the [UserVerifierInterface]
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
      * @throws IllegalStateException thrown when instance is not connected.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
@@ -140,7 +141,7 @@ actual class Connection private constructor(
      * Gets a list of users of given context.
      *
      * @param contextId ID of the context
-     * @return list containing a list of users Info
+     * @return list of users Info
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun getContextUsers(contextId: String): List<UserInfo>

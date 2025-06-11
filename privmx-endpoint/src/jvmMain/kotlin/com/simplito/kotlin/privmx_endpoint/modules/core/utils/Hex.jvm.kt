@@ -8,18 +8,18 @@ actual object Hex {
     }
 
     /**
-     * Encodes buffer to a string in Hex format.
+     * Encodes byte array to a string in Hex format.
      *
-     * @param data buffer to encode
+     * @param data byte array to encode
      * @return string in Hex format
      */
     actual external fun encode(data: ByteArray): String
 
     /**
-     * Decodes string in Hex to buffer.
+     * Decodes string in Hex to byte array.
      *
      * @param hexData string to decode
-     * @return buffer with decoded data
+     * @return byte array with decoded data
      */
     actual external fun decode(hexData: String): ByteArray
 

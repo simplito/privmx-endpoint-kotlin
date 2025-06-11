@@ -8,18 +8,18 @@ actual object Base32 {
     }
 
     /**
-     * Encodes buffer to string in Base32 format.
+     * Encodes byte array to string in Base32 format.
      *
-     * @param data buffer to encode
+     * @param data byte array to encode
      * @return string in Base32 format
      */
     actual external fun encode(data: ByteArray): String
 
     /**
-     * Decodes string in Base32 to buffer.
+     * Decodes string in Base32 to byte array.
      *
      * @param base32Data string to decode
-     * @return buffer with decoded data
+     * @return byte array with decoded data
      */
     actual external fun decode(base32Data: String): ByteArray
 

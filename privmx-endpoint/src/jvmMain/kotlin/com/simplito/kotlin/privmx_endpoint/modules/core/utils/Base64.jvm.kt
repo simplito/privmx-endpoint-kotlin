@@ -8,18 +8,18 @@ actual object Base64 {
     }
 
     /**
-     * Encodes buffer to string in Base64 format.
+     * Encodes byte array to string in Base64 format.
      *
-     * @param data buffer to encode
+     * @param data byte array to encode
      * @return string in Base64 format
      */
     actual external fun encode(data: ByteArray): String
 
     /**
-     * Decodes string in Base64 to buffer.
+     * Decodes string in Base64 to byte array.
      *
      * @param base64Data string to decode
-     * @return buffer with decoded data
+     * @return byte array with decoded data
      */
     actual external fun decode(base64Data: String): ByteArray
 

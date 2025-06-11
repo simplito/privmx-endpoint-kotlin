@@ -8,8 +8,12 @@ import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 
 /**
  * Manages PrivMX Bridge custom events.
+ *
+ * @param connection active connection to PrivMX Bridge
+ * @throws IllegalStateException when passed [Connection] is not connected.
  */
 actual class EventApi
+@Throws(IllegalStateException::class)
 actual constructor(connection: Connection) : AutoCloseable {
     companion object {
         init {
@@ -29,7 +33,7 @@ actual constructor(connection: Connection) : AutoCloseable {
      * Emits the custom event on the given Context and channel.
      *
      * @param contextId   ID of the Context
-     * @param users       list of [UserWithPubKey] objects which defines the recipeints of the event
+     * @param users       list of [UserWithPubKey] objects which defines the recipients of the event
      * @param channelName name of the Channel
      * @param eventData   event's data
      * @throws IllegalStateException thrown when instance is closed

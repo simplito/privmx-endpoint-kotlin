@@ -4,6 +4,9 @@ import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
+/**
+ * Class representing Extended keys and operations on it.
+ */
 actual class ExtKey : AutoCloseable {
 
     private val key: Long
@@ -115,17 +118,18 @@ actual class ExtKey : AutoCloseable {
     actual external fun getPublicKeyAsBase58Address(): String
 
     /**
+     * Gets the chain code of Extended Key.
+     *
      * @return Raw chain code
-     * //     * @brief Gets the chain code of Extended Key.     //todo
      */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun getChainCode(): ByteArray
 
     /**
+     * Validates a signature of a message.
+     *
      * @param message   data used on validation
      * @param signature signature of data to verify
      * @return message validation result
-     * //     * @brief Validates a signature of a message.      //todo
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun verifyCompactSignatureWithHash(
