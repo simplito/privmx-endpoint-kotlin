@@ -28,6 +28,7 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property policy                Store's policies
  * @property filesCount            Total number of files in the Store
  * @property statusCode            Status code of retrieval and decryption of the `Store`
+ * @property schemaVersion            Version of the Store data structure and how it is encoded/encrypted.
  */
 data class Store(
     val storeId: String,
@@ -44,8 +45,64 @@ data class Store(
     val privateMeta: ByteArray,
     val policy: ContainerPolicy,
     val filesCount: Long?,
-    val statusCode: Long?
+    val statusCode: Long?,
+    val schemaVersion: Long?
 ) {
+    /**
+     * Holds all available information about a Store.
+     *
+     * @property storeId               ID of the Store
+     * @property contextId             ID of the Context
+     * @property createDate            Store creation timestamp
+     * @property creator               ID of the user who created the Store
+     * @property lastModificationDate  Store last modification timestamp
+     * @property lastFileDate          Timestamp of the last created file
+     * @property lastModifier          ID of the user who last modified the Store
+     * @property users                 List of users (their IDs) with access to the Store
+     * @property managers              List of users (their IDs) with management rights
+     * @property version               Version number (changes on updates)
+     * @property publicMeta            Store's public metadata
+     * @property privateMeta           Store's private metadata
+     * @property policy                Store's policies
+     * @property filesCount            Total number of files in the Store
+     * @property statusCode            Status code of retrieval and decryption of the `Store`
+     */
+    @Deprecated("Use primary constructor with new parameter.")
+    constructor(
+        storeId: String,
+        contextId: String,
+        createDate: Long?,
+        creator: String,
+        lastModificationDate: Long?,
+        lastFileDate: Long?,
+        lastModifier: String,
+        users: List<String>,
+        managers: List<String>,
+        version: Long?,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
+        policy: ContainerPolicy,
+        filesCount: Long?,
+        statusCode: Long?
+    ) : this(
+        storeId,
+        contextId,
+        createDate,
+        creator,
+        lastModificationDate,
+        lastFileDate,
+        lastModifier,
+        users,
+        managers,
+        version,
+        publicMeta,
+        privateMeta,
+        policy,
+        filesCount,
+        statusCode,
+        null
+    )
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -58,6 +115,7 @@ data class Store(
         if (version != other.version) return false
         if (filesCount != other.filesCount) return false
         if (statusCode != other.statusCode) return false
+        if (schemaVersion != other.schemaVersion) return false
         if (storeId != other.storeId) return false
         if (contextId != other.contextId) return false
         if (creator != other.creator) return false
@@ -78,6 +136,7 @@ data class Store(
         result = 31 * result + (version?.hashCode() ?: 0)
         result = 31 * result + (filesCount?.hashCode() ?: 0)
         result = 31 * result + (statusCode?.hashCode() ?: 0)
+        result = 31 * result + (schemaVersion?.hashCode() ?: 0)
         result = 31 * result + storeId.hashCode()
         result = 31 * result + contextId.hashCode()
         result = 31 * result + creator.hashCode()
@@ -89,4 +148,5 @@ data class Store(
         result = 31 * result + policy.hashCode()
         return result
     }
+
 }

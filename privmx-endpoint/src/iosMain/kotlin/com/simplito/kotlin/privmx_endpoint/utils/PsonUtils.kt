@@ -156,7 +156,7 @@ internal class PsonResponse(
     }
 }
 
-internal sealed class PsonValue<out T> {
+internal sealed class PsonValue<out T: Any> {
     protected abstract val value: T
 
     //TODO: remove redundant getValue
@@ -191,6 +191,9 @@ internal sealed class PsonValue<out T> {
         }
 
     }
+
+    @OptIn(ExperimentalForeignApi::class)
+    fun toNativePson(): CPointer<pson_value> = convertToPson(this)
 }
 
 @Throws(IllegalArgumentException::class)
@@ -247,6 +250,10 @@ private fun convertToPson(value: PsonValue<Any>): CPointer<pson_value> = memScop
 @OptIn(ExperimentalForeignApi::class)
 internal val CPointer<pson_value>.asResponse: PsonResponse?
     get() = (psonMapper(this) as? PsonObject)?.let { PsonResponse(it) }
+
+@OptIn(ExperimentalForeignApi::class)
+internal val CPointer<pson_value>.asArgs: PsonValue.PsonArray<*>
+    get() = (psonMapper(this) as? PsonValue.PsonArray<*>) ?: PsonValue.PsonArray(emptyList())
 
 internal fun <K, V> mapOfWithNulls(vararg pairs: Pair<K, V>?): Map<K, V> =
     mapOf(*(pairs.filterNotNull().toTypedArray()))
