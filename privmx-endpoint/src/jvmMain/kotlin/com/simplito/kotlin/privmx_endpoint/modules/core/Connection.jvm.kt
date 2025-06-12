@@ -13,7 +13,10 @@ package com.simplito.kotlin.privmx_endpoint.modules.core
 
 import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.Context
+import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
+import com.simplito.kotlin.privmx_endpoint.model.UserInfo
+import com.simplito.kotlin.privmx_endpoint.model.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
@@ -35,16 +38,19 @@ actual class Connection private constructor(
          * @param userPrivKey user's private key
          * @param solutionId  ID of the Solution
          * @param bridgeUrl PrivMX Bridge server URL
+         * @param verificationOptions PrivMX Bridge server instance verification options using a PKI server
          * @return Connection object
          * @throws PrivmxException thrown when method encounters an exception
          * @throws NativeException thrown when method encounters an unknown exception
          */
         @JvmStatic
+        @JvmOverloads
         @Throws(PrivmxException::class, NativeException::class)
         actual external fun connect(
             userPrivKey: String,
             solutionId: String,
             bridgeUrl: String,
+            verificationOptions: PKIVerificationOptions?
         ): Connection
 
         /**
@@ -52,15 +58,18 @@ actual class Connection private constructor(
          *
          * @param solutionId ID of the Solution
          * @param bridgeUrl  PrivMX Bridge server URL
+         * @param verificationOptions PrivMX Bridge server instance verification options using a PKI server
          * @return Connection object
          * @throws PrivmxException thrown when method encounters an exception
          * @throws NativeException thrown when method encounters an unknown exception
          */
         @JvmStatic
+        @JvmOverloads
         @Throws(PrivmxException::class, NativeException::class)
         actual external fun connectPublic(
             solutionId: String,
             bridgeUrl: String,
+            verificationOptions: PKIVerificationOptions?
         ): Connection
 
         /**
@@ -105,6 +114,7 @@ actual class Connection private constructor(
      * @param limit     limit of elements to return for query
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
      * @return list of Contexts
      * @throws IllegalStateException thrown when instance is not connected
      * @throws PrivmxException       thrown when method encounters an exception
@@ -116,8 +126,33 @@ actual class Connection private constructor(
         skip: Long,
         limit: Long,
         sortOrder: String,
-        lastId: String?
+        lastId: String?,
+        queryAsJson: String?
     ): PagingList<Context>
+
+    /**
+     * Sets user's custom verification callback.
+     * The feature allows the developer to set up a callback for user verification.
+     * A developer can implement an interface and pass the implementation to the function.
+     * Each time data is read from the container, a callback will be triggered, allowing the developer to validate the sender in an external service,
+     * e.g. Developer's Application Server or PKI Server.
+     *
+     * @param userVerifier an implementation of the [UserVerifierInterface]
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is not connected.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun setUserVerifier(userVerifier: UserVerifierInterface)
+
+    /**
+     * Gets a list of users of given context.
+     *
+     * @param contextId ID of the context
+     * @return list of users Info
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun getContextUsers(contextId: String): List<UserInfo>
 
     /**
      * Disconnects from PrivMX Bridge server.
@@ -126,7 +161,7 @@ actual class Connection private constructor(
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun disconnect()
 
     private external fun deinit()

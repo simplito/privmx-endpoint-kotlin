@@ -19,6 +19,7 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property size         File's size
  * @property authorPubKey Public key of the author of the file
  * @property statusCode   Status code of retrieval and decryption of the file
+ * @property schemaVersion Version of the file data structure and how it is encoded/encrypted.
  */
 data class File(
     val info: ServerFileInfo,
@@ -26,8 +27,32 @@ data class File(
     val privateMeta: ByteArray,
     val size: Long?,
     val authorPubKey: String,
-    val statusCode: Long?
+    val statusCode: Long?,
+    val schemaVersion: Long?
 ) {
+
+    /**
+     * Holds information about the file.
+     *
+     * @property info         File's information created by server
+     * @property publicMeta   File's public metadata
+     * @property privateMeta  File's private metadata
+     * @property size         File's size
+     * @property authorPubKey Public key of the author of the file
+     * @property statusCode   Status code of retrieval and decryption of the file
+     */
+    @Deprecated("Use primary constructor with new parameter.")
+    constructor(
+        info: ServerFileInfo,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
+        size: Long?,
+        authorPubKey: String,
+        statusCode: Long?
+    ) : this(
+        info, publicMeta, privateMeta, size, authorPubKey, statusCode, null
+    )
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -36,6 +61,7 @@ data class File(
 
         if (size != other.size) return false
         if (statusCode != other.statusCode) return false
+        if (schemaVersion != other.schemaVersion) return false
         if (info != other.info) return false
         if (!publicMeta.contentEquals(other.publicMeta)) return false
         if (!privateMeta.contentEquals(other.privateMeta)) return false
@@ -47,10 +73,12 @@ data class File(
     override fun hashCode(): Int {
         var result = size?.hashCode() ?: 0
         result = 31 * result + (statusCode?.hashCode() ?: 0)
+        result = 31 * result + (schemaVersion?.hashCode() ?: 0)
         result = 31 * result + info.hashCode()
         result = 31 * result + publicMeta.contentHashCode()
         result = 31 * result + privateMeta.contentHashCode()
         result = 31 * result + authorPubKey.hashCode()
         return result
     }
+
 }

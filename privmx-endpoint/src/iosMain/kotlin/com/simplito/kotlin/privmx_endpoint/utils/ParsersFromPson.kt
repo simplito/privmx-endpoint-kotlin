@@ -11,6 +11,8 @@
 
 package com.simplito.kotlin.privmx_endpoint.utils
 
+import com.simplito.java.privmx_endpoint.model.BIP39
+import com.simplito.kotlin.privmx_endpoint.model.BridgeIdentity
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.Event
@@ -26,6 +28,9 @@ import com.simplito.kotlin.privmx_endpoint.model.ServerFileInfo
 import com.simplito.kotlin.privmx_endpoint.model.ServerMessageInfo
 import com.simplito.kotlin.privmx_endpoint.model.Store
 import com.simplito.kotlin.privmx_endpoint.model.Thread
+import com.simplito.kotlin.privmx_endpoint.model.UserInfo
+import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint.model.VerificationRequest
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxEntryDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreDeletedEventData
@@ -34,13 +39,23 @@ import com.simplito.kotlin.privmx_endpoint.model.events.StoreStatsChangedEventDa
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
+import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue.PsonObject
-import kotlin.collections.get
 
 internal fun PsonObject.toContext(): Context = Context(
-        this["userId"]!!.typedValue(),
-        this["contextId"]!!.typedValue()
-    )
+    this["userId"]!!.typedValue(),
+    this["contextId"]!!.typedValue()
+)
+
+internal fun PsonObject.toUserWithPubKey(): UserWithPubKey = UserWithPubKey(
+    this["userId"]!!.typedValue(),
+    this["pubKey"]!!.typedValue()
+)
+
+internal fun PsonObject.toUserInfo(): UserInfo = UserInfo(
+    (this["user"] as PsonObject).toUserWithPubKey(),
+    this["isActive"]!!.typedValue()
+)
 
 internal fun PsonObject.toThread(): Thread = Thread(
     this["contextId"]!!.typedValue(),
@@ -58,6 +73,7 @@ internal fun PsonObject.toThread(): Thread = Thread(
     (this["policy"] as PsonObject).toContainerPolicy(),
     this["messagesCount"]?.typedValue(),
     this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue()
 )
 
 internal fun PsonObject.toStore(): Store = Store(
@@ -75,7 +91,8 @@ internal fun PsonObject.toStore(): Store = Store(
     this["privateMeta"]!!.typedValue(),
     (this["policy"] as PsonObject).toContainerPolicy(),
     this["filesCount"]?.typedValue(),
-    this["statusCode"]?.typedValue()
+    this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue()
 )
 
 internal fun PsonObject.toInbox(): Inbox = Inbox(
@@ -92,7 +109,8 @@ internal fun PsonObject.toInbox(): Inbox = Inbox(
     this["privateMeta"]!!.typedValue(),
     (this["filesConfig"] as PsonObject?)?.toFilesConfig(),
     (this["policy"] as PsonObject).toContainerPolicy(),
-    this["statusCode"]?.typedValue()
+    this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue()
 )
 
 internal fun PsonObject.toInboxPublicView(): InboxPublicView =
@@ -110,6 +128,7 @@ internal fun PsonObject.toInboxEntry(): InboxEntry = InboxEntry(
     this["authorPubKey"]!!.typedValue(),
     this["createDate"]?.typedValue(),
     this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue()
 )
 
 internal fun PsonObject.toContainerPolicy(): ContainerPolicy =
@@ -146,7 +165,8 @@ internal fun PsonObject.toMessage() = Message(
     this["privateMeta"]!!.typedValue(),
     this["data"]!!.typedValue(),
     this["authorPubKey"]!!.typedValue(),
-    this["statusCode"]?.typedValue()
+    this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue()
 )
 
 internal fun PsonObject.toFile() = File(
@@ -155,7 +175,8 @@ internal fun PsonObject.toFile() = File(
     this["privateMeta"]!!.typedValue(),
     this["size"]?.typedValue(),
     this["authorPubKey"]!!.typedValue(),
-    this["statusCode"]?.typedValue()
+    this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue()
 )
 
 internal fun PsonObject.toServerMessageInfo() = ServerMessageInfo(
@@ -249,6 +270,26 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "inbox\$Inbox" to PsonObject::toInbox,
 )
 
+
+internal fun PsonObject.toBip39(): BIP39 = BIP39(
+    this["mnemonic"]!!.typedValue(),
+    ExtKey(this["extKey"] as PsonValue.PsonLong),
+    this["entropy"]?.typedValue()!!
+)
+
+internal fun PsonObject.toBridgeIdentity(): BridgeIdentity = BridgeIdentity(
+    this["url"]!!.typedValue(),
+    this["pubKey"]?.typedValue(),
+    this["instanceId"]?.typedValue()
+)
+
+internal fun PsonObject.toVerificationRequest(): VerificationRequest = VerificationRequest(
+    this["contextId"]!!.typedValue(),
+    this["senderId"]!!.typedValue(),
+    this["senderPubKey"]!!.typedValue(),
+    this["date"]!!.typedValue(),
+    (this["bridgeIdentity"] as PsonObject?)?.toBridgeIdentity(),
+)
 
 @Throws(ClassCastException::class)
 internal inline fun <reified T : Any> PsonValue<Any>.typedValue(): T {
