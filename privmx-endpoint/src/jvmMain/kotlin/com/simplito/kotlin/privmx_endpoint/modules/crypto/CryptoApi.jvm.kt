@@ -10,23 +10,18 @@
 //
 package com.simplito.kotlin.privmx_endpoint.modules.crypto
 
+import com.simplito.java.privmx_endpoint.model.BIP39
 import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import java.lang.AutoCloseable
-import kotlin.Boolean
-import kotlin.ByteArray
-import kotlin.Exception
-import kotlin.IllegalStateException
-import kotlin.Long
-import kotlin.String
 
 /**
  * Defines cryptographic methods.
-*/
+ */
 actual class CryptoApi : AutoCloseable {
 
-    companion object{
+    companion object {
         init {
             LibLoader.load()
         }
@@ -136,6 +131,77 @@ actual class CryptoApi : AutoCloseable {
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual external fun convertPEMKeyToWIFKey(pemKey: String): String
+
+    /**
+     * Converts given public key in PGP format to its base58DER format.
+     *
+     * @param pgpKey public key to convert
+     * @return public key in base58DER format
+     */
+    @Throws(PrivmxException::class, NativeException::class)
+    actual external fun convertPGPAsn1KeyToBase58DERKey(pgpKey: String): String
+
+    /**
+     * Generates ECC key and BIP-39 mnemonic from a password using BIP-39.
+     *
+     * @param strength size of BIP-39 entropy, must be a multiple of 32
+     * @param password the password used to generate the Key
+     * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
+     */
+    @JvmOverloads
+    @Throws(PrivmxException::class, NativeException::class)
+    actual external fun generateBip39(strength: Long?, password: String): BIP39
+
+    /**
+     * Generates ECC key using BIP-39 mnemonic.
+     *
+     * @param mnemonic the BIP-39 entropy used to generate the Key
+     * @param password the password used to generate the Key
+     * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
+     */
+    @JvmOverloads
+    @Throws(PrivmxException::class, NativeException::class)
+    actual external fun fromMnemonic(mnemonic: String, password: String): BIP39
+
+    /**
+     * Generates ECC key using BIP-39 entropy.
+     *
+     * @param entropy  the BIP-39 entropy used to generate the Key
+     * @param password the password used to generate the Key
+     * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
+     */
+    @JvmOverloads
+    @Throws(PrivmxException::class, NativeException::class)
+    actual external fun fromEntropy(entropy: ByteArray, password: String): BIP39
+
+    /**
+     * Converts BIP-39 entropy to mnemonic.
+     *
+     * @param entropy BIP-39 entropy
+     * @return BIP-39 mnemonic
+     */
+    @Throws(PrivmxException::class, NativeException::class)
+    actual external fun entropyToMnemonic(entropy: ByteArray): String
+
+    /**
+     * Converts BIP-39 mnemonic to entropy.
+     *
+     * @param mnemonic BIP-39 mnemonic
+     * @return BIP-39 entropy
+     */
+    @Throws(PrivmxException::class, NativeException::class)
+    actual external fun mnemonicToEntropy(mnemonic: String): ByteArray
+
+    /**
+     * Generates a seed used to generate a key using BIP-39 mnemonic with PBKDF2.
+     *
+     * @param mnemonic BIP-39 mnemonic
+     * @param password the password used to generate the seed
+     * @return generated seed
+     */
+    @JvmOverloads
+    @Throws(PrivmxException::class, NativeException::class)
+    actual external fun mnemonicToSeed(mnemonic: String, password: String): ByteArray
 
     /**
      * Generates a new symmetric key.
