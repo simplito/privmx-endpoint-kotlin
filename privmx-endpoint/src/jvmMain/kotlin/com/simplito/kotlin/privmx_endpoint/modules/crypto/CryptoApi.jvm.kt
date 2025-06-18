@@ -137,6 +137,8 @@ actual class CryptoApi : AutoCloseable {
      *
      * @param pgpKey public key to convert
      * @return public key in base58DER format
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual external fun convertPGPAsn1KeyToBase58DERKey(pgpKey: String): String
@@ -147,6 +149,8 @@ actual class CryptoApi : AutoCloseable {
      * @param strength size of BIP-39 entropy, must be a multiple of 32
      * @param password the password used to generate the Key
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @JvmOverloads
     @Throws(PrivmxException::class, NativeException::class)
@@ -158,6 +162,8 @@ actual class CryptoApi : AutoCloseable {
      * @param mnemonic the BIP-39 entropy used to generate the Key
      * @param password the password used to generate the Key
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @JvmOverloads
     @Throws(PrivmxException::class, NativeException::class)
@@ -169,6 +175,8 @@ actual class CryptoApi : AutoCloseable {
      * @param entropy  the BIP-39 entropy used to generate the Key
      * @param password the password used to generate the Key
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @JvmOverloads
     @Throws(PrivmxException::class, NativeException::class)
@@ -179,6 +187,8 @@ actual class CryptoApi : AutoCloseable {
      *
      * @param entropy BIP-39 entropy
      * @return BIP-39 mnemonic
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual external fun entropyToMnemonic(entropy: ByteArray): String
@@ -188,6 +198,8 @@ actual class CryptoApi : AutoCloseable {
      *
      * @param mnemonic BIP-39 mnemonic
      * @return BIP-39 entropy
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual external fun mnemonicToEntropy(mnemonic: String): ByteArray
@@ -198,6 +210,8 @@ actual class CryptoApi : AutoCloseable {
      * @param mnemonic BIP-39 mnemonic
      * @param password the password used to generate the seed
      * @return generated seed
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
      */
     @JvmOverloads
     @Throws(PrivmxException::class, NativeException::class)
