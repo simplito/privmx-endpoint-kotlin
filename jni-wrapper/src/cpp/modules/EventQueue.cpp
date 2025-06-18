@@ -27,23 +27,9 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_core_EventQueue_emitBreakEvent
         jclass clazz
 ) {
     JniContextUtils ctx(env);
-    try {
+    ctx.callVoidEndpointApi([]() {
         EventQueue::getInstance().emitBreakEvent();
-    } catch (const privmx::endpoint::core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
-    }
+    });
 }
 extern "C"
 JNIEXPORT jobject JNICALL
@@ -52,24 +38,14 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_core_EventQueue_waitEvent(
         jclass clazz
 ) {
     JniContextUtils ctx(env);
-    try {
-        return parseEvent(ctx,EventQueue::getInstance().waitEvent().get());
-    } catch (const privmx::endpoint::core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
+    jobject result;
+    ctx.callResultEndpointApi<jobject>(&result, [&ctx]() {
+        return parseEvent(ctx, EventQueue::getInstance().waitEvent().get());
+    });
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
     }
-    return nullptr;
+    return result;
 }
 extern "C"
 JNIEXPORT jobject JNICALL
@@ -78,24 +54,15 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_core_EventQueue_getEvent(
         jclass clazz
 ) {
     JniContextUtils ctx(env);
-    try {
+    jobject result;
+    ctx.callResultEndpointApi<jobject>(&result, [&ctx]() {
         auto eventHolder = EventQueue::getInstance().getEvent();
-        if(!eventHolder.has_value()) return nullptr;
-        return parseEvent(ctx,eventHolder.value().get());
-    } catch (const privmx::endpoint::core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
+        return !eventHolder.has_value() ?
+               nullptr :
+               parseEvent(ctx, eventHolder.value().get());
+    });
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
     }
-    return nullptr;
+    return result;
 }
