@@ -11,6 +11,8 @@
 
 #include "utils.hpp"
 
+void replace_all(std::string &input, const std::string &from, const std::string &to);
+
 std::string JniContextUtils::jString2string(jstring str) {
     const char *tmp = _env->GetStringUTFChars(str, NULL);
     std::string result(tmp);
@@ -115,4 +117,67 @@ jobject JniContextUtils::getKotlinUnit() {
     jclass unitCls = _env->FindClass("kotlin/Unit");
     jfieldID unitInstanceFID = _env->GetStaticFieldID(unitCls, "INSTANCE", "Lkotlin/Unit;");
     return _env->GetStaticObjectField(unitCls, unitInstanceFID);
+}
+
+void JniContextUtils::callVoidEndpointApi(const std::function<void()> &fun) {
+    try {
+        fun();
+    } catch (const privmx::endpoint::core::Exception &e) {
+        _env->Throw(coreException2jthrowable(e));
+    } catch (const IllegalStateException &e) {
+        _env->ThrowNew(
+                _env->FindClass("java/lang/IllegalStateException"),
+                e.what()
+        );
+    } catch (const std::exception &e) {
+        _env->ThrowNew(
+                _env->FindClass(
+                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
+                e.what()
+        );
+    } catch (...) {
+        _env->ThrowNew(
+                _env->FindClass(
+                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
+                "Unknown exception"
+        );
+    }
+}
+
+
+
+jclass JniContextUtils::findClass(const char *name) {
+    if (jclassLoader == nullptr) {
+        return _env->FindClass(name);
+    }
+    std::string nameStr(name);
+    replace_all(nameStr, "/", ".");
+    const char *binaryName = nameStr.c_str();
+    auto classLoaderClass = _env->FindClass("java/lang/ClassLoader");
+    auto gFindClassMethod = _env->GetMethodID(
+            classLoaderClass,
+            "loadClass",
+            "(Ljava/lang/String;)Ljava/lang/Class;");
+    return static_cast<jclass>(_env->CallObjectMethod(
+            jclassLoader,
+            gFindClassMethod,
+            _env->NewStringUTF(binaryName)));
+}
+
+void JniContextUtils::setClassLoaderFromObject(jobject object) {
+    auto objectClass = _env->GetObjectClass(object);
+    jclass classClass = _env->GetObjectClass(objectClass);
+    auto getClassLoaderMethod = _env->GetMethodID(
+            classClass,
+            "getClassLoader",
+            "()Ljava/lang/ClassLoader;");
+    jclassLoader = _env->CallObjectMethod(objectClass, getClassLoaderMethod);
+}
+
+void replace_all(std::string &input, const std::string &from, const std::string &to) {
+    size_t pos = 0;
+    while ((pos = input.find(from, pos)) != std::string::npos) {
+        input.replace(pos, from.size(), to);
+        pos += to.size();
+    }
 }

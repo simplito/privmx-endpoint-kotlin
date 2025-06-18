@@ -203,6 +203,158 @@ namespace privmx {
             );
         }
 
+        // UserWithPubKey
+        jobject userWithPubKey2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::core::UserWithPubKey userWithPubKey
+        ) {
+            jclass userCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/UserWithPubKey");
+            jmethodID initUserMID = ctx->GetMethodID(
+                    userCls,
+                    "<init>",
+                    "(Ljava/lang/String;Ljava/lang/String;)V"
+            );
+            return ctx->NewObject(
+                    userCls,
+                    initUserMID,
+                    ctx->NewStringUTF(userWithPubKey.userId.c_str()),
+                    ctx->NewStringUTF(userWithPubKey.pubKey.c_str())
+            );
+        }
+
+        //UserInfo
+        jobject userInfo2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::core::UserInfo userInfo
+        ) {
+            jclass userInfoCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/UserInfo");
+            jmethodID initUserInfoMID = ctx->GetMethodID(
+                    userInfoCls,
+                    "<init>",
+                    "("
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/UserWithPubKey;" // userWithPubKey
+                    "Z"
+                    ")V"
+            );
+            return ctx->NewObject(
+                    userInfoCls,
+                    initUserInfoMID,
+                    userWithPubKey2Java(ctx, userInfo.user),
+                    (jboolean) userInfo.isActive
+            );
+        }
+
+        jobject bridgeIdentity2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::core::BridgeIdentity bridgeIdentity_c
+        ) {
+            jclass bridgeIdentityCls = ctx.findClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/BridgeIdentity");
+            jmethodID initBridgeIdentityMID = ctx->GetMethodID(
+                    bridgeIdentityCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"
+                    "Ljava/lang/String;"
+                    "Ljava/lang/String;"
+                    ")V"
+            );
+
+            jstring pubKey_c = nullptr;
+            if (bridgeIdentity_c.pubKey.has_value()) {
+                pubKey_c = ctx->NewStringUTF(bridgeIdentity_c.pubKey.value().c_str());
+            }
+
+            jstring instanceId_c = nullptr;
+            if (bridgeIdentity_c.instanceId.has_value()) {
+                instanceId_c = ctx->NewStringUTF(bridgeIdentity_c.instanceId.value().c_str());
+            }
+
+            return ctx->NewObject(
+                    bridgeIdentityCls,
+                    initBridgeIdentityMID,
+                    ctx->NewStringUTF(bridgeIdentity_c.url.c_str()),
+                    pubKey_c,
+                    instanceId_c
+            );
+        }
+
+        jobject verificationRequest2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::core::VerificationRequest verificationRequest_c
+        ) {
+            jclass verificationRequestCls = ctx.findClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/VerificationRequest");
+            jmethodID initVerificationRequestMID = ctx->GetMethodID(
+                    verificationRequestCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"
+                    "Ljava/lang/String;"
+                    "Ljava/lang/String;"
+                    "Ljava/lang/Long;"
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/BridgeIdentity;"
+                    ")V"
+            );
+
+            jobject bridgeIdentity = nullptr;
+            if (verificationRequest_c.bridgeIdentity.has_value()) {
+                bridgeIdentity = bridgeIdentity2Java(ctx,
+                                                     verificationRequest_c.bridgeIdentity.value());
+            }
+
+            return ctx->NewObject(
+                    verificationRequestCls,
+                    initVerificationRequestMID,
+                    ctx->NewStringUTF(verificationRequest_c.contextId.c_str()),
+                    ctx->NewStringUTF(verificationRequest_c.senderId.c_str()),
+                    ctx->NewStringUTF(verificationRequest_c.senderPubKey.c_str()),
+                    ctx.long2jLong(verificationRequest_c.date),
+                    bridgeIdentity
+            );
+        }
+
+        //Crypto
+        jobject extKey2Java(JniContextUtils &ctx, privmx::endpoint::crypto::ExtKey extKey_c) {
+            jclass ExtKeyCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/modules/crypto/ExtKey");
+            jmethodID initExtKeyMID = ctx->GetMethodID(
+                    ExtKeyCls, "<init>", "(Ljava/lang/Long;)V");
+
+            auto *key = new privmx::endpoint::crypto::ExtKey(extKey_c);
+            return ctx->NewObject(
+                    ExtKeyCls,
+                    initExtKeyMID,
+                    ctx.long2jLong((jlong) key));
+        }
+
+        jobject BIP392Java(JniContextUtils &ctx, privmx::endpoint::crypto::BIP39_t BIP39_c) {
+            jclass BIP39Cls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/BIP39");
+            jmethodID initBIP39MID = ctx->GetMethodID(
+                    BIP39Cls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"                                            //mnemonic
+                    "Lcom/simplito/kotlin/privmx_endpoint/modules/crypto/ExtKey;"     //Ecc Key
+                    "[B"                                                            // BIP-39 entropy
+                    ")V"
+            );
+            jbyteArray entropy = ctx->NewByteArray(BIP39_c.entropy.size());
+            ctx->SetByteArrayRegion(entropy, 0, BIP39_c.entropy.size(),
+                                    (jbyte *) BIP39_c.entropy.data());
+
+            return ctx->NewObject(
+                    BIP39Cls,
+                    initBIP39MID,
+                    ctx->NewStringUTF(BIP39_c.mnemonic.c_str()),
+                    extKey2Java(ctx, BIP39_c.ext_key),
+                    entropy
+            );
+        }
+
         //Threads
         jobject thread2Java(JniContextUtils &ctx, privmx::endpoint::thread::Thread thread_c) {
             jclass threadCls = ctx->FindClass(
@@ -224,6 +376,7 @@ namespace privmx {
                     "[B"
                     "[B"
                     "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicy;"
+                    "Ljava/lang/Long;"
                     "Ljava/lang/Long;"
                     "Ljava/lang/Long;"
                     ")V"
@@ -277,7 +430,8 @@ namespace privmx {
                     privateMeta,
                     containerPolicy2Java(ctx, thread_c.policy),
                     ctx.long2jLong(thread_c.messagesCount),
-                    ctx.long2jLong(thread_c.statusCode)
+                    ctx.long2jLong(thread_c.statusCode),
+                    ctx.long2jLong(thread_c.schemaVersion)
             );
         }
 
@@ -307,7 +461,14 @@ namespace privmx {
             jmethodID initMessageMID = ctx->GetMethodID(
                     messageCls,
                     "<init>",
-                    "(Lcom/simplito/kotlin/privmx_endpoint/model/ServerMessageInfo;[B[B[BLjava/lang/String;Ljava/lang/Long;)V"
+                    "(Lcom/simplito/kotlin/privmx_endpoint/model/ServerMessageInfo;"
+                    "[B"
+                    "[B"
+                    "[B"
+                    "Ljava/lang/String;"
+                    "Ljava/lang/Long;"
+                    "Ljava/lang/Long;"
+                    ")V"
             );
 
             jbyteArray publicMeta = ctx->NewByteArray(message_c.publicMeta.size());
@@ -330,7 +491,8 @@ namespace privmx {
                     privateMeta,
                     data,
                     ctx->NewStringUTF(message_c.authorPubKey.c_str()),
-                    ctx.long2jLong(message_c.statusCode)
+                    ctx.long2jLong(message_c.statusCode),
+                    ctx.long2jLong(message_c.schemaVersion)
             );
         }
 
@@ -367,7 +529,8 @@ namespace privmx {
                     "[B" //privateMeta
                     "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicy;" //policy
                     "Ljava/lang/Long;"  //filesCount
-                    "Ljava/lang/Long;"
+                    "Ljava/lang/Long;"  //statusCode
+                    "Ljava/lang/Long;"  //schemaVersion
                     ")V"
             );
 
@@ -407,7 +570,8 @@ namespace privmx {
                     privateMeta,
                     containerPolicy2Java(ctx, store_c.policy),
                     ctx.long2jLong(store_c.filesCount),
-                    ctx.long2jLong(store_c.statusCode)
+                    ctx.long2jLong(store_c.statusCode),
+                    ctx.long2jLong(store_c.schemaVersion)
             );
         }
 
@@ -433,6 +597,7 @@ namespace privmx {
                     "Lcom/simplito/kotlin/privmx_endpoint/model/FilesConfig;" //filesConfig
                     "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicyWithoutItem;" //policy
                     "Ljava/lang/Long;" //statusCode
+                    "Ljava/lang/Long;" //schemaVersion
                     ")V"
             );
             jclass arrayCls = ctx->FindClass("java/util/ArrayList");
@@ -485,7 +650,8 @@ namespace privmx {
                     privateMeta,
                     filesConfig,
                     containerPolicyWithoutItem2Java(ctx, inbox_c.policy),
-                    ctx.long2jLong(inbox_c.statusCode)
+                    ctx.long2jLong(inbox_c.statusCode),
+                    ctx.long2jLong(inbox_c.schemaVersion)
             );
         }
 
@@ -504,6 +670,7 @@ namespace privmx {
                     "Ljava/lang/String;" //authorPubKey
                     "Ljava/lang/Long;" // createDate
                     "Ljava/lang/Long;" // statusCode
+                    "Ljava/lang/Long;" // schemaVersion
                     ")V"
             );
             jclass arrayCls = ctx->FindClass("java/util/ArrayList");
@@ -534,7 +701,8 @@ namespace privmx {
                     files,
                     ctx->NewStringUTF(inboxEntry_c.authorPubKey.c_str()),
                     ctx.long2jLong(inboxEntry_c.createDate),
-                    ctx.long2jLong(inboxEntry_c.statusCode)
+                    ctx.long2jLong(inboxEntry_c.statusCode),
+                    ctx.long2jLong(inboxEntry_c.schemaVersion)
             );
         }
 
@@ -620,6 +788,7 @@ namespace privmx {
                     "Ljava/lang/Long;"
                     "Ljava/lang/String;"
                     "Ljava/lang/Long;"
+                    "Ljava/lang/Long;"
                     ")V"
             );
 
@@ -639,7 +808,8 @@ namespace privmx {
                     privateMeta,
                     ctx.long2jLong(file_c.size),
                     ctx->NewStringUTF(file_c.authorPubKey.c_str()),
-                    ctx.long2jLong(file_c.statusCode)
+                    ctx.long2jLong(file_c.statusCode),
+                    ctx.long2jLong(file_c.schemaVersion)
             );
         }
 
@@ -786,5 +956,29 @@ namespace privmx {
                     ctx->NewStringUTF(inboxEntryDeletedEventData_c.entryId.c_str())
             );
         }
+
+        jobject contextCustomEventData2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::event::ContextCustomEventData contextCustomEvent_c
+        ) {
+            jclass contextCustomEventDataCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/ContextCustomEventData");
+            jmethodID initContextCustomEventDataMID = ctx->GetMethodID(
+                    contextCustomEventDataCls,
+                    "<init>",
+                    "(Ljava/lang/String;Ljava/lang/String;[B)V"
+            );
+            jbyteArray data = ctx->NewByteArray(contextCustomEvent_c.payload.size());
+            ctx->SetByteArrayRegion(data, 0, contextCustomEvent_c.payload.size(),
+                                    (jbyte *) contextCustomEvent_c.payload.data());
+            return ctx->NewObject(
+                    contextCustomEventDataCls,
+                    initContextCustomEventDataMID,
+                    ctx->NewStringUTF(contextCustomEvent_c.contextId.c_str()),
+                    ctx->NewStringUTF(contextCustomEvent_c.userId.c_str()),
+                    data
+            );
+        }
+
     } // wrapper
 } // privmx

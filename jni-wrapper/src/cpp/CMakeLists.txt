@@ -14,19 +14,19 @@ project("privmx-endpoint-kotlin")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
 
-if( NOT DEFINED CMAKE_DESTINATION_OS )
+if (NOT DEFINED CMAKE_DESTINATION_OS)
     set(CMAKE_DESTINATION_OS ${CMAKE_SYSTEM_NAME})
 endif ()
 
-if( NOT DEFINED CMAKE_DESTINATION_ARCHITECTURE)
-    if(CMAKE_DESTINATION_OS STREQUAL "Android" AND DEFINED CMAKE_ANDROID_ARCH_ABI)
+if (NOT DEFINED CMAKE_DESTINATION_ARCHITECTURE)
+    if (CMAKE_DESTINATION_OS STREQUAL "Android" AND DEFINED CMAKE_ANDROID_ARCH_ABI)
         set(CMAKE_DESTINATION_ARCHITECTURE ${CMAKE_ANDROID_ARCH_ABI})
-    else()
+    else ()
         set(CMAKE_DESTINATION_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
     endif ()
-endif()
+endif ()
 
-if("${CMAKE_DESTINATION_OS}" STREQUAL "Darwin")
+if ("${CMAKE_DESTINATION_OS}" STREQUAL "Darwin")
     set(file_extension "dylib")
     set(CMAKE_MACOSX_RPATH 1)
     set(CMAKE_INSTALL_RPATH "@loader_path")
@@ -90,11 +90,15 @@ set_target_properties(privmxendpointthread PROPERTIES IMPORTED_LOCATION ${CMAKE_
 add_library(privmxendpointinbox SHARED IMPORTED GLOBAL)
 set_target_properties(privmxendpointinbox PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/libs/${CMAKE_DESTINATION_OS}/${CMAKE_DESTINATION_ARCHITECTURE}/lib/libprivmxendpointinbox.${file_extension})
 
+add_library(privmxendpointevent SHARED IMPORTED GLOBAL)
+set_target_properties(privmxendpointevent PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/libs/${CMAKE_DESTINATION_OS}/${CMAKE_DESTINATION_ARCHITECTURE}/lib/libprivmxendpointevent.${file_extension})
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/${CMAKE_DESTINATION_OS}/${CMAKE_DESTINATION_ARCHITECTURE}/include ${JAVA_HOME}/include ${JAVA_HOME}/include/darwin)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED
         ${CMAKE_CURRENT_SOURCE_DIR}/parser.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/utils.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/jniUtils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/model_native_initializers.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/modules/Connection.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/modules/CryptoApi.cpp
@@ -104,6 +108,10 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         ${CMAKE_CURRENT_SOURCE_DIR}/modules/EventQueue.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/exceptions.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/modules/BackendRequester.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/modules/EventApi.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/modules/UserVerifierInterfaceJNI.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/modules/ExtKey.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/modules/Utils.cpp
 )
 
 # Android Debugging
@@ -112,7 +120,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 target_link_libraries(${CMAKE_PROJECT_NAME} ssl crypto)
 target_link_libraries(${CMAKE_PROJECT_NAME} gmp)
 target_link_libraries(${CMAKE_PROJECT_NAME} PocoFoundation PocoXML PocoJSON PocoNet PocoNetSSL PocoUtil PocoCrypto)
-target_link_libraries(${CMAKE_PROJECT_NAME} Pson libprivmx privmxendpointcore privmxendpointcrypto privmxendpointstore privmxendpointthread privmxendpointinbox)
+target_link_libraries(${CMAKE_PROJECT_NAME} Pson libprivmx privmxendpointcore privmxendpointcrypto privmxendpointstore privmxendpointthread privmxendpointinbox privmxendpointevent)
 message(DEBUG "Install to ${CMAKE_INSTALL_PREFIX}")
 install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
-install(IMPORTED_RUNTIME_ARTIFACTS crypto ssl gmp PocoFoundation PocoXML PocoJSON PocoNet PocoNetSSL PocoUtil PocoCrypto Pson libprivmx privmxendpointcore privmxendpointcrypto privmxendpointstore privmxendpointthread privmxendpointinbox DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(IMPORTED_RUNTIME_ARTIFACTS crypto ssl gmp PocoFoundation PocoXML PocoJSON PocoNet PocoNetSSL PocoUtil PocoCrypto Pson libprivmx privmxendpointcore privmxendpointcrypto privmxendpointstore privmxendpointthread privmxendpointinbox privmxendpointevent DESTINATION ${CMAKE_INSTALL_PREFIX})

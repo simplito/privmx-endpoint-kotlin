@@ -32,31 +32,22 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_core_BackendRequester_backendR
         ctx.nullCheck(params_as_json, "Params as json")) {
         return nullptr;
     }
-    try {
-        return ctx->NewStringUTF(
-                privmx::endpoint::core::BackendRequester::backendRequest(
-                        ctx.jString2string(server_url),
-                        ctx.jString2string(access_token),
-                        ctx.jString2string(method),
-                        ctx.jString2string(params_as_json)
-                ).c_str()
-        );
-    } catch (const privmx::endpoint::core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
+    jstring result;
+    ctx.callResultEndpointApi<jstring>(
+            &result,
+            [&ctx, &server_url, &method, &params_as_json, &access_token]() {
+                return ctx->NewStringUTF(
+                        privmx::endpoint::core::BackendRequester::backendRequest(
+                                ctx.jString2string(server_url),
+                                ctx.jString2string(access_token),
+                                ctx.jString2string(method),
+                                ctx.jString2string(params_as_json)
+                        ).c_str());
+            });
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
     }
-    return nullptr;
+    return result;
 }
 extern "C"
 JNIEXPORT jstring JNICALL
@@ -73,30 +64,22 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_core_BackendRequester_backendR
         ctx.nullCheck(params_as_json, "Params as json")) {
         return nullptr;
     }
-    try {
-        return ctx->NewStringUTF(
-                privmx::endpoint::core::BackendRequester::backendRequest(
-                        ctx.jString2string(server_url),
-                        ctx.jString2string(method),
-                        ctx.jString2string(params_as_json)
-                ).c_str()
-        );
-    } catch (const privmx::endpoint::core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
+    jstring result;
+    ctx.callResultEndpointApi<jstring>(
+            &result,
+            [&ctx, &server_url, &method, &params_as_json]() {
+                return ctx->NewStringUTF(
+                        privmx::endpoint::core::BackendRequester::backendRequest(
+                                ctx.jString2string(server_url),
+                                ctx.jString2string(method),
+                                ctx.jString2string(params_as_json)
+                        ).c_str()
+                );
+            });
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
     }
-    return nullptr;
+    return result;
 }
 
 extern "C"
@@ -119,31 +102,23 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_core_BackendRequester_backendR
         ctx.nullCheck(params_as_json, "Params as json")) {
         return nullptr;
     }
-    try {
-        return ctx->NewStringUTF(
-                privmx::endpoint::core::BackendRequester::backendRequest(
-                        ctx.jString2string(server_url),
-                        ctx.jString2string(api_key_id),
-                        ctx.jString2string(api_key_secret),
-                        mode,
-                        ctx.jString2string(method),
-                        ctx.jString2string(params_as_json)
-                ).c_str()
-        );
-    } catch (const privmx::endpoint::core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
+    jstring result;
+    ctx.callResultEndpointApi<jstring>(
+            &result,
+            [&ctx, &server_url, &method, &params_as_json, &api_key_id, &api_key_secret, &mode]() {
+                return ctx->NewStringUTF(
+                        privmx::endpoint::core::BackendRequester::backendRequest(
+                                ctx.jString2string(server_url),
+                                ctx.jString2string(api_key_id),
+                                ctx.jString2string(api_key_secret),
+                                mode,
+                                ctx.jString2string(method),
+                                ctx.jString2string(params_as_json)
+                        ).c_str()
+                );
+            });
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
     }
-    return nullptr;
+    return result;
 }
