@@ -22,6 +22,9 @@ import libprivmxendpoint.privmx_endpoint_newExtKey
 import libprivmxendpoint.pson_free_result
 import libprivmxendpoint.pson_free_value
 
+/**
+ * Class representing Extended keys and operations on it.
+ */
 @OptIn(ExperimentalForeignApi::class)
 actual class ExtKey private constructor() : AutoCloseable {
     private val _nativeExtKey: CPointerVar<cnames.structs.ExtKey> = nativeHeap.allocPointerTo()
@@ -36,6 +39,15 @@ actual class ExtKey private constructor() : AutoCloseable {
     }
 
     actual companion object {
+        /**
+         * Creates ExtKey from given seed.
+         *
+         * @param seed the seed used to generate Key
+         * @return ExtKey object
+         *
+         * @throws PrivmxException       thrown when method encounters an exception
+         * @throws NativeException       thrown when method encounters an unknown exception
+         */
         @Throws(PrivmxException::class, NativeException::class)
         actual fun fromSeed(seed: ByteArray): ExtKey = memScoped {
             val pson_result = allocPointerTo<pson_value>()
@@ -52,6 +64,15 @@ actual class ExtKey private constructor() : AutoCloseable {
             }
         }
 
+        /**
+         * Decodes ExtKey from Base58 format.
+         *
+         * @param base58 the ExtKey in Base58
+         * @return ExtKey object
+         *
+         * @throws PrivmxException       thrown when method encounters an exception
+         * @throws NativeException       thrown when method encounters an unknown exception
+         */
         @Throws(PrivmxException::class, NativeException::class)
         actual fun fromBase58(base58: String): ExtKey = memScoped {
             val pson_result = allocPointerTo<pson_value>()
@@ -68,6 +89,14 @@ actual class ExtKey private constructor() : AutoCloseable {
             }
         }
 
+        /**
+         * Generates a new ExtKey.
+         *
+         * @return ExtKey object
+         *
+         * @throws PrivmxException       thrown when method encounters an exception
+         * @throws NativeException       thrown when method encounters an unknown exception
+         */
         @Throws(PrivmxException::class, NativeException::class)
         actual fun generateRandom(): ExtKey = memScoped {
             val pson_result = allocPointerTo<pson_value>()
@@ -85,6 +114,16 @@ actual class ExtKey private constructor() : AutoCloseable {
         }
     }
 
+    /**
+     * Generates child ExtKey from a current ExtKey using BIP32.
+     *
+     * @param index number from 0 to 2^31-1
+     * @return ExtKey object
+     *
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun derive(index: Int): ExtKey = memScoped {
         val pson_result = allocPointerTo<pson_value>()
@@ -99,6 +138,16 @@ actual class ExtKey private constructor() : AutoCloseable {
         }
     }
 
+    /**
+     * Generates hardened child ExtKey from a current ExtKey using BIP32.
+     *
+     * @param index number from 0 to 2^31-1
+     * @return ExtKey object
+     *
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun deriveHardened(index: Int): ExtKey = memScoped {
         val pson_result = allocPointerTo<pson_value>()
@@ -113,6 +162,15 @@ actual class ExtKey private constructor() : AutoCloseable {
         }
     }
 
+    /**
+     * Converts ExtKey to Base58 string.
+     *
+     * @return ExtKey in Base58 format
+     *
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getPrivatePartAsBase58(): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
@@ -128,6 +186,15 @@ actual class ExtKey private constructor() : AutoCloseable {
         }
     }
 
+    /**
+     * Converts the public part of ExtKey to Base58 string.
+     *
+     * @return ExtKey in Base58 format
+     *
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getPublicPartAsBase58(): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
@@ -143,6 +210,15 @@ actual class ExtKey private constructor() : AutoCloseable {
         }
     }
 
+    /**
+     * Extracts ECC PrivateKey.
+     *
+     * @return ECC key in WIF format
+     *
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getPrivateKey(): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
@@ -158,6 +234,15 @@ actual class ExtKey private constructor() : AutoCloseable {
         }
     }
 
+    /**
+     * Extracts ECC PublicKey.
+     *
+     * @return ECC key in BASE58DER format
+     *
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getPublicKey(): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
@@ -173,6 +258,15 @@ actual class ExtKey private constructor() : AutoCloseable {
         }
     }
 
+    /**
+     * Extracts raw ECC PrivateKey.
+     *
+     * @return ECC PrivateKey
+     *
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getPrivateEncKey(): ByteArray = memScoped {
         val pson_result = allocPointerTo<pson_value>()
@@ -188,6 +282,15 @@ actual class ExtKey private constructor() : AutoCloseable {
         }
     }
 
+    /**
+     * Extracts ECC PublicKey Address.
+     *
+     * @return ECC Address in BASE58 format
+     *
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getPublicKeyAsBase58Address(): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
@@ -203,6 +306,15 @@ actual class ExtKey private constructor() : AutoCloseable {
         }
     }
 
+    /**
+     * Gets the chain code of Extended Key.
+     *
+     * @return Raw chain code
+     *
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getChainCode(): ByteArray = memScoped {
         val pson_result = allocPointerTo<pson_value>()
@@ -218,6 +330,17 @@ actual class ExtKey private constructor() : AutoCloseable {
         }
     }
 
+    /**
+     * Validates a signature of a message.
+     *
+     * @param message   data used on validation
+     * @param signature signature of data to verify
+     * @return message validation result
+     *
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun verifyCompactSignatureWithHash(
         message: ByteArray,
@@ -239,6 +362,15 @@ actual class ExtKey private constructor() : AutoCloseable {
         }
     }
 
+    /**
+     * Checks if ExtKey is Private.
+     *
+     * @return returns true if ExtKey is private
+     *
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun isPrivate(): Boolean = memScoped {
         val pson_result = allocPointerTo<pson_value>()
