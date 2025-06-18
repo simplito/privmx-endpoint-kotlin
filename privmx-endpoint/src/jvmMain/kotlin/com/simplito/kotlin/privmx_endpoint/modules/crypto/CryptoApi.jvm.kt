@@ -150,7 +150,7 @@ actual class CryptoApi : AutoCloseable {
      */
     @JvmOverloads
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun generateBip39(strength: Long?, password: String): BIP39
+    actual external fun generateBip39(strength: Long?, password: String?): BIP39
 
     /**
      * Generates ECC key using BIP-39 mnemonic.
@@ -161,7 +161,7 @@ actual class CryptoApi : AutoCloseable {
      */
     @JvmOverloads
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun fromMnemonic(mnemonic: String, password: String): BIP39
+    actual external fun fromMnemonic(mnemonic: String, password: String?): BIP39
 
     /**
      * Generates ECC key using BIP-39 entropy.
@@ -172,7 +172,7 @@ actual class CryptoApi : AutoCloseable {
      */
     @JvmOverloads
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun fromEntropy(entropy: ByteArray, password: String): BIP39
+    actual external fun fromEntropy(entropy: ByteArray, password: String?): BIP39
 
     /**
      * Converts BIP-39 entropy to mnemonic.
@@ -201,7 +201,7 @@ actual class CryptoApi : AutoCloseable {
      */
     @JvmOverloads
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun mnemonicToSeed(mnemonic: String, password: String): ByteArray
+    actual external fun mnemonicToSeed(mnemonic: String, password: String?): ByteArray
 
     /**
      * Generates a new symmetric key.

@@ -344,12 +344,12 @@ actual class CryptoApi : AutoCloseable {
     @Throws(PrivmxException::class, NativeException::class)
     actual fun generateBip39(
         strength: Long?,
-        password: String
+        password: String?
     ): BIP39 = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             strength.nullablePson,
-            password.pson
+            password.nullablePson
         )
         try {
             privmx_endpoint_execCryptoApi(
@@ -369,12 +369,12 @@ actual class CryptoApi : AutoCloseable {
     @Throws(PrivmxException::class, NativeException::class)
     actual fun fromMnemonic(
         mnemonic: String,
-        password: String
+        password: String?
     ): BIP39 = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             mnemonic.pson,
-            password.pson
+            password.nullablePson
         )
         try {
             privmx_endpoint_execCryptoApi(
@@ -394,12 +394,12 @@ actual class CryptoApi : AutoCloseable {
     @Throws(PrivmxException::class, NativeException::class)
     actual fun fromEntropy(
         entropy: ByteArray,
-        password: String
+        password: String?
     ): BIP39 = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             entropy.pson,
-            password.pson
+            password.nullablePson
         )
         try {
             privmx_endpoint_execCryptoApi(
@@ -457,9 +457,9 @@ actual class CryptoApi : AutoCloseable {
     }
 
     @Throws(PrivmxException::class, NativeException::class)
-    actual fun mnemonicToSeed(mnemonic: String, password: String): ByteArray = memScoped {
+    actual fun mnemonicToSeed(mnemonic: String, password: String?): ByteArray = memScoped {
         val result = allocPointerTo<pson_value>()
-        val args = makeArgs(mnemonic.pson, password.pson)
+        val args = makeArgs(mnemonic.pson, password.nullablePson)
         try {
             privmx_endpoint_execCryptoApi(
                 nativeCryptoApi.value,

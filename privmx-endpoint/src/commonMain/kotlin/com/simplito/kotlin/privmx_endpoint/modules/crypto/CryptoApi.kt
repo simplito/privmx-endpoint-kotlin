@@ -134,7 +134,7 @@ expect class CryptoApi() : AutoCloseable {
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
      */
     @Throws(PrivmxException::class, NativeException::class)
-    fun generateBip39(strength: Long?, password: String = ""): BIP39
+    fun generateBip39(strength: Long?, password: String? = null): BIP39
 
     /**
      * Generates ECC key using BIP-39 mnemonic.
@@ -144,7 +144,7 @@ expect class CryptoApi() : AutoCloseable {
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
      */
     @Throws(PrivmxException::class, NativeException::class)
-    fun fromMnemonic(mnemonic: String, password: String = ""): BIP39
+    fun fromMnemonic(mnemonic: String, password: String? = null): BIP39
 
     /**
      * Generates ECC key using BIP-39 entropy.
@@ -154,7 +154,7 @@ expect class CryptoApi() : AutoCloseable {
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
      */
     @Throws(PrivmxException::class, NativeException::class)
-    fun fromEntropy(entropy: ByteArray, password: String = ""): BIP39
+    fun fromEntropy(entropy: ByteArray, password: String? = null): BIP39
 
     /**
      * Converts BIP-39 entropy to mnemonic.
@@ -182,7 +182,7 @@ expect class CryptoApi() : AutoCloseable {
      * @return generated seed
      */
     @Throws(PrivmxException::class, NativeException::class)
-    fun mnemonicToSeed(mnemonic: String, password: String = ""): ByteArray
+    fun mnemonicToSeed(mnemonic: String, password: String? = null): ByteArray
 
     /**
      * Generates a new symmetric key.
