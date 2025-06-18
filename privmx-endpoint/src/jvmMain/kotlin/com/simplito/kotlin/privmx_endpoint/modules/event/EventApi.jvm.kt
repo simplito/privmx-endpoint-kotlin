@@ -36,9 +36,9 @@ actual constructor(connection: Connection) : AutoCloseable {
      * @param users       list of [UserWithPubKey] objects which defines the recipients of the event
      * @param channelName name of the Channel
      * @param eventData   event's data
-     * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -55,9 +55,9 @@ actual constructor(connection: Connection) : AutoCloseable {
      *
      * @param contextId   ID of the Context
      * @param channelName name of the Channel
-     * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -69,9 +69,9 @@ actual constructor(connection: Connection) : AutoCloseable {
      *
      * @param contextId   ID of the Context
      * @param channelName name of the Channel
-     * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -80,8 +80,6 @@ actual constructor(connection: Connection) : AutoCloseable {
 
     /**
      * Frees memory.
-     *
-     * @throws Exception when instance is currently closed.
      */
     actual override fun close() {
         deinit()
