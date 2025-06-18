@@ -16,6 +16,12 @@ import libprivmxendpoint.pson_free_value
 
 @OptIn(ExperimentalForeignApi::class)
 actual object Hex {
+    /**
+     * Encodes buffer to a string in Hex format.
+     *
+     * @param data buffer to encode
+     * @return string in Hex format
+     */
     actual fun encode(data: ByteArray): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(data.pson)
@@ -28,6 +34,12 @@ actual object Hex {
         }
     }
 
+    /**
+     * Decodes string in Hex to buffer.
+     *
+     * @param hexData string to decode
+     * @return buffer with decoded data
+     */
     actual fun decode(hexData: String): ByteArray = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(hexData.pson)
@@ -40,6 +52,12 @@ actual object Hex {
         }
     }
 
+    /**
+     * Checks if given string is in Hex format.
+     *
+     * @param data string to check
+     * @return data check result
+     */
     actual fun `is`(data: String): Boolean = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(data.pson)

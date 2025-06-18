@@ -27,6 +27,12 @@ internal val _nativeUtils by lazy {
 
 @OptIn(ExperimentalForeignApi::class)
 actual object Utils {
+    /**
+     * Removes all trailing whitespace.
+     *
+     * @param data
+     * @return copy of string with removed trailing whitespace.
+     */
     actual fun trim(data: String): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(data.pson)
@@ -39,6 +45,13 @@ actual object Utils {
         }
     }
 
+    /**
+     * Splits string by given delimiter (delimiter is removed).
+     *
+     * @param data      string to split
+     * @param delimiter string which will be split
+     * @return list containing all split parts
+     */
     actual fun split(
         data: String,
         delimiter: String
@@ -58,6 +71,11 @@ actual object Utils {
         }
     }
 
+    /**
+     * Removes all whitespace from the left of given string.
+     *
+     * @param data reference to string
+     */
     actual fun ltrim(data: String): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(data.pson)
@@ -70,6 +88,11 @@ actual object Utils {
         }
     }
 
+    /**
+     * Removes all whitespace from the right of given string.
+     *
+     * @param data string to check
+     */
     actual fun rtrim(data: String): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(data.pson)
