@@ -3,6 +3,9 @@ package com.simplito.kotlin.privmx_endpoint.modules.crypto
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
+/**
+ * Class representing Extended keys and operations on it.
+ */
 expect class ExtKey : AutoCloseable {
     companion object {
         /**
