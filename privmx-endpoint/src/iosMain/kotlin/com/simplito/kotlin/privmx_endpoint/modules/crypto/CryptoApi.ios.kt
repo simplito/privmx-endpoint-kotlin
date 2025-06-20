@@ -343,7 +343,7 @@ actual class CryptoApi : AutoCloseable {
 
     @Throws(PrivmxException::class, NativeException::class)
     actual fun generateBip39(
-        strength: Long?,
+        strength: Long,
         password: String
     ): BIP39 = memScoped {
         val pson_result = allocPointerTo<pson_value>()
