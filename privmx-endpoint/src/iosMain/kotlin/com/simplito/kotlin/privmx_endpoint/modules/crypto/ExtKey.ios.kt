@@ -36,16 +36,21 @@ actual class ExtKey private constructor() : AutoCloseable {
     }
 
     actual companion object {
+        private val _companionNativeExtKey: CPointerVar<cnames.structs.ExtKey> by lazy {
+            nativeHeap.allocPointerTo<cnames.structs.ExtKey>().apply {
+                privmx_endpoint_newExtKey(ptr)
+            }
+        }
+
         @Throws(PrivmxException::class, NativeException::class)
         actual fun fromSeed(seed: ByteArray): ExtKey = memScoped {
             val pson_result = allocPointerTo<pson_value>()
             val args = makeArgs(seed.pson)
             try {
-                ExtKey().apply {
-                    privmx_endpoint_newExtKey(_nativeExtKey.ptr)
-                    privmx_endpoint_execExtKey(_nativeExtKey.value, 0, args, pson_result.ptr)
-                    pson_result.value?.asResponse?.getResultOrThrow()
-                }
+                privmx_endpoint_execExtKey(_companionNativeExtKey.value, 0, args, pson_result.ptr)
+                val result =
+                    pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonLong
+                ExtKey(result)
             } finally {
                 pson_free_value(args)
                 pson_free_result(pson_result.value)
@@ -57,11 +62,10 @@ actual class ExtKey private constructor() : AutoCloseable {
             val pson_result = allocPointerTo<pson_value>()
             val args = makeArgs(base58.pson)
             try {
-                ExtKey().apply {
-                    privmx_endpoint_newExtKey(_nativeExtKey.ptr)
-                    privmx_endpoint_execExtKey(_nativeExtKey.value, 1, args, pson_result.ptr)
-                    pson_result.value?.asResponse?.getResultOrThrow()
-                }
+                privmx_endpoint_execExtKey(_companionNativeExtKey.value, 1, args, pson_result.ptr)
+                val result =
+                    pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonLong
+                ExtKey(result)
             } finally {
                 pson_free_value(args)
                 pson_free_result(pson_result.value)
@@ -73,11 +77,10 @@ actual class ExtKey private constructor() : AutoCloseable {
             val pson_result = allocPointerTo<pson_value>()
             val args = makeArgs()
             try {
-                ExtKey().apply {
-                    privmx_endpoint_newExtKey(_nativeExtKey.ptr)
-                    privmx_endpoint_execExtKey(_nativeExtKey.value, 2, args, pson_result.ptr)
-                    pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonLong
-                }
+                privmx_endpoint_execExtKey(_companionNativeExtKey.value, 2, args, pson_result.ptr)
+                val result =
+                    pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonLong
+                ExtKey(result)
             } finally {
                 pson_free_value(args)
                 pson_free_result(pson_result.value)
