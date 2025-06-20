@@ -276,8 +276,6 @@ actual class CryptoApi : AutoCloseable {
      *
      * @param pemKey private key to convert
      * @return Private key in WIF format
-     * @throws PrivmxException thrown when method encounters an exception
-     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun convertPEMKeyToWIFKey(pemKey: String): String = memScoped {
@@ -328,8 +326,6 @@ actual class CryptoApi : AutoCloseable {
      *
      * @param pgpKey public key to convert
      * @return public key in base58DER format
-     * @throws PrivmxException thrown when method encounters an exception
-     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun convertPGPAsn1KeyToBase58DERKey(pgpKey: String): String = memScoped {
@@ -357,8 +353,6 @@ actual class CryptoApi : AutoCloseable {
      * @param strength size of BIP-39 entropy, must be a multiple of 32
      * @param password the password used to generate the Key
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
-     * @throws PrivmxException thrown when method encounters an exception
-     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun generateBip39(
@@ -391,8 +385,6 @@ actual class CryptoApi : AutoCloseable {
      * @param mnemonic the BIP-39 entropy used to generate the Key
      * @param password the password used to generate the Key
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
-     * @throws PrivmxException thrown when method encounters an exception
-     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun fromMnemonic(
@@ -425,8 +417,6 @@ actual class CryptoApi : AutoCloseable {
      * @param entropy  the BIP-39 entropy used to generate the Key
      * @param password the password used to generate the Key
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
-     * @throws PrivmxException thrown when method encounters an exception
-     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun fromEntropy(
@@ -458,8 +448,6 @@ actual class CryptoApi : AutoCloseable {
      *
      * @param entropy BIP-39 entropy
      * @return BIP-39 mnemonic
-     * @throws PrivmxException thrown when method encounters an exception
-     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun entropyToMnemonic(entropy: ByteArray): String = memScoped {
@@ -486,8 +474,6 @@ actual class CryptoApi : AutoCloseable {
      *
      * @param mnemonic BIP-39 mnemonic
      * @return BIP-39 entropy
-     * @throws PrivmxException thrown when method encounters an exception
-     * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun mnemonicToEntropy(mnemonic: String): ByteArray = memScoped {
@@ -515,9 +501,6 @@ actual class CryptoApi : AutoCloseable {
      * @param mnemonic BIP-39 mnemonic
      * @param password the password used to generate the seed
      * @return generated seed
-     * @throws PrivmxException thrown when method encounters an exception
-     * @throws NativeException thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun mnemonicToSeed(mnemonic: String, password: String): ByteArray = memScoped {
