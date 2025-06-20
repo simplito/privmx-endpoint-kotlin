@@ -12,7 +12,7 @@
 package com.simplito.kotlin.privmx_endpoint.modules.crypto
 
 import cnames.structs.pson_value
-import com.simplito.java.privmx_endpoint.model.BIP39
+import com.simplito.kotlin.privmx_endpoint.model.BIP39
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
@@ -343,7 +343,7 @@ actual class CryptoApi : AutoCloseable {
 
     @Throws(PrivmxException::class, NativeException::class)
     actual fun generateBip39(
-        strength: Long?,
+        strength: Long,
         password: String?
     ): BIP39 = memScoped {
         val pson_result = allocPointerTo<pson_value>()

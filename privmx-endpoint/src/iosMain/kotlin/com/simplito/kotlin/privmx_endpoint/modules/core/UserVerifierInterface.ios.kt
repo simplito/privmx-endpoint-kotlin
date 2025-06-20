@@ -1,7 +1,7 @@
 package com.simplito.kotlin.privmx_endpoint.modules.core
 
 import cnames.structs.pson_value
-import com.simplito.kotlin.privmx_endpoint.model.UserVerifierInterface
+import com.simplito.kotlin.privmx_endpoint.modules.core.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
 import com.simplito.kotlin.privmx_endpoint.utils.asArgs
 import com.simplito.kotlin.privmx_endpoint.utils.pson
@@ -31,7 +31,10 @@ internal fun UserVerifierInterface.verifier(
         res?.pointed?.value = resC
 
         return@memScoped 0
-    } catch (e: Exception) {
-        return@memScoped 1
+    } catch (_: Exception) {
+        res?.pointed?.value = (args!!.asArgs).getValue().map {
+            false.pson
+        }.pson.toNativePson()
+        return@memScoped -1
     }
 }

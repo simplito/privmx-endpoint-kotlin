@@ -16,7 +16,7 @@ import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserInfo
-import com.simplito.kotlin.privmx_endpoint.model.UserVerifierInterface
+import com.simplito.kotlin.privmx_endpoint.modules.core.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.utils.KPSON_NULL
@@ -32,7 +32,9 @@ import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
 import com.simplito.kotlin.privmx_endpoint.utils.toUserInfo
 import com.simplito.kotlin.privmx_endpoint.utils.typedValue
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.StableRef
 import kotlinx.cinterop.allocPointerTo
+import kotlinx.cinterop.asStableRef
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.nativeHeap
 import kotlinx.cinterop.ptr
@@ -57,7 +59,7 @@ actual class Connection private constructor() : AutoCloseable {
         get() = _nativeConnection.value?.let { _nativeConnection }
             ?: throw IllegalStateException("Connection has been closed.")
 
-    private var userVerifierInterface: UserVerifierInterface? = null
+    private var userVerifierInterface: StableRef<UserVerifierInterface>? = null
     internal fun getConnectionPtr() = nativeConnection.value
 
     actual companion object {
@@ -230,11 +232,15 @@ actual class Connection private constructor() : AutoCloseable {
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun setUserVerifier(userVerifier: UserVerifierInterface): Unit = memScoped {
         val result = allocPointerTo<pson_value>()
-        userVerifierInterface = userVerifier
+        userVerifierInterface = StableRef.create(userVerifier)
         try {
             privmx_endpoint_setUserVerifier(
                 nativeConnection.value,
-                staticCFunction(userVerifier::verifier),
+                userVerifierInterface!!.asCPointer(),
+                staticCFunction { ctx, args, res ->
+                    val userVerifierInterface = ctx!!.asStableRef<UserVerifierInterface>()
+                    userVerifierInterface.get().verifier(args, res)
+                },
                 res = result.ptr,
             )
         } finally {
@@ -272,6 +278,8 @@ actual class Connection private constructor() : AutoCloseable {
             if (e.getCode() != 131073u) throw e
         }
         privmx_endpoint_freeConnection(nativeConnection.value)
+        userVerifierInterface?.dispose()
+        userVerifierInterface = null
         _nativeConnection.value = null
     }
 }

@@ -39,39 +39,28 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_init(
         jobject connection
 ) {
     JniContextUtils ctx(env);
-    try {
-        auto connection_c = getConnection(env, connection);
-        auto threadApi = thread::ThreadApi::create(*connection_c);
-        auto threadApi_ptr = new thread::ThreadApi();
-        *threadApi_ptr = threadApi;
-        return ctx.long2jLong((jlong) threadApi_ptr);
-    } catch (const core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const IllegalStateException &e) {
-        ctx->ThrowNew(
-                ctx->FindClass("java/lang/IllegalStateException"),
-                e.what()
-        );
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
+    jobject result;
+    ctx.callResultEndpointApi<jobject>(
+            &result,
+            [&ctx, &env, &connection]() {
+                auto connection_c = getConnection(env, connection);
+                auto threadApi = thread::ThreadApi::create(*connection_c);
+                auto threadApi_ptr = new thread::ThreadApi();
+                *threadApi_ptr = threadApi;
+                return ctx.long2jLong((jlong) threadApi_ptr);
+            });
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
     }
-    return nullptr;
+    return result;
 }
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_deinit(JNIEnv *env,
-                                                                        jobject thiz) {
+Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_deinit(
+        JNIEnv *env,
+        jobject thiz
+) {
     try {
         JniContextUtils ctx(env);
         //if null go to catch
@@ -107,50 +96,32 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_createThread(
         ctx.nullCheck(private_meta, "Private meta")) {
         return nullptr;
     }
-    try {
-        std::vector<core::UserWithPubKey> users_c = usersToVector(
-                ctx,
-                ctx.jObject2jArray(users)
-        );
-        std::vector<core::UserWithPubKey> managers_c = usersToVector(
-                ctx,
-                ctx.jObject2jArray(managers)
-        );
-        auto container_policies_opt = std::optional<core::ContainerPolicy>(
-                parseContainerPolicy(ctx,container_policies)
-        );
-
-        return ctx->NewStringUTF(
-                getThreadApi(ctx, thiz)->createThread(
-                        ctx.jString2string(context_id),
-                        users_c,
-                        managers_c,
-                        core::Buffer::from(ctx.jByteArray2String(public_meta)),
-                        core::Buffer::from(ctx.jByteArray2String(private_meta)),
-                        container_policies_opt
-                ).c_str()
-        );
-    } catch (const core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const IllegalStateException &e) {
-        ctx->ThrowNew(
-                ctx->FindClass("java/lang/IllegalStateException"),
-                e.what()
-        );
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
+    jstring result;
+    ctx.callResultEndpointApi<jstring>(
+            &result,
+            [&ctx, &thiz, &context_id, &users, &managers, &public_meta, &private_meta, &container_policies]() {
+                std::vector<core::UserWithPubKey> users_c = usersToVector(
+                        ctx,
+                        ctx.jObject2jArray(users));
+                std::vector<core::UserWithPubKey> managers_c = usersToVector(
+                        ctx,
+                        ctx.jObject2jArray(managers));
+                auto container_policies_opt = std::optional<core::ContainerPolicy>(
+                        parseContainerPolicy(ctx, container_policies));
+                return ctx->NewStringUTF(
+                        getThreadApi(ctx, thiz)->createThread(
+                                ctx.jString2string(context_id),
+                                users_c,
+                                managers_c,
+                                core::Buffer::from(ctx.jByteArray2String(public_meta)),
+                                core::Buffer::from(ctx.jByteArray2String(private_meta)),
+                                container_policies_opt
+                        ).c_str());
+            });
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
     }
-    return nullptr;
+    return result;
 }
 
 extern "C"
@@ -164,32 +135,19 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_getThread(
     if (ctx.nullCheck(thread_id, "Thread ID")) {
         return nullptr;
     }
-    try {
-        thread::Thread thread_c = getThreadApi(ctx, thiz)->getThread(
-                ctx.jString2string(thread_id)
-        );
-        return privmx::wrapper::thread2Java(ctx, thread_c);
-    } catch (const core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const IllegalStateException &e) {
-        ctx->ThrowNew(
-                ctx->FindClass("java/lang/IllegalStateException"),
-                e.what()
-        );
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
+    jobject result;
+    ctx.callResultEndpointApi<jobject>(
+            &result,
+            [&ctx, &thiz, &thread_id]() {
+                thread::Thread thread_c = getThreadApi(ctx, thiz)->getThread(
+                        ctx.jString2string(thread_id)
+                );
+                return privmx::wrapper::thread2Java(ctx, thread_c);
+            });
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
     }
-    return nullptr;
+    return result;
 }
 
 extern "C"
@@ -201,78 +159,65 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_listThreads(
         jlong skip,
         jlong limit,
         jstring sort_order,
-        jstring last_id
+        jstring last_id,
+        jstring query_as_json
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(context_id, "Context ID") ||
         ctx.nullCheck(sort_order, "Sort order")) {
         return nullptr;
     }
-
-    jclass pagingListCls = env->FindClass(
-            "com/simplito/kotlin/privmx_endpoint/model/PagingList");
-    jmethodID pagingListInitMID = env->GetMethodID(pagingListCls, "<init>",
-                                                   "(Ljava/lang/Long;Ljava/util/List;)V"
-    );
-    jclass arrayCls = env->FindClass("java/util/ArrayList");
-    jmethodID initArrayMID = env->GetMethodID(
-            arrayCls,
-            "<init>",
-            "()V"
-    );
-    jmethodID addToArrayMID = env->GetMethodID(
-            arrayCls,
-            "add",
-            "(Ljava/lang/Object;)Z"
-    );
-    try {
-        auto query = core::PagingQuery();
-        query.skip = skip;
-        query.limit = limit;
-        query.sortOrder = ctx.jString2string(sort_order);
-        if (last_id != nullptr) {
-            query.lastId = ctx.jString2string(last_id);
-        }
-        core::PagingList<thread::Thread>
-                threads_c = getThreadApi(ctx, thiz)->listThreads(
-                ctx.jString2string(context_id),
-                query
-        );
-        jobject array = env->NewObject(arrayCls, initArrayMID);
-        for (auto &thread_c: threads_c.readItems) {
-            env->CallBooleanMethod(
-                    array,
-                    addToArrayMID,
-                    privmx::wrapper::thread2Java(ctx, thread_c)
-            );
-        }
-        return ctx->NewObject(
-                pagingListCls,
-                pagingListInitMID,
-                ctx.long2jLong(threads_c.totalAvailable),
-                array
-        );
-    } catch (const core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const IllegalStateException &e) {
-        ctx->ThrowNew(
-                ctx->FindClass("java/lang/IllegalStateException"),
-                e.what()
-        );
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
+    jobject result;
+    ctx.callResultEndpointApi<jobject>(
+            &result,
+            [&ctx, &thiz, &context_id, &skip, &limit, &sort_order, &last_id, &query_as_json]() {
+                jclass pagingListCls = ctx->FindClass(
+                        "com/simplito/kotlin/privmx_endpoint/model/PagingList");
+                jmethodID pagingListInitMID = ctx->GetMethodID(pagingListCls, "<init>",
+                                                               "(Ljava/lang/Long;Ljava/util/List;)V");
+                jclass arrayCls = ctx->FindClass("java/util/ArrayList");
+                jmethodID initArrayMID = ctx->GetMethodID(
+                        arrayCls,
+                        "<init>",
+                        "()V");
+                jmethodID addToArrayMID = ctx->GetMethodID(
+                        arrayCls,
+                        "add",
+                        "(Ljava/lang/Object;)Z");
+                auto query = core::PagingQuery();
+                query.skip = skip;
+                query.limit = limit;
+                query.sortOrder = ctx.jString2string(sort_order);
+                if (last_id != nullptr) {
+                    query.lastId = ctx.jString2string(last_id);
+                }
+                if (query_as_json != nullptr) {
+                    query.queryAsJson = ctx.jString2string(query_as_json);
+                }
+                core::PagingList<thread::Thread>
+                        threads_c = getThreadApi(ctx, thiz)->listThreads(
+                        ctx.jString2string(context_id),
+                        query
+                );
+                jobject array = ctx->NewObject(arrayCls, initArrayMID);
+                for (auto &thread_c: threads_c.readItems) {
+                    ctx->CallBooleanMethod(
+                            array,
+                            addToArrayMID,
+                            privmx::wrapper::thread2Java(ctx, thread_c)
+                    );
+                }
+                return ctx->NewObject(
+                        pagingListCls,
+                        pagingListInitMID,
+                        ctx.long2jLong(threads_c.totalAvailable),
+                        array
+                );
+            });
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
     }
-    return nullptr;
+    return result;
 }
 
 extern "C"
@@ -292,36 +237,22 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_sendMessage(
         ctx.nullCheck(data, "Data")) {
         return nullptr;
     }
-    try {
-        return env->NewStringUTF(
-                getThreadApi(ctx, thiz)->sendMessage(
-                        ctx.jString2string(thread_id),
-                        core::Buffer::from(ctx.jByteArray2String(public_meta)),
-                        core::Buffer::from(ctx.jByteArray2String(private_meta)),
-                        core::Buffer::from(ctx.jByteArray2String(data))
-                ).c_str()
-        );
-    } catch (const core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const IllegalStateException &e) {
-        ctx->ThrowNew(
-                ctx->FindClass("java/lang/IllegalStateException"),
-                e.what()
-        );
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
+    jstring result;
+    ctx.callResultEndpointApi<jstring>(
+            &result,
+            [&ctx, &thiz, &thread_id, &public_meta, &private_meta, &data]() {
+                return ctx->NewStringUTF(
+                        getThreadApi(ctx, thiz)->sendMessage(
+                                ctx.jString2string(thread_id),
+                                core::Buffer::from(ctx.jByteArray2String(public_meta)),
+                                core::Buffer::from(ctx.jByteArray2String(private_meta)),
+                                core::Buffer::from(ctx.jByteArray2String(data))
+                        ).c_str());
+            });
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
     }
-    return nullptr;
+    return result;
 }
 
 extern "C"
@@ -333,67 +264,58 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_listMessages(
         jlong skip,
         jlong limit,
         jstring sort_order,
-        jstring last_id
+        jstring last_id,
+        jstring query_as_json
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(thread_id, "Thread ID") ||
         ctx.nullCheck(sort_order, "Sort order")) {
         return nullptr;
     }
-    try {
-        jclass pagingListCls = env->FindClass(
-                "com/simplito/kotlin/privmx_endpoint/model/PagingList");
-        jmethodID pagingListInitMID = env->GetMethodID(pagingListCls, "<init>",
-                                                       "(Ljava/lang/Long;Ljava/util/List;)V"
-        );
-        jclass arrayCls = env->FindClass("java/util/ArrayList");
-        jmethodID initArrayMID = env->GetMethodID(arrayCls, "<init>", "()V");
-        jmethodID addToArrayMID = env->GetMethodID(arrayCls, "add", "(Ljava/lang/Object;)Z");
-        auto query = core::PagingQuery();
-        query.skip = skip;
-        query.limit = limit;
-        query.sortOrder = ctx.jString2string(sort_order);
-        if (last_id != nullptr) {
-            query.lastId = ctx.jString2string(last_id);
-        }
-        core::PagingList<thread::Message> messages_c = getThreadApi(ctx, thiz)->listMessages(
-                ctx.jString2string(thread_id),
-                query
-        );
-        jobject array = env->NewObject(arrayCls, initArrayMID);
-        for (auto &threadMessage_c: messages_c.readItems) {
-            env->CallBooleanMethod(array,
-                                   addToArrayMID,
-                                   privmx::wrapper::message2Java(ctx, threadMessage_c)
-            );
-        }
-        return ctx->NewObject(
-                pagingListCls,
-                pagingListInitMID,
-                ctx.long2jLong(messages_c.totalAvailable),
-                array
-        );
-    } catch (const core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const IllegalStateException &e) {
-        ctx->ThrowNew(
-                ctx->FindClass("java/lang/IllegalStateException"),
-                e.what()
-        );
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
+    jobject result;
+    ctx.callResultEndpointApi<jobject>(
+            &result,
+            [&ctx, &thiz, &thread_id, &skip, &limit, &sort_order, &last_id, &query_as_json]() {
+                jclass pagingListCls = ctx->FindClass(
+                        "com/simplito/kotlin/privmx_endpoint/model/PagingList");
+                jmethodID pagingListInitMID = ctx->GetMethodID(pagingListCls, "<init>",
+                                                               "(Ljava/lang/Long;Ljava/util/List;)V");
+                jclass arrayCls = ctx->FindClass("java/util/ArrayList");
+                jmethodID initArrayMID = ctx->GetMethodID(arrayCls, "<init>", "()V");
+                jmethodID addToArrayMID = ctx->GetMethodID(arrayCls, "add",
+                                                           "(Ljava/lang/Object;)Z");
+                auto query = core::PagingQuery();
+                query.skip = skip;
+                query.limit = limit;
+                query.sortOrder = ctx.jString2string(sort_order);
+                if (last_id != nullptr) {
+                    query.lastId = ctx.jString2string(last_id);
+                }
+                if (query_as_json != nullptr) {
+                    query.queryAsJson = ctx.jString2string(query_as_json);
+                }
+                core::PagingList<thread::Message> messages_c = getThreadApi(
+                        ctx,
+                        thiz)->
+                        listMessages(
+                        ctx.jString2string(thread_id),
+                        query);
+                jobject array = ctx->NewObject(arrayCls, initArrayMID);
+                for (auto &threadMessage_c: messages_c.readItems) {
+                    ctx->CallBooleanMethod(array,
+                                           addToArrayMID,
+                                           privmx::wrapper::message2Java(ctx, threadMessage_c));
+                }
+                return ctx->NewObject(
+                        pagingListCls,
+                        pagingListInitMID,
+                        ctx.long2jLong(messages_c.totalAvailable),
+                        array);
+            });
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
     }
-    return nullptr;
+    return result;
 }
 
 extern "C"
@@ -407,30 +329,11 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_deleteThread(
     if (ctx.nullCheck(thread_id, "Thread ID")) {
         return;
     }
-    try {
+    ctx.callVoidEndpointApi([&ctx, &thiz, &thread_id]() {
         getThreadApi(ctx, thiz)->deleteThread(
                 ctx.jString2string(thread_id)
         );
-    } catch (const core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const IllegalStateException &e) {
-        ctx->ThrowNew(
-                ctx->FindClass("java/lang/IllegalStateException"),
-                e.what()
-        );
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
-    }
+    });
 }
 
 extern "C"
@@ -444,30 +347,11 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_deleteMessage
     if (ctx.nullCheck(message_id, "Message ID")) {
         return;
     }
-    try {
+    ctx.callVoidEndpointApi([&ctx, &thiz, &message_id]() {
         getThreadApi(ctx, thiz)->deleteMessage(
                 ctx.jString2string(message_id)
         );
-    } catch (const core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const IllegalStateException &e) {
-        ctx->ThrowNew(
-                ctx->FindClass("java/lang/IllegalStateException"),
-                e.what()
-        );
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
-    }
+    });
 }
 
 extern "C"
@@ -493,49 +377,38 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_updateThread(
         ctx.nullCheck(private_meta, "Private meta")) {
         return;
     }
-    try {
-        std::vector<core::UserWithPubKey> users_c = usersToVector(
-                ctx,
-                ctx.jObject2jArray(users)
-        );
-        std::vector<core::UserWithPubKey> managers_c = usersToVector(
-                ctx,
-                ctx.jObject2jArray(managers)
-        );
-        auto container_policies_opt = std::optional<core::ContainerPolicy>(
-                parseContainerPolicy(ctx,container_policies)
-        );
-        getThreadApi(ctx, thiz)->updateThread(
-                ctx.jString2string(thread_id),
-                users_c,
-                managers_c,
-                core::Buffer::from(ctx.jByteArray2String(public_meta)),
-                core::Buffer::from(ctx.jByteArray2String(private_meta)),
-                version,
-                force == JNI_TRUE,
-                force_generate_new_key == JNI_TRUE,
-                container_policies_opt
-        );
-    } catch (const core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const IllegalStateException &e) {
-        ctx->ThrowNew(
-                ctx->FindClass("java/lang/IllegalStateException"),
-                e.what()
-        );
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
-    }
+    ctx.callVoidEndpointApi(
+            [
+                    &ctx,
+                    &thiz,
+                    &thread_id,
+                    &users,
+                    &managers,
+                    &public_meta,
+                    &private_meta,
+                    &version,
+                    &force,
+                    &force_generate_new_key,
+                    &container_policies]() {
+                std::vector<core::UserWithPubKey> users_c = usersToVector(
+                        ctx,
+                        ctx.jObject2jArray(users));
+                std::vector<core::UserWithPubKey> managers_c = usersToVector(
+                        ctx,
+                        ctx.jObject2jArray(managers));
+                auto container_policies_opt = std::optional<core::ContainerPolicy>(
+                        parseContainerPolicy(ctx, container_policies));
+                getThreadApi(ctx, thiz)->updateThread(
+                        ctx.jString2string(thread_id),
+                        users_c,
+                        managers_c,
+                        core::Buffer::from(ctx.jByteArray2String(public_meta)),
+                        core::Buffer::from(ctx.jByteArray2String(private_meta)),
+                        version,
+                        force == JNI_TRUE,
+                        force_generate_new_key == JNI_TRUE,
+                        container_policies_opt);
+            });
 }
 
 extern "C"
@@ -549,34 +422,19 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_getMessage(
     if (ctx.nullCheck(message_id, "Message ID")) {
         return nullptr;
     }
-    try {
+    jobject result;
+    ctx.callResultEndpointApi<jobject>(&result, [&ctx, &thiz, &message_id]() {
         return privmx::wrapper::message2Java(
                 ctx,
                 getThreadApi(ctx, thiz)->getMessage(
                         ctx.jString2string(message_id)
                 )
         );
-    } catch (const core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const IllegalStateException &e) {
-        ctx->ThrowNew(
-                ctx->FindClass("java/lang/IllegalStateException"),
-                e.what()
-        );
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
+    });
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
     }
-    return nullptr;
+    return result;
 }
 
 extern "C"
@@ -596,33 +454,14 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_updateMessage
         ctx.nullCheck(data, "Data")) {
         return;
     }
-    try {
+    ctx.callVoidEndpointApi([&ctx, &thiz, &message_id, &public_meta, &private_meta, &data]() {
         getThreadApi(ctx, thiz)->updateMessage(
                 ctx.jString2string(message_id),
                 core::Buffer::from(ctx.jByteArray2String(public_meta)),
                 core::Buffer::from(ctx.jByteArray2String(private_meta)),
                 core::Buffer::from(ctx.jByteArray2String(data))
         );
-    } catch (const core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const IllegalStateException &e) {
-        ctx->ThrowNew(
-                ctx->FindClass("java/lang/IllegalStateException"),
-                e.what()
-        );
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
-    }
+    });
 }
 extern "C"
 JNIEXPORT void JNICALL
@@ -631,28 +470,9 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_subscribeForT
         jobject thiz
 ) {
     JniContextUtils ctx(env);
-    try {
+    ctx.callVoidEndpointApi([&ctx, &thiz]() {
         getThreadApi(ctx, thiz)->subscribeForThreadEvents();
-    } catch (const core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const IllegalStateException &e) {
-        ctx->ThrowNew(
-                ctx->FindClass("java/lang/IllegalStateException"),
-                e.what()
-        );
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
-    }
+    });
 }
 extern "C"
 JNIEXPORT void JNICALL
@@ -661,28 +481,9 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_unsubscribeFr
         jobject thiz
 ) {
     JniContextUtils ctx(env);
-    try {
+    ctx.callVoidEndpointApi([&ctx, &thiz]() {
         getThreadApi(ctx, thiz)->unsubscribeFromThreadEvents();
-    } catch (const core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const IllegalStateException &e) {
-        ctx->ThrowNew(
-                ctx->FindClass("java/lang/IllegalStateException"),
-                e.what()
-        );
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
-    }
+    });
 }
 extern "C"
 JNIEXPORT void JNICALL
@@ -695,30 +496,11 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_subscribeForM
     if (ctx.nullCheck(thread_id, "Thread ID")) {
         return;
     }
-    try {
+    ctx.callVoidEndpointApi([&ctx, &thiz, &thread_id]() {
         getThreadApi(ctx, thiz)->subscribeForMessageEvents(
                 ctx.jString2string(thread_id)
         );
-    } catch (const core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const IllegalStateException &e) {
-        ctx->ThrowNew(
-                ctx->FindClass("java/lang/IllegalStateException"),
-                e.what()
-        );
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
-    }
+    });
 }
 extern "C"
 JNIEXPORT void JNICALL
@@ -731,28 +513,9 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_unsubscribeFr
     if (ctx.nullCheck(thread_id, "Thread ID")) {
         return;
     }
-    try {
+    ctx.callVoidEndpointApi([&ctx, &thiz, &thread_id]() {
         getThreadApi(ctx, thiz)->unsubscribeFromMessageEvents(
                 ctx.jString2string(thread_id)
         );
-    } catch (const core::Exception &e) {
-        env->Throw(ctx.coreException2jthrowable(e));
-    } catch (const IllegalStateException &e) {
-        ctx->ThrowNew(
-                ctx->FindClass("java/lang/IllegalStateException"),
-                e.what()
-        );
-    } catch (const std::exception &e) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                e.what()
-        );
-    } catch (...) {
-        env->ThrowNew(
-                env->FindClass(
-                        "com/simplito/kotlin/privmx_endpoint/model/exceptions/NativeException"),
-                "Unknown exception"
-        );
-    }
+    });
 }
