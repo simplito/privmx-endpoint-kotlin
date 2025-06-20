@@ -1,7 +1,7 @@
 package com.simplito.kotlin.privmx_endpoint.modules.core
 
 import cnames.structs.pson_value
-import com.simplito.kotlin.privmx_endpoint.model.UserVerifierInterface
+import com.simplito.kotlin.privmx_endpoint.modules.core.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
 import com.simplito.kotlin.privmx_endpoint.utils.asArgs
 import com.simplito.kotlin.privmx_endpoint.utils.pson
