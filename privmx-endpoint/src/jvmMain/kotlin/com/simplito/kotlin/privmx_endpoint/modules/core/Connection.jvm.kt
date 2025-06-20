@@ -25,7 +25,6 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
  */
 actual class Connection private constructor(
     private val api: Long?,
-    private val connectionId: Long?
 ) : AutoCloseable {
     actual companion object {
         init {
