@@ -9,9 +9,9 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
  */
 actual class ExtKey : AutoCloseable {
 
-    private val key: Long
+    private val key: Long?
 
-    private constructor(key: Long) {
+    private constructor(key: Long?) {
         this.key = key
     }
 
