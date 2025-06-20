@@ -31,7 +31,10 @@ internal fun UserVerifierInterface.verifier(
         res?.pointed?.value = resC
 
         return@memScoped 0
-    } catch (e: Exception) {
-        return@memScoped 1
+    } catch (_: Exception) {
+        res?.pointed?.value = (args!!.asArgs).getValue().map {
+            false.pson
+        }.pson.toNativePson()
+        return@memScoped -1
     }
 }
