@@ -150,7 +150,7 @@ actual class CryptoApi : AutoCloseable {
      */
     @JvmOverloads
     @Throws(PrivmxException::class, NativeException::class)
-    actual external fun generateBip39(strength: Long?, password: String): BIP39
+    actual external fun generateBip39(strength: Long, password: String): BIP39
 
     /**
      * Generates ECC key using BIP-39 mnemonic.
