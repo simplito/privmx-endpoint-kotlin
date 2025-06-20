@@ -134,7 +134,7 @@ expect class CryptoApi() : AutoCloseable {
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
      */
     @Throws(PrivmxException::class, NativeException::class)
-    fun generateBip39(strength: Long?, password: String = ""): BIP39
+    fun generateBip39(strength: Long, password: String = ""): BIP39
 
     /**
      * Generates ECC key using BIP-39 mnemonic.
