@@ -1,4 +1,4 @@
-package com.simplito.java.privmx_endpoint.model
+package com.simplito.kotlin.privmx_endpoint.model
 
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
 
