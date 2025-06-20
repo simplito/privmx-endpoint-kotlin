@@ -87,8 +87,12 @@ actual class Connection private constructor(
      * Gets the ID of the current connection.
      *
      * @return ID of the connection
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is not connected.
      */
-    actual fun getConnectionId() = this.connectionId
+    @Throws(java.lang.IllegalStateException::class, PrivmxException::class, NativeException::class)
+    actual external fun getConnectionId(): Long?
 
     /**
      * If there is an active connection then it
