@@ -17,9 +17,9 @@ import libprivmxendpoint.pson_free_value
 @OptIn(ExperimentalForeignApi::class)
 actual object Hex {
     /**
-     * Encodes buffer to a string in Hex format.
+     * Encodes byte array to a string in Hex format.
      *
-     * @param data buffer to encode
+     * @param data byte array to encode
      * @return string in Hex format
      */
     actual fun encode(data: ByteArray): String = memScoped {
@@ -35,10 +35,10 @@ actual object Hex {
     }
 
     /**
-     * Decodes string in Hex to buffer.
+     * Decodes string in Hex to byte array.
      *
      * @param hexData string to decode
-     * @return buffer with decoded data
+     * @return byte array with decoded data
      */
     actual fun decode(hexData: String): ByteArray = memScoped {
         val pson_result = allocPointerTo<pson_value>()

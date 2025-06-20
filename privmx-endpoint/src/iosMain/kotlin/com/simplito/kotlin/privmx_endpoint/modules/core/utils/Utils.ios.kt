@@ -31,7 +31,7 @@ actual object Utils {
      * Removes all trailing whitespace.
      *
      * @param data
-     * @return copy of string with removed trailing whitespace.
+     * @return copy of string with removed trailing whitespace
      */
     actual fun trim(data: String): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
@@ -46,11 +46,11 @@ actual object Utils {
     }
 
     /**
-     * Splits string by given delimiter (delimiter is removed).
+     * Splits a string using the provided delimiter.
      *
-     * @param data      string to split
+     * @param data      the string to be split
      * @param delimiter string which will be split
-     * @return list containing all split parts
+     * @return split parts
      */
     actual fun split(
         data: String,
@@ -75,6 +75,7 @@ actual object Utils {
      * Removes all whitespace from the left of given string.
      *
      * @param data reference to string
+     * @return copy of string without whitespace at the beginning
      */
     actual fun ltrim(data: String): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
@@ -92,6 +93,7 @@ actual object Utils {
      * Removes all whitespace from the right of given string.
      *
      * @param data string to check
+     * @return copy of string without whitespace at the end
      */
     actual fun rtrim(data: String): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
