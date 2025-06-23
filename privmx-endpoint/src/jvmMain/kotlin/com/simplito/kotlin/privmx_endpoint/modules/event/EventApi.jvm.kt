@@ -80,6 +80,8 @@ actual constructor(connection: Connection) : AutoCloseable {
 
     /**
      * Frees memory.
+     *
+     * @throws Exception when instance is currently closed.
      */
     actual override fun close() {
         deinit()

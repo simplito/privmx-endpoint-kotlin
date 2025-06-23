@@ -151,6 +151,7 @@ actual class ExtKey : AutoCloseable {
      *
      * @return Raw chain code
      */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun getChainCode(): ByteArray
 
     /**
