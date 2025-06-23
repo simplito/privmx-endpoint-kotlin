@@ -10,10 +10,6 @@
 //
 
 #include <jni.h>
-
-//
-// Created by Dawid Jenczewski on 29/08/2024.
-//
 #include <privmx/endpoint/core/EventQueue.hpp>
 #include "../utils.hpp"
 #include "../parser.h"
