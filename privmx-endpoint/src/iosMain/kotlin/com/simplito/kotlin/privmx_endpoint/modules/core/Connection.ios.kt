@@ -238,9 +238,9 @@ actual class Connection private constructor() : AutoCloseable {
      * e.g. Developer's Application Server or PKI Server.
      *
      * @param userVerifier an implementation of the [UserVerifierInterface]
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is not connected.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun setUserVerifier(userVerifier: UserVerifierInterface): Unit = memScoped {
@@ -266,9 +266,9 @@ actual class Connection private constructor() : AutoCloseable {
      *
      * @param contextId ID of the context
      * @return list of users Info
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is not connected.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun getContextUsers(contextId: String): List<UserInfo> = memScoped {
