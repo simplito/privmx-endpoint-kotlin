@@ -137,7 +137,7 @@ expect class CryptoApi() : AutoCloseable {
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun convertPGPAsn1KeyToBase58DERKey(pgpKey: String): String
 
     /**
