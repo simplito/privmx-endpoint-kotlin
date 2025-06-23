@@ -347,7 +347,7 @@ actual class CryptoApi : AutoCloseable {
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun convertPGPAsn1KeyToBase58DERKey(pgpKey: String): String = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs(pgpKey.pson)
