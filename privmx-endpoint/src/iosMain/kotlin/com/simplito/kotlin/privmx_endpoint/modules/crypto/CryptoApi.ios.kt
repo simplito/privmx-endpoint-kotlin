@@ -321,6 +321,12 @@ actual class CryptoApi : AutoCloseable {
         }
     }
 
+    /**
+     * Converts given public key in PGP format to its base58DER format.
+     *
+     * @param pgpKey public key to convert
+     * @return public key in base58DER format
+     */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun convertPGPAsn1KeyToBase58DERKey(pgpKey: String): String = memScoped {
         val result = allocPointerTo<pson_value>()
@@ -341,6 +347,13 @@ actual class CryptoApi : AutoCloseable {
         }
     }
 
+    /**
+     * Generates ECC key and BIP-39 mnemonic from a password using BIP-39.
+     *
+     * @param strength size of BIP-39 entropy, must be a multiple of 32
+     * @param password the password used to generate the Key
+     * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
+     */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun generateBip39(
         strength: Long,
@@ -366,6 +379,13 @@ actual class CryptoApi : AutoCloseable {
         }
     }
 
+    /**
+     * Generates ECC key using BIP-39 mnemonic.
+     *
+     * @param mnemonic the BIP-39 entropy used to generate the Key
+     * @param password the password used to generate the Key
+     * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
+     */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun fromMnemonic(
         mnemonic: String,
@@ -391,6 +411,13 @@ actual class CryptoApi : AutoCloseable {
         }
     }
 
+    /**
+     * Generates ECC key using BIP-39 entropy.
+     *
+     * @param entropy  the BIP-39 entropy used to generate the Key
+     * @param password the password used to generate the Key
+     * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
+     */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun fromEntropy(
         entropy: ByteArray,
@@ -416,6 +443,12 @@ actual class CryptoApi : AutoCloseable {
         }
     }
 
+    /**
+     * Converts BIP-39 entropy to mnemonic.
+     *
+     * @param entropy BIP-39 entropy
+     * @return BIP-39 mnemonic
+     */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun entropyToMnemonic(entropy: ByteArray): String = memScoped {
         val result = allocPointerTo<pson_value>()
@@ -436,6 +469,12 @@ actual class CryptoApi : AutoCloseable {
         }
     }
 
+    /**
+     * Converts BIP-39 mnemonic to entropy.
+     *
+     * @param mnemonic BIP-39 mnemonic
+     * @return BIP-39 entropy
+     */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun mnemonicToEntropy(mnemonic: String): ByteArray = memScoped {
         val result = allocPointerTo<pson_value>()
@@ -456,6 +495,13 @@ actual class CryptoApi : AutoCloseable {
         }
     }
 
+    /**
+     * Generates a seed used to generate a key using BIP-39 mnemonic with PBKDF2.
+     *
+     * @param mnemonic BIP-39 mnemonic
+     * @param password the password used to generate the seed
+     * @return generated seed
+     */
     @Throws(PrivmxException::class, NativeException::class)
     actual fun mnemonicToSeed(mnemonic: String, password: String): ByteArray = memScoped {
         val result = allocPointerTo<pson_value>()
