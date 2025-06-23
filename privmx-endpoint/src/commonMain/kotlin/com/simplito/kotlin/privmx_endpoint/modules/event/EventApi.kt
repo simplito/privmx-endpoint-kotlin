@@ -7,6 +7,9 @@ import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 
 /**
  * Manages PrivMX Bridge context custom events.
+ *
+ * @param connection active connection to PrivMX Bridge
+ * @throws IllegalStateException when passed [Connection] is not connected.
  */
 expect class EventApi
 @Throws(IllegalStateException::class)
@@ -19,9 +22,9 @@ constructor(connection: Connection) : AutoCloseable {
      * @param users       list of [UserWithPubKey] objects which defines the recipients of the event
      * @param channelName name of the Channel
      * @param eventData   event's data
-     * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -38,9 +41,9 @@ constructor(connection: Connection) : AutoCloseable {
      *
      * @param contextId   ID of the Context
      * @param channelName name of the Channel
-     * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
@@ -52,9 +55,9 @@ constructor(connection: Connection) : AutoCloseable {
      *
      * @param contextId   ID of the Context
      * @param channelName name of the Channel
-     * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
         PrivmxException::class, NativeException::class, IllegalStateException::class
