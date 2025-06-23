@@ -41,8 +41,9 @@ actual class CryptoApi : AutoCloseable {
      * @return Generated ECC key in WIF format
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun generatePrivateKey(randomSeed: String): String
 
     /**
@@ -56,8 +57,9 @@ actual class CryptoApi : AutoCloseable {
      * @return generated ECC key in WIF format
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun derivePrivateKey2(password: String, salt: String): String
 
     /**
@@ -67,8 +69,9 @@ actual class CryptoApi : AutoCloseable {
      * @return Generated ECC key in BASE58DER format
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun derivePublicKey(privateKey: String): String
 
     /**
@@ -79,8 +82,9 @@ actual class CryptoApi : AutoCloseable {
      * @return Encrypted data buffer
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun encryptDataSymmetric(data: ByteArray, symmetricKey: ByteArray): ByteArray
 
     /**
@@ -91,8 +95,9 @@ actual class CryptoApi : AutoCloseable {
      * @return Plain (decrypted) data buffer
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun decryptDataSymmetric(data: ByteArray, symmetricKey: ByteArray): ByteArray
 
     /**
@@ -103,8 +108,9 @@ actual class CryptoApi : AutoCloseable {
      * @return Signature of data
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun signData(data: ByteArray, privateKey: String): ByteArray
 
     /**
@@ -114,7 +120,11 @@ actual class CryptoApi : AutoCloseable {
      * @param signature of data
      * @param publicKey public ECC key in BASE58DER format used to validate data
      * @return data validation result
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun verifySignature(
         data: ByteArray,
         signature: ByteArray,
@@ -128,8 +138,9 @@ actual class CryptoApi : AutoCloseable {
      * @return Private key in WIF format
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun convertPEMKeyToWIFKey(pemKey: String): String
 
     /**
@@ -137,8 +148,11 @@ actual class CryptoApi : AutoCloseable {
      *
      * @param pgpKey public key to convert
      * @return public key in base58DER format
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun convertPGPAsn1KeyToBase58DERKey(pgpKey: String): String
 
     /**
@@ -147,9 +161,12 @@ actual class CryptoApi : AutoCloseable {
      * @param strength size of BIP-39 entropy, must be a multiple of 32
      * @param password the password used to generate the Key
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @JvmOverloads
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun generateBip39(strength: Long, password: String): BIP39
 
     /**
@@ -158,9 +175,12 @@ actual class CryptoApi : AutoCloseable {
      * @param mnemonic the BIP-39 entropy used to generate the Key
      * @param password the password used to generate the Key
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @JvmOverloads
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun fromMnemonic(mnemonic: String, password: String): BIP39
 
     /**
@@ -169,9 +189,12 @@ actual class CryptoApi : AutoCloseable {
      * @param entropy  the BIP-39 entropy used to generate the Key
      * @param password the password used to generate the Key
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @JvmOverloads
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun fromEntropy(entropy: ByteArray, password: String): BIP39
 
     /**
@@ -179,8 +202,11 @@ actual class CryptoApi : AutoCloseable {
      *
      * @param entropy BIP-39 entropy
      * @return BIP-39 mnemonic
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun entropyToMnemonic(entropy: ByteArray): String
 
     /**
@@ -188,8 +214,11 @@ actual class CryptoApi : AutoCloseable {
      *
      * @param mnemonic BIP-39 mnemonic
      * @return BIP-39 entropy
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun mnemonicToEntropy(mnemonic: String): ByteArray
 
     /**
@@ -198,16 +227,23 @@ actual class CryptoApi : AutoCloseable {
      * @param mnemonic BIP-39 mnemonic
      * @param password the password used to generate the seed
      * @return generated seed
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @JvmOverloads
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun mnemonicToSeed(mnemonic: String, password: String): ByteArray
 
     /**
      * Generates a new symmetric key.
      *
      * @return Generated key
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun generateKeySymmetric(): ByteArray
 
     /**

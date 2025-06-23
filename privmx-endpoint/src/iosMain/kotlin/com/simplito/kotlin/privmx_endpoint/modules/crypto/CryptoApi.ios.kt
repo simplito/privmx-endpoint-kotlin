@@ -66,8 +66,9 @@ actual class CryptoApi : AutoCloseable {
      * @return Generated ECC key in WIF format
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun generatePrivateKey(randomSeed: String): String = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs(randomSeed.pson)
@@ -98,8 +99,9 @@ actual class CryptoApi : AutoCloseable {
      * @return generated ECC key in WIF format
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun derivePrivateKey2(password: String, salt: String): String = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs(password.pson, salt.pson)
@@ -126,8 +128,9 @@ actual class CryptoApi : AutoCloseable {
      * @return Generated ECC key in BASE58DER format
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun derivePublicKey(privateKey: String): String = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs(privateKey.pson)
@@ -155,8 +158,9 @@ actual class CryptoApi : AutoCloseable {
      * @return Encrypted data buffer
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun encryptDataSymmetric(
         data: ByteArray,
         symmetricKey: ByteArray
@@ -187,8 +191,9 @@ actual class CryptoApi : AutoCloseable {
      * @return Plain (decrypted) data buffer
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun decryptDataSymmetric(
         data: ByteArray,
         symmetricKey: ByteArray
@@ -219,8 +224,9 @@ actual class CryptoApi : AutoCloseable {
      * @return Signature of data
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun signData(data: ByteArray, privateKey: String): ByteArray = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs(data.pson, privateKey.pson)
@@ -247,7 +253,11 @@ actual class CryptoApi : AutoCloseable {
      * @param signature of data
      * @param publicKey public ECC key in BASE58DER format used to validate data
      * @return data validation result
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun verifySignature(
         data: ByteArray,
         signature: ByteArray,
@@ -276,8 +286,11 @@ actual class CryptoApi : AutoCloseable {
      *
      * @param pemKey private key to convert
      * @return Private key in WIF format
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun convertPEMKeyToWIFKey(pemKey: String): String = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs(pemKey.pson)
@@ -301,7 +314,11 @@ actual class CryptoApi : AutoCloseable {
      * Generates a new symmetric key.
      *
      * @return Generated key
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun generateKeySymmetric(): ByteArray = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs()
@@ -326,8 +343,11 @@ actual class CryptoApi : AutoCloseable {
      *
      * @param pgpKey public key to convert
      * @return public key in base58DER format
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun convertPGPAsn1KeyToBase58DERKey(pgpKey: String): String = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs(pgpKey.pson)
@@ -353,8 +373,11 @@ actual class CryptoApi : AutoCloseable {
      * @param strength size of BIP-39 entropy, must be a multiple of 32
      * @param password the password used to generate the Key
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun generateBip39(
         strength: Long,
         password: String
@@ -385,8 +408,11 @@ actual class CryptoApi : AutoCloseable {
      * @param mnemonic the BIP-39 entropy used to generate the Key
      * @param password the password used to generate the Key
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun fromMnemonic(
         mnemonic: String,
         password: String
@@ -417,8 +443,11 @@ actual class CryptoApi : AutoCloseable {
      * @param entropy  the BIP-39 entropy used to generate the Key
      * @param password the password used to generate the Key
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun fromEntropy(
         entropy: ByteArray,
         password: String
@@ -448,8 +477,11 @@ actual class CryptoApi : AutoCloseable {
      *
      * @param entropy BIP-39 entropy
      * @return BIP-39 mnemonic
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun entropyToMnemonic(entropy: ByteArray): String = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs(entropy.pson)
@@ -474,8 +506,11 @@ actual class CryptoApi : AutoCloseable {
      *
      * @param mnemonic BIP-39 mnemonic
      * @return BIP-39 entropy
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun mnemonicToEntropy(mnemonic: String): ByteArray = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs(mnemonic.pson)
@@ -501,8 +536,11 @@ actual class CryptoApi : AutoCloseable {
      * @param mnemonic BIP-39 mnemonic
      * @param password the password used to generate the seed
      * @return generated seed
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun mnemonicToSeed(mnemonic: String, password: String): ByteArray = memScoped {
         val result = allocPointerTo<pson_value>()
         val args = makeArgs(mnemonic.pson, password.pson)
