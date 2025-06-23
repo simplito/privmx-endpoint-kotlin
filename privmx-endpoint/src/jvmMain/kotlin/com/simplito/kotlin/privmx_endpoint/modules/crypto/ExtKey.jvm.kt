@@ -25,6 +25,8 @@ actual class ExtKey : AutoCloseable {
          *
          * @param seed the seed used to generate Key
          * @return ExtKey object
+         * @throws PrivmxException thrown when method encounters an exception
+         * @throws NativeException thrown when method encounters an unknown exception
          */
         @JvmStatic
         @Throws(PrivmxException::class, NativeException::class)
@@ -35,6 +37,8 @@ actual class ExtKey : AutoCloseable {
          *
          * @param base58 the ExtKey in Base58
          * @return ExtKey object
+         * @throws PrivmxException thrown when method encounters an exception
+         * @throws NativeException thrown when method encounters an unknown exception
          */
         @JvmStatic
         @Throws(PrivmxException::class, NativeException::class)
@@ -44,18 +48,22 @@ actual class ExtKey : AutoCloseable {
          * Generates a new ExtKey.
          *
          * @return ExtKey object
+         * @throws PrivmxException thrown when method encounters an exception
+         * @throws NativeException thrown when method encounters an unknown exception
          */
         @JvmStatic
         @Throws(PrivmxException::class, NativeException::class)
         actual external fun generateRandom(): ExtKey
     }
 
-
     /**
      * Generates child ExtKey from a current ExtKey using BIP32.
      *
      * @param index number from 0 to 2^31-1
      * @return ExtKey object
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun derive(index: Int): ExtKey
@@ -65,6 +73,9 @@ actual class ExtKey : AutoCloseable {
      *
      * @param index number from 0 to 2^31-1
      * @return ExtKey object
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun deriveHardened(index: Int): ExtKey
@@ -73,6 +84,9 @@ actual class ExtKey : AutoCloseable {
      * Converts ExtKey to Base58 string.
      *
      * @return ExtKey in Base58 format
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun getPrivatePartAsBase58(): String
@@ -81,6 +95,9 @@ actual class ExtKey : AutoCloseable {
      * Converts the public part of ExtKey to Base58 string.
      *
      * @return ExtKey in Base58 format
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun getPublicPartAsBase58(): String
@@ -89,6 +106,9 @@ actual class ExtKey : AutoCloseable {
      * Extracts ECC PrivateKey.
      *
      * @return ECC key in WIF format
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun getPrivateKey(): String
@@ -97,6 +117,9 @@ actual class ExtKey : AutoCloseable {
      * Extracts ECC PublicKey.
      *
      * @return ECC key in BASE58DER format
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun getPublicKey(): String
@@ -105,6 +128,9 @@ actual class ExtKey : AutoCloseable {
      * Extracts raw ECC PrivateKey.
      *
      * @return ECC PrivateKey
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun getPrivateEncKey(): ByteArray
@@ -113,6 +139,9 @@ actual class ExtKey : AutoCloseable {
      * Extracts ECC PublicKey Address.
      *
      * @return ECC Address in BASE58 format
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun getPublicKeyAsBase58Address(): String
@@ -122,6 +151,7 @@ actual class ExtKey : AutoCloseable {
      *
      * @return Raw chain code
      */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun getChainCode(): ByteArray
 
     /**
@@ -130,6 +160,9 @@ actual class ExtKey : AutoCloseable {
      * @param message   data used on validation
      * @param signature signature of data to verify
      * @return message validation result
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun verifyCompactSignatureWithHash(
@@ -141,6 +174,9 @@ actual class ExtKey : AutoCloseable {
      * Checks if ExtKey is Private.
      *
      * @return returns true if ExtKey is private
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun isPrivate(): Boolean
