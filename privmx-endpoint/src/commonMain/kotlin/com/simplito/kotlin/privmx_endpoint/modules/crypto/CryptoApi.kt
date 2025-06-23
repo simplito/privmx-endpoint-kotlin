@@ -10,7 +10,7 @@
 //
 package com.simplito.kotlin.privmx_endpoint.modules.crypto
 
-import com.simplito.java.privmx_endpoint.model.BIP39
+import com.simplito.kotlin.privmx_endpoint.model.BIP39
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
@@ -138,7 +138,7 @@ expect class CryptoApi() : AutoCloseable {
      * @throws NativeException thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class)
-    fun generateBip39(strength: Long?, password: String = ""): BIP39
+    fun generateBip39(strength: Long, password: String = ""): BIP39
 
     /**
      * Generates ECC key using BIP-39 mnemonic.

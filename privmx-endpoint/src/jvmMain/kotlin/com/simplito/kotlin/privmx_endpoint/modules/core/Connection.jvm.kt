@@ -16,7 +16,7 @@ import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserInfo
-import com.simplito.kotlin.privmx_endpoint.model.UserVerifierInterface
+import com.simplito.kotlin.privmx_endpoint.modules.core.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
@@ -25,7 +25,6 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
  */
 actual class Connection private constructor(
     private val api: Long?,
-    private val connectionId: Long?
 ) : AutoCloseable {
     actual companion object {
         init {
@@ -88,8 +87,12 @@ actual class Connection private constructor(
      * Gets the ID of the current connection.
      *
      * @return ID of the connection
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is not connected.
      */
-    actual fun getConnectionId() = this.connectionId
+    @Throws(java.lang.IllegalStateException::class, PrivmxException::class, NativeException::class)
+    actual external fun getConnectionId(): Long?
 
     /**
      * If there is an active connection then it

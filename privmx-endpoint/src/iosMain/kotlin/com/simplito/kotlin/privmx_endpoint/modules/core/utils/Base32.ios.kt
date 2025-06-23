@@ -16,6 +16,12 @@ import libprivmxendpoint.pson_free_value
 
 @OptIn(ExperimentalForeignApi::class)
 actual object Base32 {
+    /**
+     * Encodes byte array to string in Base32 format.
+     *
+     * @param data byte array to encode
+     * @return string in Base32 format
+     */
     actual fun encode(data: ByteArray): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(data.pson)
@@ -28,6 +34,12 @@ actual object Base32 {
         }
     }
 
+    /**
+     * Decodes string in Base32 to byte array.
+     *
+     * @param base32Data string to decode
+     * @return byte array with decoded data
+     */
     actual fun decode(base32Data: String): ByteArray = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(base32Data.pson)
@@ -40,6 +52,12 @@ actual object Base32 {
         }
     }
 
+    /**
+     * Checks if given string is in Base32 format.
+     *
+     * @param data string to check
+     * @return data check result
+     */
     actual fun `is`(data: String): Boolean = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(data.pson)
