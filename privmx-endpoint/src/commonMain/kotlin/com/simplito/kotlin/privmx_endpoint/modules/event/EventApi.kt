@@ -66,6 +66,8 @@ constructor(connection: Connection) : AutoCloseable {
 
     /**
      * Frees memory.
+     *
+     * @throws Exception when instance is currently closed.
      */
     override fun close()
 }

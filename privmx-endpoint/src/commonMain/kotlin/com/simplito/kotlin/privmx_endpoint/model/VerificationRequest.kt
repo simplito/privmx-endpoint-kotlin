@@ -1,7 +1,6 @@
 package com.simplito.kotlin.privmx_endpoint.model
 
 /**
- * Represents a request used for verifying a sender in a specific context.
  *
  * @property contextId    ID of the Context.
  * @property senderId     ID of the sender.
