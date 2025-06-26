@@ -3,6 +3,8 @@ package Stacks.Kotlin
 import Stacks.Kotlin.inboxes.inboxApi
 import Stacks.Kotlin.stores.storeApi
 import Stacks.Kotlin.threads.threadApi
+import com.simplito.kotlin.privmx_endpoint.model.VerificationRequest
+import com.simplito.kotlin.privmx_endpoint.modules.core.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpoint
 import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpointContainer
 import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
@@ -55,6 +57,19 @@ fun makeConnection(){
     // END: Make connection snippet
 
     setupConnection(endpointContainer,endpointSession)
+}
+
+fun setUserVerifier() {
+    val userVerifier: UserVerifierInterface = object : UserVerifierInterface {
+        override fun verify(requests: List<VerificationRequest>): List<Boolean> {
+            return requests.map { request ->
+                // Your verification code for the request
+                true
+            }
+        }
+    }
+
+    endpointSession.connection.setUserVerifier(userVerifier)
 }
 
 fun getEndpoint(){
