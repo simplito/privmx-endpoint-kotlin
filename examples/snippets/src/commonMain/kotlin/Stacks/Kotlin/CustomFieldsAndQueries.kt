@@ -76,7 +76,7 @@ fun listingThreadsWithCustomQueries(query: String) {
     val pageSize = 100L
     val lastId = null
 
-    val threadsPagingList = endpointSession.threadApi?.listThreads(
+    val filteredThreadsPagingList = endpointSession.threadApi?.listThreads(
         contextId,
         startIndex,
         pageSize,
