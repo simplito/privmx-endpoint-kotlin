@@ -11,6 +11,7 @@
 package com.simplito.kotlin.privmx_endpoint_extra.lib
 
 import com.simplito.kotlin.privmx_endpoint.model.Event
+import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
@@ -31,6 +32,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
+import kotlin.jvm.JvmOverloads
 
 /**
  * Manages certificates, Platform sessions, and active connections.
@@ -125,17 +127,20 @@ class PrivmxEndpointContainer() : AutoCloseable {
         PrivmxException::class,
         NativeException::class
     )
+    @JvmOverloads
     fun connect(
         enableModule: Set<Modules>,
         userPrivateKey: String,
         solutionId: String,
-        bridgeUrl: String
+        bridgeUrl: String,
+        verificationOptions: PKIVerificationOptions? = null
     ): PrivmxEndpoint {
         val privmxEndpoint = PrivmxEndpoint(
             enableModule,
             userPrivateKey,
             solutionId,
-            bridgeUrl
+            bridgeUrl,
+            verificationOptions
         )
         containerScope.launch {
             connectionsMutex.withLock {
