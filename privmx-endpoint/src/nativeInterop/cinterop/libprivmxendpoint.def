@@ -1,3 +1,2 @@
-headers=privmx/endpoint/interface/endpoint.h Pson/pson.h
 staticLibraries = libgmp.a libopenssl.a libpmxend.a libpoco.a libpson.a
 noStringConversion= pson_new_binary pson_inspect_binary
