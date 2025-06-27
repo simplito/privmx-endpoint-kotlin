@@ -62,12 +62,10 @@ fun makeConnection(){
 }
 
 fun setUserVerifier() {
-    val userVerifier: UserVerifierInterface = object : UserVerifierInterface {
-        override fun verify(requests: List<VerificationRequest>): List<Boolean> {
-            return requests.map { request ->
-                // Your verification code for the request
-                true
-            }
+    val userVerifier = UserVerifierInterface { requests ->
+        requests.map { request ->
+            // Your verification code for the request
+            true
         }
     }
 
