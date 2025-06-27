@@ -11,6 +11,7 @@
 package com.simplito.kotlin.privmx_endpoint_extra.lib
 
 import com.simplito.kotlin.privmx_endpoint.model.Event
+import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
@@ -18,6 +19,7 @@ import com.simplito.kotlin.privmx_endpoint_extra.events.EventCallback
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventDispatcher
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
 import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
+import kotlin.jvm.JvmOverloads
 
 /**
  * Extends [BasicPrivmxEndpoint] with event callbacks dispatcher.
@@ -38,12 +40,14 @@ class PrivmxEndpoint
     PrivmxException::class,
     NativeException::class
 )
+@JvmOverloads
 constructor(
     enableModule: Set<Modules>,
     userPrivateKey: String,
     solutionId: String,
-    bridgeUrl: String
-) : BasicPrivmxEndpoint(enableModule, userPrivateKey, solutionId, bridgeUrl), AutoCloseable {
+    bridgeUrl: String,
+    verificationOptions: PKIVerificationOptions? = null
+) : BasicPrivmxEndpoint(enableModule, userPrivateKey, solutionId, bridgeUrl, verificationOptions), AutoCloseable {
     private val onRemoveChannel = { channel: String ->
         try {
             unsubscribeChannel(channel)
