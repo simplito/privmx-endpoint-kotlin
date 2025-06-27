@@ -87,7 +87,7 @@ actual class Connection private constructor() : AutoCloseable {
                         userPrivKey.pson,
                         solutionId.pson,
                         bridgeUrl.pson,
-                        verificationOptions?.pson ?: KPSON_NULL
+                        verificationOptions?.pson
                     )
                     val result = allocPointerTo<pson_value>().apply {
                         value = pson_new_object()
@@ -124,7 +124,7 @@ actual class Connection private constructor() : AutoCloseable {
                 val args = makeArgs(
                     solutionId.pson,
                     bridgeUrl.pson,
-                    verificationOptions?.pson ?: KPSON_NULL
+                    verificationOptions?.pson
                 )
                 try {
                     privmx_endpoint_newConnection(_nativeConnection.ptr)
