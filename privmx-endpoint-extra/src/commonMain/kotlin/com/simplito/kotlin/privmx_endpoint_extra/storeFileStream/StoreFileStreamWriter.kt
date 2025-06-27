@@ -32,9 +32,6 @@ class StoreFileStreamWriter private constructor(handle: Long, storeApi: StoreApi
      * @throws NativeException       if there is an unknown error while writing chunk
      * @throws IllegalStateException when storeApi is not initialized or there's no connection
      * @throws IOException           when `this` is closed
-     * @throws PrivmxException       when method encounters an exception
-     * @throws NativeException       when method encounters an unknown exception
-     * @throws IllegalStateException when [.storeApi] is closed
      */
     @Throws(
         PrivmxException::class,
