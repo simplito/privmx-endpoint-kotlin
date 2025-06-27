@@ -37,6 +37,11 @@ kotlin {
                         "-compilerOpts",
                         "-Isrc/nativeInterop/cinterop/privmx-endpoint/${it.name}/include"
                     )
+                    val headerFiles = fileTree("src/nativeInterop/cinterop/privmx-endpoint/${it.name}/include").matching {
+                        include("privmx/endpoint/**/cinterface/*.h")
+                        include("Pson/pson.h")
+                    }.files
+                    headers(headerFiles)
                 }
             }
         }
