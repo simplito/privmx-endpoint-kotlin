@@ -119,6 +119,7 @@ class PrivmxEndpointContainer() : AutoCloseable {
      * @param solutionId     `SolutionId` of the current project
      * @param userPrivateKey user private key used to authorize; generated from:
      * [CryptoApi.generatePrivateKey] or [CryptoApi.derivePrivateKey2]
+     * @param verificationOptions PrivMX Bridge server instance verification options using a PKI server
      * @return Created connection
      * @throws PrivmxException       if there is a problem during login
      * @throws NativeException       if there is an unknown problem during login

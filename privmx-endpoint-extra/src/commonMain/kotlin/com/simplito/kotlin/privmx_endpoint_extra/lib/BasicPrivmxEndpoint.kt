@@ -32,6 +32,7 @@ import kotlin.jvm.JvmOverloads
  * @param solutionId     `SolutionId` of the current project
  * @param userPrivateKey user private key used to authorize; generated from:
  * [CryptoApi.generatePrivateKey] or [CryptoApi.derivePrivateKey2]
+ * @param verificationOptions PrivMX Bridge server instance verification options using a PKI server
  * @throws IllegalStateException thrown if there is an exception during init modules
  * @throws PrivmxException       thrown if there is a problem during login
  * @throws NativeException       thrown if there is an **unknown** problem during login
