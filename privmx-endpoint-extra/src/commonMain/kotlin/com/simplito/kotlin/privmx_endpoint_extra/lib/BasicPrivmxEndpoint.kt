@@ -10,6 +10,7 @@
 //
 package com.simplito.kotlin.privmx_endpoint_extra.lib
 
+import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
@@ -19,6 +20,7 @@ import com.simplito.kotlin.privmx_endpoint.modules.inbox.InboxApi
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
 import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
 import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
+import kotlin.jvm.JvmOverloads
 
 /**
  * A collection of all PrivMX Endpoint modules. It represents a single connection to PrivMX Bridge.
@@ -40,16 +42,18 @@ open class BasicPrivmxEndpoint
     PrivmxException::class,
     NativeException::class
 )
+@JvmOverloads
 constructor(
     enableModule: Set<Modules>,
     userPrivateKey: String,
     solutionId: String,
-    bridgeUrl: String
+    bridgeUrl: String,
+    verificationOptions: PKIVerificationOptions? = null
 ) : AutoCloseable {
     /**
      * Reference to Connection module.
      */
-    val connection: Connection = Connection.connect(userPrivateKey, solutionId, bridgeUrl)
+    val connection: Connection = Connection.connect(userPrivateKey, solutionId, bridgeUrl,verificationOptions)
 
     /**
      * Reference to Store module.
