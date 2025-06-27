@@ -11,6 +11,9 @@
 
 package com.simplito.kotlin.privmx_endpoint.utils
 
+import com.simplito.kotlin.privmx_endpoint.model.Kvdb
+import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
+import com.simplito.kotlin.privmx_endpoint.model.ServerKvdbEntryInfo
 import com.simplito.kotlin.privmx_endpoint.model.BIP39
 import com.simplito.kotlin.privmx_endpoint.model.BridgeIdentity
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
@@ -198,6 +201,11 @@ internal fun <T> PsonObject.toPagingList(mapper: PsonObject.() -> T) = PagingLis
     this["readItems"]!!.typedList().map { (it as PsonObject).mapper() }
 )
 
+internal inline fun <reified T: Any> PsonObject.toValuePagingList() = PagingList(
+    this["totalAvailable"]?.typedValue(),
+    this["readItems"]!!.typedList().map { it.typedValue<T>() }
+)
+
 internal fun PsonObject.toEvent(): Event<*> = Event(
     this["type"]!!.typedValue(),
     this["channel"]!!.typedValue(),
@@ -290,6 +298,48 @@ internal fun PsonObject.toVerificationRequest(): VerificationRequest = Verificat
     this["date"]!!.typedValue(),
     (this["bridgeIdentity"] as PsonObject?)?.toBridgeIdentity(),
 )
+
+internal fun PsonObject.toKvdb(): Kvdb = Kvdb(
+    this["contextId"]!!.typedValue(),
+    this["kvdbId"]!!.typedValue(),
+    this["createDate"]!!.typedValue(),
+    this["creator"]!!.typedValue(),
+    this["lastModificationDate"]?.typedValue(),
+    this["lastModifier"]!!.typedValue(),
+    this["users"]!!.typedList().map { it.typedValue() },
+    this["managers"]!!.typedList().map { it.typedValue() },
+    this["version"]?.typedValue(),
+    this["publicMeta"]!!.typedValue(),
+    this["privateMeta"]!!.typedValue(),
+    this["entries"]?.typedValue(),
+    this["lastEntryDate"]?.typedValue(),
+    (this["policy"] as PsonObject?)?.toContainerPolicy(),
+    this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue(),
+)
+
+internal fun PsonObject.toKvdbEntry(): KvdbEntry = KvdbEntry(
+    (this["info"] as PsonObject).toServerKvdbEntryInfo(),
+    this["publicMeta"]!!.typedValue(),
+    this["privateMeta"]!!.typedValue(),
+    this["data"]!!.typedValue(),
+    this["authorPubKey"]!!.typedValue(),
+    this["version"]?.typedValue(),
+    this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue(),
+)
+
+internal fun PsonObject.toServerKvdbEntryInfo(): ServerKvdbEntryInfo = ServerKvdbEntryInfo(
+    this["kvdbId"]!!.typedValue(),
+    this["key"]!!.typedValue(),
+    this["createDate"]?.typedValue(),
+    this["author"]!!.typedValue()
+)
+
+@Throws(ClassCastException::class)
+internal inline fun <reified T : Any> PsonObject.toMap(): Map<String,T> {
+    return mapOf(*(getValue().map { it.key to it.value.typedValue<T>() }.toTypedArray()))
+}
 
 @Throws(ClassCastException::class)
 internal inline fun <reified T : Any> PsonValue<Any>.typedValue(): T {
