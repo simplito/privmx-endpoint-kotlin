@@ -225,7 +225,7 @@ expect class KvdbApi(connection: Connection) : AutoCloseable {
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         data: ByteArray,
-        version: Long
+        version: Long = 0
     )
 
     /**
