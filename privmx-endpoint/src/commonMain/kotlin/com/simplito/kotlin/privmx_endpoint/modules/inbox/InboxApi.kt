@@ -124,6 +124,7 @@ constructor(
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
      * @param queryAsJson stringified JSON object with a custom field to filter result
+     * @param sortBy      field name to sort elements by
      * @return list of Inboxes
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -138,7 +139,8 @@ constructor(
         limit: Long,
         sortOrder: String = "desc",
         lastId: String? = null,
-        queryAsJson: String? = null
+        queryAsJson: String? = null,
+        sortBy: String? = null
     ): PagingList<Inbox>
 
     /**
@@ -231,6 +233,7 @@ constructor(
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
      * @param queryAsJson stringified JSON object with a custom field to filter result
+     * @param sortBy      field name to sort elements by
      * @return list of entries
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -245,7 +248,8 @@ constructor(
         limit: Long,
         sortOrder: String = "desc",
         lastId: String? = null,
-        queryAsJson: String? = null
+        queryAsJson: String? = null,
+        sortBy: String? = null
     ): PagingList<InboxEntry>
 
     /**
