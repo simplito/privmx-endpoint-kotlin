@@ -29,12 +29,13 @@ import java.lang.AutoCloseable
  */
 actual class ThreadApi
 @Throws(IllegalStateException::class)
-actual constructor(connection: Connection): AutoCloseable {
+actual constructor(connection: Connection) : AutoCloseable {
     companion object {
         init {
             LibLoader.load()
         }
     }
+
     private var api: Long? = null
 
     init {
@@ -119,6 +120,7 @@ actual constructor(connection: Connection): AutoCloseable {
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
      * @param queryAsJson stringified JSON object with a custom field to filter result
+     * @param sortBy      field name to sort elements by
      * @return list of Threads
      * @throws IllegalStateException thrown when instance is closed.
      * @throws PrivmxException       thrown when method encounters an exception
@@ -132,7 +134,8 @@ actual constructor(connection: Connection): AutoCloseable {
         limit: Long,
         sortOrder: String,
         lastId: String?,
-        queryAsJson: String?
+        queryAsJson: String?,
+        sortBy: String?
     ): PagingList<Thread>
 
     /**
@@ -187,6 +190,7 @@ actual constructor(connection: Connection): AutoCloseable {
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
      * @param queryAsJson stringified JSON object with a custom field to filter result
+     * @param sortBy      field name to sort elements by
      * @return list of messages
      * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
@@ -200,7 +204,8 @@ actual constructor(connection: Connection): AutoCloseable {
         limit: Long,
         sortOrder: String,
         lastId: String?,
-        queryAsJson: String?
+        queryAsJson: String?,
+        sortBy: String?
     ): PagingList<Message>
 
     /**
@@ -280,7 +285,7 @@ actual constructor(connection: Connection): AutoCloseable {
      *
      * @throws Exception when instance is currently closed
      */
-    actual override fun close(){
+    actual override fun close() {
         deinit()
     }
 
