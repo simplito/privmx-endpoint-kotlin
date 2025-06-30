@@ -1,8 +1,11 @@
 package Stacks.Kotlin
 
+import Stacks.Kotlin.events.eventApi
 import Stacks.Kotlin.inboxes.inboxApi
 import Stacks.Kotlin.stores.storeApi
 import Stacks.Kotlin.threads.threadApi
+import com.simplito.kotlin.privmx_endpoint.model.VerificationRequest
+import com.simplito.kotlin.privmx_endpoint.modules.core.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpoint
 import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpointContainer
 import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
@@ -39,7 +42,8 @@ fun makeConnection(){
     val initModules = setOf(
         Modules.THREAD, // initializes ThreadApi to working with Threads
         Modules.STORE, // initializes StoreApi to working with Stores
-        Modules.INBOX // initializes InboxApi to working with Inboxes
+        Modules.INBOX, // initializes InboxApi to working with Inboxes
+        Modules.CUSTOM_EVENT // initializes EventApi to working with Custom Events
     ) // set of modules to activate in new connection
 
     val endpointContainer = PrivmxEndpointContainer().also {
@@ -55,6 +59,17 @@ fun makeConnection(){
     // END: Make connection snippet
 
     setupConnection(endpointContainer,endpointSession)
+}
+
+fun setUserVerifier() {
+    val userVerifier = UserVerifierInterface { requests ->
+        requests.map { request ->
+            // Your verification code for the request
+            true
+        }
+    }
+
+    endpointSession.connection.setUserVerifier(userVerifier)
 }
 
 fun getEndpoint(){
@@ -80,4 +95,5 @@ private fun setupConnection(ct: PrivmxEndpointContainer, conn: PrivmxEndpoint){
     threadApi = endpointSession.threadApi!!
     storeApi = endpointSession.storeApi!!
     inboxApi = endpointSession.inboxApi!!
+    eventApi = endpointSession.eventApi!!
 }
