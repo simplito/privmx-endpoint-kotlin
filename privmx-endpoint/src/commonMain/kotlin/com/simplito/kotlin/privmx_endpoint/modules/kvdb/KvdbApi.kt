@@ -1,8 +1,8 @@
 package com.simplito.kotlin.privmx_endpoint.modules.kvdb
 
+import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.Kvdb
 import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
-import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
@@ -136,6 +136,22 @@ expect class KvdbApi(connection: Connection) : AutoCloseable {
         kvdbId: String,
         key: String
     ): KvdbEntry
+
+    /**
+     * Check whether the KVDB entry exists.
+     *
+     * @param kvdbId KVDB ID of the KVDB entry to check
+     * @param key    key of the KVDB entry to check
+     * @return 'true' if the KVDB has an entry with given key, 'false' otherwise
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is closed.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun hasEntry(
+        kvdbId: String,
+        key: String
+    ): Boolean
 
     /**
      * Gets a list of KVDB entries keys from a KVDB.
@@ -284,8 +300,6 @@ expect class KvdbApi(connection: Connection) : AutoCloseable {
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun unsubscribeFromEntryEvents(kvdbId: String)
-
-    //TODO: Implement "hasEntry"
 
     /**
      * Frees memory.
