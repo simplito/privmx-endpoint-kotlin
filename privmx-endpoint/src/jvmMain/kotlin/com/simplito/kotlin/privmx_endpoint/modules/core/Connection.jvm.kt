@@ -118,6 +118,7 @@ actual class Connection private constructor(
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
      * @param queryAsJson stringified JSON object with a custom field to filter result
+     * @param sortBy      field name to sort elements by
      * @return list of Contexts
      * @throws IllegalStateException thrown when instance is not connected
      * @throws PrivmxException       thrown when method encounters an exception
@@ -130,7 +131,8 @@ actual class Connection private constructor(
         limit: Long,
         sortOrder: String,
         lastId: String?,
-        queryAsJson: String?
+        queryAsJson: String?,
+        sortBy: String?
     ): PagingList<Context>
 
     /**
