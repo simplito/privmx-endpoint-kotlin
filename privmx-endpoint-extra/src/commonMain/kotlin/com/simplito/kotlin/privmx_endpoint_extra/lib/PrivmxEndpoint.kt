@@ -11,23 +11,26 @@
 package com.simplito.kotlin.privmx_endpoint_extra.lib
 
 import com.simplito.kotlin.privmx_endpoint.model.Event
+import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventCallback
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventDispatcher
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
 import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
-import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
+import kotlin.jvm.JvmOverloads
 
 /**
  * Extends [BasicPrivmxEndpoint] with event callbacks dispatcher.
  *
  * @param enableModule   set of modules to initialize; should contain [Modules.THREAD]
  * to enable Thread module or [Modules.STORE] to enable Store module
- * @param bridgeUrl      Bridge's Endpoint URL
+ * @param bridgeUrl      Bridge Server URL
  * @param solutionId     `SolutionId` of the current project
  * @param userPrivateKey user private key used to authorize; generated from:
  * [CryptoApi.generatePrivateKey] or [CryptoApi.derivePrivateKey2]
+ * @param verificationOptions PrivMX Bridge server instance verification options using a PKI server
  * @throws IllegalStateException thrown if there is an exception during init modules
  * @throws PrivmxException       thrown if there is a problem during login
  * @throws NativeException       thrown if there is an **unknown** problem during login
@@ -38,12 +41,14 @@ class PrivmxEndpoint
     PrivmxException::class,
     NativeException::class
 )
+@JvmOverloads
 constructor(
     enableModule: Set<Modules>,
     userPrivateKey: String,
     solutionId: String,
-    bridgeUrl: String
-) : BasicPrivmxEndpoint(enableModule, userPrivateKey, solutionId, bridgeUrl), AutoCloseable {
+    bridgeUrl: String,
+    verificationOptions: PKIVerificationOptions? = null
+) : BasicPrivmxEndpoint(enableModule, userPrivateKey, solutionId, bridgeUrl, verificationOptions), AutoCloseable {
     private val onRemoveChannel = { channel: String ->
         try {
             unsubscribeChannel(channel)
@@ -145,6 +150,16 @@ constructor(
             }
             inboxApi.subscribeForInboxEvents()
         }
+
+        if (channel.module.startsWith("context") && eventApi != null) {
+            if (channel.type != null) {
+                if (channel.instanceId != null) {
+                    eventApi.subscribeForCustomEvents(channel.instanceId, channel.type)
+                } else {
+                    println("No contextId to subscribeChannel: " + channelStr)
+                }
+            }
+        }
     }
 
     private fun unsubscribeChannel(channelStr: String) {
@@ -189,6 +204,16 @@ constructor(
                 return
             }
             inboxApi.unsubscribeFromInboxEvents()
+        }
+
+        if (channel.module.startsWith("context") && eventApi != null) {
+            if (channel.type != null) {
+                if (channel.instanceId != null) {
+                    eventApi.unsubscribeFromCustomEvents(channel.instanceId, channel.type)
+                } else {
+                    println("No contextId to unsubscribeChannel: " + channelStr)
+                }
+            }
         }
     }
 

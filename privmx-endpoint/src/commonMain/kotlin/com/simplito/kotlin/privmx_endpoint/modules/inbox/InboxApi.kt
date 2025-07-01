@@ -123,6 +123,7 @@ constructor(
      * @param limit     limit of elements to return for query
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
      * @return list of Inboxes
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -136,7 +137,8 @@ constructor(
         skip: Long,
         limit: Long,
         sortOrder: String = "desc",
-        lastId: String? = null
+        lastId: String? = null,
+        queryAsJson: String? = null
     ): PagingList<Inbox>
 
     /**
@@ -174,6 +176,9 @@ constructor(
      * @param inboxId          ID of the Inbox to which the request applies
      * @param data             entry data to send
      * @param inboxFileHandles optional list of file handles that will be sent with the request
+     * @param userPrivKey sender can optionally provide a private key, which will be used:
+     * 1) to sign the sent data,
+     * 2) to derivation of the public key, which will then be transferred along with the sent data and can be used in the future for further secure communication with the sender
      * @return Inbox handle
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -225,6 +230,7 @@ constructor(
      * @param limit     limit of elements to return for query
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
      * @return list of entries
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -238,7 +244,8 @@ constructor(
         skip: Long,
         limit: Long,
         sortOrder: String = "desc",
-        lastId: String? = null
+        lastId: String? = null,
+        queryAsJson: String? = null
     ): PagingList<InboxEntry>
 
     /**
