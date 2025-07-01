@@ -1,5 +1,5 @@
 [versions]
-publishPrivmxEndpoint = "2.3.0-rc1"
+publishPrivmxEndpoint = "2.3.0"
 kotlinxIoCore = "0.7.0"
 kotlin-serialization = "2.1.20"
 serialization-json = "1.8.1"
