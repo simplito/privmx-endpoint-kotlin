@@ -10,6 +10,7 @@
 //
 package com.simplito.kotlin.privmx_endpoint_extra.lib
 
+import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
@@ -19,6 +20,7 @@ import com.simplito.kotlin.privmx_endpoint.modules.inbox.InboxApi
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
 import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
 import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
+import kotlin.jvm.JvmOverloads
 
 /**
  * A collection of all PrivMX Endpoint modules. It represents a single connection to PrivMX Bridge.
@@ -30,6 +32,7 @@ import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
  * @param solutionId     `SolutionId` of the current project
  * @param userPrivateKey user private key used to authorize; generated from:
  * [CryptoApi.generatePrivateKey] or [CryptoApi.derivePrivateKey2]
+ * @param verificationOptions PrivMX Bridge server instance verification options using a PKI server
  * @throws IllegalStateException thrown if there is an exception during init modules
  * @throws PrivmxException       thrown if there is a problem during login
  * @throws NativeException       thrown if there is an **unknown** problem during login
@@ -40,16 +43,18 @@ open class BasicPrivmxEndpoint
     PrivmxException::class,
     NativeException::class
 )
+@JvmOverloads
 constructor(
     enableModule: Set<Modules>,
     userPrivateKey: String,
     solutionId: String,
-    bridgeUrl: String
+    bridgeUrl: String,
+    verificationOptions: PKIVerificationOptions? = null
 ) : AutoCloseable {
     /**
      * Reference to Connection module.
      */
-    val connection: Connection = Connection.connect(userPrivateKey, solutionId, bridgeUrl)
+    val connection: Connection = Connection.connect(userPrivateKey, solutionId, bridgeUrl,verificationOptions)
 
     /**
      * Reference to Store module.
