@@ -114,7 +114,7 @@ expect class KvdbApi(connection: Connection) : AutoCloseable {
         contextId: String,
         skip: Long,
         limit: Long,
-        sortOrder: String,
+        sortOrder: String = "desc",
         lastId: String? = null,
         queryAsJson: String? = null,
         sortBy: String? = null
@@ -157,7 +157,7 @@ expect class KvdbApi(connection: Connection) : AutoCloseable {
         kvdbId: String,
         skip: Long,
         limit: Long,
-        sortOrder: String,
+        sortOrder: String = "desc",
         lastId: String? = null,
         queryAsJson: String? = null,
         sortBy: String? = null
@@ -183,7 +183,7 @@ expect class KvdbApi(connection: Connection) : AutoCloseable {
         kvdbId: String,
         skip: Long,
         limit: Long,
-        sortOrder: String,
+        sortOrder: String = "desc",
         lastId: String? = null,
         queryAsJson: String? = null,
         sortBy: String? = null
