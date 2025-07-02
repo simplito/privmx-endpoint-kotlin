@@ -52,6 +52,7 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     actual external fun createKvdb(
         contextId: String,
         users: List<UserWithPubKey>,
@@ -79,6 +80,7 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    @JvmOverloads
     actual external fun updateKvdb(
         kvdbId: String,
         users: List<UserWithPubKey>,
@@ -131,6 +133,7 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     actual external fun listKvdbs(
         contextId: String,
         skip: Long,
@@ -187,6 +190,7 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     actual external fun listEntriesKeys(
         kvdbId: String,
         skip: Long,
@@ -213,6 +217,7 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     actual external fun listEntries(
         kvdbId: String,
         skip: Long,
@@ -237,6 +242,7 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     actual external fun setEntry(
         kvdbId: String,
         key: String,
