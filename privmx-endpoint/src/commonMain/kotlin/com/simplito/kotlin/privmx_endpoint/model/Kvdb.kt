@@ -19,9 +19,6 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property policy Kvdb's policies
  * @property statusCode Retrieval and decryption status code
  * @property schemaVersion Version of the Kvdb data structure and how it is encoded/encrypted
- *
- * @category kvdb
- * @group Kvdb
  */
 data class Kvdb(
     val contextId: String,

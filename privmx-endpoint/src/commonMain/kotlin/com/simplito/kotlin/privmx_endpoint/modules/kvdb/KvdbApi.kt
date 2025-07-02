@@ -11,8 +11,6 @@ import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 
 /**
  * Manages PrivMX Bridge  Kvdbs and their messages.
- *
- * @category kvdb
  */
 expect class KvdbApi(connection: Connection) : AutoCloseable {
 

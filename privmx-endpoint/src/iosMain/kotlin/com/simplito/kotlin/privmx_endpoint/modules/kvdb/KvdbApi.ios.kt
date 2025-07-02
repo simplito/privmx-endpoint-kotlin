@@ -36,8 +36,6 @@ import libprivmxendpoint.pson_new_array
 
 /**
  * Manages PrivMX Bridge  Kvdbs and their messages.
- *
- * @category kvdb
  */
 @OptIn(ExperimentalForeignApi::class)
 actual class KvdbApi

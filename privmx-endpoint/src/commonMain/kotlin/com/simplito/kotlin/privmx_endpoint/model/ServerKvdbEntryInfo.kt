@@ -7,9 +7,6 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @param key Kvdb entry's key
  * @param createDate Entry's creation timestamp
  * @param author ID of the user who created the entry
- *
- * @category kvdb
- * @group Kvdb
  */
 class ServerKvdbEntryInfo(
     val kvdbId: String,
