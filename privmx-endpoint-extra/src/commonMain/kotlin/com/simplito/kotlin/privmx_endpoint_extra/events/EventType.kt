@@ -196,9 +196,9 @@ sealed class EventType<T: Any>(
         EventType<ContextCustomEventData>("context/$contextId/$channelName", "contextCustom")
 
     /**
-     * Predefined event type to catch deleted Kvdb events.
+     * Predefined event type to catch created Kvdb events.
      */
-data object KvdbDeletedEvent : EventType<KvdbDeletedEventData>("kvdb", "kvdbDeleted")
+    data object KvdbCreatedEvent : EventType<Kvdb>("kvdb", "kvdbCreated")
 
     /**
      * Predefined event type to catch updated Kvdb events.
@@ -211,9 +211,9 @@ data object KvdbDeletedEvent : EventType<KvdbDeletedEventData>("kvdb", "kvdbDele
     data object KvdbStatsEvent : EventType<KvdbStatsEventData>("kvdb", "kvdbStatsChanged")
 
     /**
-     * Predefined event type to catch created Kvdb events.
+     * Predefined event type to catch deleted Kvdb events.
      */
-    data object KvdbCreatedEvent : EventType<Kvdb>("kvdb", "kvdbCreated")
+    data object KvdbDeletedEvent : EventType<KvdbDeletedEventData>("kvdb", "kvdbDeleted")
 
     /**
      * Predefined event type to catch created KvdbEntry events.
