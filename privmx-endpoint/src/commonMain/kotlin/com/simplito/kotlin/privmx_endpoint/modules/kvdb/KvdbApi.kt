@@ -66,8 +66,8 @@ expect class KvdbApi(connection: Connection) : AutoCloseable {
         privateMeta: ByteArray,
         version: Long,
         force: Boolean,
-        forceGenerateNewKey: Boolean,
-        policies: ContainerPolicy?
+        forceGenerateNewKey: Boolean = false,
+        policies: ContainerPolicy? = null
     )
 
 
