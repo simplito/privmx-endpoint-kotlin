@@ -198,7 +198,7 @@ sealed class EventType<T: Any>(
     /**
      * Predefined event type to catch deleted Kvdb events.
      */
-    data object KvdbDeletedEvent : EventType<KvdbDeletedEventData>("kvdb", "inboxDeleted")
+data object KvdbDeletedEvent : EventType<KvdbDeletedEventData>("kvdb", "kvdbDeleted")
 
     /**
      * Predefined event type to catch updated Kvdb events.
