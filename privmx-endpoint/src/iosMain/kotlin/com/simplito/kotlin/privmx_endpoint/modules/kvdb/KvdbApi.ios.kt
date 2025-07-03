@@ -36,8 +36,6 @@ import libprivmxendpoint.pson_new_array
 
 /**
  * Manages PrivMX Bridge  Kvdbs and their messages.
- *
- * @category kvdb
  */
 @OptIn(ExperimentalForeignApi::class)
 actual class KvdbApi
@@ -274,6 +272,32 @@ actual constructor(connection: Connection) : AutoCloseable {
             privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 6, args, pson_result.ptr)
             val result = pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
             result.toKvdbEntry()
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
+
+    /**
+     * Check whether the KVDB entry exists.
+     *
+     * @param kvdbId KVDB ID of the KVDB entry to check
+     * @param key    key of the KVDB entry to check
+     * @return 'true' if the KVDB has an entry with given key, 'false' otherwise
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is closed.
+     */
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun hasEntry(kvdbId: String, key: String): Boolean = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            kvdbId.pson,
+            key.pson
+        )
+        try {
+            privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 16, args, pson_result.ptr)
+            pson_result.value?.asResponse?.getResultOrThrow()!!.typedValue()
         } finally {
             pson_free_value(args)
             pson_free_result(pson_result.value)
@@ -570,8 +594,6 @@ actual constructor(connection: Connection) : AutoCloseable {
         }
     }
 
-    //TODO: Implement "hasEntry"
-
     /**
      * Frees memory.
      *
@@ -582,3 +604,4 @@ actual constructor(connection: Connection) : AutoCloseable {
         _nativeKvdbApi.value = null
     }
 }
+

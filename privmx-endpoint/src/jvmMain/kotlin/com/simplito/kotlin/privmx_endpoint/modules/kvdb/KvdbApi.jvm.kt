@@ -52,6 +52,7 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     actual external fun createKvdb(
         contextId: String,
         users: List<UserWithPubKey>,
@@ -79,6 +80,7 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    @JvmOverloads
     actual external fun updateKvdb(
         kvdbId: String,
         users: List<UserWithPubKey>,
@@ -131,6 +133,7 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     actual external fun listKvdbs(
         contextId: String,
         skip: Long,
@@ -159,6 +162,19 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
     ): KvdbEntry
 
     /**
+     * Check whether the KVDB entry exists.
+     *
+     * @param kvdbId KVDB ID of the KVDB entry to check
+     * @param key    key of the KVDB entry to check
+     * @return 'true' if the KVDB has an entry with given key, 'false' otherwise
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is closed.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun hasEntry(kvdbId: String, key: String): Boolean
+
+    /**
      * Gets a list of KVDB entries keys from a KVDB.
      *
      * @param kvdbId      ID of the KVDB to list KVDB entries from
@@ -174,6 +190,7 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     actual external fun listEntriesKeys(
         kvdbId: String,
         skip: Long,
@@ -200,6 +217,7 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     actual external fun listEntries(
         kvdbId: String,
         skip: Long,
@@ -224,6 +242,7 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     actual external fun setEntry(
         kvdbId: String,
         key: String,
@@ -305,8 +324,6 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun unsubscribeFromEntryEvents(kvdbId: String)
-
-    //TODO: Implement "hasEntry"
 
     /**
      * Frees memory.

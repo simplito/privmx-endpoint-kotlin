@@ -11,9 +11,6 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property version Version number (changes on every on existing item)
  * @property statusCode Retrieval and decryption status code
  * @property schemaVersion Version of the Entry data structure and how it is encoded/encrypted
- *
- * @category kvdb
- * @group Kvdb
  */
 class KvdbEntry(
     val info: ServerKvdbEntryInfo,
