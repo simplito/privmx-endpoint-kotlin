@@ -9,6 +9,6 @@ package com.simplito.java.privmx_endpoint.model.events
  */
 data class KvdbStatsEventData(
     val kvdbId: String,
-    val lastEntryDate: Long,
-    val entries: Long
+    val lastEntryDate: Long?,
+    val entries: Long?
 ) 
