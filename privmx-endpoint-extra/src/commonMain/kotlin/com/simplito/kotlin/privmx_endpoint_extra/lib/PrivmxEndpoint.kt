@@ -155,6 +155,18 @@ constructor(
                 }
             }
         }
+
+        if (channel.module.startsWith("kvdb") && kvdbApi != null) {
+            if (channel.type != null && channel.type == "entries") {
+                if (channel.instanceId != null) {
+                    kvdbApi.subscribeForEntryEvents(channel.instanceId)
+                } else {
+                    println("No kvdbId to subscribeChannel: " + channelStr)
+                }
+                return
+            }
+            kvdbApi.subscribeForKvdbEvents()
+        }
     }
 
     private fun unsubscribeChannel(channelStr: String) {
@@ -209,6 +221,18 @@ constructor(
                     println("No contextId to unsubscribeChannel: " + channelStr)
                 }
             }
+        }
+
+        if (channel.module.startsWith("kvdb") && kvdbApi != null) {
+            if (channel.type != null && channel.type == "entries") {
+                if (channel.instanceId != null) {
+                    kvdbApi.unsubscribeFromEntryEvents(channel.instanceId)
+                } else {
+                    println("No kvdbId to unsubscribeChannel: " + channelStr)
+                }
+                return
+            }
+            kvdbApi.unsubscribeFromKvdbEvents()
         }
     }
 
