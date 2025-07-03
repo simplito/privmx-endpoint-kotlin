@@ -1,7 +1,7 @@
 package com.simplito.kotlin.privmx_endpoint.model
 
 /**
- * Holds all available information about a Entry.
+ * Holds all available information about an Entry.
  *
  * @property info Entry information created by server
  * @property publicMeta Entry public metadata

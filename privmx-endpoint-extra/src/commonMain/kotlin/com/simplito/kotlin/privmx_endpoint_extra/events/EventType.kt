@@ -196,45 +196,44 @@ sealed class EventType<T: Any>(
         EventType<ContextCustomEventData>("context/$contextId/$channelName", "contextCustom")
 
     /**
-     * Predefined event type to catch created Kvdb events.
+     * Predefined event type to catch created KVDB events.
      */
     data object KvdbCreatedEvent : EventType<Kvdb>("kvdb", "kvdbCreated")
 
     /**
-     * Predefined event type to catch updated Kvdb events.
+     * Predefined event type to catch updated KVDB events.
      */
     data object KvdbUpdatedEvent : EventType<Kvdb>("kvdb", "kvdbUpdated")
 
     /**
-     * Predefined event type to catch updated Kvdb stats events.
+     * Predefined event type to catch updated KVDB stats events.
      */
     data object KvdbStatsEvent : EventType<KvdbStatsEventData>("kvdb", "kvdbStatsChanged")
 
     /**
-     * Predefined event type to catch deleted Kvdb events.
+     * Predefined event type to catch deleted KVDB events.
      */
     data object KvdbDeletedEvent : EventType<KvdbDeletedEventData>("kvdb", "kvdbDeleted")
 
     /**
-     * Predefined event type to catch created KvdbEntry events.
-     *
-     * @property kvdbId ID of the Kvdb to observe
+     * Type to register on created KVDB entries events.
+     * @property kvdbId ID of the KVDB to observe
      */
     data class KvdbNewEntry(val kvdbId: String) :
         EventType<KvdbEntry>("kvdb/$kvdbId/entries", "kvdbNewEntry")
 
     /**
-     * Predefined event type to catch updated KvdbEntry events.
+     * Type to register on updated KVDB entries events.
      *
-     * @property kvdbId ID of the Kvdb to observe
+     * @property kvdbId ID of the KVDB to observe
      */
     data class KvdbEntryUpdatedEvent(val kvdbId: String) :
         EventType<KvdbEntry>("kvdb/$kvdbId/entries", "kvdbEntryUpdated")
 
     /**
-     * Predefined event type to catch deleted KvdbEntry events.
+     * Type to register on deleted KVDB entries events.
      *
-     * @property kvdbId ID of the Kvdb to observe
+     * @property kvdbId ID of the KVDB to observe
      */
     data class KvdbEntryDeletedEvent(val kvdbId: String) :
         EventType<KvdbDeletedEntryEventData>("kvdb/$kvdbId/entries", "kvdbEntryDeleted")

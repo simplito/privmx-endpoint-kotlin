@@ -80,7 +80,7 @@ constructor(
         if (enableModule.contains(Modules.CUSTOM_EVENT)) EventApi(connection) else null
 
     /**
-     * Reference to Kvdb module.
+     * Reference to KVDB module.
      */
     val kvdbApi: KvdbApi? =
         if (enableModule.contains(Modules.KVDB)) KvdbApi(connection) else null

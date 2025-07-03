@@ -1,11 +1,11 @@
 package com.simplito.java.privmx_endpoint.model.events
 
 /**
- * Holds Kvdb statistical data.
+ * Holds KVDB statistical data.
  *
- * @property kvdbId Kvdb ID
- * @property lastEntryDate Timestamp of the most recent Kvdb item
- * @property entries  Updated number of entries in the Kvdb
+ * @property kvdbId KVDB ID
+ * @property lastEntryDate Timestamp of the most recent KVDB item
+ * @property entries  Updated number of entries in the KVDB
  */
 data class KvdbStatsEventData(
     val kvdbId: String,
