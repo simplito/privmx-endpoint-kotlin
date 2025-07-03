@@ -31,6 +31,7 @@ import com.simplito.kotlin.privmx_endpoint.model.Thread
 import com.simplito.kotlin.privmx_endpoint.model.UserInfo
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.VerificationRequest
+import com.simplito.kotlin.privmx_endpoint.model.events.ContextCustomEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxEntryDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreDeletedEventData
@@ -248,6 +249,13 @@ internal fun PsonObject.toThreadStatsEventData() = ThreadStatsEventData(
     this["messagesCount"]?.typedValue(),
 )
 
+internal fun PsonObject.toContextCustomEventData() = ContextCustomEventData(
+    this["contextId"]!!.typedValue(),
+    this["userId"]!!.typedValue(),
+    this["data"]!!.typedValue(),
+    this["statusCode"]!!.typedValue()
+)
+
 private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "thread\$Thread" to PsonObject::toThread,
     "thread\$Thread" to PsonObject::toThread,
@@ -268,6 +276,7 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "inbox\$InboxEntry" to PsonObject::toInboxEntry,
     "inbox\$Inbox" to PsonObject::toInbox,
     "inbox\$Inbox" to PsonObject::toInbox,
+    "context\$ContextCustomEventData" to PsonObject::toContextCustomEventData
 )
 
 

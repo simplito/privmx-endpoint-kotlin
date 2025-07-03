@@ -17,9 +17,20 @@ package com.simplito.kotlin.privmx_endpoint.model.events
  * @property contextId id of inbox from which it was sent
  * @property userId id of user which sent it
  * @property data event data
+ * @property statusCode Payload decryption status
  */
 class ContextCustomEventData(
     val contextId: String,
     val userId: String,
-    val data: ByteArray
-)
+    val data: ByteArray,
+    val statusCode: Long?
+) {
+    @Deprecated("Use primary constructor with new parameter.")
+    constructor(
+        contextId: String,
+        userId: String,
+        data: ByteArray
+    ) : this(
+        contextId, userId, data, null
+    )
+}
