@@ -10,7 +10,7 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 
 /**
- * Manages PrivMX Bridge  KVDBs and their messages.
+ * Manages PrivMX Bridge KVDBs and their entries.
  */
 expect class KvdbApi(connection: Connection) : AutoCloseable {
 
