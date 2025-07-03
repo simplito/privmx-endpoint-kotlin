@@ -1,24 +1,24 @@
 package com.simplito.kotlin.privmx_endpoint.model
 
 /**
- * Holds all available information about a Kvdb.
+ * Holds all available information about a KVDB.
  *
  * @property contextId ID of the Context
- * @property kvdbId ID of the Kvdb
- * @property createDate Kvdb creation timestamp
- * @property creator ID of user who created the Kvdb
- * @property lastModificationDate Kvdb last modification timestamp
- * @property lastModifier ID of the user who last modified the Kvdb
- * @property users List of users (their IDs) with access to the Kvdb
+ * @property kvdbId ID of the KVDB
+ * @property createDate KVDB creation timestamp
+ * @property creator ID of user who created the KVDB
+ * @property lastModificationDate KVDB last modification timestamp
+ * @property lastModifier ID of the user who last modified the KVDB
+ * @property users List of users (their IDs) with access to the KVDB
  * @property managers List of users (their IDs) with management rights
  * @property version Version number (changes on updates)
- * @property publicMeta Kvdb's public metadata
- * @property privateMeta Kvdb's private metadata
- * @property entries Total number of entries in the Kvdb
+ * @property publicMeta KVDB's public metadata
+ * @property privateMeta KVDB's private metadata
+ * @property entries Total number of entries in the KVDB
  * @property lastEntryDate Timestamp of the last added entry
- * @property policy Kvdb's policies
+ * @property policy KVDB's policies
  * @property statusCode Retrieval and decryption status code
- * @property schemaVersion Version of the Kvdb data structure and how it is encoded/encrypted
+ * @property schemaVersion Version of the KVDB data structure and how it is encoded/encrypted
  */
 data class Kvdb(
     val contextId: String,

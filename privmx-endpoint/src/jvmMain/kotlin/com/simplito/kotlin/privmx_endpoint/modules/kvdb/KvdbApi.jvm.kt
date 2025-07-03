@@ -118,16 +118,16 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
     actual external fun getKvdb(kvdbId: String): Kvdb
 
     /**
-     * Gets a list of Kvdbs in given Context.
+     * Gets a list of KVDBs in given Context.
      *
-     * @param contextId   ID of the Context to get the Kvdbs from
+     * @param contextId   ID of the Context to get the KVDBs from
      * @param skip        skip number of elements to skip from result
      * @param limit       limit of elements to return for query
      * @param sortOrder   order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId      ID of the element from which query results should start
      * @param queryAsJson stringified JSON object with a custom field to filter result
      * @param sortBy      field by elements are sorted in result
-     * @return list of Kvdbs
+     * @return list of KVDBs
      * @throws IllegalStateException thrown when instance is closed.
      * @throws PrivmxException       thrown when method encounters an exception.
      * @throws NativeException       thrown when method encounters an unknown exception.
