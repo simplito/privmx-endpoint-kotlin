@@ -33,4 +33,9 @@ enum class Modules {
      * CustomEvent module case.
      */
     CUSTOM_EVENT,
+
+    /**
+     * Kvdb module case.
+     */
+    KVDB,
 }
