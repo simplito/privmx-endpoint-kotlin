@@ -11,6 +11,8 @@
 
 package com.simplito.kotlin.privmx_endpoint.model.events
 
+import kotlin.jvm.JvmOverloads
+
 /**
  * Holds information about emitted custom event.
  *
