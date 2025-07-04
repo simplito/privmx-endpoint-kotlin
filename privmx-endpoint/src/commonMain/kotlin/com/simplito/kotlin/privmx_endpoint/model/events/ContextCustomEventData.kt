@@ -19,7 +19,9 @@ package com.simplito.kotlin.privmx_endpoint.model.events
  * @property data event data
  * @property statusCode Payload decryption status
  */
-class ContextCustomEventData(
+class ContextCustomEventData
+@JvmOverloads 
+constructor(
     val contextId: String,
     val userId: String,
     val data: ByteArray,
