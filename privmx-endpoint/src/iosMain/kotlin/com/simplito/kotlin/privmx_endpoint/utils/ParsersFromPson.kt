@@ -276,7 +276,7 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "inbox\$InboxEntry" to PsonObject::toInboxEntry,
     "inbox\$Inbox" to PsonObject::toInbox,
     "inbox\$Inbox" to PsonObject::toInbox,
-    "context\$ContextCustomEventData" to PsonObject::toContextCustomEventData
+    "event\$ContextCustomEventData" to PsonObject::toContextCustomEventData
 )
 
 
