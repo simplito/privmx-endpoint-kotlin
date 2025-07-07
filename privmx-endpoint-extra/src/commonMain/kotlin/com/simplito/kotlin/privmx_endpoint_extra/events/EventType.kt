@@ -10,9 +10,9 @@
 //
 package com.simplito.kotlin.privmx_endpoint_extra.events
 
-import com.simplito.java.privmx_endpoint.model.events.KvdbDeletedEntryEventData
-import com.simplito.java.privmx_endpoint.model.events.KvdbDeletedEventData
-import com.simplito.java.privmx_endpoint.model.events.KvdbStatsEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEntryEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbStatsEventData
 import com.simplito.kotlin.privmx_endpoint.model.File
 import com.simplito.kotlin.privmx_endpoint.model.Inbox
 import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
