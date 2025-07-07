@@ -265,6 +265,7 @@ internal fun PsonObject.toContextCustomEventData() = ContextCustomEventData(
     this["userId"]!!.typedValue(),
     this["data"]!!.typedValue(),
     this["statusCode"]!!.typedValue()
+)
 
 internal fun PsonObject.toKvdbDeletedEventData() = KvdbDeletedEventData(
     this["kvdbId"]!!.typedValue()
