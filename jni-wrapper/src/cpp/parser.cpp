@@ -1,5 +1,5 @@
 //
-// PrivMX Endpoint Java.
+// PrivMX Endpoint Kotlin.
 // Copyright © 2024 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
@@ -448,4 +448,34 @@ parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core::Event> 
         throw e;
     }
     return nullptr;
+}
+
+privmx::endpoint::core::PagingQuery
+parsePagingQuery(JniContextUtils &ctx, jobject pagingQuery) {
+    auto result = privmx::endpoint::core::PagingQuery();
+    if (pagingQuery == nullptr) return result;
+    jclass queryClass = ctx->GetObjectClass(pagingQuery);
+    jfieldID skipFID = ctx->GetFieldID(queryClass, "skip", "Ljava/lang/Long;");
+    jfieldID limitFID = ctx->GetFieldID(queryClass, "limit", "Ljava/lang/Long;");
+    jfieldID sortOrderFID = ctx->GetFieldID(queryClass, "sortOrder", "Ljava/lang/String;");
+    jfieldID lastIdFID = ctx->GetFieldID(queryClass, "lastId", "Ljava/lang/String;");
+    jfieldID queryAsJsonFID = ctx->GetFieldID(queryClass, "queryAsJson", "Ljava/lang/String;");
+    jfieldID sortByFID = ctx->GetFieldID(queryClass, "sortBy", "Ljava/lang/String;");
+
+    result.skip = ctx.getObject(ctx->GetObjectField(pagingQuery, skipFID)).getLongValue();
+    result.limit = ctx.getObject(ctx->GetObjectField(pagingQuery, limitFID)).getLongValue();
+    result.sortOrder = ctx.jString2string((jstring) ctx->GetObjectField(pagingQuery, sortOrderFID));
+
+    jstring value;
+    if ((value = (jstring) ctx->GetObjectField(pagingQuery, lastIdFID)) != NULL) {
+        result.lastId = ctx.jString2string(value);
+    }
+    if ((value = (jstring) ctx->GetObjectField(pagingQuery, queryAsJsonFID)) != NULL) {
+        result.queryAsJson = ctx.jString2string(value);
+    }
+    if ((value = (jstring) ctx->GetObjectField(pagingQuery, sortByFID)) != NULL) {
+        result.sortBy = ctx.jString2string(value);
+    }
+
+    return result;
 }
