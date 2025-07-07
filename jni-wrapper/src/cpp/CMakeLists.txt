@@ -93,6 +93,9 @@ set_target_properties(privmxendpointinbox PROPERTIES IMPORTED_LOCATION ${CMAKE_C
 add_library(privmxendpointevent SHARED IMPORTED GLOBAL)
 set_target_properties(privmxendpointevent PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/libs/${CMAKE_DESTINATION_OS}/${CMAKE_DESTINATION_ARCHITECTURE}/lib/libprivmxendpointevent.${file_extension})
 
+add_library(privmxendpointkvdb SHARED IMPORTED GLOBAL)
+set_target_properties(privmxendpointkvdb PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/libs/${CMAKE_DESTINATION_OS}/${CMAKE_DESTINATION_ARCHITECTURE}/lib/libprivmxendpointkvdb.${file_extension})
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/${CMAKE_DESTINATION_OS}/${CMAKE_DESTINATION_ARCHITECTURE}/include ${JAVA_HOME}/include ${JAVA_HOME}/include/darwin)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED
@@ -112,6 +115,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         ${CMAKE_CURRENT_SOURCE_DIR}/modules/UserVerifierInterfaceJNI.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/modules/ExtKey.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/modules/Utils.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/modules/KvdbApi.cpp
 )
 
 # Android Debugging
@@ -120,7 +124,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 target_link_libraries(${CMAKE_PROJECT_NAME} ssl crypto)
 target_link_libraries(${CMAKE_PROJECT_NAME} gmp)
 target_link_libraries(${CMAKE_PROJECT_NAME} PocoFoundation PocoXML PocoJSON PocoNet PocoNetSSL PocoUtil PocoCrypto)
-target_link_libraries(${CMAKE_PROJECT_NAME} Pson libprivmx privmxendpointcore privmxendpointcrypto privmxendpointstore privmxendpointthread privmxendpointinbox privmxendpointevent)
+target_link_libraries(${CMAKE_PROJECT_NAME} Pson libprivmx privmxendpointcore privmxendpointcrypto privmxendpointstore privmxendpointthread privmxendpointinbox privmxendpointevent privmxendpointkvdb)
 message(DEBUG "Install to ${CMAKE_INSTALL_PREFIX}")
 install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
-install(IMPORTED_RUNTIME_ARTIFACTS crypto ssl gmp PocoFoundation PocoXML PocoJSON PocoNet PocoNetSSL PocoUtil PocoCrypto Pson libprivmx privmxendpointcore privmxendpointcrypto privmxendpointstore privmxendpointthread privmxendpointinbox privmxendpointevent DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(IMPORTED_RUNTIME_ARTIFACTS crypto ssl gmp PocoFoundation PocoXML PocoJSON PocoNet PocoNetSSL PocoUtil PocoCrypto Pson libprivmx privmxendpointcore privmxendpointcrypto privmxendpointstore privmxendpointthread privmxendpointinbox privmxendpointevent privmxendpointkvdb DESTINATION ${CMAKE_INSTALL_PREFIX})
