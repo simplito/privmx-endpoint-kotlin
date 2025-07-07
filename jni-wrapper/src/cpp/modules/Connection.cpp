@@ -1,5 +1,5 @@
 //
-// PrivMX Endpoint Java.
+// PrivMX Endpoint Kotlin.
 // Copyright © 2024 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
@@ -55,7 +55,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_core_Connection_listContexts(
         jlong limit,
         jstring sort_order,
         jstring last_id,
-        jstring query_as_json
+        jstring query_as_json,
+        jstring sort_by
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(sort_order, "Sort Order")) {
@@ -64,7 +65,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_core_Connection_listContexts(
     jobject result;
     ctx.callResultEndpointApi<jobject>(
             &result,
-            [&ctx, &env, &thiz, &skip, &limit, &sort_order, &last_id, &query_as_json]() {
+            [&ctx, &env, &thiz, &skip, &limit, &sort_order, &last_id, &query_as_json, &sort_by]() {
                 auto query = privmx::endpoint::core::PagingQuery();
                 query.skip = skip;
                 query.limit = limit;
@@ -74,6 +75,9 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_core_Connection_listContexts(
                 }
                 if (query_as_json != nullptr) {
                     query.queryAsJson = ctx.jString2string(query_as_json);
+                }
+                if (sort_by != nullptr) {
+                    query.sortBy = ctx.jString2string(sort_by);
                 }
                 privmx::endpoint::core::PagingList<privmx::endpoint::core::Context> infos = getConnection(
                         env, thiz)->listContexts(query);

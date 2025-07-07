@@ -1,5 +1,5 @@
 //
-// PrivMX Endpoint Java.
+// PrivMX Endpoint Kotlin.
 // Copyright © 2024 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).

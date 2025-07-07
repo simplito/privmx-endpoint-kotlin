@@ -1,5 +1,5 @@
 //
-// PrivMX Endpoint Java.
+// PrivMX Endpoint Kotlin.
 // Copyright © 2024 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
@@ -129,8 +129,16 @@ namespace privmx {
                                                 privmx::endpoint::inbox::InboxEntryDeletedEventData inboxEntryDeletedEventData_c);
 
         jobject contextCustomEventData2Java(JniContextUtils &ctx,
-                                            privmx::endpoint::event::ContextCustomEventData contextCustomEvent_c
+                privmx::endpoint::event::ContextCustomEventData contextCustomEventData_c
         );
+
+        //Kvdb
+        jobject kvdb2Java(JniContextUtils &ctx, privmx::endpoint::kvdb::Kvdb kvdb_c);
+
+        jobject serverKvdbEntryInfo2Java(JniContextUtils &ctx,
+                privmx::endpoint::kvdb::ServerKvdbEntryInfo serverItemInfo_c);
+
+        jobject kvdbEntry2Java(JniContextUtils &ctx, privmx::endpoint::kvdb::KvdbEntry entry_c);
     } // wrapper
 } // privmx
 

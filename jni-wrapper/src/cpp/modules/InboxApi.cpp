@@ -1,5 +1,5 @@
 //
-// PrivMX Endpoint Java.
+// PrivMX Endpoint Kotlin.
 // Copyright © 2024 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
@@ -243,7 +243,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_inbox_InboxApi_listInboxes(
         jlong limit,
         jstring sort_order,
         jstring last_id,
-        jstring query_as_json
+        jstring query_as_json,
+        jstring sort_by
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(context_id, "Context ID") ||
@@ -253,7 +254,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_inbox_InboxApi_listInboxes(
     jobject result;
     ctx.callResultEndpointApi<jobject>(
             &result,
-            [&ctx, &thiz, &context_id, &skip, &limit, &sort_order, &last_id, &query_as_json]() {
+            [&ctx, &thiz, &context_id, &skip, &limit, &sort_order, &last_id, &query_as_json, &sort_by]() {
                 jclass pagingListCls = ctx->FindClass(
                         "com/simplito/kotlin/privmx_endpoint/model/PagingList");
                 jmethodID pagingListInitMID = ctx->GetMethodID(pagingListCls, "<init>",
@@ -271,6 +272,9 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_inbox_InboxApi_listInboxes(
                 }
                 if (query_as_json != nullptr) {
                     query.queryAsJson = ctx.jString2string(query_as_json);
+                }
+                if (sort_by != nullptr) {
+                    query.sortBy = ctx.jString2string(sort_by);
                 }
                 auto inboxes_c(
                         getInboxApi(ctx, thiz)->listInboxes(
@@ -437,7 +441,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_inbox_InboxApi_listEntries(
         jlong limit,
         jstring sort_order,
         jstring last_id,
-        jstring query_as_json
+        jstring query_as_json,
+        jstring sort_by
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(inbox_id, "Inbox ID") ||
@@ -447,7 +452,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_inbox_InboxApi_listEntries(
     jobject result;
     ctx.callResultEndpointApi<jobject>(
             &result,
-            [&ctx, &thiz, &inbox_id, &skip, &limit, &sort_order, &last_id, &query_as_json]() {
+            [&ctx, &thiz, &inbox_id, &skip, &limit, &sort_order, &last_id, &query_as_json, &sort_by]() {
                 jclass pagingListCls = ctx->FindClass(
                         "com/simplito/kotlin/privmx_endpoint/model/PagingList");
                 jmethodID pagingListInitMID = ctx->GetMethodID(pagingListCls, "<init>",
@@ -465,6 +470,9 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_inbox_InboxApi_listEntries(
                 }
                 if (query_as_json != nullptr) {
                     query.queryAsJson = ctx.jString2string(query_as_json);
+                }
+                if (sort_by != nullptr) {
+                    query.sortBy = ctx.jString2string(sort_by);
                 }
                 auto entries_c(
                         getInboxApi(ctx, thiz)->listEntries(
