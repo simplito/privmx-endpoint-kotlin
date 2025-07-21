@@ -265,7 +265,7 @@ expect class KvdbApi(connection: Connection) : AutoCloseable {
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun deleteEntries(
         kvdbId: String,
-        keys: List<String>
+        keys: Set<String>
     ): Map<String, Boolean>
 
     /**
