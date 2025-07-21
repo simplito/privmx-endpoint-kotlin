@@ -282,7 +282,7 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
      * Deletes KVDB entries by given KVDB IDs and the list of entry keys.
      *
      * @param kvdbId ID of the KVDB database to delete from
-     * @param keys   vector of the keys of the KVDB entries to delete
+     * @param keys   set of the keys of the KVDB entries to delete
      * @return map with the statuses of deletion for every key
      * @throws IllegalStateException thrown when instance is closed.
      * @throws PrivmxException       thrown when method encounters an exception.
@@ -291,7 +291,7 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun deleteEntries(
         kvdbId: String,
-        keys: List<String>
+        keys: Set<String>
     ): Map<String, Boolean>
 
     /**
