@@ -253,7 +253,7 @@ expect class KvdbApi(connection: Connection) : AutoCloseable {
     )
 
     /**
-     * Deletes KVDB entries by given KVDB IDs and the list of entry keys.
+     * Deletes KVDB entries by given KVDB IDs and the set of entry keys.
      *
      * @param kvdbId ID of the KVDB database to delete from
      * @param keys   set of the keys of the KVDB entries to delete
