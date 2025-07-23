@@ -67,6 +67,40 @@ kotlin {
     }
 }
 
+tasks.register<Jar>("darwinJar"){
+    archiveClassifier="desktop"
+    val binariesDir = project(":jni-wrapper").layout.buildDirectory.dir("native/install/Darwin/$version").get()
+    dependsOn(project(":jni-wrapper").tasks.named("compileDarwin"))
+    from(binariesDir)
+    include("**/**")
+    into("lib/Darwin")
+    destinationDirectory = layout.buildDirectory.dir("nativeJars/desktop")
+
+    doFirst {
+        binariesDir.asFile.listFiles()?.filter {
+            it.isDirectory && !it.isHidden
+        }?.forEach { archDir ->
+            println(archDir.path)
+            File("${archDir.path}/fileNames.txt").run {
+                createNewFile()
+                outputStream().use {
+                    writeText(archDir.listFiles()?.joinToString(";") { it.name } ?: "")
+                }
+            }
+        }
+    }
+}
+
+tasks.register<Jar>("androidJar"){
+    archiveClassifier="android"
+    val binariesDir = project(":jni-wrapper").layout.buildDirectory.dir("native/install/Android/$version").get()
+    dependsOn(project(":jni-wrapper").tasks.named("compileAndroid"))
+    from(binariesDir)
+    include("**/**")
+    into("lib")
+    destinationDirectory = layout.buildDirectory.dir("nativeJars/android")
+}
+
 publishing {
     repositories {
         val localProperties = Properties().apply {
@@ -83,6 +117,10 @@ publishing {
         withType<MavenPublication>().configureEach {
             groupId = "com.simplito.kotlin"
             version = project.version as String
+            if(this.name == "jvm"){
+                artifact(tasks["darwinJar"])
+                artifact(tasks["androidJar"])
+            }
             pom {
                 name = "PrivMX Endpoint Kotlin"
                 description =
