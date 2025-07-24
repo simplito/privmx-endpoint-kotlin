@@ -67,7 +67,7 @@ kotlin {
     }
 }
 
-tasks.register<Jar>("darwinJar"){
+tasks.register<Jar>("desktopJar"){
     archiveClassifier="desktop"
     val binariesDir = project(":jni-wrapper").layout.buildDirectory.dir("native/install/Darwin/$version").get()
     dependsOn(project(":jni-wrapper").tasks.named("compileDarwin"))
@@ -118,7 +118,7 @@ publishing {
             groupId = "com.simplito.kotlin"
             version = project.version as String
             if(this.name == "jvm"){
-                artifact(tasks["darwinJar"])
+                artifact(tasks["desktopJar"])
                 artifact(tasks["androidJar"])
             }
             pom {
