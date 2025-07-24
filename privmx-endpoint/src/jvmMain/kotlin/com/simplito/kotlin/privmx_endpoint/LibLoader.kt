@@ -32,7 +32,7 @@ internal object LibLoader {
         }
     }
 
-    fun load() {
+    fun loadPrivmxLibraries() {
         System.loadLibrary("privmx-endpoint-kotlin")
     }
 
