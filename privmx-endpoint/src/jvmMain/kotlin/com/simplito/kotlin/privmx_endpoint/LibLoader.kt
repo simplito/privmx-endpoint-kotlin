@@ -58,8 +58,6 @@ internal object LibLoader {
                     ?.reader()
                     ?.readText()
                 ) ?: ""
-        println("$platformLibsResourceDirPath/fileNames.txt")
-        println(fileNames)
 
         return fileNames.split(";").map { fileName ->
             "$platformLibsResourceDirPath/$fileName"
@@ -120,7 +118,6 @@ internal object LibLoader {
             getBinaryResourcePaths(
                 getPlatformLibsResourceDirPath()
             ).forEach { resourcePath ->
-                println(resourcePath)
                 extractResource(resourcePath)
             }
         }
