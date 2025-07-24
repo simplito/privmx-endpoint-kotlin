@@ -15,7 +15,7 @@ import kotlin.Throws
 actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable {
     companion object {
         init {
-            LibLoader.load()
+            LibLoader.loadPrivmxLibraries()
         }
     }
 

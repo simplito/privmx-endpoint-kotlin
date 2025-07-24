@@ -20,7 +20,7 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
  */
 actual object EventQueue {
     init {
-        LibLoader.load()
+        LibLoader.loadPrivmxLibraries()
     }
     /**
      * Puts the break event on the events queue.

@@ -23,7 +23,7 @@ actual class CryptoApi : AutoCloseable {
 
     companion object {
         init {
-            LibLoader.load()
+            LibLoader.loadPrivmxLibraries()
         }
     }
 
