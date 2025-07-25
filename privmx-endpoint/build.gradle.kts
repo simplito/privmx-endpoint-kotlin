@@ -147,7 +147,7 @@ publishing {
                         }
 
                         license {
-                            name = "PrivMX Free License"
+                            name = "PrivMX Free License ver. 1.0"
                             url = "https://github.com/simplito/privmx-endpoint/blob/aea8de762b3fe4e1054fb185a8ec2ce40c6f9ddf/LICENSE.md"
                             comments = "PrivMX Endpoint native libraries license"
                         }
