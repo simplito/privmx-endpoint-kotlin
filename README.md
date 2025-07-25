@@ -85,7 +85,7 @@ This library implements models, exception catching, and the following modules:
 ```groovy
 pluginManagement {
   repositories {
-    mavenCentral()
+      mavenCentral()
   }
 }
 
