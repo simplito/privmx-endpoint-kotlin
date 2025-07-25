@@ -13,11 +13,7 @@ data class KvdbEntryPublicMeta(
     val mimeType: String
 )
 @Serializable
-data class UserPublicInfo(
-    val userId: String,
-    val description: String,
-    val statusMessage: String
-)
+data class ContainersArray(val containersIds: List<String>)
 
 data class KvdbEntryItem(
     val kvdbEntry: KvdbEntry,
@@ -45,14 +41,16 @@ fun settingKvdbEntryPlainData() {
 fun settingKvdbEntryWithPublicMeta() {
     val kvdbId = "KVDB_ID"
     val kvdbEntryKey = "KVDB_ENTRY_KEY"
-    val userPublicInfo = UserPublicInfo(
-        userId = "admin",
-        description = "Chat administrator",
-        statusMessage = "Do not disturb"
+    val kvdbEntryData = ContainersArray(
+        listOf(
+            "THREAD_ID_1",
+            "THREAD_ID_2",
+            "THREAD_ID_3"
+        )
     )
     val publicMeta = KvdbEntryPublicMeta(
         schemaVersion = 1,
-        dataType = "user-public-info",
+        dataType = "favourite-threads",
         mimeType = "application/json"
     )
     val privateMeta = ByteArray(0)
@@ -62,7 +60,7 @@ fun settingKvdbEntryWithPublicMeta() {
         kvdbEntryKey,
         Json.encodeToString(publicMeta).encodeToByteArray(),
         privateMeta,
-        Json.encodeToString(userPublicInfo).encodeToByteArray()
+        Json.encodeToString(kvdbEntryData).encodeToByteArray()
     )
 }
 // END: Setting Entries snippets
