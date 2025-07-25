@@ -121,10 +121,38 @@ publishing {
                 artifact(tasks["desktopJar"])
                 artifact(tasks["androidJar"])
             }
-            pom {
-                name = "PrivMX Endpoint Kotlin"
-                description =
-                    "PrivMX Endpoint Kotlin is a minimal wrapper library declaring native functions in Kotlin using JNI."
+            afterEvaluate {
+                pom {
+                    name = "PrivMX Endpoint Kotlin"
+                    description =
+                        "PrivMX Endpoint Kotlin is a minimal wrapper library declaring native functions in Kotlin using JNI."
+                    licenses {
+                        license {
+                            name = "Apache-2.0"
+                            url =
+                                "https://openssl-library.org/source/license/apache-license-2.0.txt"
+                            comments = "OpenSSL native libraries license"
+                        }
+
+                        license {
+                            name = "BSL-1.0"
+                            url = "https://www.boost.org/LICENSE_1_0.txt"
+                            comments = "POCO native libraries license"
+                        }
+
+                        license {
+                            name = "LGPL-3.0-only"
+                            url = "https://www.gnu.org/licenses/lgpl-3.0.txt"
+                            comments = "GMP native libraries license"
+                        }
+
+                        license {
+                            name = "PrivMX Free License"
+                            url = "https://github.com/simplito/privmx-endpoint/blob/aea8de762b3fe4e1054fb185a8ec2ce40c6f9ddf/LICENSE.md"
+                            comments = "PrivMX Endpoint native libraries license"
+                        }
+                    }
+                }
             }
         }
     }
