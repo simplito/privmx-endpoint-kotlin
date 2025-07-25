@@ -19,7 +19,7 @@ data class KvdbPublicMeta(val tags: List<String>)
 lateinit var kvdbApi: KvdbApi
 
 fun setKvdbApi() {
-    endpointSession.kvdbApi
+    val kvdbApi = endpointSession.kvdbApi
 }
 
 // START: Creating KVDB snippets
