@@ -12,9 +12,6 @@ data class KvdbEntryPublicMeta(
     val dataType: String,
     val mimeType: String
 )
-@Serializable
-data class ContainersArray(val containersIds: List<String>)
-
 data class KvdbEntryItem(
     val kvdbEntry: KvdbEntry,
     val decodedData: String,
@@ -41,12 +38,10 @@ fun settingKvdbEntryPlainData() {
 fun settingKvdbEntryWithPublicMeta() {
     val kvdbId = "KVDB_ID"
     val kvdbEntryKey = "KVDB_ENTRY_KEY"
-    val kvdbEntryData = ContainersArray(
-        listOf(
+    val kvdbEntryData = listOf(
             "THREAD_ID_1",
             "THREAD_ID_2",
             "THREAD_ID_3"
-        )
     )
     val publicMeta = KvdbEntryPublicMeta(
         schemaVersion = 1,
