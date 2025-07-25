@@ -151,6 +151,12 @@ publishing {
                             url = "https://github.com/simplito/privmx-endpoint/blob/aea8de762b3fe4e1054fb185a8ec2ce40c6f9ddf/LICENSE.md"
                             comments = "PrivMX Endpoint native libraries license"
                         }
+
+                        license {
+                            name = "PrivMX Free License ver. 1.0"
+                            url = "https://github.com/simplito/pson-cpp/blob/46451d80eb8abc5897a644ff437916a48d185419/LICENSE.md"
+                            comments = "pson-cpp native libraries license"
+                        }
                     }
                 }
             }
