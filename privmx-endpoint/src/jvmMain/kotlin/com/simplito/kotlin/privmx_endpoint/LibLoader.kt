@@ -74,7 +74,7 @@ internal object LibLoader {
         )
         try {
             LibLoader::class.java.getResourceAsStream(resourcePath).use { iS ->
-                if (iS == null) throw UnsatisfiedLinkError("Cannot found binaries for $resourcePath")
+                if (iS == null) throw UnsatisfiedLinkError("Cannot find binaries for $resourcePath")
                 if (localLibFile.exists()) localLibFile.delete()
                 if (localLibFile.createNewFile()) {
                     val data = ByteArray(1024)
