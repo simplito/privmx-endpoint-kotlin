@@ -28,7 +28,7 @@ actual class ExtKey : AutoCloseable {
 
     actual companion object {
         init {
-            LibLoader.load()
+            LibLoader.loadPrivmxLibraries()
         }
 
         /**
