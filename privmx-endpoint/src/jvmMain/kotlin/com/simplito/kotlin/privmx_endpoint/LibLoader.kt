@@ -26,9 +26,7 @@ internal object LibLoader {
             //Check if it's android
             Class.forName("android.os.Bundle");
         } catch (_: Throwable) {
-            if(!extractLibraries()){
-                throw UnsatisfiedLinkError("Cannot extract PrivMX binaries")
-            }
+            extractLibraries()
         }
     }
 
@@ -100,8 +98,8 @@ internal object LibLoader {
     }
 
     @Throws(UnsatisfiedLinkError::class)
-    private fun extractLibraries(): Boolean {
-        if (libsDir != null) return true
+    private fun extractLibraries() {
+        if (libsDir != null) return
         val librariesDirectoryPath = System.getProperty("java.library.path").let {
             if (it.contains(Regex(":\\.(?::?|$)"))) {
                 System.getProperty("user.dir")
@@ -112,15 +110,18 @@ internal object LibLoader {
         val librariesDirectory = File(librariesDirectoryPath)
 
         if (!librariesDirectory.exists() && !librariesDirectory.mkdirs()) {
-            return false
-        } else {
-            libsDir = librariesDirectory
+            return
+        }
+
+        libsDir = librariesDirectory
+        try {
             getBinaryResourcePaths(
                 getPlatformLibsResourceDirPath()
             ).forEach { resourcePath ->
                 extractResource(resourcePath)
             }
+        } catch (e: Exception) {
+            println(e.message)
         }
-        return true
     }
 }
