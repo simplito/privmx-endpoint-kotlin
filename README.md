@@ -120,9 +120,24 @@ plugins {
 }
 ```
 
-### Android
+## JVM
+### Native Libraries
+The plugin automatically adds the necessary native libraries to the runtime in your **Java**, **Android**,
+or **Kotlin** project. For Java applications, it includes libraries for all supported desktop platforms.
+The source code of the plugin is available on [GitHub](https://github.com/simplito/privmx-endpoint-java-tools).
 
-#### Required Permissions
+When you first use the API, the PrivMX wrapper unpacks and loads these native libraries.
+They are unpacked to your working directory if your `java.library.path` includes `.`.
+Otherwise, they are unpacked to the last path specified in the `java.library.path`.
+
+## Android
+### Native Libraries
+The plugin automatically adds the necessary native libraries to the runtime in your **Java**, **Android**,
+or **Kotlin** project. For Android applications, it includes Android-specific binaries.
+The source code of the plugin is available on [GitHub](https://github.com/simplito/privmx-endpoint-java-tools).
+
+On Android, the native libraries are extracted by the installer and then the PrivMX wrapper loads them in the runtime.
+### Required Permissions
 PrivMX Endpoint requires to add the following permissions to your AndroidManifest.xml:
 * `<uses-permission android:name="android.permission.INTERNET" />`
 
