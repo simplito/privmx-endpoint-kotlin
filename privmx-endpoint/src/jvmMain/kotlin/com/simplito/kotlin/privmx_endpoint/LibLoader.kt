@@ -16,7 +16,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 
 
-internal typealias ResourcePaths = List<String>
+typealias ResourcePaths = List<String>
 
 internal object LibLoader {
     var libsDir: File? = null
