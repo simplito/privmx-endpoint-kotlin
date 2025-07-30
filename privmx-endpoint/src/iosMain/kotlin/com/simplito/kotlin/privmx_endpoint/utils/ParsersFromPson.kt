@@ -263,8 +263,9 @@ internal fun PsonObject.toThreadStatsEventData() = ThreadStatsEventData(
 internal fun PsonObject.toContextCustomEventData() = ContextCustomEventData(
     this["contextId"]!!.typedValue(),
     this["userId"]!!.typedValue(),
-    this["data"]!!.typedValue(),
-    this["statusCode"]!!.typedValue()
+    this["payload"]!!.typedValue(),
+    //TODO: This will be not null
+    this["statusCode"]?.typedValue() ?: 0
 )
 
 internal fun PsonObject.toKvdbDeletedEventData() = KvdbDeletedEventData(
@@ -356,7 +357,8 @@ internal fun PsonObject.toKvdbEntry(): KvdbEntry = KvdbEntry(
     this["publicMeta"]!!.typedValue(),
     this["privateMeta"]!!.typedValue(),
     this["data"]!!.typedValue(),
-    this["authorPubKey"]!!.typedValue(),
+    //TODO: This will be not null
+    this["authorPubKey"]?.typedValue() ?: "",
     this["version"]?.typedValue(),
     this["statusCode"]?.typedValue(),
     this["schemaVersion"]?.typedValue(),
