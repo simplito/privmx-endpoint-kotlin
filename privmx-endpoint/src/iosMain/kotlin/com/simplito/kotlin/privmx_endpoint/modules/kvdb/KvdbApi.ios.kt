@@ -203,7 +203,7 @@ actual constructor(connection: Connection) : AutoCloseable {
         val args = makeArgs(kvdbId.pson)
         try {
             privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 4, args, pson_result.ptr)
-            pson_result.value?.asResponse?.getResultOrThrow()!!.typedValue()
+            (pson_result.value?.asResponse?.getResultOrThrow()!! as PsonValue.PsonObject).toKvdb()
         } finally {
             pson_free_value(args)
             pson_free_result(pson_result.value)
@@ -512,7 +512,6 @@ actual constructor(connection: Connection) : AutoCloseable {
             pson_free_value(args)
             pson_free_result(pson_result.value)
         }
-//        TODO("Implement this function")
     }
 
     /**
