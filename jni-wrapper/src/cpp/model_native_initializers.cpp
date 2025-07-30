@@ -970,7 +970,7 @@ namespace privmx {
                     "Ljava/lang/String;"    // contextId
                     "Ljava/lang/String;"    // userId
                     "[B"                    // payload
-                    "Ljava/lang/Long"       // statusCode
+                    "Ljava/lang/Long;"       // statusCode
                     ")V"
             );
             jbyteArray payload = ctx->NewByteArray(contextCustomEventData_c.payload.size());
