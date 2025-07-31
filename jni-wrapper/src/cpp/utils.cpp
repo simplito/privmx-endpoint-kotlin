@@ -1,5 +1,5 @@
 //
-// PrivMX Endpoint Java.
+// PrivMX Endpoint Kotlin.
 // Copyright © 2024 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
@@ -30,7 +30,8 @@ std::string JniContextUtils::jByteArray2String(jbyteArray arr) {
 
 jobjectArray JniContextUtils::jObject2jArray(jobject obj) {
     jclass objClass = _env->GetObjectClass(obj);
-    if (_env->IsInstanceOf(obj, _env->FindClass("java/util/List"))) {
+    if (_env->IsInstanceOf(obj, _env->FindClass("java/util/List")) ||
+            _env->IsInstanceOf(obj, _env->FindClass("java/util/Set"))) {
         jmethodID mToArray = _env->GetMethodID(objClass, "toArray", "()[Ljava/lang/Object;");
 
         if (mToArray == nullptr) return nullptr;

@@ -16,7 +16,6 @@ import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserInfo
-import com.simplito.kotlin.privmx_endpoint.modules.core.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
@@ -28,7 +27,7 @@ actual class Connection private constructor(
 ) : AutoCloseable {
     actual companion object {
         init {
-            LibLoader.load()
+            LibLoader.loadPrivmxLibraries()
         }
 
         /**
@@ -118,6 +117,7 @@ actual class Connection private constructor(
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
      * @param queryAsJson stringified JSON object with a custom field to filter result
+     * @param sortBy      field name to sort elements by
      * @return list of Contexts
      * @throws IllegalStateException thrown when instance is not connected
      * @throws PrivmxException       thrown when method encounters an exception
@@ -130,7 +130,8 @@ actual class Connection private constructor(
         limit: Long,
         sortOrder: String,
         lastId: String?,
-        queryAsJson: String?
+        queryAsJson: String?,
+        sortBy: String?
     ): PagingList<Context>
 
     /**

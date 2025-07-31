@@ -17,6 +17,7 @@ import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
 import com.simplito.kotlin.privmx_endpoint.modules.event.EventApi
 import com.simplito.kotlin.privmx_endpoint.modules.inbox.InboxApi
+import com.simplito.kotlin.privmx_endpoint.modules.kvdb.KvdbApi
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
 import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
 import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
@@ -84,6 +85,12 @@ constructor(
         if (enableModule.contains(Modules.CUSTOM_EVENT)) EventApi(connection) else null
 
     /**
+     * Reference to KVDB module.
+     */
+    val kvdbApi: KvdbApi? =
+        if (enableModule.contains(Modules.KVDB)) KvdbApi(connection) else null
+
+    /**
      * Disconnects from PrivMX Bridge and frees memory.
      *
      * @throws Exception when instance is currently closed
@@ -93,6 +100,7 @@ constructor(
         storeApi?.close()
         inboxApi?.close()
         eventApi?.close()
+        kvdbApi?.close()
         connection.close()
     }
 }

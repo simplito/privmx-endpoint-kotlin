@@ -1,6 +1,6 @@
 //
 // PrivMX Endpoint Kotlin.
-// Copyright © 2024 Simplito sp. z o.o.
+// Copyright © 2025 Simplito sp. z o.o.
 //
 // This file is part of the PrivMX Platform (https://privmx.dev).
 // This software is Licensed under the MIT License.
@@ -9,14 +9,13 @@
 // limitations under the License.
 //
 
-#include "exceptions.h"
+package com.simplito.kotlin.privmx_endpoint.model.events
 
-IllegalStateException::IllegalStateException(const char *message) {
-    this->message = message;
-}
-
-const char *IllegalStateException::what() const noexcept {
-    return this->message;
-}
-
-
+/**
+ * Holds data of event that arrives when KVDB is deleted.
+ *
+ * @property kvdbId KVDB ID
+ */
+data class KvdbDeletedEventData(
+    val kvdbId: String
+) 

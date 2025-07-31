@@ -11,15 +11,21 @@
 
 package com.simplito.kotlin.privmx_endpoint.model.events
 
+import kotlin.jvm.JvmOverloads
+
 /**
  * Holds information about emitted custom event.
  *
  * @property contextId id of inbox from which it was sent
  * @property userId id of user which sent it
  * @property data event data
+ * @property statusCode Payload decryption status
  */
-class ContextCustomEventData(
+class ContextCustomEventData
+@JvmOverloads 
+constructor(
     val contextId: String,
     val userId: String,
-    val data: ByteArray
+    val data: ByteArray,
+    val statusCode: Long? = null
 )
