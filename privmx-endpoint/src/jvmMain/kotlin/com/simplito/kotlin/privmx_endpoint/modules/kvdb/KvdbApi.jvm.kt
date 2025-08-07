@@ -284,48 +284,6 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
     ): Map<String, Boolean>
 
     /**
-     * Subscribes for the KVDB module main events.
-     *
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun subscribeForKvdbEvents()
-
-    /**
-     * Unsubscribes from the KVDB module main events.
-     *
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun unsubscribeFromKvdbEvents()
-
-    /**
-     * Subscribes for events in given KVDB.
-     *
-     * @param kvdbId ID of the KVDB to subscribe
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun subscribeForEntryEvents(kvdbId: String)
-
-    /**
-     * Unsubscribes from events in given KVDB.
-     *
-     * @param kvdbId ID of the KVDB to unsubscribe
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun unsubscribeFromEntryEvents(kvdbId: String)
-
-    /**
      * Frees memory.
      *
      * @throws Exception when instance is currently closed.
