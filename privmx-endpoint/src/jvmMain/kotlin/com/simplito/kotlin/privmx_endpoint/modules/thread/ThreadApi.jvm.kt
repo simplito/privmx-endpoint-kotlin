@@ -239,48 +239,6 @@ actual constructor(connection: Connection) : AutoCloseable {
     )
 
     /**
-     * Subscribes for the Thread module main events.
-     *
-     * @throws IllegalStateException thrown when instance is closed
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun subscribeForThreadEvents()
-
-    /**
-     * Unsubscribes from the Thread module main events.
-     *
-     * @throws IllegalStateException thrown when instance is closed
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun unsubscribeFromThreadEvents()
-
-    /**
-     * Subscribes for events in given Thread.
-     *
-     * @param threadId ID of the Thread to subscribe
-     * @throws IllegalStateException thrown when instance is closed
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun subscribeForMessageEvents(threadId: String)
-
-    /**
-     * Unsubscribes from events in given Thread.
-     *
-     * @param threadId ID of the Thread to unsubscribe
-     * @throws IllegalStateException thrown when instance is closed
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun unsubscribeFromMessageEvents(threadId: String)
-
-    /**
      * Frees memory.
      *
      * @throws Exception when instance is currently closed
