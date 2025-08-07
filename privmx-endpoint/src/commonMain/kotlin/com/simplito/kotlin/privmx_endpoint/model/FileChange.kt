@@ -1,4 +1,4 @@
-package com.simplito.java.privmx_endpoint.model
+package com.simplito.kotlin.privmx_endpoint.model
 
 /**
  * Holds information about the file change.
