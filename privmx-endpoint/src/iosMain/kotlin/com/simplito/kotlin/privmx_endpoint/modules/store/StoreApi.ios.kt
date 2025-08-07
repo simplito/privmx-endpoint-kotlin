@@ -396,6 +396,7 @@ actual constructor(connection: Connection) :
      *
      * @param fileHandle handle to write file data
      * @param dataChunk  file data chunk
+     * @param truncate truncate the file from: current pos + dataChunk size
      * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -405,11 +406,12 @@ actual constructor(connection: Connection) :
         NativeException::class,
         IllegalStateException::class
     )
-    actual fun writeToFile(fileHandle: Long, dataChunk: ByteArray) = memScoped {
+    actual fun writeToFile(fileHandle: Long, dataChunk: ByteArray, truncate: Boolean) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileHandle.pson,
-            dataChunk.pson
+            dataChunk.pson,
+            truncate.pson
         )
         try {
             privmx_endpoint_execStoreApi(nativeStoreApi.value, 9, args, pson_result.ptr)
