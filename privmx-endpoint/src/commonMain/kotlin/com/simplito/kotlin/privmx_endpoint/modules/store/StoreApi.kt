@@ -155,6 +155,7 @@ constructor(connection: Connection) : AutoCloseable {
      * @param publicMeta  public file metadata
      * @param privateMeta private file metadata
      * @param size        size of the file
+     * @param randomWriteSupport enable random write support for file
      * @return Handle to write data
      * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
@@ -169,7 +170,8 @@ constructor(connection: Connection) : AutoCloseable {
         storeId: String,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        size: Long
+        size: Long,
+        randomWriteSupport: Boolean = false
     ): Long?
 
     /**

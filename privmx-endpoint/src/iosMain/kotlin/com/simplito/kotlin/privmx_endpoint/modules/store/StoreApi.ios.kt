@@ -281,6 +281,7 @@ actual constructor(connection: Connection) :
      * @param publicMeta  public file metadata
      * @param privateMeta private file metadata
      * @param size        size of the file
+     * @param randomWriteSupport enable random write support for file
      * @return Handle to write data
      * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
@@ -295,14 +296,16 @@ actual constructor(connection: Connection) :
         storeId: String,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        size: Long
+        size: Long,
+        randomWriteSupport: Boolean
     ): Long? = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             storeId.pson,
             publicMeta.pson,
             privateMeta.pson,
-            size.pson
+            size.pson,
+            randomWriteSupport.pson
         )
         try {
             privmx_endpoint_execStoreApi(nativeStoreApi.value, 6, args, pson_result.ptr)
