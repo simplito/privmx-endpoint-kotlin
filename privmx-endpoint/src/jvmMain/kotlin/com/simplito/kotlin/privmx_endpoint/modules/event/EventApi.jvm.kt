@@ -62,34 +62,6 @@ actual constructor(connection: Connection) : AutoCloseable {
     )
 
     /**
-     * Subscribe for the custom events on the given channel.
-     *
-     * @param contextId   ID of the Context
-     * @param channelName name of the Channel
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
-     */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    actual external fun subscribeForCustomEvents(contextId: String, channelName: String)
-
-    /**
-     * Unsubscribe from the custom events on the given channel.
-     *
-     * @param contextId   ID of the Context
-     * @param channelName name of the Channel
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
-     */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    actual external fun unsubscribeFromCustomEvents(contextId: String, channelName: String)
-
-    /**
      * Frees memory.
      *
      * @throws Exception when instance is currently closed.
