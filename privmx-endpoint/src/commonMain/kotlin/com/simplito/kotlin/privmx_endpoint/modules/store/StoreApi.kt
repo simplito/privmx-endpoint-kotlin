@@ -356,64 +356,6 @@ constructor(connection: Connection) : AutoCloseable {
     fun closeFile(fileHandle: Long): String
 
     /**
-     * Subscribes for the Store module main events.
-     *
-     * @throws IllegalStateException thrown when instance is closed
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     */
-    @Throws(
-        PrivmxException::class,
-        NativeException::class,
-        IllegalStateException::class
-    )
-    fun subscribeForStoreEvents()
-
-    /**
-     * Unsubscribes from the Store module main events.
-     *
-     * @throws IllegalStateException thrown when instance is closed
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     */
-    @Throws(
-        PrivmxException::class,
-        NativeException::class,
-        IllegalStateException::class
-    )
-    fun unsubscribeFromStoreEvents()
-
-    /**
-     * Subscribes for events in given Store.
-     *
-     * @param storeId ID of the Store to subscribe
-     * @throws IllegalStateException thrown when instance is closed
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     */
-    @Throws(
-        PrivmxException::class,
-        NativeException::class,
-        IllegalStateException::class
-    )
-    fun subscribeForFileEvents(storeId: String)
-
-    /**
-     * Unsubscribes from events in given Store.
-     *
-     * @param storeId ID of the `Store` to unsubscribe
-     * @throws IllegalStateException thrown when instance is closed
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     */
-    @Throws(
-        PrivmxException::class,
-        NativeException::class,
-        IllegalStateException::class
-    )
-    fun unsubscribeFromFileEvents(storeId: String)
-
-    /**
      * Frees memory.
      *
      * @throws Exception when instance is currently closed.
