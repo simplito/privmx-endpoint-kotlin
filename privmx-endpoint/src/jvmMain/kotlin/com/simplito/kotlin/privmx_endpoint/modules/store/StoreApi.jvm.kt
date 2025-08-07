@@ -17,6 +17,8 @@ import com.simplito.kotlin.privmx_endpoint.model.File
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.Store
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.StoreEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.StoreEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
@@ -376,6 +378,71 @@ actual constructor(connection: Connection) : AutoCloseable {
         IllegalStateException::class
     )
     actual external fun closeFile(fileHandle: Long): String
+
+    /**
+     * Subscribe for the custom events on the given subscription query.
+     *
+     * @param subscriptionQueries list of queries
+     * @return list of subscriptionIds in matching order to subscriptionQueries
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun subscribeFor(subscriptionQueries: List<String>): List<String>
+
+    /**
+     * Unsubscribe from events for the given subscriptionId.
+     *
+     * @param subscriptionIds list of subscriptionId
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun unsubscribeFrom(subscriptionIds: List<String>)
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    private external fun buildSubscriptionQuery(
+        eventType: Long,
+        selectorType: Long,
+        selectorId: String
+    ): String
+
+    /**
+     * Generate subscription Query for the Store events.
+     *
+     * @param eventType    type of event which you listen for
+     * @param selectorType scope on which you listen for events
+     * @param selectorId   ID of the selector
+     * @return // todo - add return description
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun buildSubscriptionQuery(
+        eventType: StoreEventType,
+        selectorType: StoreEventSelectorType,
+        selectorId: String
+    ): String {
+        return buildSubscriptionQuery(
+            eventType.ordinal.toLong(),
+            selectorType.ordinal.toLong(),
+            selectorId
+        )
+    }
+
+    /**
+     * Synchronize file handle data with newest data on server
+     *
+     * @param handle handle to read/write file data
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun syncFile(handle: Long)
 
     @Throws(IllegalStateException::class)
     private external fun init(connection: Connection): Long?
