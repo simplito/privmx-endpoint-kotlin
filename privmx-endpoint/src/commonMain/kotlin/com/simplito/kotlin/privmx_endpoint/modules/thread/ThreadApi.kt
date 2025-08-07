@@ -15,6 +15,8 @@ import com.simplito.kotlin.privmx_endpoint.model.Message
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.Thread
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.ThreadEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.ThreadEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
@@ -219,6 +221,47 @@ constructor(connection: Connection) : AutoCloseable {
         privateMeta: ByteArray,
         data: ByteArray
     )
+
+    /**
+     * Subscribe for the Thread events on the given subscription query.
+     *
+     * @param subscriptionQueries list of queries
+     * @return list of subscriptionIds in matching order to subscriptionQueries
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun subscribeFor(subscriptionQueries: List<String>): List<String>
+
+    /**
+     * Unsubscribe from events for the given subscriptionId.
+     *
+     * @param subscriptionIds list of subscriptionId
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun unsubscribeFrom(subscriptionIds: List<String>)
+
+    /**
+     * Generate subscription Query for the Thread events.
+     *
+     * @param eventType    type of event which you listen for
+     * @param selectorType scope on which you listen for events
+     * @param selectorId   ID of the selector
+     * @return // todo - add return description
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun buildSubscriptionQuery(
+        eventType: ThreadEventType,
+        selectorType: ThreadEventSelectorType,
+        selectorId: String
+    ): String
 
     /**
      * Frees memory.
