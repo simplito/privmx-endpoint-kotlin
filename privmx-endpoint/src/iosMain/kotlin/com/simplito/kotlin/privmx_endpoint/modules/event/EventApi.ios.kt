@@ -92,52 +92,6 @@ actual constructor(connection: Connection) : AutoCloseable {
         }
     }
 
-    /**
-     * Subscribe for the custom events on the given channel.
-     *
-     * @param contextId   ID of the Context
-     * @param channelName name of the Channel
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
-     */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun subscribeForCustomEvents(contextId: String, channelName: String): Unit = memScoped {
-        val result = allocPointerTo<pson_value>()
-        val args = makeArgs(
-            contextId.pson, channelName.pson
-        )
-        try {
-            privmx_endpoint_execEventApi(nativeEventApi.value, 2, args, result.ptr)
-            result.value?.asResponse?.getResultOrThrow()
-        } finally {
-            pson_free_value(args)
-            pson_free_result(result.value)
-        }
-    }
-
-    /**
-     * Unsubscribe from the custom events on the given channel.
-     *
-     * @param contextId   ID of the Context
-     * @param channelName name of the Channel
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
-     */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun unsubscribeFromCustomEvents(contextId: String, channelName: String): Unit =
-        memScoped {
-            val result = allocPointerTo<pson_value>()
-            val args = makeArgs(contextId.pson, channelName.pson)
-            try {
-                privmx_endpoint_execEventApi(nativeEventApi.value, 3, args, result.ptr)
-                result.value?.asResponse?.getResultOrThrow()
-            } finally {
-                pson_free_value(args)
-                pson_free_result(result.value)
-            }
-        }
 
     /**
      * Frees memory.
