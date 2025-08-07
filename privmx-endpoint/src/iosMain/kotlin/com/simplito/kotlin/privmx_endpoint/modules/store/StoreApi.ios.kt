@@ -17,6 +17,8 @@ import com.simplito.kotlin.privmx_endpoint.model.File
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.Store
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.StoreEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.StoreEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
@@ -29,6 +31,7 @@ import com.simplito.kotlin.privmx_endpoint.utils.pson
 import com.simplito.kotlin.privmx_endpoint.utils.toFile
 import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
 import com.simplito.kotlin.privmx_endpoint.utils.toStore
+import com.simplito.kotlin.privmx_endpoint.utils.typedList
 import com.simplito.kotlin.privmx_endpoint.utils.typedValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.allocPointerTo
@@ -637,6 +640,123 @@ actual constructor(connection: Connection) :
         try {
             privmx_endpoint_execStoreApi(nativeStoreApi.value, 16, args, pson_result.ptr)
             pson_result.value!!.asResponse?.getResultOrThrow()?.typedValue()!!
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
+
+    /**
+     * Subscribe for the custom events on the given subscription query.
+     *
+     * @param subscriptionQueries list of queries
+     * @return list of subscriptionIds in matching order to subscriptionQueries
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun subscribeFor(subscriptionQueries: List<String>): List<String> = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(subscriptionQueries.map { it.pson }.pson)
+
+        try {
+            privmx_endpoint_execStoreApi(nativeStoreApi.value, 22, args, pson_result.ptr)
+            val list = pson_result.value!!.asResponse?.getResultOrThrow()!!
+            list.typedList().map { it.typedValue() }
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
+
+    /**
+     * Unsubscribe from events for the given subscriptionId.
+     *
+     * @param subscriptionIds list of subscriptionId
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun unsubscribeFrom(subscriptionIds: List<String>) = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(subscriptionIds.map { it.pson }.pson)
+
+        try {
+            privmx_endpoint_execStoreApi(nativeStoreApi.value, 23, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    private fun buildSubscriptionQuery(
+        eventType: Long,
+        selectorType: Long,
+        selectorId: String
+    ): String = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            eventType.pson,
+            selectorType.pson,
+            selectorId.pson
+        )
+
+        try {
+            privmx_endpoint_execStoreApi(nativeStoreApi.value, 24, args, pson_result.ptr)
+            val query = pson_result.value!!.asResponse?.getResultOrThrow()!!
+            query.typedValue()
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
+
+    /**
+     * Generate subscription Query for the Store events.
+     *
+     * @param eventType    type of event which you listen for
+     * @param selectorType scope on which you listen for events
+     * @param selectorId   ID of the selector
+     * @return // todo - add return description
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun buildSubscriptionQuery(
+        eventType: StoreEventType,
+        selectorType: StoreEventSelectorType,
+        selectorId: String
+    ): String {
+        return buildSubscriptionQuery(
+            eventType.ordinal.toLong(),
+            selectorType.ordinal.toLong(),
+            selectorId
+        )
+    }
+
+    /**
+     * Synchronize file handle data with newest data on server
+     *
+     * @param handle handle to read/write file data
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun syncFile(handle: Long) = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(handle.pson)
+
+        try {
+            privmx_endpoint_execStoreApi(nativeStoreApi.value, 21, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
         } finally {
             pson_free_value(args)
             pson_free_result(pson_result.value)
