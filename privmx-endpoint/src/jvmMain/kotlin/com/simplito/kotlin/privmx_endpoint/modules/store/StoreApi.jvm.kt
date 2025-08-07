@@ -377,64 +377,6 @@ actual constructor(connection: Connection) : AutoCloseable {
     )
     actual external fun closeFile(fileHandle: Long): String
 
-    /**
-     * Subscribes for the Store module main events.
-     *
-     * @throws IllegalStateException thrown when instance is closed
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     */
-    @Throws(
-        PrivmxException::class,
-        NativeException::class,
-        IllegalStateException::class
-    )
-    actual external fun subscribeForStoreEvents()
-
-    /**
-     * Unsubscribes from the Store module main events.
-     *
-     * @throws IllegalStateException thrown when instance is closed
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     */
-    @Throws(
-        PrivmxException::class,
-        NativeException::class,
-        IllegalStateException::class
-    )
-    actual external fun unsubscribeFromStoreEvents()
-
-    /**
-     * Subscribes for events in given Store.
-     *
-     * @param storeId ID of the Store to subscribe
-     * @throws IllegalStateException thrown when instance is closed
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     */
-    @Throws(
-        PrivmxException::class,
-        NativeException::class,
-        IllegalStateException::class
-    )
-    actual external fun subscribeForFileEvents(storeId: String)
-
-    /**
-     * Unsubscribes from events in given Store.
-     *
-     * @param storeId ID of the `Store` to unsubscribe
-     * @throws IllegalStateException thrown when instance is closed
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     */
-    @Throws(
-        PrivmxException::class,
-        NativeException::class,
-        IllegalStateException::class
-    )
-    actual external fun unsubscribeFromFileEvents(storeId: String)
-
     @Throws(IllegalStateException::class)
     private external fun init(connection: Connection): Long?
 
