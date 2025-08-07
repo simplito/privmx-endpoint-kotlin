@@ -365,56 +365,6 @@ constructor(
     fun closeFile(fileHandle: Long): String
 
     /**
-     * Subscribes for the Inbox module main events.
-     *
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
-     */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    fun subscribeForInboxEvents()
-
-    /**
-     * Subscribes for the Inbox module main events.
-     *
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
-     */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    fun unsubscribeFromInboxEvents()
-
-    /**
-     * Subscribes for events in given Inbox.
-     *
-     * @param inboxId ID of the Inbox to subscribe
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
-     */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    fun subscribeForEntryEvents(inboxId: String)
-
-    /**
-     * Unsubscribes from events in given Inbox.
-     *
-     * @param inboxId ID of the Inbox to unsubscribe
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
-     */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    fun unsubscribeFromEntryEvents(inboxId: String)
-
-    /**
      * Frees memory.
      *
      * @throws Exception when instance is currently closed.
