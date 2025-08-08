@@ -222,6 +222,7 @@ internal fun PsonObject.toEvent(): Event<*> = Event(
     this["type"]!!.typedValue(),
     this["channel"]!!.typedValue(),
     this["connectionId"]?.typedValue(),
+    this["subscriptions"]!!.typedList().map { it.typedValue() },
     (this["data"] as PsonObject?)?.let {
         EventDataMappers[it.type]?.invoke(it)
     } ?: Unit
