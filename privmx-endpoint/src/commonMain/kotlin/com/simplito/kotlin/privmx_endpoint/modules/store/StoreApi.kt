@@ -414,6 +414,17 @@ constructor(connection: Connection) : AutoCloseable {
     fun unsubscribeFromFileEvents(storeId: String)
 
     /**
+     * Synchronize file handle data with newest data on server
+     *
+     * @param handle handle to read/write file data
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun syncFile(handle: Long)
+
+    /**
      * Frees memory.
      *
      * @throws Exception when instance is currently closed.
