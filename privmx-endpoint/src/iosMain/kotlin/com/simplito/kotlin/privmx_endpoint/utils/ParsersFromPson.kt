@@ -303,6 +303,7 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "store\$File" to PsonObject::toFile,
     "store\$File" to PsonObject::toFile,
     "store\$StoreFileDeletedEventData" to PsonObject::toStoreFileDeletedEventData,
+    "store\$StoreFileUpdatedEventData" to PsonObject::toStoreFileUpdatedEventData,
     "inbox\$InboxEntryDeletedEventData" to PsonObject::toInboxEntryDeletedEventData,
     "inbox\$InboxDeletedEventData" to PsonObject::toInboxDeletedEventData,
     "inbox\$InboxEntry" to PsonObject::toInboxEntry,
