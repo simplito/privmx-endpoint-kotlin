@@ -741,29 +741,6 @@ actual constructor(connection: Connection) :
     }
 
     /**
-     * Synchronize file handle data with newest data on server
-     *
-     * @param handle handle to read/write file data
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     */
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
-    actual fun syncFile(handle: Long) = memScoped {
-        val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(handle.pson)
-
-        try {
-            privmx_endpoint_execStoreApi(nativeStoreApi.value, 21, args, pson_result.ptr)
-            pson_result.value!!.asResponse?.getResultOrThrow()
-            Unit
-        } finally {
-            pson_free_value(args)
-            pson_free_result(pson_result.value)
-        }
-    }
-
-    /**
      * Frees memory.
      *
      * @throws Exception when instance is currently closed
