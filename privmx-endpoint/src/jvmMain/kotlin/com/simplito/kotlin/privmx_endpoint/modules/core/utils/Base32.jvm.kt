@@ -15,7 +15,7 @@ import com.simplito.kotlin.privmx_endpoint.LibLoader
 
 actual object Base32 {
     init {
-        LibLoader.load()
+        LibLoader.loadPrivmxLibraries()
     }
 
     /**

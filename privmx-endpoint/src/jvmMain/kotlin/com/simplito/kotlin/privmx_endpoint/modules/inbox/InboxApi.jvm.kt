@@ -40,7 +40,7 @@ actual constructor(
 ) : AutoCloseable {
     companion object {
         init {
-            LibLoader.load()
+            LibLoader.loadPrivmxLibraries()
         }
     }
 

@@ -11,9 +11,9 @@
 
 package com.simplito.kotlin.privmx_endpoint.utils
 
-import com.simplito.java.privmx_endpoint.model.events.KvdbDeletedEntryEventData
-import com.simplito.java.privmx_endpoint.model.events.KvdbDeletedEventData
-import com.simplito.java.privmx_endpoint.model.events.KvdbStatsEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEntryEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbStatsEventData
 import com.simplito.kotlin.privmx_endpoint.model.Kvdb
 import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
 import com.simplito.kotlin.privmx_endpoint.model.ServerKvdbEntryInfo
@@ -263,8 +263,10 @@ internal fun PsonObject.toThreadStatsEventData() = ThreadStatsEventData(
 internal fun PsonObject.toContextCustomEventData() = ContextCustomEventData(
     this["contextId"]!!.typedValue(),
     this["userId"]!!.typedValue(),
-    this["data"]!!.typedValue(),
-    this["statusCode"]!!.typedValue()
+    this["payload"]!!.typedValue(),
+    //TODO: This will be not null
+    this["statusCode"]?.typedValue() ?: 0
+)
 
 internal fun PsonObject.toKvdbDeletedEventData() = KvdbDeletedEventData(
     this["kvdbId"]!!.typedValue()
@@ -302,7 +304,7 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "inbox\$InboxEntry" to PsonObject::toInboxEntry,
     "inbox\$Inbox" to PsonObject::toInbox,
     "inbox\$Inbox" to PsonObject::toInbox,
-    "event\$ContextCustomEventData" to PsonObject::toContextCustomEventData
+    "event\$ContextCustomEventData" to PsonObject::toContextCustomEventData,
     "kvdb\$Kvdb" to PsonObject::toKvdb,
     "kvdb\$KvdbDeletedEventData" to PsonObject::toKvdbDeletedEventData,
     "kvdb\$KvdbStatsEventData" to PsonObject::toKvdbStatsEventData,
@@ -355,7 +357,8 @@ internal fun PsonObject.toKvdbEntry(): KvdbEntry = KvdbEntry(
     this["publicMeta"]!!.typedValue(),
     this["privateMeta"]!!.typedValue(),
     this["data"]!!.typedValue(),
-    this["authorPubKey"]!!.typedValue(),
+    //TODO: This will be not null
+    this["authorPubKey"]?.typedValue() ?: "",
     this["version"]?.typedValue(),
     this["statusCode"]?.typedValue(),
     this["schemaVersion"]?.typedValue(),

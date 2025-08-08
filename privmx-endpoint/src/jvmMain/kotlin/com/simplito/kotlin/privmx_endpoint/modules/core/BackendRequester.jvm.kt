@@ -21,7 +21,7 @@ import kotlin.Throws
  */
 actual object BackendRequester {
     init {
-        LibLoader.load()
+        LibLoader.loadPrivmxLibraries()
     }
 
     /**
