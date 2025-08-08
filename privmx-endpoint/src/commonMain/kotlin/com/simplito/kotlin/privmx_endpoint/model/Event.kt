@@ -16,11 +16,21 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property type          Type of the event
  * @property channel       The event channel
  * @property connectionId  ID of connection for this event
+ * @property subscriptions List of subscriptions Id for witch it is.
  * @property data          The data payload associated with the event
  */
-class Event<T: Any>(
+class Event<T : Any>(
     val type: String,
     val channel: String,
     val connectionId: Long?,
+    val subscriptions: List<String>,
     val data: T
-)
+) {
+    @Deprecated("Use primary constructor with new parameter.")
+    constructor(
+        type: String,
+        channel: String,
+        connectionId: Long?,
+        data: T
+    ) : this(type, channel, connectionId, emptyList(), data)
+}
