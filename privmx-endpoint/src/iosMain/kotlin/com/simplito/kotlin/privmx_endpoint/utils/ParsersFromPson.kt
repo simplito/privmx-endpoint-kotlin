@@ -42,6 +42,7 @@ import com.simplito.kotlin.privmx_endpoint.model.events.InboxDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxEntryDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreFileDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.StoreFileUpdatedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreStatsChangedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
@@ -236,6 +237,11 @@ internal fun PsonObject.toStoreFileDeletedEventData() = StoreFileDeletedEventDat
     this["fileId"]!!.typedValue(),
     this["contextId"]!!.typedValue(),
     this["storeId"]!!.typedValue(),
+)
+
+internal fun PsonObject.toStoreFileUpdatedEventData() = StoreFileUpdatedEventData(
+    (this["file"]!! as PsonObject).toFile(),
+    this["changes"]!!.typedList().map { (it as PsonObject).toFileChange() }
 )
 
 internal fun PsonObject.toStoreStatsChangedEventData() = StoreStatsChangedEventData(
