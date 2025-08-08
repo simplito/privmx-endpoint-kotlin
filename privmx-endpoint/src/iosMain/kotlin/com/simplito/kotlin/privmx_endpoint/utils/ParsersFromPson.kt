@@ -23,6 +23,7 @@ import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.Event
 import com.simplito.kotlin.privmx_endpoint.model.File
+import com.simplito.kotlin.privmx_endpoint.model.FileChange
 import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
 import com.simplito.kotlin.privmx_endpoint.model.Inbox
 import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
@@ -185,6 +186,12 @@ internal fun PsonObject.toFile() = File(
     this["authorPubKey"]!!.typedValue(),
     this["statusCode"]?.typedValue(),
     this["schemaVersion"]?.typedValue()
+)
+
+private fun PsonObject.toFileChange() = FileChange(
+    this["pos"]!!.typedValue(),
+    this["length"]!!.typedValue(),
+    this["truncate"]!!.typedValue()
 )
 
 internal fun PsonObject.toServerMessageInfo() = ServerMessageInfo(
