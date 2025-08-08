@@ -183,6 +183,7 @@ actual constructor(connection: Connection) : AutoCloseable {
         NativeException::class,
         IllegalStateException::class
     )
+    @JvmOverloads
     actual external fun createFile(
         storeId: String,
         publicMeta: ByteArray,
@@ -251,6 +252,7 @@ actual constructor(connection: Connection) : AutoCloseable {
         NativeException::class,
         IllegalStateException::class
     )
+    @JvmOverloads
     actual external fun writeToFile(fileHandle: Long, dataChunk: ByteArray, truncate: Boolean)
 
     /**
