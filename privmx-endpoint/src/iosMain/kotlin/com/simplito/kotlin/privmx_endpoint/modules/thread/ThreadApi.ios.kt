@@ -442,7 +442,7 @@ actual constructor(connection: Connection) : AutoCloseable {
         val args = makeArgs(subscriptionQueries.map { it.pson }.pson)
 
         try {
-            privmx_endpoint_execThreadApi(nativeThreadApi.value, 11, args, pson_result.ptr)
+            privmx_endpoint_execThreadApi(nativeThreadApi.value, 15, args, pson_result.ptr)
             val list = pson_result.value!!.asResponse?.getResultOrThrow()!!
             list.typedList().map { it.typedValue() }
         } finally {
@@ -465,7 +465,7 @@ actual constructor(connection: Connection) : AutoCloseable {
         val args = makeArgs(subscriptionIds.map { it.pson }.pson)
 
         try {
-            privmx_endpoint_execThreadApi(nativeThreadApi.value, 12, args, pson_result.ptr)
+            privmx_endpoint_execThreadApi(nativeThreadApi.value, 16, args, pson_result.ptr)
             pson_result.value!!.asResponse?.getResultOrThrow()
             Unit
         } finally {
@@ -499,7 +499,7 @@ actual constructor(connection: Connection) : AutoCloseable {
         )
 
         try {
-            privmx_endpoint_execThreadApi(nativeThreadApi.value, 12, args, pson_result.ptr)
+            privmx_endpoint_execThreadApi(nativeThreadApi.value, 17, args, pson_result.ptr)
             val query = pson_result.value!!.asResponse?.getResultOrThrow()!!
             query.typedValue()
         } finally {
