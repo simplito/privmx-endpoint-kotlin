@@ -278,7 +278,9 @@ internal fun PsonObject.toContextCustomEventData() = ContextCustomEventData(
     this["contextId"]!!.typedValue(),
     this["userId"]!!.typedValue(),
     this["data"]!!.typedValue(),
-    this["statusCode"]!!.typedValue()
+    this["statusCode"]!!.typedValue(),
+    this["schemaVersion"]!!.typedValue(),
+)
 
 internal fun PsonObject.toKvdbDeletedEventData() = KvdbDeletedEventData(
     this["kvdbId"]!!.typedValue()
@@ -317,7 +319,7 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "inbox\$InboxEntry" to PsonObject::toInboxEntry,
     "inbox\$Inbox" to PsonObject::toInbox,
     "inbox\$Inbox" to PsonObject::toInbox,
-    "event\$ContextCustomEventData" to PsonObject::toContextCustomEventData
+    "event\$ContextCustomEventData" to PsonObject::toContextCustomEventData,
     "kvdb\$Kvdb" to PsonObject::toKvdb,
     "kvdb\$KvdbDeletedEventData" to PsonObject::toKvdbDeletedEventData,
     "kvdb\$KvdbStatsEventData" to PsonObject::toKvdbStatsEventData,

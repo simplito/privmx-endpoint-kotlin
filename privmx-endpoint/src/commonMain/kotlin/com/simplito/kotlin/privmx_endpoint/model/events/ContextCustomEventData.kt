@@ -20,12 +20,14 @@ import kotlin.jvm.JvmOverloads
  * @property userId User ID (event's sender)
  * @property data Event's actual payload
  * @property statusCode Payload decryption status
+ * @property schemaVersion Version of the event data structure and how it is encoded/encrypted
  */
 class ContextCustomEventData
-@JvmOverloads 
+@JvmOverloads
 constructor(
     val contextId: String,
     val userId: String,
     val data: ByteArray,
-    val statusCode: Long? = null
+    val statusCode: Long? = null,
+    val schemaVersion: Long? = null
 )
