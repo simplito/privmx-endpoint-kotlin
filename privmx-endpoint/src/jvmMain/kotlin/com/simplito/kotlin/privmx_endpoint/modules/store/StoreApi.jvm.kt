@@ -380,7 +380,7 @@ actual constructor(connection: Connection) : AutoCloseable {
     actual external fun closeFile(fileHandle: Long): String
 
     /**
-     * Subscribe for the custom events on the given subscription query.
+     * Subscribe for the Store events on the given subscription query.
      *
      * @param subscriptionQueries list of queries
      * @return list of subscriptionIds in matching order to subscriptionQueries
