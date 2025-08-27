@@ -142,29 +142,6 @@ actual constructor(connection: Connection) : AutoCloseable {
         }
     }
 
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    private fun buildSubscriptionQuery(
-        channelName: String,
-        selectorType: Long,
-        selectorId: String
-    ): String = memScoped {
-        val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(
-            channelName.pson,
-            selectorType.pson,
-            selectorId.pson
-        )
-
-        try {
-            privmx_endpoint_execEventApi(nativeEventApi.value, 6, args, pson_result.ptr)
-            val query = pson_result.value!!.asResponse?.getResultOrThrow()!!
-            query.typedValue()
-        } finally {
-            pson_free_value(args)
-            pson_free_result(pson_result.value)
-        }
-    }
-
     /**
      * Generate subscription Query for the custom events.
      *
@@ -181,12 +158,22 @@ actual constructor(connection: Connection) : AutoCloseable {
         channelName: String,
         selectorType: CustomEventSelectorType,
         selectorId: String
-    ): String {
-        return buildSubscriptionQuery(
-            channelName,
-            selectorType.ordinal.toLong(),
-            selectorId
+    ): String = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            channelName.pson,
+            selectorType.ordinal.toLong().pson,
+            selectorId.pson
         )
+
+        try {
+            privmx_endpoint_execEventApi(nativeEventApi.value, 6, args, pson_result.ptr)
+            val query = pson_result.value!!.asResponse?.getResultOrThrow()!!
+            query.typedValue()
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     /**

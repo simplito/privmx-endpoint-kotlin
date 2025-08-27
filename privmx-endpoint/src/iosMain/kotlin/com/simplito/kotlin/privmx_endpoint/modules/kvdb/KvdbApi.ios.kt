@@ -19,7 +19,6 @@ import com.simplito.kotlin.privmx_endpoint.utils.mapOfWithNulls
 import com.simplito.kotlin.privmx_endpoint.utils.pson
 import com.simplito.kotlin.privmx_endpoint.utils.toKvdb
 import com.simplito.kotlin.privmx_endpoint.utils.toKvdbEntry
-import com.simplito.kotlin.privmx_endpoint.utils.toMap
 import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
 import com.simplito.kotlin.privmx_endpoint.utils.toValuePagingList
 import com.simplito.kotlin.privmx_endpoint.utils.typedList
@@ -554,29 +553,6 @@ actual constructor(connection: Connection) : AutoCloseable {
         }
     }
 
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    private fun buildSubscriptionQuery(
-        eventType: Long,
-        selectorType: Long,
-        selectorId: String
-    ): String = memScoped {
-        val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(
-            eventType.pson,
-            selectorType.pson,
-            selectorId.pson
-        )
-
-        try {
-            privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 19, args, pson_result.ptr)
-            val query = pson_result.value!!.asResponse?.getResultOrThrow()!!
-            query.typedValue()
-        } finally {
-            pson_free_value(args)
-            pson_free_result(pson_result.value)
-        }
-    }
-
     /**
      * Generate subscription Query for the KVDB events.
      *
@@ -593,12 +569,22 @@ actual constructor(connection: Connection) : AutoCloseable {
         eventType: KvdbEventType,
         selectorType: KvdbEventSelectorType,
         selectorId: String
-    ): String {
-        return buildSubscriptionQuery(
-            eventType.ordinal.toLong(),
-            selectorType.ordinal.toLong(),
-            selectorId
+    ): String = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            eventType.ordinal.toLong().pson,
+            selectorType.ordinal.toLong().pson,
+            selectorId.pson
         )
+
+        try {
+            privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 19, args, pson_result.ptr)
+            val query = pson_result.value!!.asResponse?.getResultOrThrow()!!
+            query.typedValue()
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     /**

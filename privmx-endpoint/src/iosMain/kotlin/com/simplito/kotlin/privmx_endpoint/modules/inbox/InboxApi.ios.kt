@@ -704,30 +704,6 @@ actual constructor(
         }
     }
 
-
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    private fun buildSubscriptionQuery(
-        eventType: Long,
-        selectorType: Long,
-        selectorId: String
-    ): String = memScoped {
-        val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(
-            eventType.pson,
-            selectorType.pson,
-            selectorId.pson
-        )
-
-        try {
-            privmx_endpoint_execInboxApi(nativeInboxApi.value, 24, args, pson_result.ptr)
-            val query = pson_result.value!!.asResponse?.getResultOrThrow()!!
-            query.typedValue()
-        } finally {
-            pson_free_value(args)
-            pson_free_result(pson_result.value)
-        }
-    }
-
     /**
      * Generate subscription Query for the Inbox events.
      *
@@ -744,12 +720,22 @@ actual constructor(
         eventType: InboxEventType,
         selectorType: InboxEventSelectorType,
         selectorId: String
-    ): String {
-        return buildSubscriptionQuery(
-            eventType.ordinal.toLong(),
-            selectorType.ordinal.toLong(),
-            selectorId
+    ): String = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            eventType.ordinal.toLong().pson,
+            selectorType.ordinal.toLong().pson,
+            selectorId.pson
         )
+
+        try {
+            privmx_endpoint_execInboxApi(nativeInboxApi.value, 24, args, pson_result.ptr)
+            val query = pson_result.value!!.asResponse?.getResultOrThrow()!!
+            query.typedValue()
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
     }
 
     /**
