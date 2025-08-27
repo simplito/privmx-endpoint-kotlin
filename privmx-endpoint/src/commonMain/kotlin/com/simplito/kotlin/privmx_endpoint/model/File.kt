@@ -64,11 +64,11 @@ data class File(
         if (size != other.size) return false
         if (statusCode != other.statusCode) return false
         if (schemaVersion != other.schemaVersion) return false
+        if (randomWrite != other.randomWrite) return false
         if (info != other.info) return false
         if (!publicMeta.contentEquals(other.publicMeta)) return false
         if (!privateMeta.contentEquals(other.privateMeta)) return false
         if (authorPubKey != other.authorPubKey) return false
-        if (statusCode != other.statusCode) return false
 
         return true
     }
