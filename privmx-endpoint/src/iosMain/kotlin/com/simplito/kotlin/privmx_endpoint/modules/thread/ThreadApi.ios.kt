@@ -480,7 +480,7 @@ actual constructor(connection: Connection) : AutoCloseable {
      * @param eventType    type of event which you listen for
      * @param selectorType scope on which you listen for events
      * @param selectorId   ID of the selector
-     * @return // todo - add return description
+     * @return Query for subscribing event
      * @throws IllegalStateException thrown when instance is closed.
      * @throws PrivmxException       thrown when method encounters an exception.
      * @throws NativeException       thrown when method encounters an unknown exception.
