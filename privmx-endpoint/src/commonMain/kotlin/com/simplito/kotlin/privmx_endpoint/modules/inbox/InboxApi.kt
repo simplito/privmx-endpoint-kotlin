@@ -379,7 +379,7 @@ constructor(
     fun subscribeFor(subscriptionQueries: List<String>): List<String>
 
     /**
-     * Unsubscribe from events for the given subscriptionId.
+     * Unsubscribe from events with the given subscriptionId.
      *
      * @param subscriptionIds list of subscriptionId
      * @throws IllegalStateException thrown when instance is closed.
@@ -392,7 +392,7 @@ constructor(
     /**
      * Generate subscription Query for the Inbox events.
      *
-     * @param eventType    type of event which you listen for
+     * @param eventType    type of event you listen for
      * @param selectorType scope on which you listen for events
      * @param selectorId   ID of the selector
      * @return Query for subscribing event

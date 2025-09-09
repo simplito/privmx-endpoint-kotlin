@@ -61,7 +61,7 @@ constructor(connection: Connection) : AutoCloseable {
     fun subscribeFor(subscriptionQueries: List<String>): List<String>
 
     /**
-     * Unsubscribe from events for the given subscriptionId.
+     * Unsubscribe from events with the given subscriptionId.
      *
      * @param subscriptionIds list of subscriptionId
      * @throws IllegalStateException thrown when instance is closed.

@@ -392,7 +392,7 @@ actual constructor(connection: Connection) : AutoCloseable {
     actual external fun subscribeFor(subscriptionQueries: List<String>): List<String>
 
     /**
-     * Unsubscribe from events for the given subscriptionId.
+     * Unsubscribe from events with the given subscriptionId.
      *
      * @param subscriptionIds list of subscriptionId
      * @throws IllegalStateException thrown when instance is closed.
@@ -412,7 +412,7 @@ actual constructor(connection: Connection) : AutoCloseable {
     /**
      * Generate subscription Query for the Store events.
      *
-     * @param eventType    type of event which you listen for
+     * @param eventType    type of event you listen for
      * @param selectorType scope on which you listen for events
      * @param selectorId   ID of the selector
      * @return Query for subscribing event

@@ -452,7 +452,7 @@ actual constructor(connection: Connection) : AutoCloseable {
     }
 
     /**
-     * Unsubscribe from events for the given subscriptionId.
+     * Unsubscribe from events with the given subscriptionId.
      *
      * @param subscriptionIds list of subscriptionId
      * @throws IllegalStateException thrown when instance is closed.
@@ -477,7 +477,7 @@ actual constructor(connection: Connection) : AutoCloseable {
     /**
      * Generate subscription Query for the Thread events.
      *
-     * @param eventType    type of event which you listen for
+     * @param eventType    type of event you listen for
      * @param selectorType scope on which you listen for events
      * @param selectorId   ID of the selector
      * @return Query for subscribing event
