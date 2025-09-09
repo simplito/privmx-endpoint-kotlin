@@ -23,6 +23,7 @@ import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.Event
 import com.simplito.kotlin.privmx_endpoint.model.File
+import com.simplito.kotlin.privmx_endpoint.model.FileChange
 import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
 import com.simplito.kotlin.privmx_endpoint.model.Inbox
 import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
@@ -42,6 +43,7 @@ import com.simplito.kotlin.privmx_endpoint.model.events.InboxDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxEntryDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreFileDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.StoreFileUpdatedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreStatsChangedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
@@ -187,6 +189,12 @@ internal fun PsonObject.toFile() = File(
     this["randomWrite"]!!.typedValue()
 )
 
+private fun PsonObject.toFileChange() = FileChange(
+    this["pos"]!!.typedValue(),
+    this["length"]!!.typedValue(),
+    this["truncate"]!!.typedValue()
+)
+
 internal fun PsonObject.toServerMessageInfo() = ServerMessageInfo(
     this["threadId"]!!.typedValue(),
     this["messageId"]!!.typedValue(),
@@ -215,6 +223,7 @@ internal fun PsonObject.toEvent(): Event<*> = Event(
     this["type"]!!.typedValue(),
     this["channel"]!!.typedValue(),
     this["connectionId"]?.typedValue(),
+    this["subscriptions"]!!.typedList().map { it.typedValue() },
     (this["data"] as PsonObject?)?.let {
         EventDataMappers[it.type]?.invoke(it)
     } ?: Unit
@@ -237,6 +246,11 @@ internal fun PsonObject.toStoreFileDeletedEventData() = StoreFileDeletedEventDat
     this["fileId"]!!.typedValue(),
     this["contextId"]!!.typedValue(),
     this["storeId"]!!.typedValue(),
+)
+
+internal fun PsonObject.toStoreFileUpdatedEventData() = StoreFileUpdatedEventData(
+    (this["file"]!! as PsonObject).toFile(),
+    this["changes"]!!.typedList().map { (it as PsonObject).toFileChange() }
 )
 
 internal fun PsonObject.toStoreStatsChangedEventData() = StoreStatsChangedEventData(
@@ -265,8 +279,10 @@ internal fun PsonObject.toContextCustomEventData() = ContextCustomEventData(
     this["contextId"]!!.typedValue(),
     this["userId"]!!.typedValue(),
     this["data"]!!.typedValue(),
-    this["statusCode"]!!.typedValue()
+    this["statusCode"]!!.typedValue(),
+    this["schemaVersion"]!!.typedValue(),
 )
+
 internal fun PsonObject.toKvdbDeletedEventData() = KvdbDeletedEventData(
     this["kvdbId"]!!.typedValue()
 )
@@ -298,6 +314,7 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "store\$File" to PsonObject::toFile,
     "store\$File" to PsonObject::toFile,
     "store\$StoreFileDeletedEventData" to PsonObject::toStoreFileDeletedEventData,
+    "store\$StoreFileUpdatedEventData" to PsonObject::toStoreFileUpdatedEventData,
     "inbox\$InboxEntryDeletedEventData" to PsonObject::toInboxEntryDeletedEventData,
     "inbox\$InboxDeletedEventData" to PsonObject::toInboxDeletedEventData,
     "inbox\$InboxEntry" to PsonObject::toInboxEntry,
