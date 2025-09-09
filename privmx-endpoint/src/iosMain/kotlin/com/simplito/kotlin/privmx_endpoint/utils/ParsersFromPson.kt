@@ -185,7 +185,8 @@ internal fun PsonObject.toFile() = File(
     this["size"]?.typedValue(),
     this["authorPubKey"]!!.typedValue(),
     this["statusCode"]?.typedValue(),
-    this["schemaVersion"]?.typedValue()
+    this["schemaVersion"]?.typedValue(),
+    this["randomWrite"]!!.typedValue()
 )
 
 private fun PsonObject.toFileChange() = FileChange(

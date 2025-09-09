@@ -155,6 +155,7 @@ constructor(connection: Connection) : AutoCloseable {
      * @param publicMeta  public file metadata
      * @param privateMeta private file metadata
      * @param size        size of the file
+     * @param randomWriteSupport enable random write support for file
      * @return Handle to write data
      * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
@@ -169,7 +170,8 @@ constructor(connection: Connection) : AutoCloseable {
         storeId: String,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        size: Long
+        size: Long,
+        randomWriteSupport: Boolean = false
     ): Long?
 
     /**
@@ -218,6 +220,7 @@ constructor(connection: Connection) : AutoCloseable {
      *
      * @param fileHandle handle to write file data
      * @param dataChunk  file data chunk
+     * @param truncate truncate the file from: current pos + dataChunk size
      * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -227,7 +230,11 @@ constructor(connection: Connection) : AutoCloseable {
         NativeException::class,
         IllegalStateException::class
     )
-    fun writeToFile(fileHandle: Long, dataChunk: ByteArray)
+    fun writeToFile(
+        fileHandle: Long,
+        dataChunk: ByteArray,
+        truncate: Boolean = false
+        )
 
     /**
      * Deletes a file by given ID.
