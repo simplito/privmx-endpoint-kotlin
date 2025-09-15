@@ -51,8 +51,8 @@ class StoreFileStreamReader private constructor(handle: Long, api: StoreApi) :
      * Synchronizes file data with newest data on server.
      *
      * @throws IllegalStateException when `storeApi` is not initialized or there's no connection
-     * @throws PrivmxException       if there is an error while opening Store file
-     * @throws NativeException       if there is an unknown error while opening Store file
+     * @throws PrivmxException       if there is an error while syncing Store file
+     * @throws NativeException       if there is an unknown error while syncing Store file
      */
     @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
     fun syncFile() {
