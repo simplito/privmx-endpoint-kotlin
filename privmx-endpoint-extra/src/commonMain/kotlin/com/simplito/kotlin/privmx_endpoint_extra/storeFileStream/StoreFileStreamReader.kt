@@ -48,7 +48,7 @@ class StoreFileStreamReader private constructor(handle: Long, api: StoreApi) :
     }
 
     /**
-     * Synchronizes file data with newest data on server.
+     * Synchronizes internal file handle data with newest data on server.
      *
      * @throws IllegalStateException when `storeApi` is not initialized or there's no connection
      * @throws PrivmxException       if there is an error while syncing Store file
