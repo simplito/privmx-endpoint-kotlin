@@ -15,11 +15,15 @@ import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
+import com.simplito.kotlin.privmx_endpoint_extra.events.CallbackRegistration
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventCallback
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventDispatcher
+import com.simplito.kotlin.privmx_endpoint_extra.events.EventRegistrationInfo
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
+import com.simplito.kotlin.privmx_endpoint_extra.events.isLibEvent
 import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
 import kotlin.jvm.JvmOverloads
+
 
 /**
  * Extends [BasicPrivmxEndpoint] with event callbacks dispatcher.
@@ -48,15 +52,17 @@ constructor(
     solutionId: String,
     bridgeUrl: String,
     verificationOptions: PKIVerificationOptions? = null
-) : BasicPrivmxEndpoint(enableModule, userPrivateKey, solutionId, bridgeUrl, verificationOptions), AutoCloseable {
-    private val onRemoveChannel = { channel: String ->
+) : BasicPrivmxEndpoint(enableModule, userPrivateKey, solutionId, bridgeUrl, verificationOptions),
+    AutoCloseable {
+    private val onRemoveSubscriptionEntry = { removedSubscriptions: Map<Modules, List<String>> ->
         try {
-            unsubscribeChannel(channel)
-        } catch (e: Exception) {
-            println("Cannot unsubscribe channel")
+            removedSubscriptions.forEach { (module, subscriptions) ->
+                unsubscribeMany(module, subscriptions)
+            }
+        } catch (_: Exception) {
         }
     }
-    private val eventDispatcher: EventDispatcher = EventDispatcher(onRemoveChannel)
+    private val eventDispatcher: EventDispatcher = EventDispatcher(onRemoveSubscriptionEntry)
 
     /**
      * Registers callbacks with the specified type.
@@ -68,18 +74,14 @@ constructor(
      * @throws RuntimeException thrown when method encounters an exception during subscribing on channel
      */
     @Throws(RuntimeException::class)
-    suspend fun <T: Any> registerCallback(
-        context: Any,
+    suspend fun <T : Any> registerCallback(
+        callbackGroup: Any,
         eventType: EventType<T>,
         callback: EventCallback<T>
-    ) {
-        if (eventDispatcher.register(eventType.channel, eventType.eventType, context, callback)) {
-            try {
-                subscribeChannel(eventType.channel)
-            } catch (e: Exception) {
-                throw RuntimeException("Cannot subscribe event channel for this event (detail message: " + e.message + ")")
-            }
-        }
+    ): RegistrationResult {
+        return registerManyCallbacks(
+            CallbackRegistration(callbackGroup, eventType, callback)
+        ).first()
     }
 
     /**
@@ -107,158 +109,200 @@ constructor(
         eventDispatcher.emit(event)
     }
 
-    private fun subscribeChannel(channelStr: String) {
-        val channel = Channel.fromString(channelStr)
-        if (channel == null) {
-            println("Cannot subscribe on events channel (pattern not found)")
-            return
-        }
-        if (channel.module.startsWith("thread") && threadApi != null) {
-            if (channel.type != null && channel.type.equals("messages")) {
-                if (channel.instanceId != null) {
-                    threadApi.subscribeForMessageEvents(channel.instanceId)
-                } else {
-                    println("No threadId to subscribeChannel: $channelStr")
-                }
-                return
-            }
-            threadApi.subscribeForThreadEvents()
-            return
-        }
 
-        if (channel.module.startsWith("store") && storeApi != null) {
-            if (channel.type != null && channel.type.equals("files")) {
-                if (channel.instanceId != null) {
-                    storeApi.subscribeForFileEvents(channel.instanceId)
-                } else {
-                    println("No storeId to subscribeChannel: $channelStr")
-                }
-                return
-            }
-            storeApi.subscribeForStoreEvents()
-            return
-        }
+    suspend fun registerManyCallbacks(
+        vararg registrations: CallbackRegistration<out Any>
+    ): List<RegistrationResult> {
+        val results = registrations.map { CallbackRegistrationWithResult(it, null) }
+        val eventsToSubscribeByModule: MutableMap<Modules, EventsToSubscribe> = mutableMapOf()
 
-        if (channel.module.startsWith("inbox") && inboxApi != null) {
-            if (channel.type != null && channel.type.equals("entries")) {
-                if (channel.instanceId != null) {
-                    inboxApi.subscribeForEntryEvents(channel.instanceId)
-                } else {
-                    println("No inboxId to subscribeChannel: $channelStr")
-                }
-                return
-            }
-            inboxApi.subscribeForInboxEvents()
-        }
+        results.forEach { result ->
+            val registration = result.registration
+            var module: Modules? = null
+            var query: String? = null
+            val eventType = registration.eventType
 
-        if (channel.module.startsWith("context") && eventApi != null) {
-            if (channel.type != null) {
-                if (channel.instanceId != null) {
-                    eventApi.subscribeForCustomEvents(channel.instanceId, channel.type)
-                } else {
-                    println("No contextId to subscribeChannel: " + channelStr)
+            val registrationInfo = eventDispatcher.registerCallback(registration)
+
+            if (registrationInfo.subscriptionID != null || isLibEvent(eventType.eventName)) {
+                result.result = RegistrationResult(null);
+            } else {
+                if (eventType.channelName != null && eventType.eventSelectorType is CustomEventSelectorType) {
+                    module = Modules.CUSTOM_EVENT;
+                    query = eventApi.buildSubscriptionQuery(
+                        eventType.channelName,
+                        eventType.eventSelectorType as CustomEventSelectorType,
+                        eventType.eventSelectorId
+                    );
+                } else if (eventType.libEventType is ThreadEventType) {
+                    module = Modules.THREAD
+                    query = threadApi.buildSubscriptionQuery(
+                        eventType.libEventType as ThreadEventType,
+                        eventType.eventSelectorType as ThreadEventSelectorType,
+                        eventType.eventSelectorId
+                    );
+                } else if (eventType.libEventType is StoreEventType) {
+                    module = Modules.STORE
+                    query = storeApi.buildSubscriptionQuery(
+                        eventType.libEventType as StoreEventType,
+                        eventType.eventSelectorType as StoreEventSelectorType,
+                        eventType.eventSelectorId
+                    );
+                } else if (eventType.libEventType is InboxEventType) {
+                    module = Modules.INBOX;
+                    query = inboxApi.buildSubscriptionQuery(
+                        eventType.libEventType as InboxEventType,
+                        eventType.eventSelectorType as InboxEventSelectorType,
+                        eventType.eventSelectorId
+                    );
+                } else if (eventType.libEventType is KvdbEventType) {
+                    module = Modules.KVDB;
+                    query = kvdbApi.buildSubscriptionQuery(
+                        eventType.libEventType as KvdbEventType,
+                        eventType.eventSelectorType as KvdbEventSelectorType,
+                        eventType.eventSelectorId
+                    );
                 }
+                eventsToSubscribeByModule.getOrPut(module!!) {
+                    EventsToSubscribe()
+                }.add(query!!, result, registrationInfo)
             }
         }
+        subscribeAll(eventsToSubscribeByModule)
+        return results.map { it.result!! }
+    }
 
-        if (channel.module.startsWith("kvdb") && kvdbApi != null) {
-            if (channel.type != null && channel.type == "entries") {
-                if (channel.instanceId != null) {
-                    kvdbApi.subscribeForEntryEvents(channel.instanceId)
-                } else {
-                    println("No kvdbId to subscribeChannel: " + channelStr)
-                }
-                return
+    @Throws(IllegalStateException::class, NativeException::class, PrivmxException::class)
+    private fun unsubscribeMany(module: Modules, subscriptionIds: List<String>) {
+        when (module) {
+            Modules.CUSTOM_EVENT -> {
+                checkNotNull(eventApi) { "eventApi is not initialized" }
+                eventApi.unsubscribeFrom(subscriptionIds)
             }
-            kvdbApi.subscribeForKvdbEvents()
+
+            Modules.THREAD -> {
+                checkNotNull(threadApi) { "threadApi is not initialized" }
+                threadApi.unsubscribeFrom(subscriptionIds)
+            }
+
+            Modules.STORE -> {
+                checkNotNull(storeApi) { "storeApi is not initialized" }
+                storeApi.unsubscribeFrom(subscriptionIds)
+            }
+
+            Modules.INBOX -> {
+                checkNotNull(inboxApi) { "inboxApi is not initialized" }
+                inboxApi.unsubscribeFrom(subscriptionIds)
+            }
+
+            Modules.KVDB -> {
+                checkNotNull(kvdbApi) { "kvdbApi is not initialized" }
+                kvdbApi.unsubscribeFrom(subscriptionIds)
+            }
         }
     }
 
-    private fun unsubscribeChannel(channelStr: String) {
-        val channel = Channel.Companion.fromString(channelStr)
-        if (channel == null) {
-            println("Cannot unsubscribe on events channel (pattern not found)")
-            return
-        }
-        if (channel.module.startsWith("thread") && threadApi != null) {
-            if (channel.type != null && channel.type == "messages") {
-                if (channel.instanceId != null) {
-                    threadApi.unsubscribeFromMessageEvents(channel.instanceId)
-                } else {
-                    println("No threadId to unsubscribeChannel: $channelStr")
-                }
-                return
-            }
-            threadApi.unsubscribeFromThreadEvents()
-            return
-        }
-
-        if (channel.module.startsWith("store") && storeApi != null) {
-            if (channel.type != null && channel.type == "files") {
-                if (channel.instanceId != null) {
-                    storeApi.unsubscribeFromFileEvents(channel.instanceId)
-                } else {
-                    println("No storeId to unsubscribeChannel: $channelStr")
-                }
-                return
-            }
-            storeApi.unsubscribeFromStoreEvents()
-            return
-        }
-
-        if (channel.module.startsWith("inbox") && inboxApi != null) {
-            if (channel.type != null && channel.type == "entries") {
-                if (channel.instanceId != null) {
-                    inboxApi.unsubscribeFromEntryEvents(channel.instanceId)
-                } else {
-                    println("No inboxId to unsubscribeChannel: $channelStr")
-                }
-                return
-            }
-            inboxApi.unsubscribeFromInboxEvents()
-        }
-
-        if (channel.module.startsWith("context") && eventApi != null) {
-            if (channel.type != null) {
-                if (channel.instanceId != null) {
-                    eventApi.unsubscribeFromCustomEvents(channel.instanceId, channel.type)
-                } else {
-                    println("No contextId to unsubscribeChannel: " + channelStr)
-                }
-            }
-        }
-
-        if (channel.module.startsWith("kvdb") && kvdbApi != null) {
-            if (channel.type != null && channel.type == "entries") {
-                if (channel.instanceId != null) {
-                    kvdbApi.unsubscribeFromEntryEvents(channel.instanceId)
-                } else {
-                    println("No kvdbId to unsubscribeChannel: " + channelStr)
-                }
-                return
-            }
-            kvdbApi.unsubscribeFromKvdbEvents()
-        }
-    }
-
-    private class Channel(
-        val module: String,
-        val instanceId: String?,
-        val type: String?
+    @Throws(
+        IllegalStateException::class,
+        PrivmxException::class,
+        NativeException::class,
+        NullPointerException::class
+    )
+    private fun subscribeFor(
+        queriesAndCallbacks: Map<String, List<EventToSubscribe>>,
+        subscribeMethod: (List<String>) -> List<String>
     ) {
-        companion object {
-            fun fromString(channel: String): Channel? {
-                return Regex("(?<module>(?:(?!/).)*)(?:/(?<instanceId>(?:(?!/).)*)/(?<type>(?:(?!/).)*))?")
-                    .find(channel)
-                    ?.run {
-                        val (module, instanceId, type) = this.destructured
-                        Channel(
-                            module,
-                            instanceId,
-                            type
-                        )
-                    }
+        val queries: List<String> = queriesAndCallbacks.keys.toList()
+        val ids: List<String?> = subscribeMethod(queries)
+
+        if (ids.size == queries.size) {
+            for (i in 0..<ids.size) {
+                val query = queries[i]
+                val id = ids[i]
+                queriesAndCallbacks[query]?.forEach { subscribedEvent ->
+                    subscribedEvent.eventRegistrationInfo.subscriptionID = id
+                    subscribedEvent.callbackRegistrationWithResult.result = RegistrationResult(null)
+                }
             }
         }
     }
+
+    private suspend fun subscribeAll(eventsToSubscribeByModule: Map<Modules, EventsToSubscribe>) {
+        eventsToSubscribeByModule.forEach { (key, value) ->
+            try {
+                when (key) {
+                    Modules.CUSTOM_EVENT -> {
+                        checkNotNull(eventApi) { "eventApi is not initialized" }
+                        subscribeFor(value.getQueriesMap(), eventApi::subscribeFor)
+                    }
+
+                    Modules.THREAD -> {
+                        checkNotNull(threadApi) { "threadApi is not initialized" }
+                        subscribeFor(value.getQueriesMap(), threadApi::subscribeFor)
+                    }
+
+                    Modules.STORE -> {
+                        checkNotNull(storeApi) { "storeApi is not initialized" }
+                        subscribeFor(value.getQueriesMap(), storeApi::subscribeFor)
+                    }
+
+                    Modules.INBOX -> {
+                        checkNotNull(inboxApi) { "inboxApi is not initialized" }
+                        subscribeFor(value.getQueriesMap(), inboxApi::subscribeFor)
+                    }
+
+                    Modules.KVDB -> {
+                        checkNotNull(kvdbApi) { "kvdbApi is not initialized" }
+                        subscribeFor(value.getQueriesMap(), kvdbApi::subscribeFor)
+                    }
+                }
+            } catch (e: RuntimeException) {
+                when(e){
+                    is IllegalStateException, is NativeException, is PrivmxException ->{
+                        val callbacks: List<EventToSubscribe> = value.getQueriesMap().values.flatten()
+                        callbacks.forEach{ it ->
+                            it.callbackRegistrationWithResult.result = RegistrationResult(e)
+                        }
+                    }else -> throw e
+                }
+
+            }
+        }
+        eventDispatcher.removeNotSubscribedEvents()
+    }
+
+
+}
+
+private class CallbackRegistrationWithResult(
+    val registration: CallbackRegistration<*>,
+    var result: RegistrationResult?
+)
+
+class RegistrationResult internal constructor(val error: Throwable?) {
+    val isError: Boolean
+        get() = error != null
+}
+
+private class EventToSubscribe(
+    val callbackRegistrationWithResult: CallbackRegistrationWithResult,
+    val eventRegistrationInfo: EventRegistrationInfo
+)
+
+private class EventsToSubscribe {
+    private val queriesMap: MutableMap<String, MutableList<EventToSubscribe>> = mutableMapOf()
+
+    fun add(
+        query: String,
+        callbackRegistrationWithResult: CallbackRegistrationWithResult,
+        eventRegistrationInfo: EventRegistrationInfo
+    ) {
+        queriesMap.getOrPut(query) {
+            mutableListOf()
+        }.add(
+            EventToSubscribe(callbackRegistrationWithResult, eventRegistrationInfo)
+        )
+    }
+
+    fun getQueriesMap(): Map<String, List<EventToSubscribe>> = queriesMap
 }

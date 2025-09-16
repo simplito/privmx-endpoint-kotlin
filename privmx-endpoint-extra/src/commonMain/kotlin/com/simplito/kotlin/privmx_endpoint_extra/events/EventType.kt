@@ -30,7 +30,13 @@ import com.simplito.kotlin.privmx_endpoint.model.events.StoreStatsChangedEventDa
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
+import com.simplito.kotlin.privmx_endpoint_extra.events.EventType.DisconnectedEvent
+import com.simplito.kotlin.privmx_endpoint_extra.events.EventType.LibBreakEvent
 import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpoint
+import kotlin.reflect.KClass
+
+internal fun isLibEvent(eventTypeName: String): Boolean = EventType.ConnectedEvent.eventName == eventTypeName
+        || LibBreakEvent.eventName == eventTypeName || DisconnectedEvent.eventName == eventTypeName
 
 /**
  * Defines the structure to register PrivMX Bridge event callbacks using [PrivmxEndpoint.registerCallback].
@@ -38,36 +44,71 @@ import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpoint
  * @param T the type of data contained in the Event
  */
 sealed class EventType<T: Any>(
-    /**
-     * Channel of this event type.
-     */
-    val channel: String,
-    /**
-     * This event type as a string.
-     */
-    val eventType: String,
+    val eventName: String,
+    val eventDataClass: KClass<T>,
+    val libEventType: com.simplito.java.privmx_endpoint.model.events.eventTypes.EventType? = null,
+    val eventSelectorType: EventSelectorType? = null,
+    val eventSelectorId: String? = null,
+    val channelName: String? = null
 ) {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as EventType<*>
+
+        if (eventName != other.eventName) return false
+        if (channelName != other.channelName) return false
+        if (libEventType != other.libEventType) return false
+        if (eventSelectorType != other.eventSelectorType) return false
+        if (eventSelectorId != other.eventSelectorId) return false
+        if (eventDataClass != other.eventDataClass) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = eventName.hashCode()
+        result = 31 * result + (channelName?.hashCode() ?: 0)
+        result = 31 * result + (libEventType?.hashCode() ?: 0)
+        result = 31 * result + (eventSelectorType?.hashCode() ?: 0)
+        result = 31 * result + (eventSelectorId?.hashCode() ?: 0)
+        result = 31 * result + eventDataClass.hashCode()
+        return result
+    }
 
     /**
      * Predefined event type that captures successful platform connection events.
      */
-    data object ConnectedEvent : EventType<Unit>("", "libConnected")
+    data object ConnectedEvent : EventType<Unit>(
+        "libConnected",
+        Unit::class,
+    )
 
     /**
      * Predefined event type to catch special events.
      * This type could be used to emit/handle events with custom implementations (e.g. to break event loops).
      */
-    data object LibBreakEvent : EventType<Unit>("", "libBreak")
+    data object LibBreakEvent : EventType<Unit>(
+        "libBreak",
+        Unit::class
+    )
 
     /**
      * Predefined event type to catch disconnection events.
      */
-    data object DisconnectedEvent : EventType<Unit>("", "libDisconnected")
+    data object DisconnectedEvent : EventType<Unit>(
+        "libDisconnected",
+        Unit::class
+    )
 
     /**
      * Predefined event type to catch created Thread events.
      */
-    data object ThreadCreatedEvent : EventType<Thread>("thread", "threadCreated")
+    data object ThreadCreatedEvent : EventType<Thread>(
+        "threadCreated",
+    )
 
     /**
      * Predefined event type to catch updated Thread events.

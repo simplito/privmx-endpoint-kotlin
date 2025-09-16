@@ -12,6 +12,7 @@ package com.simplito.kotlin.privmx_endpoint_extra.events
 
 
 import com.simplito.kotlin.privmx_endpoint.model.Event
+import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -19,7 +20,7 @@ import kotlinx.coroutines.sync.withLock
  * Represents a callback for catching events data.
  * @param T type of the caught event data
  */
-fun interface EventCallback<T: Any>{
+fun interface EventCallback<T : Any> {
     /**
      * Called to handle data from a captured event.
      *
@@ -31,37 +32,32 @@ fun interface EventCallback<T: Any>{
 
 /**
  * Implements a list of registered event callbacks.
- * @param onRemoveEntryKey callback triggered when all events
+ * @param onRemoveSubscriptionEntry callback triggered when all events
  *                         from channel entry have been removed
  *                         (it can also unsubscribe from the channel)
  */
 class EventDispatcher(
-    private val onRemoveEntryKey: (removedKey: String) -> Unit
+    private val onRemoveSubscriptionEntry: (removedSubscriptions: Map<Modules, List<String>>) -> Unit
 ) {
     private val map: MutableMap<String, MutableList<Pair>> = mutableMapOf()
+    private val callbackMap: MutableMap<EventRegistrationInfo, MutableList<Pair>> = mutableMapOf()
     private val mapMutex = Mutex()
-    private fun getFormattedType(channel: String, type: String): String {
-        return channel.toString() + "_" + type
-    }
 
     /**
      * Registers new event callback.
      *
-     * @param channel  channel of registered event
-     * @param type     type of registered event
-     * @param context  ID of registered callback
-     * @param callback block of code to call when the specified event has been caught
-     * @return `true` if the channel is not already subscribed
+     * @param callbackRegistration information about callback to register
+     * @return this callback registration info
      */
-    suspend fun <T: Any> register(
-        channel: String,
-        type: String,
-        context: Any,
-        callback: EventCallback<T>
-    ): Boolean {
-        val needSubscribe = channelHasNoCallbacks(channel)
-        getCallbacks(getFormattedType(channel, type)).add(Pair(context, callback))
-        return needSubscribe
+    suspend fun registerCallback(callbackRegistration: CallbackRegistration<out Any>): EventRegistrationInfo {
+        val info = getRegistrationInfo(callbackRegistration.eventType)
+        getCallbackList(info).add(
+            Pair(
+                callbackRegistration.callbackGroup,
+                callbackRegistration.callback
+            )
+        )
+        return info
     }
 
     /**
@@ -71,8 +67,12 @@ class EventDispatcher(
      * @param event event data to emit
     </T> */
     @Suppress("UNCHECKED_CAST")
-    suspend fun <T: Any> emit(event: Event<out T>) {
-        val callbacks = getCallbacks(getFormattedType(event.channel, event.type))
+    suspend fun <T : Any> emit(event: Event<out T>) {
+        val callbacks = if (isLibEvent(event.type)) {
+            getCallbacksByType(event.type)
+        } else {
+            getCallbacks(event.subscriptions)
+        }
         for (p in callbacks) {
             try {
                 try {
@@ -85,46 +85,133 @@ class EventDispatcher(
         }
     }
 
-    private fun channelHasNoCallbacks(channel: String?): Boolean {
-        return map
-            .entries
-            .filter { it -> it.key.substringBefore("_") == channel }
-            .sumOf { it -> it.value.size } == 0
+    suspend fun removeNotSubscribedEvents() = mapMutex.withLock {
+        val entrySetIterator = callbackMap.iterator()
+        entrySetIterator.forEach { (eventRegistrationInfo,_) ->
+            if (eventRegistrationInfo.subscriptionID == null && !isLibEvent(eventRegistrationInfo.eventType.eventName)) {
+                entrySetIterator.remove()
+            }
+        }
     }
 
     /**
-     * Removes all callbacks registered by [EventDispatcher.register]. It's identified by given Context.
+     * Removes all callbacks registered by [EventDispatcher.register]. It's identified by given callback group identifiers.
      *
-     * @param context callback identifier
+     * @param callbackGroups callback group identifiers
      */
-    suspend fun unbind(context: Any) = map.entries
-        .mapTo(mutableSetOf()) { it.key.substringBefore("_") to it.value }
-        .filter { it.second.isNotEmpty() }
-        .forEach {
-            val (key, value) = it
-            mapMutex.withLock {
-                value.removeAll { it.context == context }
-            }
-            if (channelHasNoCallbacks(key)) {
-                onRemoveEntryKey(key)
+    suspend fun unbind(vararg callbackGroups: Any) {
+        if (callbackGroups.isEmpty()) return
+        val callbackGroupsList: MutableList<Any> = callbackGroups.toMutableList()
+        val selectorsToUnsubscribe: MutableMap<Modules, MutableList<String>> = mutableMapOf()
+        mapMutex.withLock {
+            val mapIterator = callbackMap.entries.iterator()
+            mapIterator.forEach { (key, callbacks) ->
+                if (key.subscriptionID != null) {
+                    val pairsOfCallbacks: List<Pair> =
+                        callbacks.filter { p -> callbackGroupsList.contains(p.context) }
+                    callbacks.removeAll(pairsOfCallbacks)
+                    callbackGroupsList.removeAll(pairsOfCallbacks)
+
+                    if (callbacks.isEmpty()) {
+                        val module: Modules? = getModuleFromEventRegistrationInfo(key)
+                        if (module != null) {
+                            selectorsToUnsubscribe.getOrPut(module) { mutableListOf() }
+                                .add(key.subscriptionID!!)
+                        }
+                    }
+                    mapIterator.remove()
+                }
             }
         }
+        onRemoveSubscriptionEntry(selectorsToUnsubscribe)
+    }
+
+    private fun getModuleFromEventRegistrationInfo(key: EventRegistrationInfo): Modules? {
+        var module: Modules? = null
+        if (key.eventType.eventSelectorType is CustomEventSelectorType) {
+            module = Modules.CUSTOM_EVENT
+        } else if (key.eventType.libEventType is ThreadEventType) {
+            module = Modules.THREAD
+        } else if (key.eventType.libEventType is StoreEventType) {
+            module = Modules.STORE
+        } else if (key.eventType.libEventType is InboxEventType) {
+            module = Modules.INBOX
+        } else if (key.eventType.libEventType is KvdbEventType) {
+            module = Modules.KVDB
+        }
+        return module
+    }
 
     /**
      * Removes all callbacks.
      */
     suspend fun unbindAll() = mapMutex.withLock {
-        map.keys
-            .map { it -> it.substringBefore("_") }
-            .forEach(onRemoveEntryKey::invoke)
+        val callbacksToUnsubscribe: Map<Modules, MutableList<String>> = callbackMap
+            .mapNotNull { (key, _) ->
+                val module: Modules? = getModuleFromEventRegistrationInfo(key)
+                if (key.subscriptionID != null && module != null) {
+                    module to key.subscriptionID!!
+                } else null
+            }.groupingBy { it.first }
+            .aggregate { key, accumulator, element, first ->
+                if (first) {
+                    mutableListOf(element.second)
+                } else {
+                    accumulator?.add(element.second)
+                    accumulator!!
+                }
+            }
+        onRemoveSubscriptionEntry(callbacksToUnsubscribe)
         map.clear()
     }
 
 
-    private suspend fun getCallbacks(type: String): MutableList<Pair> = mapMutex.withLock {
-        map.getOrPut(type) { mutableListOf() }
+    private suspend fun getRegistrationInfo(eventType: EventType<*>): EventRegistrationInfo =
+        mapMutex.withLock {
+            callbackMap.keys.firstOrNull { it.eventType == eventType }
+                ?: EventRegistrationInfo(null, eventType)
+        }
+
+    private suspend fun getCallbackList(eventRegistrationInfo: EventRegistrationInfo): MutableList<Pair> =
+        mapMutex.withLock {
+            callbackMap.getOrPut(eventRegistrationInfo) { mutableListOf() }
+        }
+
+    private suspend fun getCallbacks(subscriptionIds: List<String>): List<Pair> =
+        mapMutex.withLock {
+            callbackMap.filter { (key, _) ->
+                subscriptionIds.contains(
+                    key.subscriptionID
+                )
+            }.flatMap { it.value }
+        }
+
+    private suspend fun getCallbacksByType(eventType: String): List<Pair> = mapMutex.withLock {
+        callbackMap.filter { (key, _) ->
+            key.eventType.eventName == eventType
+        }.flatMap { it.value }
     }
 
-
     private data class Pair(val context: Any, val callback: EventCallback<out Any>)
+}
+
+class EventRegistrationInfo(var subscriptionID: String?, var eventType: EventType<*>) {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as EventRegistrationInfo
+
+        if (subscriptionID != other.subscriptionID) return false
+        if (eventType != other.eventType) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = subscriptionID?.hashCode() ?: 0
+        result = 31 * result + eventType.hashCode()
+        return result
+    }
 }
