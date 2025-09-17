@@ -18,6 +18,7 @@ import kotlinx.io.Sink
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
+
 /**
  * Manages handle for file reading.
  */
@@ -44,6 +45,18 @@ class StoreFileStreamReader private constructor(handle: Long, api: StoreApi) :
         return storeApi.readFromFile(handle, size)!!.also {
             callChunkProcessed(it.size.toLong())
         }
+    }
+
+    /**
+     * Synchronizes internal file handle data with newest data on server.
+     *
+     * @throws IllegalStateException when `storeApi` is not initialized or there's no connection
+     * @throws PrivmxException       if there is an error while syncing Store file
+     * @throws NativeException       if there is an unknown error while syncing Store file
+     */
+    @Throws(IllegalStateException::class, PrivmxException::class, NativeException::class)
+    fun syncFile() {
+        storeApi.syncFile(handle)
     }
 
     /**
