@@ -19,6 +19,7 @@ import com.simplito.kotlin.privmx_endpoint.model.UserInfo
 import com.simplito.kotlin.privmx_endpoint.modules.core.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import kotlin.Throws
 
 /**
  * Manages a connection between the PrivMX Endpoint and PrivMX Bridge server.
@@ -152,16 +153,30 @@ actual class Connection private constructor(
     actual external fun setUserVerifier(userVerifier: UserVerifierInterface)
 
     /**
-     * Gets a list of users of given context.
+     * Gets a list of users with their status and the last status change.
      *
-     * @param contextId ID of the context
-     * @return list of users Info
+     * @param contextId   ID of the Context
+     * @param skip        number of elements to skip from result
+     * @param limit       limit of elements to return for query
+     * @param sortOrder   order of elements in result ("asc" for ascending, "desc" for descending)
+     * @param lastId      ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
+     * @param sortBy      field name to sort elements by
+     * @return List of users with their status and the last status change
+     * @throws IllegalStateException thrown when instance is not connected.
      * @throws PrivmxException       thrown when method encounters an exception.
      * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is not connected.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun getContextUsers(contextId: String): List<UserInfo>
+    actual external fun listContextUsers(
+        contextId: String,
+        skip: Long,
+        limit: Long,
+        sortOrder: String,
+        lastId: String?,
+        queryAsJson: String?,
+        sortBy: String?
+    ): PagingList<UserInfo>
 
     /**
      * Disconnects from PrivMX Bridge server.
