@@ -19,6 +19,7 @@ import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
 import com.simplito.kotlin.privmx_endpoint.model.ServerKvdbEntryInfo
 import com.simplito.kotlin.privmx_endpoint.model.BIP39
 import com.simplito.kotlin.privmx_endpoint.model.BridgeIdentity
+import com.simplito.kotlin.privmx_endpoint.model.CollectionItemChange
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.Event
@@ -207,6 +208,11 @@ internal fun PsonObject.toServerFileInfo() = ServerFileInfo(
     this["fileId"]!!.typedValue(),
     this["createDate"]?.typedValue(),
     this["author"]!!.typedValue()
+)
+
+internal fun PsonObject.toCollectionItemChange() = CollectionItemChange(
+    this["itemId"]!!.typedValue(),
+    this["action"]!!.typedValue(),
 )
 
 internal fun PsonObject.toUserWithAction() = UserWithAction(
