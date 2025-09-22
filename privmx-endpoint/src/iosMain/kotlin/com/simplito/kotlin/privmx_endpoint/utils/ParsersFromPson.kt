@@ -209,6 +209,11 @@ internal fun PsonObject.toServerFileInfo() = ServerFileInfo(
     this["author"]!!.typedValue()
 )
 
+internal fun PsonObject.toUserWithAction() = UserWithAction(
+    (this["user"] as PsonObject).toUserWithPubKey(),
+    this["action"]!!.typedValue(),
+)
+
 internal fun <T> PsonObject.toPagingList(mapper: PsonObject.() -> T) = PagingList(
     this["totalAvailable"]?.typedValue(),
     this["readItems"]!!.typedList().map { (it as PsonObject).mapper() }
