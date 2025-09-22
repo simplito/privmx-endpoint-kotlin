@@ -33,6 +33,7 @@ import libprivmxendpoint.privmx_endpoint_newKvdbApi
 import libprivmxendpoint.pson_free_result
 import libprivmxendpoint.pson_free_value
 import libprivmxendpoint.pson_new_array
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 
 /**
  * Manages PrivMX Bridge  KVDBs and their messages.
@@ -588,6 +589,40 @@ actual constructor(connection: Connection) : AutoCloseable {
             privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 15, args, pson_result.ptr)
             pson_result.value!!.asResponse?.getResultOrThrow()
             Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
+
+    /**
+     * Generate subscription Query for the KVDB events for single KvdbEntry.
+     *
+     * @param eventType    type of event you listen for
+     * @param kvdbId       Id of Kvdb
+     * @param kvdbEntryKey Key of Kvdb Entry
+     * @return Query to subscribe to an event.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is closed.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun buildSubscriptionQueryForSelectedEntry(
+        eventType: KvdbEventType,
+        kvdbId: String,
+        kvdbEntryKey: String
+    ): String = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            eventType.ordinal.toLong().pson,
+            kvdbId.pson,
+            kvdbEntryKey.pson
+        )
+
+        try {
+            privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 20, args, pson_result.ptr)
+            val query = pson_result.value!!.asResponse?.getResultOrThrow()!!
+            query.typedValue()
         } finally {
             pson_free_value(args)
             pson_free_result(pson_result.value)
