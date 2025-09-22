@@ -37,6 +37,7 @@ import com.simplito.kotlin.privmx_endpoint.model.ServerMessageInfo
 import com.simplito.kotlin.privmx_endpoint.model.Store
 import com.simplito.kotlin.privmx_endpoint.model.Thread
 import com.simplito.kotlin.privmx_endpoint.model.UserInfo
+import com.simplito.kotlin.privmx_endpoint.model.UserWithAction
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.VerificationRequest
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextCustomEventData
