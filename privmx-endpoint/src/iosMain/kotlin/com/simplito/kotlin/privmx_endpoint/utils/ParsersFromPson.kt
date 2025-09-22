@@ -40,6 +40,7 @@ import com.simplito.kotlin.privmx_endpoint.model.UserInfo
 import com.simplito.kotlin.privmx_endpoint.model.UserWithAction
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.VerificationRequest
+import com.simplito.kotlin.privmx_endpoint.model.events.CollectionChangedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextCustomEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextUserEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextUsersStatusChangedEventData
@@ -297,6 +298,13 @@ internal fun PsonObject.toContextCustomEventData() = ContextCustomEventData(
     this["schemaVersion"]!!.typedValue(),
 )
 
+internal fun PsonObject.toCollectionChangedEventData() = CollectionChangedEventData(
+    this["moduleType"]!!.typedValue(),
+    this["moduleId"]!!.typedValue(),
+    this["affectedItemsCount"]!!.typedValue(),
+    this["items"]!!.typedList().map { (it as PsonObject).toCollectionItemChange() }
+)
+
 internal fun PsonObject.toContextUserEventData() = ContextUserEventData(
     this["contextId"]!!.typedValue(),
     (this["user"] as PsonObject).toUserWithPubKey()
@@ -345,6 +353,7 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "inbox\$Inbox" to PsonObject::toInbox,
     "inbox\$Inbox" to PsonObject::toInbox,
     "event\$ContextCustomEventData" to PsonObject::toContextCustomEventData,
+    "event\$CollectionChangedEventData" to PsonObject::toCollectionChangedEventData,
     "event\$ContextUserEventData" to PsonObject::toContextUserEventData,
     "event\$ContextUsersStatusChangedEventData" to PsonObject::toContextUsersStatusChangedEventData,
     "kvdb\$Kvdb" to PsonObject::toKvdb,
