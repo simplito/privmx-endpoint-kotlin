@@ -36,6 +36,7 @@ import com.simplito.kotlin.privmx_endpoint.model.ServerMessageInfo
 import com.simplito.kotlin.privmx_endpoint.model.Store
 import com.simplito.kotlin.privmx_endpoint.model.Thread
 import com.simplito.kotlin.privmx_endpoint.model.UserInfo
+import com.simplito.kotlin.privmx_endpoint.model.UserStatusChange
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.VerificationRequest
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextCustomEventData
@@ -59,6 +60,11 @@ internal fun PsonObject.toContext(): Context = Context(
 internal fun PsonObject.toUserWithPubKey(): UserWithPubKey = UserWithPubKey(
     this["userId"]!!.typedValue(),
     this["pubKey"]!!.typedValue()
+)
+
+internal fun PsonObject.toUserStatusChange() = UserStatusChange(
+    this["action"]!!.typedValue(),
+    this["timestamp"]!!.typedValue()
 )
 
 internal fun PsonObject.toUserInfo(): UserInfo = UserInfo(
