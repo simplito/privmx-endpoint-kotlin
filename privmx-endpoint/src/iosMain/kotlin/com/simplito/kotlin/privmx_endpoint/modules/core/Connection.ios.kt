@@ -264,24 +264,47 @@ actual class Connection private constructor() : AutoCloseable {
     }
 
     /**
-     * Gets a list of users of given context.
+     * Gets a list of users with their status and the last status change.
      *
-     * @param contextId ID of the context
-     * @return list of users Info
+     * @param contextId   ID of the Context
+     * @param skip        number of elements to skip from result
+     * @param limit       limit of elements to return for query
+     * @param sortOrder   order of elements in result ("asc" for ascending, "desc" for descending)
+     * @param lastId      ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
+     * @param sortBy      field name to sort elements by
+     * @return List of users with their status and the last status change
+     * @throws IllegalStateException thrown when instance is not connected.
      * @throws PrivmxException       thrown when method encounters an exception.
      * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is not connected.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun getContextUsers(contextId: String): List<UserInfo> = memScoped {
+    actual external fun listContextUsers(
+        contextId: String,
+        skip: Long,
+        limit: Long,
+        sortOrder: String,
+        lastId: String?,
+        queryAsJson: String?,
+        sortBy: String?
+    ): PagingList<UserInfo> = memScoped {
         val result = allocPointerTo<pson_value>()
-        val args = makeArgs(contextId.pson)
+        val args = makeArgs(
+            contextId.pson,
+            mapOfWithNulls(
+                "skip" to skip.pson,
+                "limit" to limit.pson,
+                "sortOrder" to sortOrder.pson,
+                lastId?.let { "lastId" to lastId.pson },
+                queryAsJson?.let { "queryAsJson" to queryAsJson.pson },
+                sortBy?.let { "sortBy" to sortBy.pson }
+            ).pson
+        )
         try {
-            privmx_endpoint_execConnection(nativeConnection.value, 5, args, result.ptr)
-            val contextUsersList: List<PsonValue.PsonObject> = result.value!!.asResponse
-                ?.getResultOrThrow()!!
-                .typedValue()
-            contextUsersList.map { it.toUserInfo() }
+            privmx_endpoint_execConnection(nativeConnection.value, 10, args, result.ptr)
+            val pagingList =
+                result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+            pagingList.toPagingList(PsonValue.PsonObject::toUserInfo)
         } finally {
             pson_free_result(result.value)
             pson_free_value(args)
