@@ -41,6 +41,7 @@ import com.simplito.kotlin.privmx_endpoint.model.UserWithAction
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.VerificationRequest
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextCustomEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.ContextUsersStatusChangedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxEntryDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreDeletedEventData
@@ -295,6 +296,11 @@ internal fun PsonObject.toContextCustomEventData() = ContextCustomEventData(
     this["schemaVersion"]!!.typedValue(),
 )
 
+internal fun PsonObject.toContextUsersStatusChangedEventData() = ContextUsersStatusChangedEventData(
+    this["contextId"]!!.typedValue(),
+    this["users"]!!.typedList().map { (it as PsonObject).toUserWithAction() }
+)
+
 internal fun PsonObject.toKvdbDeletedEventData() = KvdbDeletedEventData(
     this["kvdbId"]!!.typedValue()
 )
@@ -333,6 +339,7 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "inbox\$Inbox" to PsonObject::toInbox,
     "inbox\$Inbox" to PsonObject::toInbox,
     "event\$ContextCustomEventData" to PsonObject::toContextCustomEventData,
+    "event\$ContextUsersStatusChangedEventData" to PsonObject::toContextUsersStatusChangedEventData,
     "kvdb\$Kvdb" to PsonObject::toKvdb,
     "kvdb\$KvdbDeletedEventData" to PsonObject::toKvdbDeletedEventData,
     "kvdb\$KvdbStatsEventData" to PsonObject::toKvdbStatsEventData,
