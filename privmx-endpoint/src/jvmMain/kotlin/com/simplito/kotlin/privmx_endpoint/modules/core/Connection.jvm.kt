@@ -16,6 +16,8 @@ import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserInfo
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.CoreEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.CoreEventType
 import com.simplito.kotlin.privmx_endpoint.modules.core.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
@@ -162,6 +164,47 @@ actual class Connection private constructor(
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun getContextUsers(contextId: String): List<UserInfo>
+
+    /**
+     * Subscribe for the Context events on the given subscription query.
+     *
+     * @param subscriptionQueries List of queries
+     * @return List of subscriptionIds in matching order to subscriptionQueries
+     * @throws IllegalStateException thrown when instance is not connected or closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun subscribeFor(subscriptionQueries: List<String>): List<String>
+
+    /**
+     * Unsubscribe from events for the given subscriptionId.
+     *
+     * @param subscriptionIds List of subscriptionId
+     * @throws IllegalStateException thrown when instance is not connected or closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun unsubscribeFrom(subscriptionIds: List<String>)
+
+    /**
+     * Generate subscription Query for the Context events.
+     *
+     * @param eventType    Type of event which you listen for
+     * @param selectorType Scope on which you listen for events
+     * @param selectorId   ID of the selector
+     * @return // todo
+     * @throws IllegalStateException thrown when instance is not connected or closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun buildSubscriptionQuery(
+        eventType: CoreEventType,
+        selectorType: CoreEventSelectorType,
+        selectorId: String
+    ): String
 
     /**
      * Disconnects from PrivMX Bridge server.
