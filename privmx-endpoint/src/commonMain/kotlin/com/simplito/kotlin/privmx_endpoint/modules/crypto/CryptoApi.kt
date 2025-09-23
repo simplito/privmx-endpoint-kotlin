@@ -156,7 +156,7 @@ expect class CryptoApi() : AutoCloseable {
     /**
      * Generates ECC key using BIP-39 mnemonic.
      *
-     * @param mnemonic the BIP-39 entropy used to generate the Key
+     * @param mnemonic the BIP-39 mnemonic used to generate the Key
      * @param password the password used to generate the Key
      * @return BIP39 object containing ECC Key and associated with it BIP-39 mnemonic and entropy
      * @throws PrivmxException thrown when method encounters an exception
