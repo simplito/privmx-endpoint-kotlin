@@ -15,7 +15,6 @@ import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserInfo
-import com.simplito.kotlin.privmx_endpoint.modules.core.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
@@ -137,10 +136,10 @@ expect class Connection : AutoCloseable {
         contextId: String,
         skip: Long,
         limit: Long,
-        sortOrder: String,
-        lastId: String?,
-        queryAsJson: String?,
-        sortBy: String?
+        sortOrder: String = "desc",
+        lastId: String? = null,
+        queryAsJson: String? = null,
+        sortBy: String? = null
     ): PagingList<UserInfo>
 
     /**
