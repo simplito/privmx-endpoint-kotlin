@@ -168,6 +168,7 @@ actual class Connection private constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     actual external fun listContextUsers(
         contextId: String,
         skip: Long,
