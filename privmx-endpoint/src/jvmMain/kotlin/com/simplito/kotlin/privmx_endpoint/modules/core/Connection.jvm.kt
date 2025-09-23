@@ -18,7 +18,6 @@ import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserInfo
 import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.CoreEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.CoreEventType
-import com.simplito.kotlin.privmx_endpoint.modules.core.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 
@@ -188,6 +187,13 @@ actual class Connection private constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun unsubscribeFrom(subscriptionIds: List<String>)
 
+    @Throws(PrivmxException::class, NativeException::class, java.lang.IllegalStateException::class)
+    private external fun buildSubscriptionQuery(
+        eventType: Long,
+        selectorType: Long,
+        selectorId: String
+    ): String
+
     /**
      * Generate subscription Query for the Context events.
      *
@@ -200,11 +206,17 @@ actual class Connection private constructor(
      * @throws NativeException       thrown when method encounters an unknown exception
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun buildSubscriptionQuery(
+    actual fun buildSubscriptionQuery(
         eventType: CoreEventType,
         selectorType: CoreEventSelectorType,
         selectorId: String
-    ): String
+    ): String {
+        return buildSubscriptionQuery(
+            eventType.ordinal.toLong(),
+            selectorType.ordinal.toLong(),
+            selectorId
+        )
+    }
 
     /**
      * Disconnects from PrivMX Bridge server.
