@@ -3,7 +3,7 @@ package com.simplito.kotlin.privmx_endpoint.model.events
 import com.simplito.kotlin.privmx_endpoint.model.CollectionItemChange
 
 /**
- *  Holds data of event that arrives when the collection is changed.
+ * Holds data of event that arrives when the collection is changed.
  *
  * @property moduleType         Type of the module
  * @property moduleId           ID of the module
