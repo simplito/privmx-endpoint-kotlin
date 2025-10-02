@@ -16,6 +16,8 @@ import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserInfo
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.CoreEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.CoreEventType
 import com.simplito.kotlin.privmx_endpoint.modules.core.UserVerifierInterface
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
@@ -30,6 +32,7 @@ import com.simplito.kotlin.privmx_endpoint.utils.psonMapper
 import com.simplito.kotlin.privmx_endpoint.utils.toContext
 import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
 import com.simplito.kotlin.privmx_endpoint.utils.toUserInfo
+import com.simplito.kotlin.privmx_endpoint.utils.typedList
 import com.simplito.kotlin.privmx_endpoint.utils.typedValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.StableRef
@@ -308,6 +311,87 @@ actual class Connection private constructor() : AutoCloseable {
         } finally {
             pson_free_result(result.value)
             pson_free_value(args)
+        }
+    }
+
+    /**
+     * Subscribe for the Context events on the given subscription query.
+     *
+     * @param subscriptionQueries List of queries
+     * @return List of subscriptionIds in matching order to subscriptionQueries
+     * @throws IllegalStateException thrown when instance is not connected or closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun subscribeFor(subscriptionQueries: List<String>): List<String> = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(subscriptionQueries.map { it.pson }.pson)
+
+        try {
+            privmx_endpoint_execConnection(nativeConnection.value, 7, args, pson_result.ptr)
+            val list = pson_result.value!!.asResponse?.getResultOrThrow()!!
+            list.typedList().map { it.typedValue() }
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
+
+    /**
+     * Unsubscribe from events for the given subscriptionId.
+     *
+     * @param subscriptionIds List of subscriptionId
+     * @throws IllegalStateException thrown when instance is not connected or closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun unsubscribeFrom(subscriptionIds: List<String>) = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(subscriptionIds.map { it.pson }.pson)
+
+        try {
+            privmx_endpoint_execConnection(nativeConnection.value, 8, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
+
+    /**
+     * Generate subscription Query for the Context events.
+     *
+     * @param eventType    Type of event which you listen for
+     * @param selectorType Scope on which you listen for events
+     * @param selectorId   ID of the selector
+     * @return // todo
+     * @throws IllegalStateException thrown when instance is not connected or closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun buildSubscriptionQuery(
+        eventType: CoreEventType,
+        selectorType: CoreEventSelectorType,
+        selectorId: String
+    ): String = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            eventType.ordinal.toLong().pson,
+            selectorType.ordinal.toLong().pson,
+            selectorId.pson
+        )
+
+        try {
+            privmx_endpoint_execConnection(nativeConnection.value, 9, args, pson_result.ptr)
+            val query = pson_result.value!!.asResponse?.getResultOrThrow()!!
+            query.typedValue()
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
         }
     }
 
