@@ -11,9 +11,9 @@
 
 package com.simplito.kotlin.privmx_endpoint.utils
 
-import com.simplito.java.privmx_endpoint.model.events.KvdbDeletedEntryEventData
-import com.simplito.java.privmx_endpoint.model.events.KvdbDeletedEventData
-import com.simplito.java.privmx_endpoint.model.events.KvdbStatsEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEntryEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbStatsEventData
 import com.simplito.kotlin.privmx_endpoint.model.Kvdb
 import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
 import com.simplito.kotlin.privmx_endpoint.model.ServerKvdbEntryInfo
