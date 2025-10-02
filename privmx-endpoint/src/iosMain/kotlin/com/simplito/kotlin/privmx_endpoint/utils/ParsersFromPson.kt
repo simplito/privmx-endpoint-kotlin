@@ -19,6 +19,7 @@ import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
 import com.simplito.kotlin.privmx_endpoint.model.ServerKvdbEntryInfo
 import com.simplito.kotlin.privmx_endpoint.model.BIP39
 import com.simplito.kotlin.privmx_endpoint.model.BridgeIdentity
+import com.simplito.kotlin.privmx_endpoint.model.CollectionItemChange
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.Event
@@ -36,9 +37,14 @@ import com.simplito.kotlin.privmx_endpoint.model.ServerMessageInfo
 import com.simplito.kotlin.privmx_endpoint.model.Store
 import com.simplito.kotlin.privmx_endpoint.model.Thread
 import com.simplito.kotlin.privmx_endpoint.model.UserInfo
+import com.simplito.kotlin.privmx_endpoint.model.UserStatusChange
+import com.simplito.kotlin.privmx_endpoint.model.UserWithAction
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.VerificationRequest
+import com.simplito.kotlin.privmx_endpoint.model.events.CollectionChangedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextCustomEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.ContextUserEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.ContextUsersStatusChangedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxEntryDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreDeletedEventData
@@ -61,9 +67,15 @@ internal fun PsonObject.toUserWithPubKey(): UserWithPubKey = UserWithPubKey(
     this["pubKey"]!!.typedValue()
 )
 
+internal fun PsonObject.toUserStatusChange() = UserStatusChange(
+    this["action"]!!.typedValue(),
+    this["timestamp"]!!.typedValue()
+)
+
 internal fun PsonObject.toUserInfo(): UserInfo = UserInfo(
     (this["user"] as PsonObject).toUserWithPubKey(),
-    this["isActive"]!!.typedValue()
+    this["isActive"]!!.typedValue(),
+    (this["lastStatusChange"] as PsonObject).toUserStatusChange()
 )
 
 internal fun PsonObject.toThread(): Thread = Thread(
@@ -209,6 +221,16 @@ internal fun PsonObject.toServerFileInfo() = ServerFileInfo(
     this["author"]!!.typedValue()
 )
 
+internal fun PsonObject.toCollectionItemChange() = CollectionItemChange(
+    this["itemId"]!!.typedValue(),
+    this["action"]!!.typedValue(),
+)
+
+internal fun PsonObject.toUserWithAction() = UserWithAction(
+    (this["user"] as PsonObject).toUserWithPubKey(),
+    this["action"]!!.typedValue(),
+)
+
 internal fun <T> PsonObject.toPagingList(mapper: PsonObject.() -> T) = PagingList(
     this["totalAvailable"]?.typedValue(),
     this["readItems"]!!.typedList().map { (it as PsonObject).mapper() }
@@ -224,6 +246,7 @@ internal fun PsonObject.toEvent(): Event<*> = Event(
     this["channel"]!!.typedValue(),
     this["connectionId"]?.typedValue(),
     this["subscriptions"]!!.typedList().map { it.typedValue() },
+    this["timestamp"]!!.typedValue(),
     (this["data"] as PsonObject?)?.let {
         EventDataMappers[it.type]?.invoke(it)
     } ?: Unit
@@ -283,6 +306,23 @@ internal fun PsonObject.toContextCustomEventData() = ContextCustomEventData(
     this["schemaVersion"]!!.typedValue(),
 )
 
+internal fun PsonObject.toCollectionChangedEventData() = CollectionChangedEventData(
+    this["moduleType"]!!.typedValue(),
+    this["moduleId"]!!.typedValue(),
+    this["affectedItemsCount"]!!.typedValue(),
+    this["items"]!!.typedList().map { (it as PsonObject).toCollectionItemChange() }
+)
+
+internal fun PsonObject.toContextUserEventData() = ContextUserEventData(
+    this["contextId"]!!.typedValue(),
+    (this["user"] as PsonObject).toUserWithPubKey()
+)
+
+internal fun PsonObject.toContextUsersStatusChangedEventData() = ContextUsersStatusChangedEventData(
+    this["contextId"]!!.typedValue(),
+    this["users"]!!.typedList().map { (it as PsonObject).toUserWithAction() }
+)
+
 internal fun PsonObject.toKvdbDeletedEventData() = KvdbDeletedEventData(
     this["kvdbId"]!!.typedValue()
 )
@@ -321,6 +361,9 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "inbox\$Inbox" to PsonObject::toInbox,
     "inbox\$Inbox" to PsonObject::toInbox,
     "event\$ContextCustomEventData" to PsonObject::toContextCustomEventData,
+    "event\$CollectionChangedEventData" to PsonObject::toCollectionChangedEventData,
+    "event\$ContextUserEventData" to PsonObject::toContextUserEventData,
+    "event\$ContextUsersStatusChangedEventData" to PsonObject::toContextUsersStatusChangedEventData,
     "kvdb\$Kvdb" to PsonObject::toKvdb,
     "kvdb\$KvdbDeletedEventData" to PsonObject::toKvdbDeletedEventData,
     "kvdb\$KvdbStatsEventData" to PsonObject::toKvdbStatsEventData,
