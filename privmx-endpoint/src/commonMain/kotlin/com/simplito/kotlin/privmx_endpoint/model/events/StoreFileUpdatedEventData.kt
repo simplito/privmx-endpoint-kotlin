@@ -10,6 +10,6 @@ import com.simplito.kotlin.privmx_endpoint.model.FileChange
  * @property changes List of file changes.
  */
 class StoreFileUpdatedEventData(
-    file: File,
-    changes: List<FileChange>
+    val file: File,
+    val changes: List<FileChange>
 )
