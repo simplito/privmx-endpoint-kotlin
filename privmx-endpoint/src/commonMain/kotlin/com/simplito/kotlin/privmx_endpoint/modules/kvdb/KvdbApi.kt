@@ -10,6 +10,7 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 
 /**
  * Manages PrivMX Bridge KVDBs and their entries.
@@ -298,6 +299,24 @@ expect class KvdbApi(connection: Connection) : AutoCloseable {
         eventType: KvdbEventType,
         selectorType: KvdbEventSelectorType,
         selectorId: String
+    ): String
+
+    /**
+     * Generate subscription Query for the KVDB events for single KvdbEntry.
+     *
+     * @param eventType    type of event you listen for
+     * @param kvdbId       Id of Kvdb
+     * @param kvdbEntryKey Key of Kvdb Entry
+     * @return Query to subscribe to an event.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is closed.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun buildSubscriptionQueryForSelectedEntry(
+        eventType: KvdbEventType,
+        kvdbId: String,
+        kvdbEntryKey: String
     ): String
 
     /**
