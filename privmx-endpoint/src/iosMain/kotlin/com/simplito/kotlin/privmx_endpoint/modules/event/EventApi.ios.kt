@@ -13,12 +13,15 @@ package com.simplito.kotlin.privmx_endpoint.modules.event
 
 import cnames.structs.pson_value
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.CustomEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.utils.asResponse
 import com.simplito.kotlin.privmx_endpoint.utils.makeArgs
 import com.simplito.kotlin.privmx_endpoint.utils.pson
+import com.simplito.kotlin.privmx_endpoint.utils.typedList
+import com.simplito.kotlin.privmx_endpoint.utils.typedValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.memScoped
@@ -93,51 +96,85 @@ actual constructor(connection: Connection) : AutoCloseable {
     }
 
     /**
-     * Subscribe for the custom events on the given channel.
+     * Subscribe for the custom events on the given subscription query.
      *
-     * @param contextId   ID of the Context
-     * @param channelName name of the Channel
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
+     * @param subscriptionQueries list of queries
+     * @return list of subscriptionIds in matching order to subscriptionQueries
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
      */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun subscribeForCustomEvents(contextId: String, channelName: String): Unit = memScoped {
-        val result = allocPointerTo<pson_value>()
-        val args = makeArgs(
-            contextId.pson, channelName.pson
-        )
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun subscribeFor(subscriptionQueries: List<String>): List<String> = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(subscriptionQueries.map { it.pson }.pson)
+
         try {
-            privmx_endpoint_execEventApi(nativeEventApi.value, 2, args, result.ptr)
-            result.value?.asResponse?.getResultOrThrow()
+            privmx_endpoint_execEventApi(nativeEventApi.value, 4, args, pson_result.ptr)
+            val list = pson_result.value!!.asResponse?.getResultOrThrow()!!
+            list.typedList().map { it.typedValue() }
         } finally {
             pson_free_value(args)
-            pson_free_result(result.value)
+            pson_free_result(pson_result.value)
         }
     }
 
     /**
-     * Unsubscribe from the custom events on the given channel.
+     * Unsubscribe from events with the given subscriptionId.
      *
-     * @param contextId   ID of the Context
-     * @param channelName name of the Channel
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
+     * @param subscriptionIds list of subscriptionId
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
      */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun unsubscribeFromCustomEvents(contextId: String, channelName: String): Unit =
-        memScoped {
-            val result = allocPointerTo<pson_value>()
-            val args = makeArgs(contextId.pson, channelName.pson)
-            try {
-                privmx_endpoint_execEventApi(nativeEventApi.value, 3, args, result.ptr)
-                result.value?.asResponse?.getResultOrThrow()
-            } finally {
-                pson_free_value(args)
-                pson_free_result(result.value)
-            }
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun unsubscribeFrom(subscriptionIds: List<String>) = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(subscriptionIds.map { it.pson }.pson)
+
+        try {
+            privmx_endpoint_execEventApi(nativeEventApi.value, 5, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
         }
+    }
+
+    /**
+     * Generate subscription Query for the custom events.
+     *
+     * @param channelName  name of the Channel
+     * @param selectorType selector of scope on which you listen for events
+     * @param selectorId   ID of the selector
+     * @return Query for subscribing event
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun buildSubscriptionQuery(
+        channelName: String,
+        selectorType: CustomEventSelectorType,
+        selectorId: String
+    ): String = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            channelName.pson,
+            selectorType.ordinal.toLong().pson,
+            selectorId.pson
+        )
+
+        try {
+            privmx_endpoint_execEventApi(nativeEventApi.value, 6, args, pson_result.ptr)
+            val query = pson_result.value!!.asResponse?.getResultOrThrow()!!
+            query.typedValue()
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Frees memory.

@@ -19,6 +19,8 @@ import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
 import com.simplito.kotlin.privmx_endpoint.model.InboxPublicView
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.InboxEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.InboxEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
@@ -35,6 +37,7 @@ import com.simplito.kotlin.privmx_endpoint.utils.toInbox
 import com.simplito.kotlin.privmx_endpoint.utils.toInboxEntry
 import com.simplito.kotlin.privmx_endpoint.utils.toInboxPublicView
 import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
+import com.simplito.kotlin.privmx_endpoint.utils.typedList
 import com.simplito.kotlin.privmx_endpoint.utils.typedValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.allocPointerTo
@@ -44,11 +47,7 @@ import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
 import libprivmxendpoint.privmx_endpoint_execInboxApi
 import libprivmxendpoint.privmx_endpoint_freeInboxApi
-import libprivmxendpoint.privmx_endpoint_freeStoreApi
-import libprivmxendpoint.privmx_endpoint_freeThreadApi
 import libprivmxendpoint.privmx_endpoint_newInboxApi
-import libprivmxendpoint.privmx_endpoint_newStoreApi
-import libprivmxendpoint.privmx_endpoint_newThreadApi
 import libprivmxendpoint.pson_free_result
 import libprivmxendpoint.pson_free_value
 import libprivmxendpoint.pson_new_array
@@ -659,20 +658,44 @@ actual constructor(
     }
 
     /**
-     * Subscribes for the Inbox module main events.
+     * Subscribe for the Inbox events on the given subscription query.
      *
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
+     * @param subscriptionQueries list of queries
+     * @return list of subscriptionIds in matching order to subscriptionQueries
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
      */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    actual fun subscribeForInboxEvents() = memScoped {
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun subscribeFor(subscriptionQueries: List<String>): List<String> = memScoped {
         val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs()
+        val args = makeArgs(subscriptionQueries.map { it.pson }.pson)
+
         try {
-            privmx_endpoint_execInboxApi(nativeInboxApi.value, 18, args, pson_result.ptr)
+            privmx_endpoint_execInboxApi(nativeInboxApi.value, 22, args, pson_result.ptr)
+            val list = pson_result.value!!.asResponse?.getResultOrThrow()!!
+            list.typedList().map { it.typedValue() }
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
+
+    /**
+     * Unsubscribe from events with the given subscriptionId.
+     *
+     * @param subscriptionIds list of subscriptionId
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun unsubscribeFrom(subscriptionIds: List<String>) = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(subscriptionIds.map { it.pson }.pson)
+
+        try {
+            privmx_endpoint_execInboxApi(nativeInboxApi.value, 23, args, pson_result.ptr)
             pson_result.value!!.asResponse?.getResultOrThrow()
             Unit
         } finally {
@@ -682,72 +705,33 @@ actual constructor(
     }
 
     /**
-     * Subscribes for the Inbox module main events.
+     * Generate subscription Query for the Inbox events.
      *
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
+     * @param eventType    type of event you listen for
+     * @param selectorType scope on which you listen for events
+     * @param selectorId   ID of the selector
+     * @return Query for subscribing event
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
      */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    actual fun unsubscribeFromInboxEvents() = memScoped {
-        val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs()
-        try {
-            privmx_endpoint_execInboxApi(nativeInboxApi.value, 19, args, pson_result.ptr)
-            pson_result.value!!.asResponse?.getResultOrThrow()
-            Unit
-        } finally {
-            pson_free_value(args)
-            pson_free_result(pson_result.value)
-        }
-    }
-
-    /**
-     * Subscribes for events in given Inbox.
-     *
-     * @param inboxId ID of the Inbox to subscribe
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
-     */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    actual fun subscribeForEntryEvents(inboxId: String) = memScoped {
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun buildSubscriptionQuery(
+        eventType: InboxEventType,
+        selectorType: InboxEventSelectorType,
+        selectorId: String
+    ): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
-            inboxId.pson
+            eventType.ordinal.toLong().pson,
+            selectorType.ordinal.toLong().pson,
+            selectorId.pson
         )
-        try {
-            privmx_endpoint_execInboxApi(nativeInboxApi.value, 20, args, pson_result.ptr)
-            pson_result.value!!.asResponse?.getResultOrThrow()
-            Unit
-        } finally {
-            pson_free_value(args)
-            pson_free_result(pson_result.value)
-        }
-    }
 
-    /**
-     * Unsubscribes from events in given Inbox.
-     *
-     * @param inboxId ID of the Inbox to unsubscribe
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
-     */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    actual fun unsubscribeFromEntryEvents(inboxId: String) = memScoped {
-        val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(inboxId.pson)
         try {
-            privmx_endpoint_execInboxApi(nativeInboxApi.value, 21, args, pson_result.ptr)
-            pson_result.value!!.asResponse?.getResultOrThrow()
-            Unit
+            privmx_endpoint_execInboxApi(nativeInboxApi.value, 24, args, pson_result.ptr)
+            val query = pson_result.value!!.asResponse?.getResultOrThrow()!!
+            query.typedValue()
         } finally {
             pson_free_value(args)
             pson_free_result(pson_result.value)
