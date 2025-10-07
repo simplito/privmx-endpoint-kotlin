@@ -955,6 +955,30 @@ namespace privmx {
                     users
             );
         }
+
+        jobject contextUserEventData2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::core::ContextUserEventData contextUserEventData_c
+        ) {
+            jclass contextUserEventDataCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/ContextUserEventData");
+            jmethodID initContextUserEventDataMID = ctx->GetMethodID(
+                    contextUserEventDataCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"                                          // contextId
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/UserWithPubKey;"    // user
+                    ")V"
+            );
+
+            return ctx->NewObject(
+                    contextUserEventDataCls,
+                    initContextUserEventDataMID,
+                    ctx->NewStringUTF(contextUserEventData_c.contextId.c_str()),
+                    userWithPubKey2Java(ctx, contextUserEventData_c.user)
+            );
+        }
+
         jobject storeFileDeletedEventData2Java(JniContextUtils &ctx,
                                                privmx::endpoint::store::StoreFileDeletedEventData storeFileDeletedEventData_c) {
             jclass storeFileDeletedEventDataCls = ctx->FindClass(
