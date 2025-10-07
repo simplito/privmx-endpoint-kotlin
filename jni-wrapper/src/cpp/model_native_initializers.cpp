@@ -888,6 +888,31 @@ namespace privmx {
             );
         }
 
+        jobject fileChange2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::store::FileChange file_change_c
+        ) {
+            jclass fileChangeCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/FileChange");
+
+            jmethodID initFcMID = ctx->GetMethodID(
+                    fileChangeCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/Long;"            "Ljava/lang/Long;"            "Z"            ")V"    );
+
+            jobject javaPos = ctx.long2jLong(file_change_c.pos);
+            jobject javaLength = ctx.long2jLong(file_change_c.length);
+
+            return ctx->NewObject(
+                    fileChangeCls,
+                    initFcMID,
+                    javaPos,
+                    javaLength,
+                    file_change_c.truncate == JNI_TRUE
+            );
+        }
+
         //Event
         jobject storeFileDeletedEventData2Java(JniContextUtils &ctx,
                                                privmx::endpoint::store::StoreFileDeletedEventData storeFileDeletedEventData_c) {

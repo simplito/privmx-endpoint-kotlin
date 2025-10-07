@@ -110,6 +110,7 @@ namespace privmx {
                                     privmx::endpoint::store::ServerFileInfo serverFileInfo_c);
 
         jobject file2Java(JniContextUtils &ctx, privmx::endpoint::store::File file_c);
+        jobject fileChange2Java(JniContextUtils &ctx, privmx::endpoint::store::FileChange file_change_c);
 
         //Event
         jobject storeDeletedEventData2Java(JniContextUtils &ctx,
