@@ -52,6 +52,9 @@ namespace privmx {
                 privmx::endpoint::core::ContainerPolicy containerPolicy
         );
 
+        // CollectionItemChange
+        jobject collectionItemChange2Java(JniContextUtils &ctx, privmx::endpoint::core::CollectionItemChange collectionItemChange_c);
+
         //Context
         jobject context2Java(JniContextUtils &ctx, privmx::endpoint::core::Context context_c);
 
