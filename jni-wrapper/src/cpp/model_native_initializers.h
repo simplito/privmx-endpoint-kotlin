@@ -126,7 +126,8 @@ namespace privmx {
 
         jobject storeDeletedEventData2Java(JniContextUtils &ctx,
                                            privmx::endpoint::store::StoreDeletedEventData storeDeletedEventData_c);
-
+        jobject storeFileUpdatedEventData2Java(JniContextUtils &ctx,
+                                               privmx::endpoint::store::StoreFileUpdatedEventData storeFileUpdatedEventData_c);
         jobject storeFileDeletedEventData2Java(JniContextUtils &ctx,
                                                privmx::endpoint::store::StoreFileDeletedEventData storeFileDeletedEventData_c);
 

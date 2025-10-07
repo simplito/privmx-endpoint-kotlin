@@ -1113,6 +1113,44 @@ namespace privmx {
             );
         }
 
+        jobject storeFileUpdatedEventData2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::store::StoreFileUpdatedEventData storeFileUpdatedEventData_c
+        ) {
+            jclass storeFileUpdatedEventDataCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/StoreFileUpdatedEventData");
+            jmethodID initStoreFileUpdatedEventDataMID = ctx->GetMethodID(
+                    storeFileUpdatedEventDataCls,
+                    "<init>",
+                    "("
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/File;"
+                    "Ljava/util/List;"
+                    ")V"
+            );
+
+            jclass arrayListCls = ctx->FindClass("java/util/ArrayList");
+            jmethodID arrayListInitMID = ctx->GetMethodID(arrayListCls, "<init>", "()V");
+            jmethodID arrayListAddMID = ctx->GetMethodID(arrayListCls, "add",
+                                                         "(Ljava/lang/Object;)Z");
+
+            jobject changesList = ctx->NewObject(
+                    arrayListCls,
+                    arrayListInitMID
+                );
+
+            for (const auto &change: storeFileUpdatedEventData_c.changes) {
+                jobject javaFileChange = fileChange2Java(ctx, change);
+                ctx->CallBooleanMethod(changesList, arrayListAddMID, javaFileChange);
+            }
+
+            return ctx->NewObject(
+                    storeFileUpdatedEventDataCls,
+                    initStoreFileUpdatedEventDataMID,
+                    file2Java(ctx, storeFileUpdatedEventData_c.file),
+                    changesList
+            );
+        }
+
         jobject threadStatsEventData2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::thread::ThreadStatsEventData threadStatsEventData_c
