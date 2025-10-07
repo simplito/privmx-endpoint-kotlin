@@ -19,6 +19,8 @@
 #include "../parser.h"
 #include "../exceptions.h"
 
+using namespace privmx::endpoint;
+
 privmx::endpoint::core::Connection *getConnection(JNIEnv *env, jobject thiz) {
     JniContextUtils ctx(env);
     jclass cls = ctx->GetObjectClass(thiz);
