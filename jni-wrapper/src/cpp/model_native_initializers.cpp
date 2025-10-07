@@ -298,6 +298,27 @@ namespace privmx {
                 );
         }
 
+        // UserWithAction
+        jobject userWithAction2Java(JniContextUtils &ctx,
+                                    privmx::endpoint::core::UserWithAction userWithAction) {
+            jclass userWithActionCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/UserWithAction");
+            jmethodID initUserWithActionMID = ctx->GetMethodID(
+                    userWithActionCls,
+                    "<init>",
+                    "("
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/UserWithPubKey;"    // userWithPubKey
+                    "Ljava/lang/String;"                                            // action
+                    ")V"
+            );
+            return ctx->NewObject(
+                    userWithActionCls,
+                    initUserWithActionMID,
+                    userWithPubKey2Java(ctx, userWithAction.user),
+                    ctx->NewStringUTF(userWithAction.action.c_str())
+            );
+        }
+
         jobject bridgeIdentity2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::core::BridgeIdentity bridgeIdentity_c
