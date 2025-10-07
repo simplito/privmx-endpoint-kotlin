@@ -914,6 +914,47 @@ namespace privmx {
         }
 
         //Event
+        jobject contextUsersStatusChangedEventData2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::core::ContextUsersStatusChangedEventData contextUsersStatusChangedEventData_c
+        ) {
+            jclass arrayCls = ctx->FindClass("java/util/ArrayList");
+            jmethodID initArrayMID = ctx->GetMethodID(
+                    arrayCls,
+                    "<init>",
+                    "()V");
+            jmethodID addToArrayMID = ctx->GetMethodID(
+                    arrayCls,
+                    "add",
+                    "(Ljava/lang/Object;)Z"
+            );
+            jclass ContextUsersStatusChangedEventDataCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/ContextUsersStatusChangedEventData");
+            jmethodID initContextUsersStatusChangedEventDataMID = ctx->GetMethodID(
+                    ContextUsersStatusChangedEventDataCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"        // contextId
+                    "Ljava/util/List;"          // users
+                    ")V"
+            );
+
+            jobject users = ctx->NewObject(arrayCls, initArrayMID);
+
+            for (auto &user: contextUsersStatusChangedEventData_c.users) {
+                ctx->CallBooleanMethod(users,
+                                       addToArrayMID,
+                                       userWithAction2Java(ctx, user)
+                );
+            }
+
+            return ctx->NewObject(
+                    ContextUsersStatusChangedEventDataCls,
+                    initContextUsersStatusChangedEventDataMID,
+                    ctx->NewStringUTF(contextUsersStatusChangedEventData_c.contextId.c_str()),
+                    users
+            );
+        }
         jobject storeFileDeletedEventData2Java(JniContextUtils &ctx,
                                                privmx::endpoint::store::StoreFileDeletedEventData storeFileDeletedEventData_c) {
             jclass storeFileDeletedEventDataCls = ctx->FindClass(
