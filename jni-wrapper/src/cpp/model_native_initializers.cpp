@@ -1281,6 +1281,27 @@ namespace privmx {
             );
         }
 
+        jobject kvdbDeletedEntryEventData2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::kvdb::KvdbDeletedEntryEventData kvdbDeletedEntryEventData_c
+        ) {
+            jclass kvdbDeletedEntryEventDataCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/KvdbDeletedEntryEventData");
+            jmethodID initKvdbDeletedEntryEventDataMID = ctx->GetMethodID(
+                    kvdbDeletedEntryEventDataCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"    // kvdbId
+                    "Ljava/lang/String;"    // kvdbEntryKey
+                    ")V"
+            );
+
+            return ctx->NewObject(
+                    kvdbDeletedEntryEventDataCls,
+                    initKvdbDeletedEntryEventDataMID,
+                    ctx->NewStringUTF(kvdbDeletedEntryEventData_c.kvdbId.c_str()),
+                    ctx->NewStringUTF(kvdbDeletedEntryEventData_c.kvdbEntryKey.c_str())
+                    );
         }
 
         //Kvdb
