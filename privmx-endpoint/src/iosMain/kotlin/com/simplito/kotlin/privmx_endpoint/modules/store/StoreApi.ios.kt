@@ -284,6 +284,7 @@ actual constructor(connection: Connection) :
      * @param publicMeta  public file metadata
      * @param privateMeta private file metadata
      * @param size        size of the file
+     * @param randomWriteSupport enable random write support for file
      * @return Handle to write data
      * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
@@ -298,14 +299,16 @@ actual constructor(connection: Connection) :
         storeId: String,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        size: Long
+        size: Long,
+        randomWriteSupport: Boolean
     ): Long? = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             storeId.pson,
             publicMeta.pson,
             privateMeta.pson,
-            size.pson
+            size.pson,
+            randomWriteSupport.pson
         )
         try {
             privmx_endpoint_execStoreApi(nativeStoreApi.value, 6, args, pson_result.ptr)
@@ -396,6 +399,7 @@ actual constructor(connection: Connection) :
      *
      * @param fileHandle handle to write file data
      * @param dataChunk  file data chunk
+     * @param truncate truncate the file from: current pos + dataChunk size
      * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -405,11 +409,12 @@ actual constructor(connection: Connection) :
         NativeException::class,
         IllegalStateException::class
     )
-    actual fun writeToFile(fileHandle: Long, dataChunk: ByteArray) = memScoped {
+    actual fun writeToFile(fileHandle: Long, dataChunk: ByteArray, truncate: Boolean) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileHandle.pson,
-            dataChunk.pson
+            dataChunk.pson,
+            truncate.pson
         )
         try {
             privmx_endpoint_execStoreApi(nativeStoreApi.value, 9, args, pson_result.ptr)
@@ -721,6 +726,29 @@ actual constructor(connection: Connection) :
             privmx_endpoint_execStoreApi(nativeStoreApi.value, 24, args, pson_result.ptr)
             val query = pson_result.value!!.asResponse?.getResultOrThrow()!!
             query.typedValue()
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
+
+    /**
+     * Synchronize file handle data with newest data on server
+     *
+     * @param handle handle to read/write file data
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun syncFile(handle: Long) = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(handle.pson)
+
+        try {
+            privmx_endpoint_execStoreApi(nativeStoreApi.value, 21, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
         } finally {
             pson_free_value(args)
             pson_free_result(pson_result.value)

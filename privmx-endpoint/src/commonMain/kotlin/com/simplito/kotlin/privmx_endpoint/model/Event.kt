@@ -16,11 +16,25 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property type          Type of the event
  * @property channel       The event channel
  * @property connectionId  ID of connection for this event
+ * @property subscriptions List of subscription IDs to which the event is related
+ * @property timestamp Timestamp of the event. Represents the point in time when event occurred.
+ * For events received from Bridge, this value comes from Bridge.
+ * For events generated in the library, this is a local timestamp.
  * @property data          The data payload associated with the event
  */
-class Event<T: Any>(
+class Event<T : Any>(
     val type: String,
     val channel: String,
     val connectionId: Long?,
+    val subscriptions: List<String>,
+    val timestamp: Long?,
     val data: T
-)
+) {
+    @Deprecated("Use primary constructor with new parameters.")
+    constructor(
+        type: String,
+        channel: String,
+        connectionId: Long?,
+        data: T
+    ) : this(type, channel, connectionId, emptyList(), null, data)
+}

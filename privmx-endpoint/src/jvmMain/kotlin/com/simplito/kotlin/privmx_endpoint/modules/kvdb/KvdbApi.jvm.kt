@@ -11,6 +11,9 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import kotlin.IllegalStateException
+import kotlin.Throws
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 
 actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable {
     companion object {
@@ -335,6 +338,37 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
         eventType: Long,
         selectorType: Long,
         selectorId: String
+    ): String
+
+    /**
+     * Generate subscription Query for the KVDB events for single KvdbEntry.
+     *
+     * @param eventType    type of event you listen for
+     * @param kvdbId       Id of Kvdb
+     * @param kvdbEntryKey Key of Kvdb Entry
+     * @return Query to subscribe to an event.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is closed.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun buildSubscriptionQueryForSelectedEntry(
+        eventType: KvdbEventType,
+        kvdbId: String,
+        kvdbEntryKey: String
+    ): String {
+        return buildSubscriptionQueryForSelectedEntry(
+            eventType.ordinal.toLong(),
+            kvdbId,
+            kvdbEntryKey
+        )
+    }
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    private external fun buildSubscriptionQueryForSelectedEntry(
+        eventType: Long,
+        kvdbId: String,
+        kvdbEntryKey: String
     ): String
 
     /**

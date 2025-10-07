@@ -16,16 +16,18 @@ import kotlin.jvm.JvmOverloads
 /**
  * Holds information about emitted custom event.
  *
- * @property contextId id of inbox from which it was sent
- * @property userId id of user which sent it
- * @property data event data
+ * @property contextId Context ID
+ * @property userId User ID (event's sender)
+ * @property payload Event's actual payload
  * @property statusCode Payload decryption status
+ * @property schemaVersion Version of the event data structure and how it is encoded/encrypted
  */
 class ContextCustomEventData
-@JvmOverloads 
+@JvmOverloads
 constructor(
     val contextId: String,
     val userId: String,
-    val data: ByteArray,
-    val statusCode: Long? = null
+    val payload: ByteArray,
+    val statusCode: Long? = null,
+    val schemaVersion: Long? = null
 )

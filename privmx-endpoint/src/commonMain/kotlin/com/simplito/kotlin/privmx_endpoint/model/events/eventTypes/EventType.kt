@@ -1,3 +1,6 @@
 package com.simplito.kotlin.privmx_endpoint.model.events.eventTypes
 
-interface EventType 
+/**
+ * The base interface for enums specifying event types.
+ */
+interface EventType
