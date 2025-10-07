@@ -1221,7 +1221,8 @@ namespace privmx {
                     "Ljava/lang/String;"    // contextId
                     "Ljava/lang/String;"    // userId
                     "[B"                    // payload
-                    "Ljava/lang/Long"       // statusCode
+                    "Ljava/lang/Long;"       // statusCode
+                    "Ljava/lang/Long;"       // schemaVersion
                     ")V"
             );
             jbyteArray payload = ctx->NewByteArray(contextCustomEventData_c.payload.size());
@@ -1233,8 +1234,11 @@ namespace privmx {
                     ctx->NewStringUTF(contextCustomEventData_c.contextId.c_str()),
                     ctx->NewStringUTF(contextCustomEventData_c.userId.c_str()),
                     payload,
-                    ctx.long2jLong(contextCustomEventData_c.statusCode)
+                    ctx.long2jLong(contextCustomEventData_c.statusCode),
+                    ctx.long2jLong(contextCustomEventData_c.schemaVersion)
             );
+        }
+
         jobject kvdbDeletedEventData2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::kvdb::KvdbDeletedEventData kvdbDeletedEventData_c
