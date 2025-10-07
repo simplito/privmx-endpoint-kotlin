@@ -979,6 +979,54 @@ namespace privmx {
             );
         }
 
+        // CollectionChangedEventData
+        jobject collectionChangedEventData2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::core::CollectionChangedEventData collectionChangedEventData_c
+        ) {
+            jclass arrayCls = ctx->FindClass("java/util/ArrayList");
+            jmethodID initArrayMID = ctx->GetMethodID(
+                    arrayCls,
+                    "<init>",
+                    "()V");
+            jmethodID addToArrayMID = ctx->GetMethodID(
+                    arrayCls,
+                    "add",
+                    "(Ljava/lang/Object;)Z"
+            );
+            jclass collectionChangedEventDataCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/CollectionChangedEventData");
+            jmethodID initCollectionChangedEventDataMID = ctx->GetMethodID(
+                    collectionChangedEventDataCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"        // moduleType
+                    "Ljava/lang/String;"        // moduleId
+                    "Ljava/lang/Long;"          // affectedItemsCount
+                    "Ljava/util/List;"          // items
+                    ")V"
+            );
+
+            jobject items = ctx->NewObject(arrayCls, initArrayMID);
+
+            for (auto &item: collectionChangedEventData_c.items) {
+                ctx->CallBooleanMethod(
+                        items,
+                                       addToArrayMID,
+                                       collectionItemChange2Java(ctx, item)
+                );
+            }
+
+            return ctx->NewObject(
+                    collectionChangedEventDataCls,
+                    initCollectionChangedEventDataMID,
+                    ctx->NewStringUTF(collectionChangedEventData_c.moduleType.c_str()),
+                    ctx->NewStringUTF(collectionChangedEventData_c.moduleId.c_str()),
+                    ctx.long2jLong(collectionChangedEventData_c.affectedItemsCount),
+                    items
+            );
+        }
+
         jobject storeFileDeletedEventData2Java(JniContextUtils &ctx,
                                                privmx::endpoint::store::StoreFileDeletedEventData storeFileDeletedEventData_c) {
             jclass storeFileDeletedEventDataCls = ctx->FindClass(

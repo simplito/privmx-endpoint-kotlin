@@ -120,6 +120,10 @@ namespace privmx {
 
         jobject contextUserEventData2Java(JniContextUtils &ctx,
                                                   privmx::endpoint::core::ContextUserEventData contextUserEventData_c);
+
+        jobject collectionChangedEventData2Java(JniContextUtils &ctx,
+                                          privmx::endpoint::core::CollectionChangedEventData collectionChangedEventData_c);
+
         jobject storeDeletedEventData2Java(JniContextUtils &ctx,
                                            privmx::endpoint::store::StoreDeletedEventData storeDeletedEventData_c);
 
