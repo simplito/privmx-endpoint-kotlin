@@ -11,9 +11,9 @@
 
 package com.simplito.kotlin.privmx_endpoint.utils
 
-import com.simplito.java.privmx_endpoint.model.events.KvdbDeletedEntryEventData
-import com.simplito.java.privmx_endpoint.model.events.KvdbDeletedEventData
-import com.simplito.java.privmx_endpoint.model.events.KvdbStatsEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEntryEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbStatsEventData
 import com.simplito.kotlin.privmx_endpoint.model.Kvdb
 import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
 import com.simplito.kotlin.privmx_endpoint.model.ServerKvdbEntryInfo
@@ -247,7 +247,7 @@ internal fun PsonObject.toEvent(): Event<*> = Event(
     this["connectionId"]?.typedValue(),
     this["subscriptions"]!!.typedList().map { it.typedValue() },
     this["timestamp"]!!.typedValue(),
-    (this["data"] as PsonObject?)?.let {
+    (this["payload"] as PsonObject?)?.let {
         EventDataMappers[it.type]?.invoke(it)
     } ?: Unit
 )
@@ -301,9 +301,10 @@ internal fun PsonObject.toThreadStatsEventData() = ThreadStatsEventData(
 internal fun PsonObject.toContextCustomEventData() = ContextCustomEventData(
     this["contextId"]!!.typedValue(),
     this["userId"]!!.typedValue(),
-    this["data"]!!.typedValue(),
-    this["statusCode"]!!.typedValue(),
-    this["schemaVersion"]!!.typedValue(),
+    this["payload"]!!.typedValue(),
+    //TODO: This will be not null
+    this["statusCode"]?.typedValue() ?: 0
+    this["schemaVersion"]!!.typedValue()
 )
 
 internal fun PsonObject.toCollectionChangedEventData() = CollectionChangedEventData(
@@ -416,7 +417,8 @@ internal fun PsonObject.toKvdbEntry(): KvdbEntry = KvdbEntry(
     this["publicMeta"]!!.typedValue(),
     this["privateMeta"]!!.typedValue(),
     this["data"]!!.typedValue(),
-    this["authorPubKey"]!!.typedValue(),
+    //TODO: This will be not null
+    this["authorPubKey"]?.typedValue() ?: "",
     this["version"]?.typedValue(),
     this["statusCode"]?.typedValue(),
     this["schemaVersion"]?.typedValue(),
