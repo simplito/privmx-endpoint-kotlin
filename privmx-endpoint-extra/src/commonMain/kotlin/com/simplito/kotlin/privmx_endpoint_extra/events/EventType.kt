@@ -51,8 +51,16 @@ import com.simplito.kotlin.privmx_endpoint_extra.events.EventType.LibBreakEvent
 import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpoint
 import kotlin.reflect.KClass
 
-internal fun isLibEvent(eventTypeName: String): Boolean = EventType.ConnectedEvent.eventName == eventTypeName
-        || LibBreakEvent.eventName == eventTypeName || DisconnectedEvent.eventName == eventTypeName
+/**
+ * Check if event was produced by PrivMX library.
+ *
+ * @param eventTypeName name of event instance to check
+ * @return true if event is one of the PrivMX library Events.
+ */
+internal fun isLibEvent(eventTypeName: String): Boolean =
+    EventType.ConnectedEvent.eventName == eventTypeName
+            || LibBreakEvent.eventName == eventTypeName
+            || DisconnectedEvent.eventName == eventTypeName
 
 /**
  * Defines the structure to register PrivMX Bridge event callbacks using [PrivmxEndpoint.registerCallback].

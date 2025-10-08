@@ -29,7 +29,7 @@ import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
 import com.simplito.kotlin.privmx_endpoint_extra.events.CallbackRegistration
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventCallback
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventDispatcher
-import com.simplito.kotlin.privmx_endpoint_extra.events.EventDispatcher.*
+import com.simplito.kotlin.privmx_endpoint_extra.events.EventDispatcher.SubscriptionModule
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventRegistrationInfo
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
 import com.simplito.kotlin.privmx_endpoint_extra.events.isLibEvent
@@ -81,7 +81,7 @@ constructor(
      * Registers callbacks with the specified type.
      *
      * @param T         type of data passed to callback
-     * @param context   an object that identifies callbacks in the list
+     * @param callbackGroup An identifier used to group related callbacks
      * @param eventType type of event to listen to
      * @param callback  a block of code to execute when event was handled
      * @throws RuntimeException thrown when method encounters an exception during subscribing on channel
@@ -122,7 +122,20 @@ constructor(
         eventDispatcher.emit(event)
     }
 
-
+    /**
+     * Registers multiple callbacks in a batch.
+     * This method allows for the registration of several event listeners at once,
+     * which is more efficient than registering each callback individually,
+     * because the number of requests can be minimized.
+     *
+     * @param registrations A list of [CallbackRegistration] objects. Each object
+     *                      encapsulates the details for a single event listener to be
+     *                      registered, including the event type, the callback to execute,
+     *                      and a callback group identifier.
+     * @return A list of results, in an order matching the input {@code registrations}.
+     *                      Each result contains a {@link Throwable} error if an exception
+     *                      occurred during its corresponding registration.
+     */
     suspend fun registerManyCallbacks(
         vararg registrations: CallbackRegistration<out Any>
     ): List<RegistrationResult> {
@@ -309,7 +322,18 @@ private class CallbackRegistrationWithResult(
     var result: RegistrationResult?
 )
 
+/**
+ * An result for single [CallbackRegistration].
+ * @property error The [Throwable] representing the error if one occurred;
+ *          otherwise, returns `null` indicating a successful registration.
+ */
 class RegistrationResult internal constructor(val error: Throwable?) {
+    /**
+     * Checks if the registration attempt associated with this result encountered an error.
+     *
+     * @return `true` if an error is present (i.e., an exception occurred),
+     *          `false` if the registration was successful.
+     */
     val isError: Boolean
         get() = error != null
 }

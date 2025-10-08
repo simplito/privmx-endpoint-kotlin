@@ -90,6 +90,9 @@ class EventDispatcher(
         }
     }
 
+    /**
+     * Removes all events, excluding internal library events, that do not have {@code subscriptionId}.
+     */
     suspend fun removeNotSubscribedEvents() = mapMutex.withLock {
         val entrySetIterator = callbackMap.iterator()
         entrySetIterator.forEach { (eventRegistrationInfo,_) ->
@@ -179,11 +182,17 @@ class EventDispatcher(
                 ?: EventRegistrationInfo(null, eventType)
         }
 
+    /**
+     * Get reference to list for adding or removing callbacks.
+     */
     private suspend fun getCallbackList(eventRegistrationInfo: EventRegistrationInfo): MutableList<Pair> =
         mapMutex.withLock {
             callbackMap.getOrPut(eventRegistrationInfo) { mutableListOf() }
         }
 
+    /**
+     * Get list of all callbacks identified by this subscriptionIds.
+     */
     private suspend fun getCallbacks(subscriptionIds: List<String>): List<Pair> =
         mapMutex.withLock {
             callbackMap.filter { (key, _) ->
