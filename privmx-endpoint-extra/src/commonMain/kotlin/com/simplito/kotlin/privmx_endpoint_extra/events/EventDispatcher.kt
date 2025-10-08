@@ -12,7 +12,12 @@ package com.simplito.kotlin.privmx_endpoint_extra.events
 
 
 import com.simplito.kotlin.privmx_endpoint.model.Event
-import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.CustomEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.CoreEventType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.InboxEventType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.StoreEventType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.ThreadEventType
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -37,7 +42,7 @@ fun interface EventCallback<T : Any> {
  *                         (it can also unsubscribe from the channel)
  */
 class EventDispatcher(
-    private val onRemoveSubscriptionEntry: (removedSubscriptions: Map<Modules, List<String>>) -> Unit
+    private val onRemoveSubscriptionEntry: (removedSubscriptions: Map<SubscriptionModule, List<String>>) -> Unit
 ) {
     private val map: MutableMap<String, MutableList<Pair>> = mutableMapOf()
     private val callbackMap: MutableMap<EventRegistrationInfo, MutableList<Pair>> = mutableMapOf()
@@ -102,7 +107,7 @@ class EventDispatcher(
     suspend fun unbind(vararg callbackGroups: Any) {
         if (callbackGroups.isEmpty()) return
         val callbackGroupsList: MutableList<Any> = callbackGroups.toMutableList()
-        val selectorsToUnsubscribe: MutableMap<Modules, MutableList<String>> = mutableMapOf()
+        val selectorsToUnsubscribe: MutableMap<SubscriptionModule, MutableList<String>> = mutableMapOf()
         mapMutex.withLock {
             val mapIterator = callbackMap.entries.iterator()
             mapIterator.forEach { (key, callbacks) ->
@@ -113,7 +118,7 @@ class EventDispatcher(
                     callbackGroupsList.removeAll(pairsOfCallbacks)
 
                     if (callbacks.isEmpty()) {
-                        val module: Modules? = getModuleFromEventRegistrationInfo(key)
+                        val module: SubscriptionModule? = getModuleFromEventRegistrationInfo(key)
                         if (module != null) {
                             selectorsToUnsubscribe.getOrPut(module) { mutableListOf() }
                                 .add(key.subscriptionID!!)
@@ -126,18 +131,20 @@ class EventDispatcher(
         onRemoveSubscriptionEntry(selectorsToUnsubscribe)
     }
 
-    private fun getModuleFromEventRegistrationInfo(key: EventRegistrationInfo): Modules? {
-        var module: Modules? = null
+    private fun getModuleFromEventRegistrationInfo(key: EventRegistrationInfo): SubscriptionModule? {
+        var module: SubscriptionModule? = null
         if (key.eventType.eventSelectorType is CustomEventSelectorType) {
-            module = Modules.CUSTOM_EVENT
+            module = SubscriptionModule.CUSTOM_EVENT
         } else if (key.eventType.libEventType is ThreadEventType) {
-            module = Modules.THREAD
+            module = SubscriptionModule.THREAD
         } else if (key.eventType.libEventType is StoreEventType) {
-            module = Modules.STORE
+            module = SubscriptionModule.STORE
         } else if (key.eventType.libEventType is InboxEventType) {
-            module = Modules.INBOX
+            module = SubscriptionModule.INBOX
         } else if (key.eventType.libEventType is KvdbEventType) {
-            module = Modules.KVDB
+            module = SubscriptionModule.KVDB
+        } else if (key.eventType.libEventType is CoreEventType) {
+            module = SubscriptionModule.CORE
         }
         return module
     }
@@ -146,9 +153,9 @@ class EventDispatcher(
      * Removes all callbacks.
      */
     suspend fun unbindAll() = mapMutex.withLock {
-        val callbacksToUnsubscribe: Map<Modules, MutableList<String>> = callbackMap
+        val callbacksToUnsubscribe: Map<SubscriptionModule, MutableList<String>> = callbackMap
             .mapNotNull { (key, _) ->
-                val module: Modules? = getModuleFromEventRegistrationInfo(key)
+                val module: SubscriptionModule? = getModuleFromEventRegistrationInfo(key)
                 if (key.subscriptionID != null && module != null) {
                     module to key.subscriptionID!!
                 } else null
@@ -190,6 +197,38 @@ class EventDispatcher(
         callbackMap.filter { (key, _) ->
             key.eventType.eventName == eventType
         }.flatMap { it.value }
+    }
+
+    enum class SubscriptionModule {
+        /**
+         * Thread module case.
+         */
+        THREAD,
+
+        /**
+         * Store module case.
+         */
+        STORE,
+
+        /**
+         * Inbox module case.
+         */
+        INBOX,
+
+        /**
+         * Custom Event module case.
+         */
+        CUSTOM_EVENT,
+
+        /**
+         * KVDB module case.
+         */
+        KVDB,
+
+        /**
+         * CoreModules
+         */
+        CORE
     }
 
     private data class Pair(val context: Any, val callback: EventCallback<out Any>)

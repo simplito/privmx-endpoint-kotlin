@@ -12,12 +12,24 @@ package com.simplito.kotlin.privmx_endpoint_extra.lib
 
 import com.simplito.kotlin.privmx_endpoint.model.Event
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.CoreEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.CustomEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.InboxEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.KvdbEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.StoreEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.ThreadEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.CoreEventType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.InboxEventType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.StoreEventType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.ThreadEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
 import com.simplito.kotlin.privmx_endpoint_extra.events.CallbackRegistration
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventCallback
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventDispatcher
+import com.simplito.kotlin.privmx_endpoint_extra.events.EventDispatcher.*
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventRegistrationInfo
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
 import com.simplito.kotlin.privmx_endpoint_extra.events.isLibEvent
@@ -54,7 +66,7 @@ constructor(
     verificationOptions: PKIVerificationOptions? = null
 ) : BasicPrivmxEndpoint(enableModule, userPrivateKey, solutionId, bridgeUrl, verificationOptions),
     AutoCloseable {
-    private val onRemoveSubscriptionEntry = { removedSubscriptions: Map<Modules, List<String>> ->
+    private val onRemove = { removedSubscriptions: Map<SubscriptionModule, List<String>> ->
         try {
             removedSubscriptions.forEach { (module, subscriptions) ->
                 unsubscribeMany(module, subscriptions)
@@ -62,7 +74,8 @@ constructor(
         } catch (_: Exception) {
         }
     }
-    private val eventDispatcher: EventDispatcher = EventDispatcher(onRemoveSubscriptionEntry)
+    private val eventDispatcher: EventDispatcher = EventDispatcher(onRemove)
+
 
     /**
      * Registers callbacks with the specified type.
@@ -114,11 +127,11 @@ constructor(
         vararg registrations: CallbackRegistration<out Any>
     ): List<RegistrationResult> {
         val results = registrations.map { CallbackRegistrationWithResult(it, null) }
-        val eventsToSubscribeByModule: MutableMap<Modules, EventsToSubscribe> = mutableMapOf()
+        val eventsToSubscribeByModule: MutableMap<SubscriptionModule, EventsToSubscribe> = mutableMapOf()
 
         results.forEach { result ->
             val registration = result.registration
-            var module: Modules? = null
+            var module: SubscriptionModule? = null
             var query: String? = null
             val eventType = registration.eventType
 
@@ -128,40 +141,47 @@ constructor(
                 result.result = RegistrationResult(null);
             } else {
                 if (eventType.channelName != null && eventType.eventSelectorType is CustomEventSelectorType) {
-                    module = Modules.CUSTOM_EVENT;
-                    query = eventApi.buildSubscriptionQuery(
-                        eventType.channelName,
+                    module = SubscriptionModule.CUSTOM_EVENT;
+                    query = eventApi?.buildSubscriptionQuery(
+                        eventType.channelName!!,
                         eventType.eventSelectorType as CustomEventSelectorType,
-                        eventType.eventSelectorId
-                    );
+                        eventType.eventSelectorId!!
+                    )
                 } else if (eventType.libEventType is ThreadEventType) {
-                    module = Modules.THREAD
-                    query = threadApi.buildSubscriptionQuery(
+                    module = SubscriptionModule.THREAD
+                    query = threadApi?.buildSubscriptionQuery(
                         eventType.libEventType as ThreadEventType,
                         eventType.eventSelectorType as ThreadEventSelectorType,
-                        eventType.eventSelectorId
-                    );
+                        eventType.eventSelectorId!!
+                    )
                 } else if (eventType.libEventType is StoreEventType) {
-                    module = Modules.STORE
-                    query = storeApi.buildSubscriptionQuery(
+                    module = SubscriptionModule.STORE
+                    query = storeApi?.buildSubscriptionQuery(
                         eventType.libEventType as StoreEventType,
                         eventType.eventSelectorType as StoreEventSelectorType,
-                        eventType.eventSelectorId
-                    );
+                        eventType.eventSelectorId!!
+                    )
                 } else if (eventType.libEventType is InboxEventType) {
-                    module = Modules.INBOX;
-                    query = inboxApi.buildSubscriptionQuery(
+                    module = SubscriptionModule.INBOX;
+                    query = inboxApi?.buildSubscriptionQuery(
                         eventType.libEventType as InboxEventType,
                         eventType.eventSelectorType as InboxEventSelectorType,
-                        eventType.eventSelectorId
-                    );
+                        eventType.eventSelectorId!!
+                    )
                 } else if (eventType.libEventType is KvdbEventType) {
-                    module = Modules.KVDB;
-                    query = kvdbApi.buildSubscriptionQuery(
+                    module = SubscriptionModule.KVDB;
+                    query = kvdbApi?.buildSubscriptionQuery(
                         eventType.libEventType as KvdbEventType,
                         eventType.eventSelectorType as KvdbEventSelectorType,
-                        eventType.eventSelectorId
-                    );
+                        eventType.eventSelectorId!!
+                    )
+                } else if (eventType.libEventType is CoreEventType) {
+                    module = SubscriptionModule.CORE;
+                    query = connection.buildSubscriptionQuery(
+                        eventType.libEventType as CoreEventType,
+                        eventType.eventSelectorType as CoreEventSelectorType,
+                        eventType.eventSelectorId!!
+                    )
                 }
                 eventsToSubscribeByModule.getOrPut(module!!) {
                     EventsToSubscribe()
@@ -173,31 +193,36 @@ constructor(
     }
 
     @Throws(IllegalStateException::class, NativeException::class, PrivmxException::class)
-    private fun unsubscribeMany(module: Modules, subscriptionIds: List<String>) {
+    private fun unsubscribeMany( module: SubscriptionModule,  subscriptionIds: List<String>) {
         when (module) {
-            Modules.CUSTOM_EVENT -> {
+            SubscriptionModule.CUSTOM_EVENT -> {
                 checkNotNull(eventApi) { "eventApi is not initialized" }
                 eventApi.unsubscribeFrom(subscriptionIds)
             }
 
-            Modules.THREAD -> {
+            SubscriptionModule.THREAD -> {
                 checkNotNull(threadApi) { "threadApi is not initialized" }
                 threadApi.unsubscribeFrom(subscriptionIds)
             }
 
-            Modules.STORE -> {
+            SubscriptionModule.STORE -> {
                 checkNotNull(storeApi) { "storeApi is not initialized" }
                 storeApi.unsubscribeFrom(subscriptionIds)
             }
 
-            Modules.INBOX -> {
+            SubscriptionModule.INBOX -> {
                 checkNotNull(inboxApi) { "inboxApi is not initialized" }
                 inboxApi.unsubscribeFrom(subscriptionIds)
             }
 
-            Modules.KVDB -> {
+            SubscriptionModule.KVDB -> {
                 checkNotNull(kvdbApi) { "kvdbApi is not initialized" }
                 kvdbApi.unsubscribeFrom(subscriptionIds)
+            }
+
+            SubscriptionModule.CORE -> {
+                checkNotNull(connection) { "Connection is not initialized" }
+                connection.unsubscribeFrom(subscriptionIds)
             }
         }
     }
@@ -227,33 +252,38 @@ constructor(
         }
     }
 
-    private suspend fun subscribeAll(eventsToSubscribeByModule: Map<Modules, EventsToSubscribe>) {
+    private suspend fun subscribeAll(eventsToSubscribeByModule: Map<SubscriptionModule, EventsToSubscribe>) {
         eventsToSubscribeByModule.forEach { (key, value) ->
             try {
                 when (key) {
-                    Modules.CUSTOM_EVENT -> {
+                    SubscriptionModule.CUSTOM_EVENT -> {
                         checkNotNull(eventApi) { "eventApi is not initialized" }
                         subscribeFor(value.getQueriesMap(), eventApi::subscribeFor)
                     }
 
-                    Modules.THREAD -> {
+                    SubscriptionModule.THREAD -> {
                         checkNotNull(threadApi) { "threadApi is not initialized" }
                         subscribeFor(value.getQueriesMap(), threadApi::subscribeFor)
                     }
 
-                    Modules.STORE -> {
+                    SubscriptionModule.STORE -> {
                         checkNotNull(storeApi) { "storeApi is not initialized" }
                         subscribeFor(value.getQueriesMap(), storeApi::subscribeFor)
                     }
 
-                    Modules.INBOX -> {
+                    SubscriptionModule.INBOX -> {
                         checkNotNull(inboxApi) { "inboxApi is not initialized" }
                         subscribeFor(value.getQueriesMap(), inboxApi::subscribeFor)
                     }
 
-                    Modules.KVDB -> {
+                    SubscriptionModule.KVDB -> {
                         checkNotNull(kvdbApi) { "kvdbApi is not initialized" }
                         subscribeFor(value.getQueriesMap(), kvdbApi::subscribeFor)
+                    }
+
+                    SubscriptionModule.CORE -> {
+                        checkNotNull(connection) { "Connection is not initialized" }
+                        subscribeFor(value.getQueriesMap(), connection::subscribeFor)
                     }
                 }
             } catch (e: RuntimeException) {
