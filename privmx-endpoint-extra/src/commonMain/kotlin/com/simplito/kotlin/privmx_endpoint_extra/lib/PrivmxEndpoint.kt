@@ -98,12 +98,13 @@ constructor(
     }
 
     /**
-     * Unregisters all callbacks registered by [registerCallback] and identified with given Context.
+     * Unregisters all callbacks identified by given group reference.
      *
-     * @param context an object that identifies callbacks in the list
+     * @param callbackGroups callback groups to unregister. Passing more groups allows optimize
+     *                       amount of request sending to server.
      */
-    suspend fun unregisterCallbacks(context: Any) {
-        eventDispatcher.unbind(context)
+    suspend fun unregisterCallbacks(vararg callbackGroups: Any) {
+        eventDispatcher.unbind(callbackGroups)
     }
 
     /**
