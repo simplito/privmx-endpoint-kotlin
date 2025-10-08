@@ -46,8 +46,13 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.InboxEventTyp
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.StoreEventType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.ThreadEventType
+import com.simplito.kotlin.privmx_endpoint_extra.events.EventType.DisconnectedEvent
+import com.simplito.kotlin.privmx_endpoint_extra.events.EventType.LibBreakEvent
 import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpoint
 import kotlin.reflect.KClass
+
+internal fun isLibEvent(eventTypeName: String): Boolean = EventType.ConnectedEvent.eventName == eventTypeName
+        || LibBreakEvent.eventName == eventTypeName || DisconnectedEvent.eventName == eventTypeName
 
 /**
  * Defines the structure to register PrivMX Bridge event callbacks using [PrivmxEndpoint.registerCallback].
@@ -75,16 +80,6 @@ sealed class EventType<T : Any>(
         eventResultClass: KClass<T>
     ) : this(eventName, null, null, null, null, eventResultClass)
 
-    fun isLibEvent(): Boolean {
-        return this == ConnectedEvent || this == DisconnectedEvent || this == LibBreakEvent
-    }
-
-    fun isLibEvent(event: Event<*>): Boolean {
-        return event.subscriptions.isEmpty() &&
-                event.type == ConnectedEvent.eventName &&
-                event.type == DisconnectedEvent.eventName &&
-                event.type == LibBreakEvent.eventName
-    }
 
     /**
      * Predefined event type that captures successful platform connection events.
