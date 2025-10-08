@@ -303,7 +303,7 @@ internal fun PsonObject.toContextCustomEventData() = ContextCustomEventData(
     this["userId"]!!.typedValue(),
     this["payload"]!!.typedValue(),
     //TODO: This will be not null
-    this["statusCode"]?.typedValue() ?: 0
+    this["statusCode"]?.typedValue() ?: 0,
     this["schemaVersion"]!!.typedValue()
 )
 
