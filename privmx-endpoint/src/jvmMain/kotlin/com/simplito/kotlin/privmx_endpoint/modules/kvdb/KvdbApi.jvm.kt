@@ -24,7 +24,6 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import kotlin.IllegalStateException
 import kotlin.Throws
-import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 
 actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable {
     companion object {

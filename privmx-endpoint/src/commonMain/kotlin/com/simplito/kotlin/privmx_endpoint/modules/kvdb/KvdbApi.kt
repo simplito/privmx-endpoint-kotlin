@@ -21,7 +21,6 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
-import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 
 /**
  * Manages PrivMX Bridge KVDBs and their entries.

@@ -30,6 +30,7 @@ import com.simplito.kotlin.privmx_endpoint.utils.mapOfWithNulls
 import com.simplito.kotlin.privmx_endpoint.utils.pson
 import com.simplito.kotlin.privmx_endpoint.utils.toKvdb
 import com.simplito.kotlin.privmx_endpoint.utils.toKvdbEntry
+import com.simplito.kotlin.privmx_endpoint.utils.toMap
 import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
 import com.simplito.kotlin.privmx_endpoint.utils.toValuePagingList
 import com.simplito.kotlin.privmx_endpoint.utils.typedList
@@ -46,7 +47,6 @@ import libprivmxendpoint.privmx_endpoint_newKvdbApi
 import libprivmxendpoint.pson_free_result
 import libprivmxendpoint.pson_free_value
 import libprivmxendpoint.pson_new_array
-import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 
 /**
  * Manages PrivMX Bridge  KVDBs and their messages.
