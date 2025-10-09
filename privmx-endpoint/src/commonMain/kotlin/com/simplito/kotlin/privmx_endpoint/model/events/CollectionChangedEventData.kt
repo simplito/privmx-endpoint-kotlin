@@ -13,6 +13,6 @@ import com.simplito.kotlin.privmx_endpoint.model.CollectionItemChange
 class CollectionChangedEventData(
     val moduleType: String,
     val moduleId: String,
-    val affectedItemsCount: Long,
+    val affectedItemsCount: Long?,
     val items: List<CollectionItemChange>
 )
