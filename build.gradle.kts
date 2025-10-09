@@ -182,7 +182,8 @@ fun MavenPublication.configurePom() {
         licenses {
             license {
                 name = "MIT License"
-                url = "https://github.com/simplito/privmx-endpoint-kotlin/blob/main/LICENSE"
+                url = "https://github.com/simplito/privmx-endpoint-kotlin/blob/29d49e89b6505a84cadb4084c1aead5b8beb0fbc/LICENSE"
+                comments = "PrivMX Endpoint Kotlin license"
             }
         }
         scm {

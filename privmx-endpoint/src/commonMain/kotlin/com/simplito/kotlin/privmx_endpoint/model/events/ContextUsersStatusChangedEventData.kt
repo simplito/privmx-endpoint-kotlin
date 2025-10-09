@@ -8,7 +8,7 @@ import com.simplito.kotlin.privmx_endpoint.model.UserWithAction
  * @property contextId ID of the Context
  * @property users List of users with their changed statuses
  */
-class ContextUsersStatusChangedEventData(
+data class ContextUsersStatusChangedEventData(
     val contextId: String,
     val users: List<UserWithAction>,
 )

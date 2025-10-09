@@ -22,7 +22,7 @@ import kotlin.jvm.JvmOverloads
  * @property statusCode Payload decryption status
  * @property schemaVersion Version of the event data structure and how it is encoded/encrypted
  */
-class ContextCustomEventData
+data class ContextCustomEventData
 @JvmOverloads
 constructor(
     val contextId: String,
@@ -30,4 +30,28 @@ constructor(
     val payload: ByteArray,
     val statusCode: Long? = null,
     val schemaVersion: Long? = null
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ContextCustomEventData
+
+        if (statusCode != other.statusCode) return false
+        if (schemaVersion != other.schemaVersion) return false
+        if (contextId != other.contextId) return false
+        if (userId != other.userId) return false
+        if (!payload.contentEquals(other.payload)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = statusCode?.hashCode() ?: 0
+        result = 31 * result + (schemaVersion?.hashCode() ?: 0)
+        result = 31 * result + contextId.hashCode()
+        result = 31 * result + userId.hashCode()
+        result = 31 * result + payload.contentHashCode()
+        return result
+    }
+}

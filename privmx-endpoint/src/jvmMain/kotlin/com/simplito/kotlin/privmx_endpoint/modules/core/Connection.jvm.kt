@@ -30,7 +30,7 @@ actual class Connection private constructor(
 ) : AutoCloseable {
     actual companion object {
         init {
-            LibLoader.load()
+            LibLoader.loadPrivmxLibraries()
         }
 
         /**

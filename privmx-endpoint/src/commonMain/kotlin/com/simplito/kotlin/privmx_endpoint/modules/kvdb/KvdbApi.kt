@@ -1,3 +1,14 @@
+//
+// PrivMX Endpoint Kotlin.
+// Copyright © 2025 Simplito sp. z o.o.
+//
+// This file is part of the PrivMX Platform (https://privmx.dev).
+// This software is Licensed under the MIT License.
+//
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
 package com.simplito.kotlin.privmx_endpoint.modules.kvdb
 
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
@@ -10,7 +21,6 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
-import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 
 /**
  * Manages PrivMX Bridge KVDBs and their entries.
@@ -245,10 +255,10 @@ expect class KvdbApi(connection: Connection) : AutoCloseable {
     )
 
     /**
-     * Deletes KVDB entries by given KVDB IDs and the list of entry keys.
+     * Deletes KVDB entries by given KVDB IDs and the set of entry keys.
      *
      * @param kvdbId ID of the KVDB database to delete from
-     * @param keys   vector of the keys of the KVDB entries to delete
+     * @param keys   set of the keys of the KVDB entries to delete
      * @return map with the statuses of deletion for every key
      * @throws IllegalStateException thrown when instance is closed.
      * @throws PrivmxException       thrown when method encounters an exception.
@@ -257,7 +267,7 @@ expect class KvdbApi(connection: Connection) : AutoCloseable {
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun deleteEntries(
         kvdbId: String,
-        keys: List<String>
+        keys: Set<String>
     ): Map<String, Boolean>
 
     /**
