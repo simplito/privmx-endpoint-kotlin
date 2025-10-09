@@ -247,7 +247,7 @@ internal fun PsonObject.toEvent(): Event<*> = Event(
     this["connectionId"]?.typedValue(),
     this["subscriptions"]!!.typedList().map { it.typedValue() },
     this["timestamp"]!!.typedValue(),
-    (this["payload"] as PsonObject?)?.let {
+    (this["data"] as PsonObject?)?.let {
         EventDataMappers[it.type]?.invoke(it)
     } ?: Unit
 )
@@ -362,9 +362,9 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "inbox\$Inbox" to PsonObject::toInbox,
     "inbox\$Inbox" to PsonObject::toInbox,
     "event\$ContextCustomEventData" to PsonObject::toContextCustomEventData,
-    "event\$CollectionChangedEventData" to PsonObject::toCollectionChangedEventData,
-    "event\$ContextUserEventData" to PsonObject::toContextUserEventData,
-    "event\$ContextUsersStatusChangedEventData" to PsonObject::toContextUsersStatusChangedEventData,
+    "core\$CollectionChangedEventData" to PsonObject::toCollectionChangedEventData,
+    "core\$ContextUserEventData" to PsonObject::toContextUserEventData,
+    "core\$ContextUsersStatusChangedEventData" to PsonObject::toContextUsersStatusChangedEventData,
     "kvdb\$Kvdb" to PsonObject::toKvdb,
     "kvdb\$KvdbDeletedEventData" to PsonObject::toKvdbDeletedEventData,
     "kvdb\$KvdbStatsEventData" to PsonObject::toKvdbStatsEventData,
