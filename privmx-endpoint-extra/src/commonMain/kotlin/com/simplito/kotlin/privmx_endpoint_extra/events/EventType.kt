@@ -30,6 +30,7 @@ import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.KvdbStatsEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreFileDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.StoreFileUpdatedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreStatsChangedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
@@ -321,12 +322,12 @@ sealed class EventType<T : Any>(
     data class StoreFileUpdatedEvent(
         val selectorType: StoreEventSelectorType,
         val selectorId: String
-    ) : EventType<File>(
+    ) : EventType<StoreFileUpdatedEventData>(
         "storeFileUpdated",
         StoreEventType.FILE_UPDATE,
         selectorType,
         selectorId,
-        File::class
+        StoreFileUpdatedEventData::class
     )
 
     /**
