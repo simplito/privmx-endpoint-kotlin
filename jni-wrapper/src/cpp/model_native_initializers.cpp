@@ -899,7 +899,11 @@ namespace privmx {
                     fileChangeCls,
                     "<init>",
                     "("
-                    "Ljava/lang/Long;"            "Ljava/lang/Long;"            "Z"            ")V"    );
+                    "Ljava/lang/Long;"         
+                    "Ljava/lang/Long;"            
+                    "Z"            
+                    ")V"
+            );
 
             jobject javaPos = ctx.long2jLong(file_change_c.pos);
             jobject javaLength = ctx.long2jLong(file_change_c.length);

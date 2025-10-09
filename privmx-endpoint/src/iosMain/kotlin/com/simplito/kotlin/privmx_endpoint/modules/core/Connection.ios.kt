@@ -282,7 +282,7 @@ actual class Connection private constructor() : AutoCloseable {
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun listContextUsers(
+    actual fun listContextUsers(
         contextId: String,
         skip: Long,
         limit: Long,

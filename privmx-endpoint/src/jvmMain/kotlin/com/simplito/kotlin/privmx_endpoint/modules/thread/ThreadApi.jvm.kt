@@ -34,7 +34,7 @@ actual class ThreadApi
 actual constructor(connection: Connection) : AutoCloseable {
     companion object {
         init {
-            LibLoader.load()
+            LibLoader.loadPrivmxLibraries()
         }
     }
 

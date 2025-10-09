@@ -29,7 +29,7 @@ actual class EventApi
 actual constructor(connection: Connection) : AutoCloseable {
     companion object {
         init {
-            LibLoader.load()
+            LibLoader.loadPrivmxLibraries()
         }
     }
 

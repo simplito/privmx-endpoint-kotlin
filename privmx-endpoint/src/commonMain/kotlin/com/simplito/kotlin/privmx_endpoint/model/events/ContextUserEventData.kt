@@ -8,7 +8,7 @@ import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
  * @property contextId ID of the Context
  * @property user User
  */
-class ContextUserEventData(
+data class ContextUserEventData(
     val contextId: String,
     val user: UserWithPubKey,
 )
