@@ -10,7 +10,7 @@ import com.simplito.kotlin.privmx_endpoint.model.CollectionItemChange
  * @property affectedItemsCount Count of affected items
  * @property items              List of item changes
  */
-class CollectionChangedEventData(
+data class CollectionChangedEventData(
     val moduleType: String,
     val moduleId: String,
     val affectedItemsCount: Long?,

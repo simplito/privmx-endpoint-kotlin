@@ -32,6 +32,8 @@
 #include "privmx/endpoint/event/Events.hpp"
 #include "privmx/endpoint/crypto/Types.hpp"
 #include "privmx/endpoint/crypto/ExtKey.hpp"
+#include "privmx/endpoint/kvdb/KvdbApi.hpp"
+#include "privmx/endpoint/kvdb/Types.hpp"
 
 namespace privmx {
     namespace wrapper {

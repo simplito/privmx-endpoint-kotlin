@@ -15,6 +15,8 @@ import com.simplito.kotlin.privmx_endpoint.model.Message
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.Thread
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.ThreadEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.ThreadEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
@@ -221,46 +223,45 @@ constructor(connection: Connection) : AutoCloseable {
     )
 
     /**
-     * Subscribes for the Thread module main events.
+     * Subscribe for the Thread events on the given subscription query.
      *
-     * @throws IllegalStateException thrown when instance is closed
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
+     * @param subscriptionQueries list of queries
+     * @return list of subscriptionIds in matching order to subscriptionQueries
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun subscribeForThreadEvents()
+    fun subscribeFor(subscriptionQueries: List<String>): List<String>
 
     /**
-     * Unsubscribes from the Thread module main events.
+     * Unsubscribe from events with the given subscriptionId.
      *
-     * @throws IllegalStateException thrown when instance is closed
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
+     * @param subscriptionIds list of subscriptionId
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun unsubscribeFromThreadEvents()
+    fun unsubscribeFrom(subscriptionIds: List<String>)
 
     /**
-     * Subscribes for events in given Thread.
+     * Generate subscription Query for the Thread events.
      *
-     * @param threadId ID of the Thread to subscribe
-     * @throws IllegalStateException thrown when instance is closed
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
+     * @param eventType    type of event you listen for
+     * @param selectorType scope on which you listen for events
+     * @param selectorId   ID of the selector
+     * @return Query for subscribing event
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun subscribeForMessageEvents(threadId: String)
-
-    /**
-     * Unsubscribes from events in given Thread.
-     *
-     * @param threadId ID of the Thread to unsubscribe
-     * @throws IllegalStateException thrown when instance is closed
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun unsubscribeFromMessageEvents(threadId: String)
+    fun buildSubscriptionQuery(
+        eventType: ThreadEventType,
+        selectorType: ThreadEventSelectorType,
+        selectorId: String
+    ): String
 
     /**
      * Frees memory.

@@ -1,11 +1,24 @@
+//
+// PrivMX Endpoint Kotlin.
+// Copyright © 2025 Simplito sp. z o.o.
+//
+// This file is part of the PrivMX Platform (https://privmx.dev).
+// This software is Licensed under the MIT License.
+//
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
 package com.simplito.kotlin.privmx_endpoint.modules.kvdb
 
 import cnames.structs.pson_value
+import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.Kvdb
 import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
-import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.KvdbEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
@@ -15,11 +28,12 @@ import com.simplito.kotlin.privmx_endpoint.utils.asResponse
 import com.simplito.kotlin.privmx_endpoint.utils.makeArgs
 import com.simplito.kotlin.privmx_endpoint.utils.mapOfWithNulls
 import com.simplito.kotlin.privmx_endpoint.utils.pson
-import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
 import com.simplito.kotlin.privmx_endpoint.utils.toKvdb
 import com.simplito.kotlin.privmx_endpoint.utils.toKvdbEntry
 import com.simplito.kotlin.privmx_endpoint.utils.toMap
+import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
 import com.simplito.kotlin.privmx_endpoint.utils.toValuePagingList
+import com.simplito.kotlin.privmx_endpoint.utils.typedList
 import com.simplito.kotlin.privmx_endpoint.utils.typedValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.allocPointerTo
@@ -33,7 +47,6 @@ import libprivmxendpoint.privmx_endpoint_newKvdbApi
 import libprivmxendpoint.pson_free_result
 import libprivmxendpoint.pson_free_value
 import libprivmxendpoint.pson_new_array
-import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 
 /**
  * Manages PrivMX Bridge  KVDBs and their messages.
@@ -193,7 +206,7 @@ actual constructor(connection: Connection) : AutoCloseable {
         val args = makeArgs(kvdbId.pson)
         try {
             privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 4, args, pson_result.ptr)
-            pson_result.value?.asResponse?.getResultOrThrow()!!.typedValue()
+            (pson_result.value?.asResponse?.getResultOrThrow()!! as PsonValue.PsonObject).toKvdb()
         } finally {
             pson_free_value(args)
             pson_free_result(pson_result.value)
@@ -472,10 +485,10 @@ actual constructor(connection: Connection) : AutoCloseable {
     }
 
     /**
-     * Deletes KVDB entries by given KVDB IDs and the list of entry keys.
+     * Deletes KVDB entries by given KVDB IDs and the set of entry keys.
      *
      * @param kvdbId ID of the KVDB database to delete from
-     * @param keys   vector of the keys of the KVDB entries to delete
+     * @param keys   set of the keys of the KVDB entries to delete
      * @return map with the statuses of deletion for every key
      * @throws IllegalStateException thrown when instance is closed.
      * @throws PrivmxException       thrown when method encounters an exception.
@@ -484,7 +497,7 @@ actual constructor(connection: Connection) : AutoCloseable {
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun deleteEntries(
         kvdbId: String,
-        keys: List<String>
+        keys: Set<String>
     ): Map<String, Boolean> = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -502,22 +515,47 @@ actual constructor(connection: Connection) : AutoCloseable {
             pson_free_value(args)
             pson_free_result(pson_result.value)
         }
-//        TODO("Implement this function")
     }
 
     /**
-     * Subscribes for the KVDB module main events.
+     * Subscribe for the KVDB events on the given subscription query.
      *
+     * @param subscriptionQueries list of queries
+     * @return list of subscriptionIds in matching order to subscriptionQueries
      * @throws IllegalStateException thrown when instance is closed.
      * @throws PrivmxException       thrown when method encounters an exception.
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun subscribeForKvdbEvents() = memScoped{
+    actual fun subscribeFor(subscriptionQueries: List<String>): List<String> = memScoped {
         val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs()
+        val args = makeArgs(subscriptionQueries.map { it.pson }.pson)
+
         try {
-            privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 12, args, pson_result.ptr)
+            privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 17, args, pson_result.ptr)
+            val list = pson_result.value!!.asResponse?.getResultOrThrow()!!
+            list.typedList().map { it.typedValue() }
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
+
+    /**
+     * Unsubscribe from events with the given subscriptionId.
+     *
+     * @param subscriptionIds list of subscriptionId
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun unsubscribeFrom(subscriptionIds: List<String>) = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(subscriptionIds.map { it.pson }.pson)
+
+        try {
+            privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 18, args, pson_result.ptr)
             pson_result.value!!.asResponse?.getResultOrThrow()
             Unit
         } finally {
@@ -527,68 +565,33 @@ actual constructor(connection: Connection) : AutoCloseable {
     }
 
     /**
-     * Unsubscribes from the KVDB module main events.
+     * Generate subscription Query for the KVDB events.
      *
+     * @param eventType    type of event you listen for
+     * @param selectorType scope on which you listen for events
+     * @param selectorId   ID of the selector
+     * @return Query for subscribing event
      * @throws IllegalStateException thrown when instance is closed.
      * @throws PrivmxException       thrown when method encounters an exception.
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun unsubscribeFromKvdbEvents() = memScoped{
-        val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs()
-        try {
-            privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 13, args, pson_result.ptr)
-            pson_result.value!!.asResponse?.getResultOrThrow()
-            Unit
-        } finally {
-            pson_free_value(args)
-            pson_free_result(pson_result.value)
-        }
-    }
-
-    /**
-     * Subscribes for events in given KVDB.
-     *
-     * @param kvdbId ID of the KVDB to subscribe
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun subscribeForEntryEvents(kvdbId: String) = memScoped {
+    actual fun buildSubscriptionQuery(
+        eventType: KvdbEventType,
+        selectorType: KvdbEventSelectorType,
+        selectorId: String
+    ): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
-            kvdbId.pson
+            eventType.ordinal.toLong().pson,
+            selectorType.ordinal.toLong().pson,
+            selectorId.pson
         )
-        try {
-            privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 14, args, pson_result.ptr)
-            pson_result.value!!.asResponse?.getResultOrThrow()
-            Unit
-        } finally {
-            pson_free_value(args)
-            pson_free_result(pson_result.value)
-        }
-    }
 
-    /**
-     * Unsubscribes from events in given KVDB.
-     *
-     * @param kvdbId ID of the KVDB to unsubscribe
-     * @throws IllegalStateException thrown when instance is closed.
-     * @throws PrivmxException       thrown when method encounters an exception.
-     * @throws NativeException       thrown when method encounters an unknown exception.
-     */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun unsubscribeFromEntryEvents(kvdbId: String) = memScoped {
-        val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(
-            kvdbId.pson
-        )
         try {
-            privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 15, args, pson_result.ptr)
-            pson_result.value!!.asResponse?.getResultOrThrow()
-            Unit
+            privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 19, args, pson_result.ptr)
+            val query = pson_result.value!!.asResponse?.getResultOrThrow()!!
+            query.typedValue()
         } finally {
             pson_free_value(args)
             pson_free_result(pson_result.value)

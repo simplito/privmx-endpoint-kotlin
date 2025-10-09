@@ -219,7 +219,7 @@ sealed class EventType<T: Any>(
      * Type to register on created KVDB entries events.
      * @property kvdbId ID of the KVDB to observe
      */
-    data class KvdbNewEntry(val kvdbId: String) :
+    data class KvdbNewEntryEvent(val kvdbId: String) :
         EventType<KvdbEntry>("kvdb/$kvdbId/entries", "kvdbNewEntry")
 
     /**

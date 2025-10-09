@@ -19,6 +19,8 @@ import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
 import com.simplito.kotlin.privmx_endpoint.model.InboxPublicView
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.InboxEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.InboxEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
@@ -40,7 +42,7 @@ actual constructor(
 ) : AutoCloseable {
     companion object {
         init {
-            LibLoader.load()
+            LibLoader.loadPrivmxLibraries()
         }
     }
 
@@ -385,54 +387,58 @@ actual constructor(
     actual external fun closeFile(fileHandle: Long): String
 
     /**
-     * Subscribes for the Inbox module main events.
+     * Subscribe for the Inbox events on the given subscription query.
      *
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
+     * @param subscriptionQueries list of queries
+     * @return list of subscriptionIds in matching order to subscriptionQueries
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
      */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    actual external fun subscribeForInboxEvents()
+    @Throws(PrivmxException::class, NativeException::class, java.lang.IllegalStateException::class)
+    actual external fun subscribeFor(subscriptionQueries: List<String>): List<String>
 
     /**
-     * Subscribes for the Inbox module main events.
+     * Unsubscribe from events with the given subscriptionId.
      *
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
+     * @param subscriptionIds list of subscriptionId
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
      */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    actual external fun unsubscribeFromInboxEvents()
+    @Throws(PrivmxException::class, NativeException::class, java.lang.IllegalStateException::class)
+    actual external fun unsubscribeFrom(subscriptionIds: List<String>)
+
+    @Throws(PrivmxException::class, NativeException::class, java.lang.IllegalStateException::class)
+    private external fun buildSubscriptionQuery(
+        eventType: Long,
+        selectorType: Long,
+        selectorId: String
+    ): String
 
     /**
-     * Subscribes for events in given Inbox.
+     * Generate subscription Query for the Inbox events.
      *
-     * @param inboxId ID of the Inbox to subscribe
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
+     * @param eventType    type of event you listen for
+     * @param selectorType scope on which you listen for events
+     * @param selectorId   ID of the selector
+     * @return Query for subscribing event
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
      */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    actual external fun subscribeForEntryEvents(inboxId: String)
-
-    /**
-     * Unsubscribes from events in given Inbox.
-     *
-     * @param inboxId ID of the Inbox to unsubscribe
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
-     */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    actual external fun unsubscribeFromEntryEvents(inboxId: String)
+    @Throws(PrivmxException::class, NativeException::class, java.lang.IllegalStateException::class)
+    actual fun buildSubscriptionQuery(
+        eventType: InboxEventType,
+        selectorType: InboxEventSelectorType,
+        selectorId: String
+    ): String {
+        return buildSubscriptionQuery(
+            eventType.ordinal.toLong(),
+            selectorType.ordinal.toLong(),
+            selectorId
+        )
+    }
 
     /**
      * Frees memory.

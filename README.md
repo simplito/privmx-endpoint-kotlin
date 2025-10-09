@@ -83,6 +83,12 @@ This library implements models, exception catching, and the following modules:
 1. Add `mavenCentral()` repository to your `settings.gradle.kts`:
 
 ```groovy
+pluginManagement {
+  repositories {
+      mavenCentral()
+  }
+}
+
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
@@ -106,22 +112,34 @@ kotlin {
 }
 ```
 
-### JVM
-You have to pass path to PrivMX Endpoint native libraries directory by configuring 
-`-Djava.library.path=<path-to-your-libraries-dir>` system property during run application.
+3. Add PrivMX plugin to `build.gradle`:
 
-**You can download pre-compiled zipped native binaries for each supported JVM platform from [GitHub Releases](https://github.com/simplito/privmx-endpoint-kotlin/releases).**
+```groovy
+plugins {
+    id("com.simplito.privmx-endpoint-install-native") version "2.0.0"
+}
+```
 
-### Android
-#### Native Libraries
-Before build your project you have to attach PrivMX Endpoint native libraries to Android build process by adding them 
-to jniLibs sourceSet directory (`src/main/jniLibs` by default) for each supported ABI.
+## JVM
+### Native Libraries
+The plugin automatically adds the necessary native libraries to the runtime in your **Java**, **Android**,
+or **Kotlin** project. For Java applications, it includes libraries for all supported desktop platforms.
+The source code of the plugin is available on [GitHub](https://github.com/simplito/privmx-endpoint-java-tools).
 
-**You can download pre-compiled zipped native binaries for each supported Android ABI from [GitHub Releases](https://github.com/simplito/privmx-endpoint-kotlin/releases).**
+When you first use the API, the PrivMX wrapper unpacks and loads these native libraries.
+They are unpacked to your working directory if your `java.library.path` includes `.`.
+Otherwise, they are unpacked to the last path specified in the `java.library.path`.
 
-#### Required Permissions
+## Android
+### Native Libraries
+The plugin automatically adds the necessary native libraries to the runtime in your **Java**, **Android**,
+or **Kotlin** project. For Android applications, it includes Android-specific binaries.
+The source code of the plugin is available on [GitHub](https://github.com/simplito/privmx-endpoint-java-tools).
+
+On Android, the native libraries are extracted by the installer and then the PrivMX wrapper loads them in the runtime.
+### Required Permissions
 PrivMX Endpoint requires to add the following permissions to your AndroidManifest.xml:
-* `<uses-permission android:name="android.permission.INTERNET" />`  
+* `<uses-permission android:name="android.permission.INTERNET" />`
 
 ## License Information
 
