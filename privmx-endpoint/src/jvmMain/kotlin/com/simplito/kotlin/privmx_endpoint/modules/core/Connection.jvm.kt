@@ -16,9 +16,11 @@ import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserInfo
-import com.simplito.kotlin.privmx_endpoint.modules.core.UserVerifierInterface
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.CoreEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.CoreEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import kotlin.Throws
 
 /**
  * Manages a connection between the PrivMX Endpoint and PrivMX Bridge server.
@@ -28,7 +30,7 @@ actual class Connection private constructor(
 ) : AutoCloseable {
     actual companion object {
         init {
-            LibLoader.load()
+            LibLoader.loadPrivmxLibraries()
         }
 
         /**
@@ -152,16 +154,85 @@ actual class Connection private constructor(
     actual external fun setUserVerifier(userVerifier: UserVerifierInterface)
 
     /**
-     * Gets a list of users of given context.
+     * Gets a list of users with their status and the last status change.
      *
-     * @param contextId ID of the context
-     * @return list of users Info
+     * @param contextId   ID of the Context
+     * @param skip        number of elements to skip from result
+     * @param limit       limit of elements to return for query
+     * @param sortOrder   order of elements in result ("asc" for ascending, "desc" for descending)
+     * @param lastId      ID of the element from which query results should start
+     * @param queryAsJson stringified JSON object with a custom field to filter result
+     * @param sortBy      field name to sort elements by
+     * @return List of users with their status and the last status change
+     * @throws IllegalStateException thrown when instance is not connected.
      * @throws PrivmxException       thrown when method encounters an exception.
      * @throws NativeException       thrown when method encounters an unknown exception.
-     * @throws IllegalStateException thrown when instance is not connected.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun getContextUsers(contextId: String): List<UserInfo>
+    @JvmOverloads
+    actual external fun listContextUsers(
+        contextId: String,
+        skip: Long,
+        limit: Long,
+        sortOrder: String,
+        lastId: String?,
+        queryAsJson: String?,
+        sortBy: String?
+    ): PagingList<UserInfo>
+
+    /**
+     * Subscribe for the Context events on the given subscription query.
+     *
+     * @param subscriptionQueries List of queries
+     * @return List of subscriptionIds in matching order to subscriptionQueries
+     * @throws IllegalStateException thrown when instance is not connected or closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun subscribeFor(subscriptionQueries: List<String>): List<String>
+
+    /**
+     * Unsubscribe from events for the given subscriptionId.
+     *
+     * @param subscriptionIds List of subscriptionId
+     * @throws IllegalStateException thrown when instance is not connected or closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun unsubscribeFrom(subscriptionIds: List<String>)
+
+    @Throws(PrivmxException::class, NativeException::class, java.lang.IllegalStateException::class)
+    private external fun buildSubscriptionQuery(
+        eventType: Long,
+        selectorType: Long,
+        selectorId: String
+    ): String
+
+    /**
+     * Generate subscription Query for the Context events.
+     *
+     * @param eventType    Type of event which you listen for
+     * @param selectorType Scope on which you listen for events
+     * @param selectorId   ID of the selector
+     * @return // todo
+     * @throws IllegalStateException thrown when instance is not connected or closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun buildSubscriptionQuery(
+        eventType: CoreEventType,
+        selectorType: CoreEventSelectorType,
+        selectorId: String
+    ): String {
+        return buildSubscriptionQuery(
+            eventType.ordinal.toLong(),
+            selectorType.ordinal.toLong(),
+            selectorId
+        )
+    }
 
     /**
      * Disconnects from PrivMX Bridge server.

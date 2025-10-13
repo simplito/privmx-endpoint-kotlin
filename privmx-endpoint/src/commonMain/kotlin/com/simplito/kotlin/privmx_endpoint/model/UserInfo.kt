@@ -16,8 +16,10 @@ package com.simplito.kotlin.privmx_endpoint.model
  *
  * @property user       User publicKey and userId.
  * @property isActive    Is user connected to bridge.
+ * @property lastStatusChange   User last status change or no value if they have never logged in.
  */
 data class UserInfo(
     val user: UserWithPubKey,
-    val isActive: Boolean
+    val isActive: Boolean,
+    val lastStatusChange: UserStatusChange? = null
 )
