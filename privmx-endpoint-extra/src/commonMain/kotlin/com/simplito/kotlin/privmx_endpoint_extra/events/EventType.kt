@@ -70,7 +70,7 @@ internal fun isLibEvent(eventTypeName: String): Boolean =
  */
 sealed class EventType<T : Any>(
     val eventName: String,
-    open var channelName: String?,
+    var channelName: String?,
     val libEventType: com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.EventType?,
     val eventSelectorType: EventSelectorType?,
     val eventSelectorId: String?,

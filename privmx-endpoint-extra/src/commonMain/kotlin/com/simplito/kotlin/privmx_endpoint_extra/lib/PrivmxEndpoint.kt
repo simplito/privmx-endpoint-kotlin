@@ -66,7 +66,7 @@ constructor(
     verificationOptions: PKIVerificationOptions? = null
 ) : BasicPrivmxEndpoint(enableModule, userPrivateKey, solutionId, bridgeUrl, verificationOptions),
     AutoCloseable {
-    private val onRemove = { removedSubscriptions: Map<SubscriptionModule, List<String>> ->
+    private val onRemoveSubscriptionEntry = { removedSubscriptions: Map<SubscriptionModule, List<String>> ->
         try {
             removedSubscriptions.forEach { (module, subscriptions) ->
                 unsubscribeMany(module, subscriptions)
@@ -74,7 +74,7 @@ constructor(
         } catch (_: Exception) {
         }
     }
-    private val eventDispatcher: EventDispatcher = EventDispatcher(onRemove)
+    private val eventDispatcher: EventDispatcher = EventDispatcher(onRemoveSubscriptionEntry)
 
 
     /**
