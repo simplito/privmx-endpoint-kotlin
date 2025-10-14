@@ -479,7 +479,7 @@ sealed class EventType<T : Any>(
      * @property selectorId   ID of the selector
      * @return Predefined event type to catch updated KVDB stats events.
      */
-    data class KvdbStatsEvent(
+    data class KvdbStatsChangedEvent(
         val selectorType: KvdbEventSelectorType,
         val selectorId: String
     ) : EventType<KvdbStatsEventData>(
