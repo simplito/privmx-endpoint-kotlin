@@ -19,6 +19,8 @@
 #include "../parser.h"
 #include "../exceptions.h"
 
+using namespace privmx::endpoint;
+
 privmx::endpoint::core::Connection *getConnection(JNIEnv *env, jobject thiz) {
     JniContextUtils ctx(env);
     jclass cls = ctx->GetObjectClass(thiz);
@@ -274,43 +276,184 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_core_Connection_setUserVerifie
 
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_core_Connection_getContextUsers(
+Java_com_simplito_kotlin_privmx_1endpoint_modules_core_Connection_listContextUsers(
         JNIEnv *env,
         jobject thiz,
-        jstring context_id
+        jstring context_id,
+        jlong skip,
+        jlong limit,
+        jstring sort_order,
+        jstring last_id,
+        jstring query_as_json,
+        jstring sort_by
 ) {
     JniContextUtils ctx(env);
-    if (ctx.nullCheck(context_id, "Context ID")) {
+    if (ctx.nullCheck(context_id, "Context ID") ||
+        ctx.nullCheck(sort_order, "Sort order")) {
         return nullptr;
     }
 
     jobject result;
     ctx.callResultEndpointApi<jobject>(
             &result,
-            [&ctx, &env, &thiz, &context_id]() {
+            [&ctx, &env, &thiz, &context_id, &skip, &limit, &sort_order, &last_id, &query_as_json, &sort_by]() {
+                jclass pagingListCls = ctx->FindClass(
+                        "com/simplito/kotlin/privmx_endpoint/model/PagingList");
+                jmethodID pagingListInitMID = ctx->GetMethodID(pagingListCls, "<init>",
+                                                               "(Ljava/lang/Long;Ljava/util/List;)V");
+                jclass arrayCls = ctx->FindClass("java/util/ArrayList");
+                jmethodID initArrayMID = ctx->GetMethodID(arrayCls, "<init>", "()V");
+                jmethodID addToArrayMID = ctx->GetMethodID(arrayCls, "add",
+                                                           "(Ljava/lang/Object;)Z");
 
+                auto query = core::PagingQuery();
+                query.skip = skip;
+                query.limit = limit;
+                query.sortOrder = ctx.jString2string(sort_order);
+                if (last_id != nullptr) {
+                    query.lastId = ctx.jString2string(last_id);
+                }
+                if (query_as_json != nullptr) {
+                    query.queryAsJson = ctx.jString2string(query_as_json);
+                }
+                if (sort_by != nullptr) {
+                    query.sortBy = ctx.jString2string(sort_by);
+                }
+
+                auto users_c = getConnection(env, thiz)->listContextUsers(
+                        ctx.jString2string(context_id),
+                        query
+                );
+
+                jobject array = ctx->NewObject(arrayCls, initArrayMID);
+                for (auto &user: users_c.readItems) {
+                    ctx->CallBooleanMethod(array,
+                                           addToArrayMID,
+                                           privmx::wrapper::userInfo2Java(ctx, user)
+                    );
+                }
+
+                return ctx->NewObject(
+                        pagingListCls,
+                        pagingListInitMID,
+                        ctx.long2jLong(users_c.totalAvailable),
+                        array
+                );
+            });
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
+    }
+    return result;
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_core_Connection_subscribeFor(
+        JNIEnv *env,
+        jobject thiz,
+        jobject subscription_queries
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(subscription_queries, "Subscription queries")) {
+        return nullptr;
+    }
+
+    jobject result;
+    ctx.callResultEndpointApi<jobject>(
+            &result,
+            [&ctx, &env, &thiz, &subscription_queries]() -> jobject {
                 jclass arrayListCls = env->FindClass("java/util/ArrayList");
                 jmethodID initMID = env->GetMethodID(arrayListCls, "<init>", "()V");
                 jmethodID addToListMID = env->GetMethodID(arrayListCls, "add",
                                                           "(Ljava/lang/Object;)Z");
-                jobject array = env->NewObject(arrayListCls, initMID);
 
+                auto subscription_queries_arr = ctx.jObject2jArray(subscription_queries);
+                auto subscription_queries_c = std::vector<std::string>();
 
-                std::vector<privmx::endpoint::core::UserInfo> users = getConnection(
-                        env,
-                        thiz
-                )->getContextUsers(ctx.jString2string(context_id));
-
-                for (auto &user: users) {
-                    env->CallBooleanMethod(
-                            array,
-                            addToListMID,
-                            privmx::wrapper::userInfo2Java(ctx, user)
-                    );
+                for (int i = 0; i < ctx->GetArrayLength(subscription_queries_arr); i++) {
+                    jobject arrayElement = ctx->GetObjectArrayElement(subscription_queries_arr, i);
+                    if (ctx.nullCheck(arrayElement, "Subscription queries array elements")) {
+                        return nullptr;
+                    }
+                    subscription_queries_c.push_back(ctx.jString2string((jstring) arrayElement));
                 }
 
+                auto subscription_ids_c = getConnection(env, thiz)->subscribeFor(
+                        subscription_queries_c);
+
+                jobject array = env->NewObject(arrayListCls, initMID);
+                for (auto &id: subscription_ids_c) {
+                    ctx->CallBooleanMethod(
+                            array,
+                            addToListMID,
+                            ctx->NewStringUTF(id.c_str())
+                    );
+                }
                 return array;
-            });
+            }
+    );
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
+    }
+    return result;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_core_Connection_unsubscribeFrom(
+        JNIEnv *env,
+        jobject thiz,
+        jobject subscription_ids
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(subscription_ids, "Subscription IDs")) {
+        return;
+    }
+
+    ctx.callVoidEndpointApi(
+            [&ctx, &env, &thiz, &subscription_ids]() {
+                auto subscription_ids_arr = ctx.jObject2jArray(subscription_ids);
+                auto subscription_ids_c = std::vector<std::string>();
+
+                for (int i = 0; i < ctx->GetArrayLength(subscription_ids_arr); i++) {
+                    jobject arrayElement = ctx->GetObjectArrayElement(subscription_ids_arr, i);
+                    if (ctx.nullCheck(arrayElement, "Subscription ids array elements")) {
+                        return;
+                    }
+                    subscription_ids_c.push_back(ctx.jString2string((jstring) arrayElement));
+                }
+
+                getConnection(env, thiz)->unsubscribeFrom(subscription_ids_c);
+            }
+    );
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_core_Connection_buildSubscriptionQuery(
+        JNIEnv *env,
+        jobject thiz,
+        jlong event_type,
+        jlong selector_type,
+        jstring selector_id
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(selector_id, "Selector ID")) {
+        return nullptr;
+    }
+
+    jstring result;
+    ctx.callResultEndpointApi<jstring>(
+            &result,
+            [&ctx, &env, &thiz, &event_type, &selector_type, &selector_id]() {
+                auto result = getConnection(env, thiz)->buildSubscriptionQuery(
+                        static_cast<core::EventType>(event_type),
+                        static_cast<core::EventSelectorType>(selector_type),
+                        ctx.jString2string(selector_id)
+                );
+                return ctx->NewStringUTF(result.c_str());
+            }
+    );
     if (ctx->ExceptionCheck()) {
         return nullptr;
     }
