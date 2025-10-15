@@ -98,7 +98,7 @@ constructor(
     }
 
     /**
-     * Unregisters all callbacks identified by given group references.
+     * Unregisters all callbacks associated with the given group references.
      *
      * @param callbackGroups callback groups to unregister. Passing more groups allows optimize
      *                       amount of request sending to server.
