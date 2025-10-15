@@ -1,5 +1,6 @@
 package Tools.Threads.UsingThreads
 
+import com.simplito.kotlin.privmx_endpoint.model.Thread
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpoint
 import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpointContainer
@@ -44,11 +45,11 @@ val endpointSession: PrivmxEndpoint = endpointContainer.connect(
 fun creatingThreads() {
     val privateMeta = "My private data".encodeToByteArray()
     val publicMeta = "My public data".encodeToByteArray()
-    val users : List<UserWithPubKey> = listOf(
+    val users: List<UserWithPubKey> = listOf(
         UserWithPubKey(user1Id, user1PublicKey),
         UserWithPubKey(user2Id, user2PublicKey)
     )
-    val managers : List<UserWithPubKey> = listOf(
+    val managers: List<UserWithPubKey> = listOf(
         UserWithPubKey(user1Id, user1PublicKey)
     )
 
@@ -65,29 +66,30 @@ fun listingThreads() {
     val limit = 30L
     val skip = 0L
 
-    val threads = endpointSession.threadApi?.listThreads(
+    val threads: List<Thread> = endpointSession.threadApi!!.listThreads(
         contextId,
         skip,
         limit,
         SortOrder.DESC
-    )
+    ).readItems
 }
 
 
 fun modifyingThreads() {
     val threadID = "THREAD_ID"
+    val newUsers: List<UserWithPubKey> = listOf(
+        UserWithPubKey(user1Id, user1PublicKey),
+        UserWithPubKey(user2Id, user2PublicKey),
+        UserWithPubKey(user3Id, user3PublicKey)
+    )
+    val newManagers = listOf(
+        UserWithPubKey(user1Id, user1PublicKey),
+        UserWithPubKey(user2Id, user2PublicKey),
+    )
+    val newPrivateMeta = "New thread name".encodeToByteArray()
+
     endpointSession.threadApi?.let { threadApi ->
         val thread = threadApi.getThread(threadID)
-        val newUsers: List<UserWithPubKey> = listOf(
-            UserWithPubKey(user1Id, user1PublicKey),
-            UserWithPubKey(user2Id, user2PublicKey),
-            UserWithPubKey(user3Id, user3PublicKey)
-        )
-        val newManagers = listOf(
-            UserWithPubKey(user1Id, user1PublicKey),
-            UserWithPubKey(user2Id, user2PublicKey),
-        )
-        val newPrivateMeta = "New thread name".encodeToByteArray()
 
         threadApi.updateThread(
             threadID,
@@ -99,4 +101,9 @@ fun modifyingThreads() {
             false
         )
     }
+}
+
+fun deletingThreads() {
+    val threadID = "THREAD_ID"
+    endpointSession.threadApi?.deleteThread(threadID)
 }
