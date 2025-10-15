@@ -18,7 +18,7 @@ fun uploadingSmallFiles() {
         privateMeta,
         fileContent.size.toLong()
     )?.also { fileHandle ->
-        endpointSession.storeApi?.writeToFile(fileHandle,fileContent)
+        endpointSession.storeApi?.writeToFile(fileHandle, fileContent)
         endpointSession.storeApi?.closeFile(fileHandle)
     }
 }
