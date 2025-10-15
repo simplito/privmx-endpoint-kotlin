@@ -8,5 +8,5 @@ package com.simplito.kotlin.privmx_endpoint.model
  */
 class UserStatusChange(
     val action: String,
-    val timestamp: Long
+    val timestamp: Long?
 )
