@@ -324,7 +324,7 @@ private class CallbackRegistrationWithResult(
 )
 
 /**
- * An result for single [CallbackRegistration].
+ * A result for single [CallbackRegistration].
  * @property error The [Throwable] representing the error if one occurred;
  *          otherwise, returns `null` indicating a successful registration.
  */

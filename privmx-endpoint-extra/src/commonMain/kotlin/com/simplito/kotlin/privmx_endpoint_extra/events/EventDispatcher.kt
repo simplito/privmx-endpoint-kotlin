@@ -183,7 +183,7 @@ class EventDispatcher(
         }
 
     /**
-     * Get reference to list for adding or removing callbacks.
+     * Get reference to a list that can be used to add or remove callbacks.
      */
     private suspend fun getCallbackList(eventRegistrationInfo: EventRegistrationInfo): MutableList<Pair> =
         mapMutex.withLock {
