@@ -246,6 +246,12 @@ class EventDispatcher(
     private data class Pair(val context: Any, val callback: EventCallback<out Any>)
 }
 
+/**
+ * Holds essential information about a single event registration.
+ *
+ * @property subscriptionID Unique identifier for the event subscription
+ * @property eventType Type of registered event
+ */
 class EventRegistrationInfo(var subscriptionID: String?, var eventType: EventType<*>) {
 
     override fun equals(other: Any?): Boolean {
