@@ -105,7 +105,7 @@ class EventDispatcher(
     /**
      * Removes all callbacks registered by [EventDispatcher.register]. It's identified by given callback group identifiers.
      *
-     * @param callbackGroups callback group identifiers
+     * @param callbackGroups one or more callback group identifiers used to select callbacks to unbind
      */
     suspend fun unbind(vararg callbackGroups: Any) {
         if (callbackGroups.isEmpty()) return
