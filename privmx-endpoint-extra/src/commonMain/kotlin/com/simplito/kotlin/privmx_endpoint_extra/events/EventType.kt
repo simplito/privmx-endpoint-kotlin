@@ -67,6 +67,12 @@ internal fun isLibEvent(eventTypeName: String): Boolean =
  * Defines the structure to register PrivMX Bridge event callbacks using [PrivmxEndpoint.registerCallback].
  *
  * @param T the type of data contained in the Event
+ * @property eventName Name of the event related to this [EventType].
+ * @property channelName Channel name for a [ContextCustomEvent], otherwise `null` for other event types.
+ * @property libEventType The type of event to listen for.
+ * @property eventSelectorType Scope in which you listen for events.
+ * @property eventSelectorId Id of the chosen selector.
+ * @property eventResultClass Type of the event data.
  */
 sealed class EventType<T : Any>(
     val eventName: String,
