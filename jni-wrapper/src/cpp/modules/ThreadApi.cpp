@@ -471,59 +471,112 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_updateMessage
         );
     });
 }
+
 extern "C"
-JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_subscribeForThreadEvents(
-        JNIEnv *env,
-        jobject thiz
-) {
-    JniContextUtils ctx(env);
-    ctx.callVoidEndpointApi([&ctx, &thiz]() {
-        getThreadApi(ctx, thiz)->subscribeForThreadEvents();
-    });
-}
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_unsubscribeFromThreadEvents(
-        JNIEnv *env,
-        jobject thiz
-) {
-    JniContextUtils ctx(env);
-    ctx.callVoidEndpointApi([&ctx, &thiz]() {
-        getThreadApi(ctx, thiz)->unsubscribeFromThreadEvents();
-    });
-}
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_subscribeForMessageEvents(
+JNIEXPORT jobject JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_subscribeFor(
         JNIEnv *env,
         jobject thiz,
-        jstring thread_id
+        jobject subscription_queries
 ) {
     JniContextUtils ctx(env);
-    if (ctx.nullCheck(thread_id, "Thread ID")) {
-        return;
+    if (ctx.nullCheck(subscription_queries, "Subscription queries")) {
+        return nullptr;
     }
-    ctx.callVoidEndpointApi([&ctx, &thiz, &thread_id]() {
-        getThreadApi(ctx, thiz)->subscribeForMessageEvents(
-                ctx.jString2string(thread_id)
-        );
-    });
+
+    jobject result;
+    ctx.callResultEndpointApi<jobject>(
+            &result,
+            [&ctx, &env, &thiz, &subscription_queries]() {
+                jclass arrayListCls = env->FindClass("java/util/ArrayList");
+                jmethodID initMID = env->GetMethodID(arrayListCls, "<init>", "()V");
+                jmethodID addToListMID = env->GetMethodID(arrayListCls, "add",
+                                                          "(Ljava/lang/Object;)Z");
+
+                auto subscription_queries_arr = ctx.jObject2jArray(subscription_queries);
+                auto subscription_queries_c = std::vector<std::string>();
+
+                int length = ctx->GetArrayLength(subscription_queries_arr);
+                for (int i = 0; i < length; i++) {
+                    jobject arrayElement = ctx->GetObjectArrayElement(subscription_queries_arr, i);
+                    subscription_queries_c.push_back(ctx.jString2string((jstring) arrayElement));
+                }
+
+                jobject arrayList = env->NewObject(arrayListCls, initMID);
+                auto subscription_ids_c = getThreadApi(ctx, thiz)->subscribeFor(
+                        subscription_queries_c);
+
+                for (auto &id_str: subscription_ids_c) {
+                    jstring java_id_str = ctx->NewStringUTF(id_str.c_str());
+                    env->CallBooleanMethod(arrayList, addToListMID, java_id_str);
+                }
+                return arrayList;
+            }
+    );
+
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
+    }
+    return result;
 }
+
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_unsubscribeFromMessageEvents(
+Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_unsubscribeFrom(
         JNIEnv *env,
         jobject thiz,
-        jstring thread_id
+        jobject subscription_ids
 ) {
     JniContextUtils ctx(env);
-    if (ctx.nullCheck(thread_id, "Thread ID")) {
+    if (ctx.nullCheck(subscription_ids, "Subscription IDs")) {
         return;
     }
-    ctx.callVoidEndpointApi([&ctx, &thiz, &thread_id]() {
-        getThreadApi(ctx, thiz)->unsubscribeFromMessageEvents(
-                ctx.jString2string(thread_id)
-        );
+
+    ctx.callVoidEndpointApi([&ctx, &env, &thiz, &subscription_ids]() {
+        auto subscription_ids_arr = ctx.jObject2jArray(subscription_ids);
+        auto subscription_ids_c = std::vector<std::string>();
+
+        int length = ctx->GetArrayLength(subscription_ids_arr);
+        for (int i = 0; i < length; i++) {
+            jobject arrayElement = ctx->GetObjectArrayElement(subscription_ids_arr, i);
+            if (ctx.nullCheck(arrayElement, "Subscription ids array elements")) {
+                return;
+            }
+            subscription_ids_c.push_back(ctx.jString2string((jstring) arrayElement));
+        }
+
+        getThreadApi(ctx, thiz)->unsubscribeFrom(subscription_ids_c);
     });
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_buildSubscriptionQuery(
+        JNIEnv *env,
+        jobject thiz,
+        jlong event_type,
+        jlong selector_type,
+        jstring selector_id
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(selector_id, "Selector ID")) {
+        return nullptr;
+    }
+
+    jstring result;
+    ctx.callResultEndpointApi<jstring>(
+            &result,
+            [&ctx, &env, &thiz, &event_type, &selector_type, &selector_id]() {
+                std::string query_result_c = getThreadApi(ctx, thiz)->buildSubscriptionQuery(
+                        static_cast<thread::EventType>(event_type),
+                        static_cast<thread::EventSelectorType>(selector_type),
+                        ctx.jString2string(selector_id)
+                );
+                return ctx->NewStringUTF(query_result_c.c_str());
+            }
+    );
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
+    }
+    return result;
 }

@@ -12,6 +12,7 @@
 package com.simplito.kotlin.privmx_endpoint.modules.event
 
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.CustomEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
@@ -48,32 +49,45 @@ constructor(connection: Connection) : AutoCloseable {
     )
 
     /**
-     * Subscribe for the custom events on the given channel.
+     * Subscribe for the custom events on the given subscription query.
      *
-     * @param contextId   ID of the Context
-     * @param channelName name of the Channel
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
+     * @param subscriptionQueries list of queries
+     * @return list of subscriptionIds in matching order to subscriptionQueries
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
      */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    fun subscribeForCustomEvents(contextId: String, channelName: String)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun subscribeFor(subscriptionQueries: List<String>): List<String>
 
     /**
-     * Unsubscribe from the custom events on the given channel.
+     * Unsubscribe from events with the given subscriptionId.
      *
-     * @param contextId   ID of the Context
-     * @param channelName name of the Channel
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
+     * @param subscriptionIds list of subscriptionId
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
      */
-    @Throws(
-        PrivmxException::class, NativeException::class, IllegalStateException::class
-    )
-    fun unsubscribeFromCustomEvents(contextId: String, channelName: String)
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun unsubscribeFrom(subscriptionIds: List<String>)
+
+    /**
+     * Generate subscription Query for the custom events.
+     *
+     * @param channelName  name of the Channel
+     * @param selectorType selector of scope on which you listen for events
+     * @param selectorId   ID of the selector
+     * @return Query for subscribing event
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun buildSubscriptionQuery(
+        channelName: String,
+        selectorType: CustomEventSelectorType,
+        selectorId: String
+    ): String
 
     /**
      * Frees memory.

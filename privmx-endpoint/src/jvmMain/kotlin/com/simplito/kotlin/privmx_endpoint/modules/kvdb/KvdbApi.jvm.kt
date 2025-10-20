@@ -12,11 +12,13 @@
 package com.simplito.kotlin.privmx_endpoint.modules.kvdb
 
 import com.simplito.kotlin.privmx_endpoint.LibLoader
+import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.Kvdb
 import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
-import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.KvdbEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
@@ -295,46 +297,89 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
     ): Map<String, Boolean>
 
     /**
-     * Subscribes for the KVDB module main events.
+     * Subscribe for the KVDB events on the given subscription query.
      *
+     * @param subscriptionQueries list of queries
+     * @return list of subscriptionIds in matching order to subscriptionQueries
      * @throws IllegalStateException thrown when instance is closed.
      * @throws PrivmxException       thrown when method encounters an exception.
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun subscribeForKvdbEvents()
+    actual external fun subscribeFor(subscriptionQueries: List<String>): List<String>
 
     /**
-     * Unsubscribes from the KVDB module main events.
+     * Unsubscribe from events with the given subscriptionId.
      *
+     * @param subscriptionIds list of subscriptionId
      * @throws IllegalStateException thrown when instance is closed.
      * @throws PrivmxException       thrown when method encounters an exception.
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun unsubscribeFromKvdbEvents()
+    actual external fun unsubscribeFrom(subscriptionIds: List<String>)
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun buildSubscriptionQuery(
+        eventType: KvdbEventType,
+        selectorType: KvdbEventSelectorType,
+        selectorId: String
+    ): String {
+        return buildSubscriptionQuery(
+            eventType.ordinal.toLong(),
+            selectorType.ordinal.toLong(),
+            selectorId
+        )
+    }
 
     /**
-     * Subscribes for events in given KVDB.
+     * Generate subscription Query for the KVDB events.
      *
-     * @param kvdbId ID of the KVDB to subscribe
+     * @param eventType    type of event you listen for
+     * @param selectorType scope on which you listen for events
+     * @param selectorId   ID of the selector
+     * @return Query for subscribing event
      * @throws IllegalStateException thrown when instance is closed.
      * @throws PrivmxException       thrown when method encounters an exception.
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun subscribeForEntryEvents(kvdbId: String)
+    private external fun buildSubscriptionQuery(
+        eventType: Long,
+        selectorType: Long,
+        selectorId: String
+    ): String
 
     /**
-     * Unsubscribes from events in given KVDB.
+     * Generate subscription Query for the KVDB events for single KvdbEntry.
      *
-     * @param kvdbId ID of the KVDB to unsubscribe
-     * @throws IllegalStateException thrown when instance is closed.
+     * @param eventType    type of event you listen for
+     * @param kvdbId       Id of Kvdb
+     * @param kvdbEntryKey Key of Kvdb Entry
+     * @return Query to subscribe to an event.
      * @throws PrivmxException       thrown when method encounters an exception.
      * @throws NativeException       thrown when method encounters an unknown exception.
+     * @throws IllegalStateException thrown when instance is closed.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun unsubscribeFromEntryEvents(kvdbId: String)
+    actual fun buildSubscriptionQueryForSelectedEntry(
+        eventType: KvdbEventType,
+        kvdbId: String,
+        kvdbEntryKey: String
+    ): String {
+        return buildSubscriptionQueryForSelectedEntry(
+            eventType.ordinal.toLong(),
+            kvdbId,
+            kvdbEntryKey
+        )
+    }
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    private external fun buildSubscriptionQueryForSelectedEntry(
+        eventType: Long,
+        kvdbId: String,
+        kvdbEntryKey: String
+    ): String
 
     /**
      * Frees memory.

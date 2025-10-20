@@ -16,16 +16,42 @@ import kotlin.jvm.JvmOverloads
 /**
  * Holds information about emitted custom event.
  *
- * @property contextId id of inbox from which it was sent
- * @property userId id of user which sent it
- * @property data event data
+ * @property contextId Context ID
+ * @property userId User ID (event's sender)
+ * @property payload Event's actual payload
  * @property statusCode Payload decryption status
+ * @property schemaVersion Version of the event data structure and how it is encoded/encrypted
  */
-class ContextCustomEventData
-@JvmOverloads 
+data class ContextCustomEventData
+@JvmOverloads
 constructor(
     val contextId: String,
     val userId: String,
-    val data: ByteArray,
-    val statusCode: Long? = null
-)
+    val payload: ByteArray,
+    val statusCode: Long? = null,
+    val schemaVersion: Long? = null
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ContextCustomEventData
+
+        if (statusCode != other.statusCode) return false
+        if (schemaVersion != other.schemaVersion) return false
+        if (contextId != other.contextId) return false
+        if (userId != other.userId) return false
+        if (!payload.contentEquals(other.payload)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = statusCode?.hashCode() ?: 0
+        result = 31 * result + (schemaVersion?.hashCode() ?: 0)
+        result = 31 * result + contextId.hashCode()
+        result = 31 * result + userId.hashCode()
+        result = 31 * result + payload.contentHashCode()
+        return result
+    }
+}
