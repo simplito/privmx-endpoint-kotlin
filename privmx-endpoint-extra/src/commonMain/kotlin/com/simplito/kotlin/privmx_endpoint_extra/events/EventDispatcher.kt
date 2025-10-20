@@ -51,7 +51,7 @@ class EventDispatcher(
     /**
      * Registers new event callback.
      *
-     * @param callbackRegistration information about callback to register
+     * @param callbackRegistration object describing single callback registration
      * @return this callback registration info
      */
     suspend fun registerCallback(callbackRegistration: CallbackRegistration<out Any>): EventRegistrationInfo {
@@ -105,7 +105,7 @@ class EventDispatcher(
     /**
      * Removes all callbacks registered by [EventDispatcher.register]. It's identified by given callback group identifiers.
      *
-     * @param callbackGroups callback group identifiers
+     * @param callbackGroups one or more callback group identifiers used to select callbacks to unbind
      */
     suspend fun unbind(vararg callbackGroups: Any) {
         if (callbackGroups.isEmpty()) return
@@ -208,6 +208,9 @@ class EventDispatcher(
         }.flatMap { it.value }
     }
 
+    /**
+     * Available subscription modules for event handling.
+     */
     enum class SubscriptionModule {
         /**
          * Thread module case.
@@ -243,6 +246,12 @@ class EventDispatcher(
     private data class Pair(val context: Any, val callback: EventCallback<out Any>)
 }
 
+/**
+ * Holds essential information about a single event registration.
+ *
+ * @property subscriptionID Unique identifier for the event subscription
+ * @property eventType Type of registered event
+ */
 class EventRegistrationInfo(var subscriptionID: String?, var eventType: EventType<*>) {
 
     override fun equals(other: Any?): Boolean {
