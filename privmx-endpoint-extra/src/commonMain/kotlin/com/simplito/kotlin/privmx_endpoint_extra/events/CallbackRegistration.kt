@@ -4,7 +4,7 @@ package com.simplito.kotlin.privmx_endpoint_extra.events
  * Represents a registration of a callback for a specific event type.
  * This class encapsulates the information needed to register and subscribe a callback.
  * Callbacks are grouped for easier management, such as unregistering multiple related callbacks at once.
- * @param <T> The type of event data.
+ * @param T The type of event data.
  */
 class CallbackRegistration<T : Any>(
     /**
