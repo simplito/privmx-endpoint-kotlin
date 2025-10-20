@@ -51,7 +51,7 @@ class EventDispatcher(
     /**
      * Registers new event callback.
      *
-     * @param callbackRegistration information about callback to register
+     * @param callbackRegistration object describing single callback registration
      * @return this callback registration info
      */
     suspend fun registerCallback(callbackRegistration: CallbackRegistration<out Any>): EventRegistrationInfo {
