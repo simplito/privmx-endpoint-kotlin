@@ -208,6 +208,9 @@ class EventDispatcher(
         }.flatMap { it.value }
     }
 
+    /**
+     * Available subscription modules for event handling.
+     */
     enum class SubscriptionModule {
         /**
          * Thread module case.
