@@ -10,7 +10,6 @@
 //
 package com.simplito.kotlin.privmx_endpoint_extra.events
 
-import com.simplito.kotlin.privmx_endpoint.model.Event
 import com.simplito.kotlin.privmx_endpoint.model.File
 import com.simplito.kotlin.privmx_endpoint.model.Inbox
 import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
@@ -87,12 +86,12 @@ sealed class EventType<T : Any>(
         libEventType: com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.EventType,
         eventSelectorType: EventSelectorType,
         eventSelectorId: String,
-        eventResultClass: KClass<T>
+        eventResultClass: KClass<T>,
     ) : this(eventName, null, libEventType, eventSelectorType, eventSelectorId, eventResultClass)
 
     constructor (
         eventName: String,
-        eventResultClass: KClass<T>
+        eventResultClass: KClass<T>,
     ) : this(eventName, null, null, null, null, eventResultClass)
 
 
@@ -128,7 +127,7 @@ sealed class EventType<T : Any>(
      * @return Predefined event type to catch created Thread events.
      */
     data class ThreadCreatedEvent(
-        val contextId: String
+        val contextId: String,
     ) : EventType<Thread>(
         "threadCreated",
         ThreadEventType.THREAD_CREATE,
@@ -146,7 +145,7 @@ sealed class EventType<T : Any>(
      */
     data class ThreadUpdatedEvent(
         val selectorType: ThreadEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<Thread>(
         "threadUpdated",
         ThreadEventType.THREAD_UPDATE,
@@ -164,7 +163,7 @@ sealed class EventType<T : Any>(
      */
     data class ThreadStatsChangedEvent(
         val selectorType: ThreadEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<ThreadStatsEventData>(
         "threadStats",
         ThreadEventType.THREAD_STATS,
@@ -181,7 +180,7 @@ sealed class EventType<T : Any>(
      */
     data class ThreadDeletedEvent(
         val selectorType: ThreadEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<ThreadDeletedEventData>(
         "threadDeleted",
         ThreadEventType.THREAD_DELETE,
@@ -196,7 +195,7 @@ sealed class EventType<T : Any>(
      * @return Predefined event type to catch created Store events.
      */
     data class StoreCreatedEvent(
-        val contextId: String
+        val contextId: String,
     ) : EventType<Store>(
         "storeCreated",
         StoreEventType.STORE_CREATE,
@@ -213,7 +212,7 @@ sealed class EventType<T : Any>(
      */
     data class StoreUpdatedEvent(
         val selectorType: StoreEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<Store>(
         "storeUpdated",
         StoreEventType.STORE_UPDATE,
@@ -230,7 +229,7 @@ sealed class EventType<T : Any>(
      */
     data class StoreStatsChangedEvent(
         val selectorType: StoreEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<StoreStatsChangedEventData>(
         "storeStatsChanged",
         StoreEventType.STORE_UPDATE,
@@ -248,7 +247,7 @@ sealed class EventType<T : Any>(
      */
     data class StoreDeletedEvent(
         val selectorType: StoreEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<StoreDeletedEventData>(
         "storeDeleted",
         StoreEventType.STORE_DELETE,
@@ -263,7 +262,7 @@ sealed class EventType<T : Any>(
      */
     data class ThreadNewMessageEvent(
         val selectorType: ThreadEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<Message>(
         "threadNewMessage",
         ThreadEventType.MESSAGE_CREATE,
@@ -279,7 +278,7 @@ sealed class EventType<T : Any>(
      */
     data class ThreadMessageUpdatedEvent(
         val selectorType: ThreadEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<Message>(
         "threadUpdatedMessage",
         ThreadEventType.MESSAGE_UPDATE,
@@ -295,7 +294,7 @@ sealed class EventType<T : Any>(
      */
     data class ThreadMessageDeletedEvent(
         val selectorType: ThreadEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<ThreadDeletedMessageEventData>(
         "threadMessageDeleted",
         ThreadEventType.MESSAGE_DELETE,
@@ -311,7 +310,7 @@ sealed class EventType<T : Any>(
      */
     data class StoreFileCreatedEvent(
         val selectorType: StoreEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<File>(
         "storeFileCreated",
         StoreEventType.FILE_CREATE,
@@ -327,7 +326,7 @@ sealed class EventType<T : Any>(
      */
     data class StoreFileUpdatedEvent(
         val selectorType: StoreEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<StoreFileUpdatedEventData>(
         "storeFileUpdated",
         StoreEventType.FILE_UPDATE,
@@ -343,7 +342,7 @@ sealed class EventType<T : Any>(
      */
     data class StoreFileDeletedEvent(
         val selectorType: StoreEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<StoreFileDeletedEventData>(
         "storeFileDeleted",
         StoreEventType.FILE_DELETE,
@@ -357,7 +356,7 @@ sealed class EventType<T : Any>(
      */
     data class InboxCreatedEvent(
         val selectorType: InboxEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<Inbox>(
         "inboxCreated",
         InboxEventType.INBOX_CREATE,
@@ -371,7 +370,7 @@ sealed class EventType<T : Any>(
      */
     data class InboxUpdatedEvent(
         val selectorType: InboxEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<Inbox>(
         "inboxUpdated",
         InboxEventType.INBOX_UPDATE,
@@ -385,7 +384,7 @@ sealed class EventType<T : Any>(
      */
     data class InboxDeletedEvent(
         val selectorType: InboxEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<InboxDeletedEventData>(
         "inboxDeleted",
         InboxEventType.INBOX_DELETE,
@@ -401,7 +400,7 @@ sealed class EventType<T : Any>(
      */
     data class InboxEntryCreatedEvent(
         val selectorType: InboxEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<InboxEntry>(
         "inboxEntryCreated",
         InboxEventType.ENTRY_CREATE,
@@ -417,7 +416,7 @@ sealed class EventType<T : Any>(
      */
     data class InboxEntryDeletedEvent(
         val selectorType: InboxEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<InboxEntryDeletedEventData>(
         "inboxEntryDeleted",
         InboxEventType.ENTRY_DELETE,
@@ -434,7 +433,7 @@ sealed class EventType<T : Any>(
      */
     data class ContextCustomEvent(
         val contextId: String,
-        val channel: String
+        val channel: String,
     ) : EventType<ContextCustomEventData>(
         "contextCustom",
         channel,
@@ -451,7 +450,7 @@ sealed class EventType<T : Any>(
      * @return Predefined event type to catch created KVDB events.
      */
     data class KvdbCreatedEvent(
-        val contextId: String
+        val contextId: String,
     ) : EventType<Kvdb>(
         "kvdbCreated",
         KvdbEventType.KVDB_CREATE,
@@ -469,7 +468,7 @@ sealed class EventType<T : Any>(
      */
     data class KvdbUpdatedEvent(
         val selectorType: KvdbEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<Kvdb>(
         "kvdbUpdated",
         KvdbEventType.KVDB_UPDATE,
@@ -487,7 +486,7 @@ sealed class EventType<T : Any>(
      */
     data class KvdbStatsChangedEvent(
         val selectorType: KvdbEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<KvdbStatsEventData>(
         "kvdbStatsChanged",
         KvdbEventType.KVDB_STATS,
@@ -505,7 +504,7 @@ sealed class EventType<T : Any>(
      */
     data class KvdbDeletedEvent(
         val selectorType: KvdbEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<KvdbDeletedEventData>(
         "kvdbDeleted",
         KvdbEventType.KVDB_DELETE,
@@ -523,7 +522,7 @@ sealed class EventType<T : Any>(
      */
     data class KvdbNewEntryEvent(
         val selectorType: KvdbEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<KvdbEntry>(
         "kvdbNewEntry",
         KvdbEventType.ENTRY_CREATE,
@@ -541,7 +540,7 @@ sealed class EventType<T : Any>(
      */
     data class KvdbEntryUpdatedEvent(
         val selectorType: KvdbEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<KvdbEntry>(
         "kvdbEntryUpdated",
         KvdbEventType.ENTRY_UPDATE,
@@ -559,7 +558,7 @@ sealed class EventType<T : Any>(
      */
     data class KvdbEntryDeletedEvent(
         val selectorType: KvdbEventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<KvdbDeletedEntryEventData>(
         "kvdbEntryDeleted",
         KvdbEventType.ENTRY_DELETE,
@@ -569,10 +568,13 @@ sealed class EventType<T : Any>(
     )
 
 
+    /**
+     * Predefined event type to catch collection change events.
+     */
     class CollectionChangedEvent private constructor(
         val eventType: com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.EventType,
         val selectorType: EventSelectorType,
-        val selectorId: String
+        val selectorId: String,
     ) : EventType<CollectionChangedEventData>(
         "collectionChanged",
         eventType,
@@ -589,7 +591,7 @@ sealed class EventType<T : Any>(
          */
         constructor(
             selectorType: ThreadEventSelectorType,
-            selectorId: String
+            selectorId: String,
         ) : this(
             ThreadEventType.COLLECTION_CHANGE,
             selectorType,
@@ -605,7 +607,7 @@ sealed class EventType<T : Any>(
          */
         constructor(
             selectorType: StoreEventSelectorType,
-            selectorId: String
+            selectorId: String,
         ) : this(
             StoreEventType.COLLECTION_CHANGE,
             selectorType,
@@ -621,7 +623,7 @@ sealed class EventType<T : Any>(
          */
         constructor(
             selectorType: InboxEventSelectorType,
-            selectorId: String
+            selectorId: String,
         ) : this(
             InboxEventType.COLLECTION_CHANGE,
             selectorType,
@@ -637,7 +639,7 @@ sealed class EventType<T : Any>(
          */
         constructor(
             selectorType: KvdbEventSelectorType,
-            selectorId: String
+            selectorId: String,
         ) : this(
             KvdbEventType.COLLECTION_CHANGE,
             selectorType,
@@ -652,7 +654,7 @@ sealed class EventType<T : Any>(
      * @return Predefined event type to catch user added to the Context events
      */
     data class ContextUserAddedEvent(
-        val contextId: String
+        val contextId: String,
     ) : EventType<ContextUserEventData>(
         "contextUserAdded",
         CoreEventType.USER_ADD,
@@ -668,7 +670,7 @@ sealed class EventType<T : Any>(
      * @return Predefined event type to catch user removed from the Context events
      */
     data class ContextUserRemovedEvent(
-        val contextId: String
+        val contextId: String,
     ) : EventType<ContextUserEventData>(
         "contextUserRemoved",
         CoreEventType.USER_REMOVE,
@@ -684,7 +686,7 @@ sealed class EventType<T : Any>(
      * @return Predefined event type to catch user status change events
      */
     data class ContextUsersStatusChangeEvent(
-        val contextId: String
+        val contextId: String,
     ) : EventType<ContextUsersStatusChangedEventData>(
         "contextUserStatusChanged",
         CoreEventType.USER_STATUS,
