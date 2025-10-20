@@ -78,8 +78,8 @@ constructor(
 
 
     /**
-     * Registers callbacks with the specified type.
-     * If you need to register multiple callbacks simultaneously, consider using the [registerManyCallbacks]
+     * Registers single callback for a specified event type.
+     * If you need to register multiple callbacks simultaneously, consider using the [registerManyCallbacks].
      *
      * @param T         type of data passed to callback
      * @param callbackGroup An identifier used to group related callbacks
