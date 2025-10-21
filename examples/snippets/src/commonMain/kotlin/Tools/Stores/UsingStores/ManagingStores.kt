@@ -98,7 +98,9 @@ fun modifyingStores() {
             store.publicMeta,
             newPrivateMeta,
             store.version!!,
-            false
+            force = false,
+            forceGenerateNewKey = false,
+            policies = store.policy
         )
     }
 }

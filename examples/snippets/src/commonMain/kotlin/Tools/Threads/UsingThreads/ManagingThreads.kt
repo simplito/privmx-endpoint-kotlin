@@ -98,7 +98,9 @@ fun modifyingThreads() {
             thread.publicMeta,
             newPrivateMeta,
             thread.version!!,
-            false
+            force = false,
+            forceGenerateNewKey = false,
+            policies = thread.policy
         )
     }
 }

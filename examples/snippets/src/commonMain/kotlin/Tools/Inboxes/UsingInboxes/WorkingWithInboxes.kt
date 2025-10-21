@@ -96,9 +96,11 @@ fun modifyingInboxes() {
             newManagers,
             inbox.publicMeta,
             newPrivateMeta,
-            null,  // filesConfig
-            inbox.version!!,
-            false // force
+            filesConfig = null,
+            version = inbox.version!!,
+            force = false,
+            forceGenerateNewKey = false,
+            policies = inbox.policy
         )
     }
 }

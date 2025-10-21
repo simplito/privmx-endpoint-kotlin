@@ -101,8 +101,9 @@ fun updatingKvdbs() {
             publicMeta,
             privateMeta,
             kvdb.version!!,
-            false,
-            false
+            force = false,
+            forceGenerateNewKey = false,
+            policies = kvdb.policy
         )
     }
 }
