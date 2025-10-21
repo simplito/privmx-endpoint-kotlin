@@ -4,40 +4,38 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.KvdbE
 import com.simplito.kotlin.privmx_endpoint_extra.events.CallbackRegistration
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
 
-class ListeningForChanges {
-    suspend fun handlingKvdbEvents() {
-        val kvdbCallbacksGroup = "KVDB_CALLBACKS_GROUP"
-        val entryCallbacksGroup = "ENTRY_CALLBACKS_GROUP"
-        val kvdbID = "KVDB_ID"
+suspend fun handlingKvdbEvents() {
+    val kvdbCallbacksGroup = "KVDB_CALLBACKS_GROUP"
+    val entryCallbacksGroup = "ENTRY_CALLBACKS_GROUP"
+    val kvdbID = "KVDB_ID"
 
-        // Starting the Event Loop
-        endpointContainer.startListening()
+    // Starting the Event Loop
+    endpointContainer.startListening()
 
-        endpointSession.registerManyCallbacks(
+    endpointSession.registerManyCallbacks(
 
-            // Handling KVDB Events
-            CallbackRegistration(
-                kvdbCallbacksGroup,
-                EventType.KvdbStatsChangedEvent(
-                    KvdbEventSelectorType.CONTEXT_ID,
-                    contextId
-                )
-            ) { kvdbStats ->
-                println(kvdbStats.lastEntryDate)
-            },
+        // Handling KVDB Events
+        CallbackRegistration(
+            kvdbCallbacksGroup,
+            EventType.KvdbStatsChangedEvent(
+                KvdbEventSelectorType.CONTEXT_ID,
+                contextId
+            )
+        ) { kvdbStats ->
+            println(kvdbStats.lastEntryDate)
+        },
 
-            // Handling KVDB Entry Events
-            CallbackRegistration(
-                entryCallbacksGroup,
-                EventType.KvdbNewEntryEvent(
-                    KvdbEventSelectorType.KVDB_ID,
-                    kvdbID
-                )
-            ) { newEntry ->
-                println(newEntry.info.key)
-            }
-        )
+        // Handling KVDB Entry Events
+        CallbackRegistration(
+            entryCallbacksGroup,
+            EventType.KvdbNewEntryEvent(
+                KvdbEventSelectorType.KVDB_ID,
+                kvdbID
+            )
+        ) { newEntry ->
+            println(newEntry.info.key)
+        }
+    )
 
-        endpointSession.unregisterCallbacks(kvdbCallbacksGroup, entryCallbacksGroup)
-    }
+    endpointSession.unregisterCallbacks(kvdbCallbacksGroup, entryCallbacksGroup)
 }

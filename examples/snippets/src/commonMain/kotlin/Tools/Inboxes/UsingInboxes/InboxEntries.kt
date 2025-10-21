@@ -8,16 +8,15 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-class InboxEntries() {
-    fun sendingInboxEntryBasic() {
-        // 1. Preparing Entry
-        val inboxID = "INBOX_ID"
+fun sendingInboxEntryBasic() {
+    // 1. Preparing Entry
+    val inboxID = "INBOX_ID"
 
-        val entryDataAnswer = "USER_PROVIDED_TEXT"
-        val entryDataVersion = 1L
-        val entryDataType = "TEXT_ANSWER"
+    val entryDataAnswer = "USER_PROVIDED_TEXT"
+    val entryDataVersion = 1L
+    val entryDataType = "TEXT_ANSWER"
 
-        val entryData: ByteArray = """
+    val entryData: ByteArray = """
                  {
                     "content": {
                         "answer": "$entryDataAnswer"
@@ -28,18 +27,18 @@ class InboxEntries() {
                 
                 """.trimIndent().encodeToByteArray()
 
-        val entryHandle = endpointSession.inboxApi?.prepareEntry(
-            inboxID,
-            entryData,
-            emptyList()
-        )!!
+    val entryHandle = endpointSession.inboxApi?.prepareEntry(
+        inboxID,
+        entryData,
+        emptyList()
+    )!!
 
-        // 2. Sending Entry
-        endpointSession.inboxApi?.sendEntry(entryHandle)
-    }
+    // 2. Sending Entry
+    endpointSession.inboxApi?.sendEntry(entryHandle)
 }
 
 fun attachingFiles(fileID: String?) {
+    // 1. Preparing Entry & sending File Contents
     val inboxID = "INBOX_ID"
     val publicMeta: ByteArray = "My public data".encodeToByteArray()
 
@@ -79,8 +78,6 @@ fun attachingFiles(fileID: String?) {
     )
 
     val fileHandle = inboxFileStreamWriter.fileHandle
-
-    // 1. Preparing Entry & sending File Contents
     val inboxHandle = endpointSession.inboxApi?.prepareEntry(
         inboxID,
         entryData,
