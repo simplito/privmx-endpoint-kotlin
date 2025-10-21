@@ -38,7 +38,6 @@ class ListeningForChanges {
             }
         )
 
-        // Finish handling events
         endpointSession.unregisterCallbacks(kvdbCallbacksGroup, entryCallbacksGroup)
     }
 }

@@ -34,6 +34,5 @@ suspend fun handlingStoreEvents() {
         }
     )
 
-    // Finish handling events
     endpointSession.unregisterCallbacks(storeCallbacksGroup, fileCallbacksGroup)
 }

@@ -34,6 +34,5 @@ suspend fun handlingThreadAndMessageEvents() {
         }
     )
 
-    // Finish handling events
     endpointSession.unregisterCallbacks(threadCallbacksGroup, messageCallbacksGroup)
 }

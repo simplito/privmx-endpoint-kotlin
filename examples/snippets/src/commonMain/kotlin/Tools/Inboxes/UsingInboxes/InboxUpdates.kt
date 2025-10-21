@@ -38,7 +38,6 @@ class InboxUpdates {
             }
         )
 
-        // Finish handling events
         endpointSession.unregisterCallbacks(inboxCallbacksGroup, entryCallbacksGroup)
     }
 }
