@@ -6,7 +6,7 @@ fun sendingMessages() {
     val publicMeta = "My public data".encodeToByteArray()
     val message = "This is my message".encodeToByteArray()
 
-    val msgId = endpointSession.threadApi?.sendMessage(
+    val messageId = endpointSession.threadApi?.sendMessage(
         threadId,
         publicMeta,
         privateMeta,
