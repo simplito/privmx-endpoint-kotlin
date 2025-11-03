@@ -8,11 +8,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include <jni.h>
-#include <privmx/endpoint/event/EventApi.hpp>
-#include "../utils.hpp"
-#include "Connection.h"
-#include "../parser.h"
+
+#include "EventApi.h"
 
 using namespace privmx::endpoint;
 
