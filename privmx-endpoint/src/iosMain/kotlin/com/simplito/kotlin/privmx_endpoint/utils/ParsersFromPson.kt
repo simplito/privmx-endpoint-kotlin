@@ -75,7 +75,7 @@ internal fun PsonObject.toUserStatusChange() = UserStatusChange(
 internal fun PsonObject.toUserInfo(): UserInfo = UserInfo(
     (this["user"] as PsonObject).toUserWithPubKey(),
     this["isActive"]!!.typedValue(),
-    (this["lastStatusChange"] as PsonObject).toUserStatusChange()
+    (this["lastStatusChange"] as PsonObject?)?.toUserStatusChange()
 )
 
 internal fun PsonObject.toThread(): Thread = Thread(

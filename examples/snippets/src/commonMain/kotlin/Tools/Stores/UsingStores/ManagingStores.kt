@@ -1,5 +1,6 @@
 package Tools.Stores.UsingStores
 
+import com.simplito.kotlin.privmx_endpoint.model.Store
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpoint
 import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpointContainer
@@ -65,29 +66,30 @@ fun listingStores() {
     val limit = 30L
     val skip = 0L
 
-    val stores = endpointSession.storeApi?.listStores(
+    val stores: List<Store> = endpointSession.storeApi!!.listStores(
         contextId,
         skip,
         limit,
         SortOrder.DESC
-    )
+    ).readItems
 }
 
 
 fun modifyingStores() {
     val storeID = "STORE_ID"
+    val newUsers: List<UserWithPubKey> = listOf(
+        UserWithPubKey(user1Id, user1PublicKey),
+        UserWithPubKey(user2Id, user2PublicKey),
+        UserWithPubKey(user3Id, user3PublicKey)
+    )
+    val newManagers = listOf(
+        UserWithPubKey(user1Id, user1PublicKey),
+        UserWithPubKey(user2Id, user2PublicKey),
+    )
+    val newPrivateMeta = "New store name".encodeToByteArray()
+
     endpointSession.storeApi?.let { storeApi ->
         val store = storeApi.getStore(storeID)
-        val newUsers: List<UserWithPubKey> = listOf(
-            UserWithPubKey(user1Id, user1PublicKey),
-            UserWithPubKey(user2Id, user2PublicKey),
-            UserWithPubKey(user3Id, user3PublicKey)
-        )
-        val newManagers = listOf(
-            UserWithPubKey(user1Id, user1PublicKey),
-            UserWithPubKey(user2Id, user2PublicKey),
-        )
-        val newPrivateMeta = "New store name".encodeToByteArray()
 
         storeApi.updateStore(
             storeID,
@@ -96,7 +98,14 @@ fun modifyingStores() {
             store.publicMeta,
             newPrivateMeta,
             store.version!!,
-            false
+            force = false,
+            forceGenerateNewKey = false,
+            policies = store.policy
         )
     }
+}
+
+fun deletingStores() {
+    val storeID = "STORE_ID"
+    endpointSession.storeApi?.deleteStore(storeID)
 }
