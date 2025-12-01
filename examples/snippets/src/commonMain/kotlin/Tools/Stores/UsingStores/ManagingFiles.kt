@@ -1,5 +1,6 @@
 package Tools.Stores.UsingStores
 
+import com.simplito.kotlin.privmx_endpoint.model.File
 import com.simplito.kotlin.privmx_endpoint_extra.model.SortOrder
 
 fun listingFiles() {
@@ -7,12 +8,12 @@ fun listingFiles() {
     val limit = 30L
     val skip = 0L
 
-    val files = endpointSession.storeApi?.listFiles(
+    val files: List<File> = endpointSession.storeApi!!.listFiles(
         storeID,
         skip,
         limit,
         SortOrder.DESC
-    )
+    ).readItems
 }
 
 fun deletingFiles() {

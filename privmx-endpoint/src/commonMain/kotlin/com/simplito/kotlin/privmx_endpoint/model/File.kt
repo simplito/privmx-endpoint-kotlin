@@ -20,6 +20,7 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property authorPubKey Public key of the author of the file
  * @property statusCode   Status code of retrieval and decryption of the file
  * @property schemaVersion Version of the file data structure and how it is encoded/encrypted.
+ * @property randomWrite randomWrite is enabled.
  */
 data class File(
     val info: ServerFileInfo,
@@ -28,7 +29,8 @@ data class File(
     val size: Long?,
     val authorPubKey: String,
     val statusCode: Long?,
-    val schemaVersion: Long?
+    val schemaVersion: Long?,
+    var randomWrite: Boolean = false
 ) {
 
     /**
@@ -50,7 +52,7 @@ data class File(
         authorPubKey: String,
         statusCode: Long?
     ) : this(
-        info, publicMeta, privateMeta, size, authorPubKey, statusCode, null
+        info, publicMeta, privateMeta, size, authorPubKey, statusCode, null, false
     )
 
     override fun equals(other: Any?): Boolean {
@@ -62,6 +64,7 @@ data class File(
         if (size != other.size) return false
         if (statusCode != other.statusCode) return false
         if (schemaVersion != other.schemaVersion) return false
+        if (randomWrite != other.randomWrite) return false
         if (info != other.info) return false
         if (!publicMeta.contentEquals(other.publicMeta)) return false
         if (!privateMeta.contentEquals(other.privateMeta)) return false
@@ -78,6 +81,7 @@ data class File(
         result = 31 * result + publicMeta.contentHashCode()
         result = 31 * result + privateMeta.contentHashCode()
         result = 31 * result + authorPubKey.hashCode()
+        result = 31 * result + randomWrite.hashCode()
         return result
     }
 

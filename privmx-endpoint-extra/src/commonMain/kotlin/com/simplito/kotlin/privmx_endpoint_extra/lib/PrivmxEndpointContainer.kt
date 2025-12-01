@@ -201,7 +201,7 @@ class PrivmxEndpointContainer() : AutoCloseable {
             connectionsMutex.withLock {
                 privmxEndpoints[event.connectionId]?.let { endpoint ->
                     endpoint.handleEvent(event)
-                    if (event.type == EventType.DisconnectedEvent.eventType) {
+                    if (event.type == EventType.DisconnectedEvent.eventName) {
                         privmxEndpoints.remove(event.connectionId).run {
                             try {
                                 close()
@@ -213,7 +213,7 @@ class PrivmxEndpointContainer() : AutoCloseable {
             }
         }
 
-        if (event.type == EventType.LibBreakEvent.eventType) {
+        if (event.type == EventType.LibBreakEvent.eventName) {
             eventLoopJob.cancel()
             return
         }
