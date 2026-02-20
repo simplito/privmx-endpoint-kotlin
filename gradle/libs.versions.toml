@@ -4,6 +4,7 @@ kotlinxIoCore = "0.7.0"
 kotlin-serialization = "2.1.20"
 serialization-json = "1.8.1"
 kotlin = "2.1.20"
+agp = "8.12.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -13,3 +14,4 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinPluginSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-serialization" }
+android-library = { id = "com.android.library", version.ref = "agp" }

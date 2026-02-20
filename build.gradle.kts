@@ -21,6 +21,7 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
+    alias(libs.plugins.android.library) apply false
     id("org.jetbrains.dokka") version "2.0.0"
 }
 buildscript {
