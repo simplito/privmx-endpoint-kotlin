@@ -9,6 +9,8 @@ import WebRTCFramework.PMXKeyStore
 import WebRTCFramework.RTCAudioTrack
 import WebRTCFramework.RTCMediaConstraints
 import WebRTCFramework.RTCPeerConnectionFactory
+import WebRTCFramework.RTCRtpTransceiverDirection
+import WebRTCFramework.RTCRtpTransceiverInit
 import WebRTCFramework.RTCSdpType
 import WebRTCFramework.RTCSessionDescription
 import WebRTCFramework.RTCVideoCapturer
@@ -34,13 +36,18 @@ class JanusPublisher(
 
 
     fun addAudioTrack(audioTrack: RTCAudioTrack) {
-        val transceiver = peerConnection.addTransceiverWithTrack(audioTrack)!!
+        val transceiver = peerConnection.addTransceiverWithTrack(
+            audioTrack,
+            RTCRtpTransceiverInit().apply {
+                direction = RTCRtpTransceiverDirection.RTCRtpTransceiverDirectionSendOnly
+            }
+        )!!
         val frameCryptor = PMXFrameCryptorTransformer(
             transceiver.sender,
             peerConnectionFactory,
             keyStore // options ?
         )
-        //TODO: add mutex
+////        //TODO: add mutex
         audioTracks[audioTrack.trackId] = AudioTrackInfo(
             audioTrack,
             transceiver.sender,
