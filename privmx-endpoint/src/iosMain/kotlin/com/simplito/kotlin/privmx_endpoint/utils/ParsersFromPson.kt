@@ -475,18 +475,21 @@ internal fun PsonObject.toStreamRoom(): StreamRoom = StreamRoom(
     this["publicMeta"]!!.typedValue(),
     this["privateMeta"]!!.typedValue(),
     (this["policy"] as PsonObject?)?.toContainerPolicy(),
-    this["statusCode"]!!.typedValue(),
-    this["schemaVersion"]!!.typedValue(),
-    this["closed"]!!.typedValue(),
+    //TODO: No status code in room
+    0,//    this["statusCode"]!!.typedValue(),
+    //TODO: No schemaVersion code in room
+0,//    this["schemaVersion"]!!.typedValue(),
+    //TODO: No closed info
+false,//    this["closed"]!!.typedValue(),
 )
 
 internal fun PsonObject.toStreamInfo(): StreamInfo = StreamInfo(
     this["id"]!!.typedValue(),
     this["userId"]!!.typedValue(),
-    this["metadata"]!!.typedValue(),
-    this["dummy"]!!.typedValue(),
+    this["metadata"]?.typedValue(),
+    this["dummy"]?.typedValue(),
     this["tracks"]!!.typedList().map { (it as PsonObject).toStreamTrackInfo() },
-    this["createDate"]!!.typedValue(),
+    this["talking"]?.typedValue(),
 )
 
 internal fun PsonObject.toStreamTrackInfo(): StreamTrackInfo = StreamTrackInfo(
@@ -520,7 +523,7 @@ internal fun PsonObject.toPublishedStream(): PublishedStreamData = PublishedStre
 
 internal fun PsonObject.toStreamPublishResult(): StreamPublishResult = StreamPublishResult(
     this["published"]!!.typedValue(),
-    this["type"]!!.typedValue()
+    (this["data"] as? PsonObject)?.toPublishedStream()
 )
 
 internal fun PsonObject.toRecordingEncKey(): RecordingEncKey = RecordingEncKey(
