@@ -26,6 +26,7 @@ import com.simplito.kotlin.privmx_endpoint.modules.event.EventApi
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
 import com.simplito.kotlin.privmx_endpoint.utils.asResponse
 import com.simplito.kotlin.privmx_endpoint.utils.makeArgs
+import com.simplito.kotlin.privmx_endpoint.utils.mapOfWithNulls
 import com.simplito.kotlin.privmx_endpoint.utils.pson
 import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamHandle
@@ -74,7 +75,8 @@ actual constructor(
         )
 
         memScoped {
-            val args = makeArgs(streamEncryptionMode.ordinal.toLong().pson)
+            val args = makeArgs()
+//                streamEncryptionMode.ordinal.toLong().pson)
             val pson_result = allocPointerTo<pson_value>()
             try {
                 privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 0, args, pson_result.ptr)
@@ -227,12 +229,14 @@ actual constructor(
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             contextId.pson,
-            skip.pson,
-            limit.pson,
-            sortOrder.pson,
-            lastId?.pson,
-            queryAsJson?.pson,
-            sortBy?.pson
+            mapOfWithNulls(
+                "skip" to skip.pson,
+                "limit" to limit.pson,
+                "sortOrder" to sortOrder.pson,
+                lastId?.let { "lastId" to lastId.pson },
+                queryAsJson?.let { "queryAsJson" to queryAsJson.pson },
+                sortBy?.let { "sortBy" to sortBy.pson }
+            ).pson
         )
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 4, args, pson_result.ptr)
@@ -304,8 +308,8 @@ actual constructor(
         val args = makeArgs(streamRoomId.pson)
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 10, args, pson_result.ptr)
-            val psonObject = pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonObject
-            psonObject.typedList().map { (it as PsonValue.PsonObject).toStreamInfo() }
+            val psonObject = pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonArray<*>
+            psonObject.getValue().map { (it as PsonValue.PsonObject).toStreamInfo() }
         } finally {
             pson_free_result(pson_result.value)
             pson_free_value(args)
@@ -331,7 +335,7 @@ actual constructor(
             proxyWebrtcList.new(webRtcInterface).proxy.toLong().pson
         )
         try {
-            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 11, args, pson_result.ptr)
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 25, args, pson_result.ptr)
             pson_result.value?.asResponse?.getResultOrThrow()
             Unit
         } finally {
