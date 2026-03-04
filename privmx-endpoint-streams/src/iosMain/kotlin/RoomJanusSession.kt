@@ -45,9 +45,7 @@ class RoomJanusSession(
     //TODO: Add error logging for webrtcImpl
     internal val webrtc: WebRTCImpl = WebRTCImpl()
     private val trackObserversByStreamId: MutableMap<String?, TrackObserver> = mutableMapOf()
-    private val trackObserver: TrackObserver = {
-
-    }
+    private val trackObserver: TrackObserver = TrackObserverImpl()
 
 
     fun createSubscriber() {
