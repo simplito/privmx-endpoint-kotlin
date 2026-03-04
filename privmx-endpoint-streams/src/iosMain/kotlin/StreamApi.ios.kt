@@ -10,6 +10,9 @@ import WebRTCFramework.RTCPeerConnectionFactory
 import WebRTCFramework.RTCPeerConnectionFactoryOptions
 import WebRTCFramework.RTCVideoCodecInfo
 import WebRTCFramework.RTCVideoTrack
+import WebRTCFramework.kRTCMediaStreamTrackKindAudio
+import WebRTCFramework.kRTCMediaStreamTrackKindVideo
+import WebRTCFramework.kRTCVp8CodecName
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
@@ -144,11 +147,11 @@ class StreamApi(
         val publisher: JanusPublisher? = session.publisher
         checkNotNull(publisher) { "This StreamHandle has not created companion publisher." }
         when (track.kind()) {
-            RTCRtpMediaType.RTCRtpMediaTypeVideo.name -> {
+            kRTCMediaStreamTrackKindVideo -> {
                 publisher.addVideoTrack(track as RTCVideoTrack)
             }
 
-            RTCRtpMediaType.RTCRtpMediaTypeAudio.name -> {
+            kRTCMediaStreamTrackKindAudio -> {
                 publisher.addAudioTrack(track as RTCAudioTrack)
             }
         }
