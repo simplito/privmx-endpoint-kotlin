@@ -12,6 +12,7 @@ import WebRTCFramework.RTCPeerConnection
 import WebRTCFramework.RTCPeerConnectionDelegateProtocol
 import WebRTCFramework.RTCPeerConnectionFactory
 import WebRTCFramework.RTCRtpReceiver
+import WebRTCFramework.RTCRtpTransceiver
 import WebRTCFramework.RTCSignalingState
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride
@@ -27,7 +28,7 @@ class PcObserver constructor(
     private val onIceConnectionChange: (candidate: RTCIceConnectionState) -> Unit,
 ) : RTCPeerConnectionDelegateProtocol, NSObject() {
     var frameCryptorMap: MutableMap<String, PMXFrameCryptorTransformer> = mutableMapOf()
-    private val streamIdsByTracks: Map<String, String> = HashMap()
+    private val streamIdsByTracks: Map<String, String> = HashMap<String, String>()
 
 //    @Override
 //    fun onSignalingChange(signalingState: PeerConnection.SignalingState?) {
@@ -118,16 +119,24 @@ class PcObserver constructor(
         streams: List<*>
     ) {
 
-        val track = didAddReceiver.track()
+    }
+
+    override fun peerConnection(
+        peerConnection: RTCPeerConnection,
+        didStartReceivingOnTransceiver: RTCRtpTransceiver
+    ) {
+        val track = didStartReceivingOnTransceiver.receiver.track()
         track?.let { track ->
             val cryptor = PMXFrameCryptorTransformer(
-                forRtpReceiver = didAddReceiver,
+                forRtpReceiver = didStartReceivingOnTransceiver.receiver,
                 withPeerConnectionFactory = peerConnectionFactory,
                 keyStore
             )
             frameCryptorMap[track.trackId()] = cryptor
             trackObserver?.onRemoteTrack(
-                (streams.firstOrNull() as? RTCMediaStream)?.streamId,
+                //TODO: Pass correct streamId for this track
+//                (streams.firstOrNull() as? RTCMediaStream)?.streamId,
+                null,
                 track
             )
         }
