@@ -28,7 +28,7 @@ class PcObserver constructor(
     private val onIceConnectionChange: (candidate: RTCIceConnectionState) -> Unit,
 ) : RTCPeerConnectionDelegateProtocol, NSObject() {
     var frameCryptorMap: MutableMap<String, PMXFrameCryptorTransformer> = mutableMapOf()
-    private val streamIdsByTracks: Map<String, String> = HashMap()
+    private val streamIdsByTracks: Map<String, String> = HashMap<String, String>()
 
 //    @Override
 //    fun onSignalingChange(signalingState: PeerConnection.SignalingState?) {
