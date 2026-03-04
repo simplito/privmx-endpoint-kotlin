@@ -5,7 +5,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 
 @OptIn(ExperimentalForeignApi::class)
 internal class PeerConnectionManager(
-    private val pcFactory: RTCPeerConnectionFactory,
+    internal val pcFactory: RTCPeerConnectionFactory,
     private val onTrickle: (Long, String) -> Unit
 ) {
 
