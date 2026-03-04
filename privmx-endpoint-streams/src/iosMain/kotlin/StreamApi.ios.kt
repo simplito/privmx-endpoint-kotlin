@@ -8,7 +8,7 @@ import WebRTCFramework.RTCDefaultVideoEncoderFactory
 import WebRTCFramework.RTCMediaStreamTrack
 import WebRTCFramework.RTCPeerConnectionFactory
 import WebRTCFramework.RTCPeerConnectionFactoryOptions
-import WebRTCFramework.RTCRtpMediaType
+import WebRTCFramework.RTCVideoCodecInfo
 import WebRTCFramework.RTCVideoTrack
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
@@ -300,6 +300,8 @@ private const val TAG = "StreamApi"
 private fun DefaultPeerConnectionFactory(
     options: RTCPeerConnectionFactoryOptions
 ): RTCPeerConnectionFactory = RTCPeerConnectionFactory(
-    RTCDefaultVideoEncoderFactory(),
+    RTCDefaultVideoEncoderFactory().apply {
+        preferredCodec = RTCVideoCodecInfo(kRTCVp8CodecName)
+    },
     RTCDefaultVideoDecoderFactory()
 )
