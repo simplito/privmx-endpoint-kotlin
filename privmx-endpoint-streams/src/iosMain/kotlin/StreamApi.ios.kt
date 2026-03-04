@@ -17,6 +17,7 @@ import com.simplito.java.privmx_endpoint.model.events.eventSelectorTypes.StreamE
 import com.simplito.java.privmx_endpoint.model.events.eventTypes.StreamEventType
 import com.simplito.java.privmx_endpoint.modules.stream.JanusPublisher
 import com.simplito.java.privmx_endpoint.modules.stream.RoomJanusSession
+import com.simplito.java.privmx_endpoint.modules.stream.TrackFactory
 import com.simplito.kotlin.privmx_endpoint.model.stream.Settings
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
@@ -32,7 +33,7 @@ class StreamApi(
     private val api: StreamApiLow,
 ) {
     private val pcManager: PeerConnectionManager
-//    val trackFactory: TrackFactory
+    val trackFactory: TrackFactory
 
     init {
         pcManager = PeerConnectionManager(
@@ -40,7 +41,7 @@ class StreamApi(
         ) { sessionId, rtcConfiguration ->
             this.api.trickle(sessionId, rtcConfiguration)
         }
-//        trackFactory = TrackFactory(pcManager)
+        trackFactory = TrackFactory(pcManager)
     }
 
     fun createStreamRoom(
