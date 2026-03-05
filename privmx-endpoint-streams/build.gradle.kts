@@ -89,6 +89,11 @@ kotlin {
                 implementation(libs.kotlin.test)
             }
         }
+        val androidMain by getting{
+            dependencies {
+                implementation(libs.privmx.endpoint.webrtc.android)
+            }
+        }
     }
 }
 

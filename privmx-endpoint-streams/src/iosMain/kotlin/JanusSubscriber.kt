@@ -40,7 +40,7 @@ class JanusSubscriber(
             }
         }.run {
             peerConnection.setLocalDescription(this){}
-            sdp
+            description!!
         }
     }
 
