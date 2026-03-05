@@ -1,5 +1,5 @@
 [versions]
-publishPrivmxEndpoint = "2.6.0"
+publishPrivmxEndpoint = "2.7.0"
 nativePrivmxEndpoint = "2.7.5"
 pson = "1.0.7"
 apple-endpoint-frameworks="2.7.3"
