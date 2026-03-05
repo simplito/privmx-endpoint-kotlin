@@ -41,6 +41,13 @@ import com.simplito.kotlin.privmx_endpoint.model.UserStatusChange
 import com.simplito.kotlin.privmx_endpoint.model.UserWithAction
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.VerificationRequest
+import com.simplito.kotlin.privmx_endpoint.model.stream.RecordingEncKey
+import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
+import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
 import com.simplito.kotlin.privmx_endpoint.model.events.CollectionChangedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextCustomEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextUserEventData
@@ -54,6 +61,8 @@ import com.simplito.kotlin.privmx_endpoint.model.events.StoreStatsChangedEventDa
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.PublishedStreamData
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackInfo
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue.PsonObject
 
@@ -445,3 +454,79 @@ internal inline fun <reified T : Any> PsonValue<Any>.typedValue(): T {
 @Throws(ClassCastException::class)
 @Suppress("UNCHECKED_CAST")
 internal fun PsonValue<Any>.typedList() = getValue() as List<PsonValue<Any>>
+
+internal fun PsonObject.toTurnCredentials(): TurnCredentials = TurnCredentials(
+    this["urls"]!!.typedValue(),
+    this["username"]!!.typedValue(),
+    this["password"]!!.typedValue(),
+    this["expirationTime"]!!.typedValue()
+)
+
+internal fun PsonObject.toStreamRoom(): StreamRoom = StreamRoom(
+    this["contextId"]!!.typedValue(),
+    this["streamRoomId"]!!.typedValue(),
+    this["createDate"]!!.typedValue(),
+    this["creator"]!!.typedValue(),
+    this["lastModificationDate"]!!.typedValue(),
+    this["lastModifier"]!!.typedValue(),
+    this["users"]!!.typedList().map { it.typedValue() },
+    this["managers"]!!.typedList().map { it.typedValue() },
+    this["version"]!!.typedValue(),
+    this["publicMeta"]!!.typedValue(),
+    this["privateMeta"]!!.typedValue(),
+    (this["policy"] as PsonObject?)?.toContainerPolicy(),
+    //TODO: No status code in room
+    0,//    this["statusCode"]!!.typedValue(),
+    //TODO: No schemaVersion code in room
+0,//    this["schemaVersion"]!!.typedValue(),
+    //TODO: No closed info
+false,//    this["closed"]!!.typedValue(),
+)
+
+internal fun PsonObject.toStreamInfo(): StreamInfo = StreamInfo(
+    this["id"]!!.typedValue(),
+    this["userId"]!!.typedValue(),
+    this["metadata"]?.typedValue(),
+    this["dummy"]?.typedValue(),
+    this["tracks"]!!.typedList().map { (it as PsonObject).toStreamTrackInfo() },
+    this["talking"]?.typedValue(),
+)
+
+internal fun PsonObject.toStreamTrackInfo(): StreamTrackInfo = StreamTrackInfo(
+    this["type"]!!.typedValue(),
+    this["mindex"]!!.typedValue(),
+    this["mid"]!!.typedValue(),
+    this["disabled"]?.typedValue(),
+    this["codec"]?.typedValue(),
+    this["description"]?.typedValue(),
+    this["moderated"]?.typedValue(),
+    this["simulcast"]?.typedValue(),
+    this["talking"]?.typedValue()
+)
+
+internal fun PsonValue.PsonLong.toStreamHandle(): StreamHandle = this.typedValue()
+
+internal fun PsonObject.toPublishedStream(): PublishedStreamData = PublishedStreamData(
+    this["streamRoomId"]!!.typedValue(),
+    (this["stream"]!! as PsonObject).toStreamInfo(),
+    this["userId"]!!.typedValue()
+)
+
+//internal fun PsonObject.toStreamInfo(): StreamInfo = StreamInfo(
+//    this["id"]!!.typedValue(),
+//    this["userId"]!!.typedValue(),
+//    this["metadata"]!!.typedValue(),
+//    this["dummy"]!!.typedValue(),
+//    this["userId"]!!.typedValue(),
+//    this["userId"]!!.typedValue(),
+//)
+
+internal fun PsonObject.toStreamPublishResult(): StreamPublishResult = StreamPublishResult(
+    this["published"]!!.typedValue(),
+    (this["data"] as? PsonObject)?.toPublishedStream()
+)
+
+internal fun PsonObject.toRecordingEncKey(): RecordingEncKey = RecordingEncKey(
+    this["keyId"]!!.typedValue(),
+    this["key"]!!.typedValue()
+)

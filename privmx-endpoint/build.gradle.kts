@@ -59,6 +59,10 @@ kotlin {
             dependsOn(commonMain.get())
         }
 
+        commonMain.dependencies {
+                implementation(libs.kotlinx.coroutines)
+        }
+
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlin.test)
