@@ -8,7 +8,7 @@ import WebRTCFramework.RTCDefaultVideoEncoderFactory
 import WebRTCFramework.RTCMediaStreamTrack
 import WebRTCFramework.RTCPeerConnectionFactory
 import WebRTCFramework.RTCPeerConnectionFactoryOptions
-import WebRTCFramework.RTCVideoCodecInfo
+import WebRTCFramework.RTCRtpMediaType
 import WebRTCFramework.RTCVideoTrack
 import WebRTCFramework.kRTCMediaStreamTrackKindAudio
 import WebRTCFramework.kRTCMediaStreamTrackKindVideo
@@ -303,8 +303,6 @@ private const val TAG = "StreamApi"
 private fun DefaultPeerConnectionFactory(
     options: RTCPeerConnectionFactoryOptions
 ): RTCPeerConnectionFactory = RTCPeerConnectionFactory(
-    RTCDefaultVideoEncoderFactory().apply {
-        preferredCodec = RTCVideoCodecInfo(kRTCVp8CodecName)
-    },
+    RTCDefaultVideoEncoderFactory(),
     RTCDefaultVideoDecoderFactory()
 )

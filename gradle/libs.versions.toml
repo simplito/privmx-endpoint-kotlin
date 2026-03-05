@@ -1,5 +1,5 @@
 [versions]
-publishPrivmxEndpoint = "2.6.0"
+publishPrivmxEndpoint = "2.7.0"
 nativePrivmxEndpoint = "2.7.5"
 kotlinxIoCore = "0.7.0"
 kotlin-serialization = "2.1.20"
