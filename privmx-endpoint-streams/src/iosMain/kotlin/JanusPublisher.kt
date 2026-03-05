@@ -107,7 +107,7 @@ class JanusPublisher(
                     else continuation.resume(Unit)
                 }
             }
-            sdp
+            description!!
         }
     }
 

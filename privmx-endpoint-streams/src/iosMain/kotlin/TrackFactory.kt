@@ -5,6 +5,7 @@ import WebRTCFramework.RTCAudioSource
 import WebRTCFramework.RTCAudioTrack
 import WebRTCFramework.RTCCameraVideoCapturer
 import WebRTCFramework.RTCMediaConstraints
+import WebRTCFramework.RTCMediaStreamTrack
 import WebRTCFramework.RTCPeerConnectionFactory
 import WebRTCFramework.RTCVideoSource
 import WebRTCFramework.RTCVideoTrack
@@ -43,5 +44,6 @@ class TrackFactory internal constructor(pcManager: PeerConnectionManager) {
         id: String,
     ): RTCAudioTrack {
         return factory.audioTrackWithSource(createAudioSource(), trackId = id)
+        RTCMediaStreamTrack
     }
 }
