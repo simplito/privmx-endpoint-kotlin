@@ -4,6 +4,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlinPluginSerialization)
     id("maven-publish")
     id("signing")
 }
@@ -13,8 +14,62 @@ version = libs.versions.publishPrivmxEndpoint.get()
 
 kotlin {
 
-    iosSimulatorArm64()
-    iosArm64()
+    iosSimulatorArm64().let {
+        it.compilations.getByName("main") {
+            val webrtcInterop by cinterops.creating {
+                definitionFile.set(project.file("src/iosMain/cinterop/WebRTCFramework.def"))
+
+//                // Tell cinterop where to look for the framework headers
+
+                compilerOpts(
+                    "-framework",
+                    "WebRTC",
+                    "-F${project.projectDir.absolutePath}/src/iosMain/cinterop/webrtc/WebRTC.xcframework/ios-arm64-simulator"
+                )
+                linkerOpts(
+                    "-all_load",
+                    "-framework",
+                    "WebRTC",
+                    "-F${project.projectDir.absolutePath}/src/iosMain/cinterop/webrtc/WebRTC.xcframework/ios-arm64-simulator"
+                )
+            }
+        }
+        it.binaries.all {
+            linkerOpts(
+                "-all_load",
+                "-framework",
+                "WebRTC",
+                "-F${project.projectDir.absolutePath}/src/iosMain/cinterop/webrtc/WebRTC.xcframework/ios-arm64-simulator"
+            )
+        }
+    }
+    iosArm64().let {
+        it.compilations.getByName("main") {
+            val webrtcInterop by cinterops.creating {
+                definitionFile.set(project.file("src/iosMain/cinterop/WebRTCFramework.def"))
+
+//                // Tell cinterop where to look for the framework headers
+
+                compilerOpts(
+                    "-framework",
+                    "WebRTC",
+                    "-F${project.projectDir.absolutePath}/src/iosMain/cinterop/webrtc/WebRTC.xcframework/ios-arm64/"
+                )
+                linkerOpts(
+                    "-framework",
+                    "WebRTC",
+                    "-F${project.projectDir.absolutePath.also { println("abPath $it") }}/src/iosMain/cinterop/webrtc/WebRTC.xcframework/ios-arm64/"
+                )
+            }
+        }
+        it.binaries.all {
+            linkerOpts(
+                "-framework",
+                "WebRTC",
+                "-F${project.projectDir.absolutePath.also { println("abPath $it") }}/src/iosMain/cinterop/webrtc/WebRTC.xcframework/ios-arm64/"
+            )
+        }
+    }
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
@@ -25,7 +80,8 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(project(":privmx-endpoint"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
+                implementation(libs.kotlinx.coroutines)
+                implementation(libs.kotlinx.serialization.json)
             }
         }
         val commonTest by getting {
@@ -65,8 +121,9 @@ signing {
     sign(publishing.publications)
 }
 
-android{
+android {
+    namespace = "com.simplito.kotlin.privmx_endpoint_streams_android"
     //TODO: Add minimum sdk version
-    compileSdk=36
+    compileSdk = 36
 }
 
