@@ -40,7 +40,7 @@ actual class StreamApiLow
 @Throws(IllegalStateException::class)
 actual constructor(
     connection: Connection,
-    eventApi: EventApi?,
+    eventApi: EventApi,
     streamEncryptionMode: StreamEncryptionMode
 ) : AutoCloseable {
 
