@@ -52,7 +52,7 @@ actual class StreamApiLow
 @Throws(IllegalStateException::class)
 actual constructor(
     connection: Connection,
-    eventApi: EventApi?,
+    eventApi: EventApi,
     streamEncryptionMode: StreamEncryptionMode
 ) : AutoCloseable {
     private val _nativeStreamApiLow = nativeHeap.allocPointerTo<cnames.structs.StreamApiLow>()
@@ -62,13 +62,9 @@ actual constructor(
             ?: throw IllegalStateException("StreamApiLow has been closed.")
 
     init {
-        val tmpEventApi = if (eventApi == null) {
-            EventApi(connection)
-        } else null
-
         privmx_endpoint_newStreamApiLow(
             connection.getConnectionPtr(),
-            (eventApi ?: tmpEventApi)?.getEventPtr(),
+            eventApi.getEventPtr(),
             _nativeStreamApiLow.ptr
         )
 
@@ -82,7 +78,6 @@ actual constructor(
             } finally {
                 pson_free_value(args)
                 pson_free_result(pson_result.value)
-                tmpEventApi?.close()
             }
         }
     }
