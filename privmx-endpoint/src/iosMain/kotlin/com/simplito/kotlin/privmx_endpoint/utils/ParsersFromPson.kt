@@ -61,8 +61,8 @@ import com.simplito.kotlin.privmx_endpoint.model.events.StoreStatsChangedEventDa
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
-import com.simplito.kotlin.privmx_endpoint.model.stream.PublishedStreamData
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackInfo
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.PublishedStreamData
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue.PsonObject
 
@@ -488,8 +488,7 @@ internal fun PsonObject.toStreamInfo(): StreamInfo = StreamInfo(
     this["userId"]!!.typedValue(),
     this["metadata"]?.typedValue(),
     this["dummy"]?.typedValue(),
-    this["tracks"]!!.typedList().map { (it as PsonObject).toStreamTrackInfo() },
-    this["talking"]?.typedValue(),
+    this["tracks"]!!.typedList().map { (it as PsonObject).toStreamTrackInfo() }
 )
 
 internal fun PsonObject.toStreamTrackInfo(): StreamTrackInfo = StreamTrackInfo(
