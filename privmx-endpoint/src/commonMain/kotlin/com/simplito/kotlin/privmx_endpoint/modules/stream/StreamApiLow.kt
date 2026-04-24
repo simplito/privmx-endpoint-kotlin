@@ -16,12 +16,9 @@ import com.simplito.java.privmx_endpoint.model.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
-import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.EventSelectorType
-import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.EventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
-import com.simplito.kotlin.privmx_endpoint.model.stream.Settings
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamEncryptionMode
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
@@ -249,7 +246,6 @@ constructor(
      *
      * @param streamRoomId ID of the room where streams are
      * @param subscriptions list of subscriptions
-     * @param options additional settings
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
@@ -266,7 +262,6 @@ constructor(
      * @param streamRoomId ID of the room where streams are
      * @param subscriptionsToAdd list of subscriptions to add
      * @param subscriptionsToRemove list of subscriptions to remove
-     * @param options additional settings
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
