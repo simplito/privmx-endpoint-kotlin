@@ -5,6 +5,5 @@ data class StreamInfo(
     val userId: String,
     val metadata: String?,
     val dummy: Boolean?,
-    val tracks: List<StreamTrackInfo>,
-    val talking: Boolean?,
+    val tracks: List<StreamTrackInfo>
 )
