@@ -13,6 +13,7 @@ package com.simplito.kotlin.privmx_endpoint.modules.stream
 
 import com.simplito.java.privmx_endpoint.model.events.eventSelectorTypes.StreamEventSelectorType
 import com.simplito.java.privmx_endpoint.model.events.eventTypes.StreamEventType
+import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
@@ -43,6 +44,18 @@ actual constructor(
     eventApi: EventApi,
     streamEncryptionMode: StreamEncryptionMode
 ) : AutoCloseable {
+
+    companion object {
+        init {
+            LibLoader.loadPrivmxLibraries()
+        }
+    }
+
+    private var api: Long? = null
+
+    init {
+        api = init(connection, eventApi, streamEncryptionMode)
+    }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun getTurnCredentials(): List<TurnCredentials>
@@ -149,9 +162,20 @@ actual constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun keyManagement(streamRoomId: String, disable: Boolean)
 
+    @Throws(IllegalStateException::class)
+    private external fun init(
+        connection: Connection,
+        eventApi: EventApi,
+        streamEncryptionMode: StreamEncryptionMode
+    ): Long?
+
+    @Throws(IllegalStateException::class)
+    private external fun deinit()
+
     /**
      * Frees memory.
      */
     actual override fun close() {
+        deinit()
     }
 }
