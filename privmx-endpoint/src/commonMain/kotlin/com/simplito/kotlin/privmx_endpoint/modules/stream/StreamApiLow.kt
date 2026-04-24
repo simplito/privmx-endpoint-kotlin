@@ -40,7 +40,7 @@ expect class StreamApiLow
 @Throws(IllegalStateException::class)
 constructor(
     connection: Connection,
-    eventApi: EventApi? = null,
+    eventApi: EventApi,
     streamEncryptionMode: StreamEncryptionMode = StreamEncryptionMode.SINGLE_KEY
 ) : AutoCloseable {
 
