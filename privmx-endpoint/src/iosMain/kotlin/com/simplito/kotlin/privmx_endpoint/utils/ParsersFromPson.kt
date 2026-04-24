@@ -499,8 +499,7 @@ internal fun PsonObject.toStreamTrackInfo(): StreamTrackInfo = StreamTrackInfo(
     this["codec"]?.typedValue(),
     this["description"]?.typedValue(),
     this["moderated"]?.typedValue(),
-    this["simulcast"]?.typedValue(),
-    this["talking"]?.typedValue()
+    this["simulcast"]?.typedValue()
 )
 
 internal fun PsonValue.PsonLong.toStreamHandle(): StreamHandle = this.typedValue()

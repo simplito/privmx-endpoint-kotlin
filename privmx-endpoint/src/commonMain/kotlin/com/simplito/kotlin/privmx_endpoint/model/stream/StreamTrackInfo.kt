@@ -11,6 +11,5 @@ data class StreamTrackInfo(
     val codec: String?,
     val description: String?,
     val moderated: Boolean?,
-    val simulcast: Boolean?,
-    val talking: Boolean?,
+    val simulcast: Boolean?
 )
