@@ -1689,7 +1689,6 @@ namespace privmx {
                     "Ljava/lang/String;"        // description      [optional]
                     "Ljava/lang/Boolean;"       // moderated        [optional]
                     "Ljava/lang/Boolean;"       // simulcast        [optional]
-                    "Ljava/lang/Boolean;"       // talking          [optional]
                     ")V"
             );
 
@@ -1698,7 +1697,6 @@ namespace privmx {
             jobject description = nullptr;
             jobject moderated = nullptr;
             jobject simulcast = nullptr;
-            jobject talking = nullptr;
 
             if (streamTrackInfo_c.disabled.has_value()) {
                 disabled = ctx.bool2jBoolean(streamTrackInfo_c.disabled.value());
@@ -1720,10 +1718,6 @@ namespace privmx {
                 simulcast = ctx.bool2jBoolean(streamTrackInfo_c.simulcast.value());
             }
 
-            if (streamTrackInfo_c.talking.has_value()) {
-                talking = ctx.bool2jBoolean(streamTrackInfo_c.talking.value());
-            }
-
             return ctx->NewObject(
                     itemCls,
                     initItemMID,
@@ -1734,8 +1728,7 @@ namespace privmx {
                     codec,
                     description,
                     moderated,
-                    simulcast,
-                    talking
+                    simulcast
             );
         }
 
@@ -1764,13 +1757,11 @@ namespace privmx {
                     "Ljava/util/List;"          // tracks
                     "Ljava/lang/String;"        // metadata
                     "Ljava/lang/Boolean;"       // dummy
-                    "Ljava/lang/Boolean;"       // talking
                     ")V"
             );
 
             jobject metadata = nullptr;
             jobject dummy = nullptr;
-            jobject talking = nullptr;
 
             if (streamInfo_c.metadata.has_value()) {
                 metadata = ctx->NewStringUTF(streamInfo_c.metadata.value().c_str());
@@ -1780,9 +1771,6 @@ namespace privmx {
                 dummy = ctx.bool2jBoolean(streamInfo_c.dummy.value());
             }
 
-            if (streamInfo_c.talking.has_value()) {
-                talking = ctx.bool2jBoolean(streamInfo_c.talking.value());
-            }
 
             jobject tracks = ctx->NewObject(arrayCls, initArrayMID);
             for (auto &track: streamInfo_c.tracks) {
@@ -1802,8 +1790,7 @@ namespace privmx {
                     ctx->NewStringUTF(streamInfo_c.userId.c_str()),
                     tracks,
                     metadata,
-                    dummy,
-                    talking
+                    dummy
             );
 
         }
