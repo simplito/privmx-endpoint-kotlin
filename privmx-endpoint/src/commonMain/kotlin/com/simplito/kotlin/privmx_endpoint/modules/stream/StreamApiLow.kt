@@ -257,8 +257,7 @@ constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun subscribeToRemoteStreams(
         streamRoomId: String,
-        subscriptions: List<StreamSubscription>,
-        options: Settings
+        subscriptions: List<StreamSubscription>
     )
 
     /**
@@ -276,8 +275,7 @@ constructor(
     fun modifyRemoteStreamsSubscriptions(
         streamRoomId: String,
         subscriptionsToAdd: List<StreamSubscription>,
-        subscriptionsToRemove: List<StreamSubscription>,
-        options: Settings
+        subscriptionsToRemove: List<StreamSubscription>
     )
 
     /**

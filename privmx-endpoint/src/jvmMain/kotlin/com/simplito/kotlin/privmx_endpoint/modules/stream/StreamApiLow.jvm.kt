@@ -16,13 +16,9 @@ import com.simplito.java.privmx_endpoint.model.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
-import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.EventSelectorType
-import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.EventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
-import com.simplito.kotlin.privmx_endpoint.model.stream.RecordingEncKey
 import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
-import com.simplito.kotlin.privmx_endpoint.model.stream.Settings
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamEncryptionMode
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
@@ -141,8 +137,7 @@ actual constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun subscribeToRemoteStreams(
         streamRoomId: String,
-        subscriptions: List<StreamSubscription>,
-        options: Settings
+        subscriptions: List<StreamSubscription>
     ) {
         throw NotImplementedError("StreamApiLow is not implemented for JVM.")
     }
@@ -151,8 +146,7 @@ actual constructor(
     actual fun modifyRemoteStreamsSubscriptions(
         streamRoomId: String,
         subscriptionsToAdd: List<StreamSubscription>,
-        subscriptionsToRemove: List<StreamSubscription>,
-        options: Settings
+        subscriptionsToRemove: List<StreamSubscription>
     ) {
         throw NotImplementedError("StreamApiLow is not implemented for JVM.")
     }

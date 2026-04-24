@@ -11,7 +11,6 @@
 
 package com.simplito.kotlin.privmx_endpoint.modules.stream
 
-import cnames.structs.privmx_endpoint_stream_ProxyWebRTC
 import cnames.structs.pson_value
 import com.simplito.java.privmx_endpoint.model.events.eventSelectorTypes.StreamEventSelectorType
 import com.simplito.java.privmx_endpoint.model.events.eventTypes.StreamEventType
@@ -40,7 +39,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import libprivmxendpoint.*
-import kotlin.text.clear
 
 /**
  * Low-level Stream API for PrivMX Bridge.
@@ -461,7 +459,6 @@ actual constructor(
      *
      * @param streamRoomId ID of the room where streams are
      * @param subscriptions list of subscriptions
-     * @param options additional settings
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
@@ -470,13 +467,11 @@ actual constructor(
     actual fun subscribeToRemoteStreams(
         streamRoomId: String,
         subscriptions: List<StreamSubscription>,
-        options: Settings
     ) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             streamRoomId.pson,
-            subscriptions.map { it.pson }.pson,
-            options.pson
+            subscriptions.map { it.pson }.pson
         )
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 16, args, pson_result.ptr)
@@ -494,7 +489,6 @@ actual constructor(
      * @param streamRoomId ID of the room where streams are
      * @param subscriptionsToAdd list of subscriptions to add
      * @param subscriptionsToRemove list of subscriptions to remove
-     * @param options additional settings
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
@@ -503,15 +497,13 @@ actual constructor(
     actual fun modifyRemoteStreamsSubscriptions(
         streamRoomId: String,
         subscriptionsToAdd: List<StreamSubscription>,
-        subscriptionsToRemove: List<StreamSubscription>,
-        options: Settings
+        subscriptionsToRemove: List<StreamSubscription>
     ) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             streamRoomId.pson,
             subscriptionsToAdd.map { it.pson }.pson,
-            subscriptionsToRemove.map { it.pson }.pson,
-            options.pson
+            subscriptionsToRemove.map { it.pson }.pson
         )
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 17, args, pson_result.ptr)
