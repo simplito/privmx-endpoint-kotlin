@@ -13,6 +13,7 @@ package com.simplito.kotlin.privmx_endpoint.modules.stream
 
 import com.simplito.java.privmx_endpoint.model.events.eventSelectorTypes.StreamEventSelectorType
 import com.simplito.java.privmx_endpoint.model.events.eventTypes.StreamEventType
+import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
@@ -28,6 +29,7 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
 import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.modules.event.EventApi
+import kotlin.jvm.JvmOverloads
 
 /**
  * Low-level Stream API for PrivMX Bridge.
@@ -40,29 +42,39 @@ actual class StreamApiLow
 @Throws(IllegalStateException::class)
 actual constructor(
     connection: Connection,
-    eventApi: EventApi?,
+    eventApi: EventApi,
     streamEncryptionMode: StreamEncryptionMode
 ) : AutoCloseable {
 
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun getTurnCredentials(): List<TurnCredentials> {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
+    companion object {
+        init {
+            LibLoader.loadPrivmxLibraries()
+        }
+    }
+
+    private var api: Long? = null
+
+    init {
+        api = init(connection, eventApi, streamEncryptionMode)
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun createStreamRoom(
+    actual external fun getTurnCredentials(): List<TurnCredentials>
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
+    actual external fun createStreamRoom(
         contextId: String,
         users: List<UserWithPubKey>,
         managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         policies: ContainerPolicy?
-    ): String {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    ): String
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun updateStreamRoom(
+    @JvmOverloads
+    actual external fun updateStreamRoom(
         streamRoomId: String,
         users: List<UserWithPubKey>,
         managers: List<UserWithPubKey>,
@@ -72,12 +84,11 @@ actual constructor(
         force: Boolean,
         forceGenerateNewKey: Boolean,
         policies: ContainerPolicy?
-    ) {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    )
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun listStreamRooms(
+    @JvmOverloads
+    actual external fun listStreamRooms(
         contextId: String,
         skip: Long,
         limit: Long,
@@ -85,117 +96,90 @@ actual constructor(
         lastId: String?,
         queryAsJson: String?,
         sortBy: String?
-    ): PagingList<StreamRoom> {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    ): PagingList<StreamRoom>
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun getStreamRoom(streamRoomId: String): StreamRoom {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    actual external fun getStreamRoom(streamRoomId: String): StreamRoom
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun deleteStreamRoom(streamRoomId: String) {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    actual external fun deleteStreamRoom(streamRoomId: String)
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun listStreams(streamRoomId: String): List<StreamInfo> {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    actual external fun listStreams(streamRoomId: String): List<StreamInfo>
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun joinStreamRoom(streamRoomId: String, webRtcInterface: WebRtcInterface) {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    actual external fun joinStreamRoom(streamRoomId: String, webRtcInterface: WebRtcInterface)
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun leaveStreamRoom(streamRoomId: String) {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    actual external fun leaveStreamRoom(streamRoomId: String)
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun createStream(streamRoomId: String): StreamHandle {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    actual external fun createStream(streamRoomId: String): StreamHandle
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun publishStream(streamHandle: StreamHandle): StreamPublishResult {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    actual external fun publishStream(streamHandle: StreamHandle): StreamPublishResult
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun updateStream(streamHandle: StreamHandle): StreamPublishResult {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    actual external fun updateStream(streamHandle: StreamHandle): StreamPublishResult
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun unpublishStream(streamHandle: StreamHandle) {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    actual external fun unpublishStream(streamHandle: StreamHandle)
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun subscribeToRemoteStreams(
+    actual external fun subscribeToRemoteStreams(
         streamRoomId: String,
         subscriptions: List<StreamSubscription>
-    ) {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    )
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun modifyRemoteStreamsSubscriptions(
+    actual external fun modifyRemoteStreamsSubscriptions(
         streamRoomId: String,
         subscriptionsToAdd: List<StreamSubscription>,
         subscriptionsToRemove: List<StreamSubscription>
-    ) {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    )
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun unsubscribeFromRemoteStreams(
+    actual external fun unsubscribeFromRemoteStreams(
         streamRoomId: String,
         subscriptionsToRemove: List<StreamSubscription>
-    ) {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    )
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun trickle(sessionId: Long, candidateAsJson: String) {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    actual external fun trickle(sessionId: Long, candidateAsJson: String)
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun acceptOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    actual external fun acceptOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel)
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun subscribeFor(subscriptionQueries: List<String>): List<String> {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    actual external fun subscribeFor(subscriptionQueries: List<String>): List<String>
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun unsubscribeFrom(subscriptionIds: List<String>) {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    actual external fun unsubscribeFrom(subscriptionIds: List<String>)
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun buildSubscriptionQuery(
+    actual external fun buildSubscriptionQuery(
         eventType: StreamEventType,
         selectorType: StreamEventSelectorType,
         selectorId: String
-    ): String {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    ): String
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun keyManagement(streamRoomId: String, disable: Boolean) {
-        throw NotImplementedError("StreamApiLow is not implemented for JVM.")
-    }
+    actual external fun keyManagement(streamRoomId: String, disable: Boolean)
+
+    @Throws(IllegalStateException::class)
+    private external fun init(
+        connection: Connection,
+        eventApi: EventApi,
+        streamEncryptionMode: StreamEncryptionMode
+    ): Long?
+
+    @Throws(IllegalStateException::class)
+    private external fun deinit()
 
     /**
      * Frees memory.
      */
     actual override fun close() {
+        deinit()
     }
 }
