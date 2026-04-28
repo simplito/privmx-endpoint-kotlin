@@ -1,8 +1,5 @@
 package com.simplito.kotlin.privmx_endpoint.model.stream
 
-/**
- * kotlin equivalent of privmx::endpoint::stream::TurnCredentials
- */
  data class TurnCredentials(
      val url: String,
      val username: String,

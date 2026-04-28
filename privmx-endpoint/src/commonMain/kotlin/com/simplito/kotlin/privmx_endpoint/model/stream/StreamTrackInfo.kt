@@ -1,8 +1,5 @@
 package com.simplito.kotlin.privmx_endpoint.model.stream
 
-/**
- * kotlin equivalent of privmx::endpoint::stream::StreamTrackInfo
- */
 data class StreamTrackInfo(
     val type: String,
     val mindex: Long,
