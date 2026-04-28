@@ -70,11 +70,11 @@ parseContainerPolicyWithoutItem(JniContextUtils &ctx, jobject containerPolicyWit
     jfieldID delete_ = ctx->GetFieldID(policyClass, "delete", "Ljava/lang/String;");
     jfieldID updatePolicy = ctx->GetFieldID(policyClass, "updatePolicy", "Ljava/lang/String;");
     jfieldID updaterCanBeRemovedFromManagers = ctx->GetFieldID(policyClass,
-                                                               "updaterCanBeRemovedFromManagers",
-                                                               "Ljava/lang/String;");
+            "updaterCanBeRemovedFromManagers",
+            "Ljava/lang/String;");
     jfieldID ownerCanBeRemovedFromManagers = ctx->GetFieldID(policyClass,
-                                                             "ownerCanBeRemovedFromManagers",
-                                                             "Ljava/lang/String;");
+            "ownerCanBeRemovedFromManagers",
+            "Ljava/lang/String;");
     jstring value;
     if ((value = (jstring) ctx->GetObjectField(containerPolicyWithoutItem, get)) != NULL) {
         result.get = ctx.jString2string(value);
@@ -89,11 +89,11 @@ parseContainerPolicyWithoutItem(JniContextUtils &ctx, jobject containerPolicyWit
         result.updatePolicy = ctx.jString2string(value);
     }
     if ((value = (jstring) ctx->GetObjectField(containerPolicyWithoutItem,
-                                               updaterCanBeRemovedFromManagers)) != NULL) {
+            updaterCanBeRemovedFromManagers)) != NULL) {
         result.updaterCanBeRemovedFromManagers = ctx.jString2string(value);
     }
     if ((value = (jstring) ctx->GetObjectField(containerPolicyWithoutItem,
-                                               ownerCanBeRemovedFromManagers)) != NULL) {
+            ownerCanBeRemovedFromManagers)) != NULL) {
         result.ownerCanBeRemovedFromManagers = ctx.jString2string(value);
     }
     return result;
@@ -110,15 +110,15 @@ parseContainerPolicy(JniContextUtils &ctx, jobject containerPolicy) {
     jfieldID delete_ = ctx->GetFieldID(policyClass, "delete", "Ljava/lang/String;");
     jfieldID updatePolicy = ctx->GetFieldID(policyClass, "updatePolicy", "Ljava/lang/String;");
     jfieldID updaterCanBeRemovedFromManagers = ctx->GetFieldID(policyClass,
-                                                               "updaterCanBeRemovedFromManagers",
-                                                               "Ljava/lang/String;");
+            "updaterCanBeRemovedFromManagers",
+            "Ljava/lang/String;");
     jfieldID ownerCanBeRemovedFromManagers = ctx->GetFieldID(policyClass,
-                                                             "ownerCanBeRemovedFromManagers",
-                                                             "Ljava/lang/String;");
+            "ownerCanBeRemovedFromManagers",
+            "Ljava/lang/String;");
 
     jfieldID item = ctx->GetFieldID(policyClass,
-                                    "item",
-                                    "Lcom/simplito/kotlin/privmx_endpoint/model/ItemPolicy;");
+            "item",
+            "Lcom/simplito/kotlin/privmx_endpoint/model/ItemPolicy;");
     jstring value;
     if ((value = (jstring) ctx->GetObjectField(containerPolicy, get)) != NULL) {
         result.get = ctx.jString2string(value);
@@ -133,11 +133,11 @@ parseContainerPolicy(JniContextUtils &ctx, jobject containerPolicy) {
         result.updatePolicy = ctx.jString2string(value);
     }
     if ((value = (jstring) ctx->GetObjectField(containerPolicy,
-                                               updaterCanBeRemovedFromManagers)) != NULL) {
+            updaterCanBeRemovedFromManagers)) != NULL) {
         result.updaterCanBeRemovedFromManagers = ctx.jString2string(value);
     }
     if ((value = (jstring) ctx->GetObjectField(containerPolicy,
-                                               ownerCanBeRemovedFromManagers)) != NULL) {
+            ownerCanBeRemovedFromManagers)) != NULL) {
         result.ownerCanBeRemovedFromManagers = ctx.jString2string(value);
     }
     result.item = parseItemPolicy(ctx, ctx->GetObjectField(containerPolicy, item));
@@ -186,7 +186,7 @@ privmx::endpoint::inbox::FilesConfig parseFilesConfig(JniContextUtils &ctx, jobj
     jfieldID maxCountFID = ctx->GetFieldID(filesConfigCls, "maxCount", "Ljava/lang/Long;");
     jfieldID maxFileSizeFID = ctx->GetFieldID(filesConfigCls, "maxFileSize", "Ljava/lang/Long;");
     jfieldID maxWholeUploadSizeFID = ctx->GetFieldID(filesConfigCls, "maxWholeUploadSize",
-                                                     "Ljava/lang/Long;");
+            "Ljava/lang/Long;");
     result.minCount = ctx.getObject(ctx->GetObjectField(filesConfig, minCountFID)).getLongValue();
     result.maxCount = ctx.getObject(ctx->GetObjectField(filesConfig, maxCountFID)).getLongValue();
     result.maxFileSize = ctx.getObject(
@@ -196,50 +196,66 @@ privmx::endpoint::inbox::FilesConfig parseFilesConfig(JniContextUtils &ctx, jobj
     return result;
 }
 
-jobject initEvent(
-        JniContextUtils &ctx,
-        std::string type,
-        std::string channel,
-        int64_t connectionId,
-        std::vector <std::string> &subscriptions,
-        int64_t timestamp,
-        jobject data_j
-) {
+jobject initEvent(JniContextUtils &ctx, std::string type, std::string channel, int64_t connectionId,
+        std::vector<std::string> &subscriptions, int64_t timestamp, jobject data_j) {
     if (type.empty()) return nullptr;
     jclass eventCls = ctx->FindClass("com/simplito/kotlin/privmx_endpoint/model/Event");
-    jclass arrayCls = ctx->FindClass("java/util/ArrayList");
-    jmethodID initArrayMID = ctx->GetMethodID(arrayCls, "<init>", "()V");
-    jmethodID addToArrayMID = ctx->GetMethodID(arrayCls, "add", "(Ljava/lang/Object;)Z");
+    jmethodID eventInitMID = ctx->GetMethodID(eventCls, "<init>", "()V");
+    jfieldID eventTypeFieldID = ctx->GetFieldID(eventCls, "type", "Ljava/lang/String;");
+    jfieldID eventDataFieldID = ctx->GetFieldID(eventCls, "data", "Ljava/lang/Object;");
+    jfieldID eventConnectionIdFieldID = ctx->GetFieldID(eventCls, "connectionId",
+            "Ljava/lang/Long;");
+    jfieldID eventChannelFieldID = ctx->GetFieldID(eventCls, "channel", "Ljava/lang/String;");
 
-    jobject subs = ctx->NewObject(arrayCls, initArrayMID);
-    for (const auto &subscription: subscriptions) {
-        jstring jSub = ctx->NewStringUTF(subscription.c_str());
-        ctx->CallBooleanMethod(subs, addToArrayMID, jSub);
+    jfieldID eventSubscriptionsFieldID = ctx->GetFieldID(eventCls, "subscriptions",
+            "Ljava/util/List;");
+    jfieldID eventTimestampFieldID = ctx->GetFieldID(eventCls, "timestamp",
+            "Ljava/lang/Long;");
+
+    jclass arrayListCls = ctx->FindClass("java/util/ArrayList");
+    jmethodID arrayListInit = ctx->GetMethodID(arrayListCls, "<init>", "()V");
+    jmethodID arrayListAdd = ctx->GetMethodID(arrayListCls, "add", "(Ljava/lang/Object;)Z");
+
+    jobject subscriptionsList = ctx->NewObject(arrayListCls, arrayListInit);
+
+    for (const std::string &sub: subscriptions) {
+        jstring jSub = ctx->NewStringUTF(sub.c_str());
+        ctx->CallBooleanMethod(subscriptionsList, arrayListAdd, jSub);
     }
 
-    jmethodID eventInitMID = ctx->GetMethodID(
-            eventCls,
-            "<init>",
-            "("
-            "Ljava/lang/String;"   // type
-            "Ljava/lang/String;"   // channel
-            "Ljava/lang/Long;"     // connectionId
-            "Ljava/util/List;"     // subscriptions
-            "Ljava/lang/Long;"     // timestamp
-            "Ljava/lang/Object;"   // data
-            ")V"
+    jobject event_j = ctx->NewObject(eventCls, eventInitMID);
+    ctx->SetObjectField(
+            event_j,
+            eventTypeFieldID,
+            ctx->NewStringUTF(type.c_str())
     );
-
-    return ctx->NewObject(
-            eventCls,
-            eventInitMID,
-            ctx->NewStringUTF(type.c_str()),
-            ctx->NewStringUTF(channel.c_str()),
-            ctx.long2jLong(connectionId),
-            subs,
-            ctx.long2jLong(timestamp),
+    ctx->SetObjectField(
+            event_j,
+            eventDataFieldID,
             data_j
     );
+    ctx->SetObjectField(
+            event_j,
+            eventConnectionIdFieldID,
+            ctx.long2jLong(connectionId)
+    );
+    ctx->SetObjectField(
+            event_j,
+            eventChannelFieldID,
+            ctx->NewStringUTF(channel.c_str())
+    );
+    ctx->SetObjectField(
+            event_j,
+            eventSubscriptionsFieldID,
+            subscriptionsList
+    );
+    ctx->SetObjectField(
+            event_j,
+            eventTimestampFieldID,
+            ctx.long2jLong(timestamp)
+    );
+
+    return event_j;
 }
 
 jobject
@@ -595,7 +611,7 @@ parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core::Event> 
                     event_cast.timestamp,
                     privmx::wrapper::kvdbStatsEventData2Java(ctx, event_cast.data)
             );
-        }else if (kvdb::Events::isKvdbNewEntryEvent(event)) {
+        } else if (kvdb::Events::isKvdbNewEntryEvent(event)) {
             privmx::endpoint::kvdb::KvdbNewEntryEvent event_cast = kvdb::Events::extractKvdbNewEntryEvent(
                     event);
             return initEvent(
@@ -631,6 +647,135 @@ parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core::Event> 
                     event_cast.timestamp,
                     privmx::wrapper::kvdbDeletedEntryEventData2Java(ctx, event_cast.data)
             );
+        } else if (stream::Events::isStreamRoomCreatedEvent(event)) {
+            privmx::endpoint::stream::StreamRoomCreatedEvent event_cast = stream::Events::extractStreamRoomCreatedEvent(
+                    event);
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::streamRoom2Java(ctx, event_cast.data)
+            );
+        } else if (stream::Events::isStreamRoomUpdatedEvent(event)) {
+            privmx::endpoint::stream::StreamRoomUpdatedEvent event_cast =
+                    stream::Events::extractStreamRoomUpdatedEvent(event);
+
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::streamRoom2Java(ctx, event_cast.data)
+            );
+        } else if (stream::Events::isStreamRoomDeletedEvent(event)) {
+            privmx::endpoint::stream::StreamRoomDeletedEvent event_cast =
+                    stream::Events::extractStreamRoomDeletedEvent(event);
+
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::streamRoomDeletedEventData2Java(ctx, event_cast.data)
+            );
+        } else if (stream::Events::isStreamPublishedEvent(event)) {
+            privmx::endpoint::stream::StreamPublishedEvent event_cast =
+                    stream::Events::extractStreamPublishedEvent(event);
+
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::streamPublishedEventData2Java(ctx, event_cast.data)
+            );
+        } else if (stream::Events::isStreamUpdatedEvent(event)) {
+            privmx::endpoint::stream::StreamUpdatedEvent event_cast =
+                    stream::Events::extractStreamUpdatedEvent(event);
+
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::streamUpdatedEventData2Java(ctx, event_cast.data)
+            );
+        } else if (stream::Events::isStreamJoinedEvent(event)) {
+            privmx::endpoint::stream::StreamJoinedEvent event_cast =
+                    stream::Events::extractStreamJoinedEvent(event);
+
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::streamEventData2Java(ctx, event_cast.data)
+            );
+        } else if (stream::Events::isStreamUnpublishedEvent(event)) {
+            privmx::endpoint::stream::StreamUnpublishedEvent event_cast =
+                    stream::Events::extractStreamUnpublishedEvent(event);
+
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::streamUnpublishedEventData2Java(ctx, event_cast.data)
+            );
+        } else if (stream::Events::isStreamLeftEvent(event)) {
+            privmx::endpoint::stream::StreamLeftEvent event_cast =
+                    stream::Events::extractStreamLeftEvent(event);
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::streamLeftEventData2Java(ctx, event_cast.data)
+            );
+        }
+        else if (stream::Events::isRemoteStreamsChangedEvent(event)) {
+            privmx::endpoint::stream::RemoteStreamsChangedEvent event_cast =
+                    stream::Events::extractRemoteStreamsChangedEvent(event);
+
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::newStreams2Java(ctx, event_cast.data)
+            );
+        } else if (stream::Events::isStreamsUpdatedEvent(event)) {
+            privmx::endpoint::stream::StreamsUpdatedEvent event_cast =
+                    stream::Events::extractStreamsUpdatedEvent(event);
+
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::streamsUpdated2Java(ctx, event_cast.data)
+            );
         } else {
             return initEvent(
                     ctx,
@@ -648,8 +793,10 @@ parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core::Event> 
     return nullptr;
 }
 
-privmx::endpoint::core::PagingQuery
-parsePagingQuery(JniContextUtils &ctx, jobject pagingQuery) {
+privmx::endpoint::core::PagingQuery parsePagingQuery(
+        JniContextUtils &ctx,
+        jobject pagingQuery
+) {
     auto result = privmx::endpoint::core::PagingQuery();
     if (pagingQuery == nullptr) return result;
     jclass queryClass = ctx->GetObjectClass(pagingQuery);
