@@ -14,7 +14,7 @@ data class StreamRoom(
     val version: Long,
     val publicMeta: ByteArray,
     val privateMeta: ByteArray,
-    val policy: ContainerPolicy?,
+    val policy: ContainerPolicy,
     val statusCode: Long,
     val schemaVersion: Long,
     val closed: Boolean,
@@ -59,7 +59,7 @@ data class StreamRoom(
         result = 31 * result + managers.hashCode()
         result = 31 * result + publicMeta.contentHashCode()
         result = 31 * result + privateMeta.contentHashCode()
-        result = 31 * result + (policy?.hashCode() ?: 0)
+        result = 31 * result + (policy.hashCode())
         return result
     }
 }
