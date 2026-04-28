@@ -13,10 +13,12 @@
 #include "../utils.hpp"
 #include "Connection.h"
 #include "../parser.h"
+#include "EventApi.h"
 
 using namespace privmx::endpoint;
 
-event::EventApi *getEventApi(JniContextUtils &ctx, jobject thiz) {
+event::EventApi *getEventApi(JNIEnv *env, jobject thiz) {
+    JniContextUtils ctx(env);
     jclass cls = ctx->GetObjectClass(thiz);
     jfieldID apiFID = ctx->GetFieldID(cls, "api", "Ljava/lang/Long;");
     jobject apiLong = ctx->GetObjectField(thiz, apiFID);
@@ -59,7 +61,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_event_EventApi_deinit(
     try {
         JniContextUtils ctx(env);
         //if null go to catch
-        auto api = getEventApi(ctx, thiz);
+        auto api = getEventApi(env, thiz);
         delete api;
         jclass cls = env->GetObjectClass(thiz);
         jfieldID apiFID = env->GetFieldID(cls, "api", "Ljava/lang/Long;");
@@ -91,12 +93,12 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_event_EventApi_emitEvent(
         return;
     }
 
-    ctx.callVoidEndpointApi([&ctx, &thiz, &context_id, &users, &channel_name, &event_data]() {
+    ctx.callVoidEndpointApi([&ctx, &env,  &thiz, &context_id, &users, &channel_name, &event_data]() {
         std::vector<core::UserWithPubKey> users_c = usersToVector(
                 ctx,
                 ctx.jObject2jArray(users));
 
-        getEventApi(ctx, thiz)->emitEvent(
+        getEventApi(env, thiz)->emitEvent(
                 ctx.jString2string(context_id), users_c,
                 ctx.jString2string(channel_name),
                 core::Buffer::from(ctx.jByteArray2String(event_data))
@@ -130,11 +132,14 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_event_EventApi_subscribeFor(
                 int length = ctx->GetArrayLength(subscription_queries_arr);
                 for (int i = 0; i < length; i++) {
                     jobject arrayElement = ctx->GetObjectArrayElement(subscription_queries_arr, i);
+                    if (ctx.nullCheck(arrayElement, "Subscription queries list elements")) {
+                        return (jobject) nullptr;
+                    }
                     subscription_queries_c.push_back(ctx.jString2string((jstring) arrayElement));
                 }
 
                 jobject arrayList = env->NewObject(arrayListCls, initMID);
-                auto subscription_ids_c = getEventApi(ctx, thiz)->
+                auto subscription_ids_c = getEventApi(env, thiz)->
                         subscribeFor(subscription_queries_c);
 
                 for (auto &id_str : subscription_ids_c) {
@@ -176,7 +181,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_event_EventApi_unsubscribeFrom
             subscription_ids_c.push_back(ctx.jString2string((jstring) arrayElement));
         }
 
-        getEventApi(ctx, thiz)->unsubscribeFrom(subscription_ids_c);
+        getEventApi(env, thiz)->unsubscribeFrom(subscription_ids_c);
     });
 }
 
@@ -200,7 +205,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_event_EventApi_buildSubscripti
     ctx.callResultEndpointApi<jstring>(
             &result,
             [&ctx, &env, &thiz, &channel_name, &selector_type, &selector_id]() {
-                std::string query_result_c = getEventApi(ctx, thiz)->buildSubscriptionQuery(
+                std::string query_result_c = getEventApi(env, thiz)->buildSubscriptionQuery(
                         ctx.jString2string(channel_name),
                         static_cast<event::EventSelectorType>(selector_type),
                         ctx.jString2string(selector_id)
