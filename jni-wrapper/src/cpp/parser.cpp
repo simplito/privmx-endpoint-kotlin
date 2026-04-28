@@ -833,14 +833,9 @@ privmx::endpoint::stream::StreamHandle parseStreamHandle(
         jobject streamHandle
 ) {
     jclass streamHandleCls = ctx->GetObjectClass(streamHandle);
-    jfieldID valueFID = ctx->GetFieldID(streamHandleCls, "value", "Ljava/lang/Long;");
+    jfieldID valueFID = ctx->GetFieldID(streamHandleCls, "value", "J");
 
-    return jobject2long(ctx, ctx->GetObjectField(streamHandle, valueFID));
-}
-
-privmx::endpoint::stream::Settings parseSettings(JniContextUtils &ctx, jobject settings) {
-    auto result = privmx::endpoint::stream::Settings();
-    return result;
+    return ctx->GetLongField(streamHandle, valueFID);
 }
 
 privmx::endpoint::stream::StreamSubscription parseStreamSubscription(JniContextUtils &ctx, jobject streamSubscription) {
