@@ -3,18 +3,42 @@ import org.gradle.kotlin.dsl.support.zipTo
 import java.util.Properties
 
 plugins {
-    id("cpp-library")
+    alias(libs.plugins.android.library)
 }
 
-library {
-    linkage.set(listOf(Linkage.SHARED))
-}
 enum class BuildTypes {
     Release,
     Debug,
     MinSizeRel
 }
 
+android {
+    namespace = "com.simplito.privmx_endpoint_jni"
+    compileSdk = 36
+    ndkVersion = "29.0.13599879"
+    defaultConfig {
+        minSdk = 24
+        externalNativeBuild {
+            cmake {
+                cppFlags("-std=c++17")
+                this.arguments.addAll(
+                    listOf(
+                        "-DBUILD_ENDPOINT=ON",
+                        "-DBUILD_ANDROID_STREAM=ON",
+                        "-DCMAKE_TOOLCHAIN_FILE=conan_android_toolchain.cmake"
+                    )
+                )
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
+}
 val localProperties = Properties().apply {
     load(file(rootDir.absolutePath + "/local.properties").inputStream())
 }
