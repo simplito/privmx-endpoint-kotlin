@@ -176,6 +176,9 @@ actual constructor(
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel)
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun subscribeFor(subscriptionQueries: List<String>): List<String> {
         throw NotImplementedError("StreamApiLow is not implemented for JVM.")
     }
