@@ -360,6 +360,12 @@ constructor(
         selectorId: String
     ): String
 
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun setNewOfferOnReconfigure(
+        sessionId: Long,
+        sdp: SdpWithTypeModel
+    )
+
     /**
      * Enables or disables key management for a room.
      *
