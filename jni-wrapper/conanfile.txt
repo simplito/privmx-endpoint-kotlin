@@ -1,0 +1,12 @@
+[requires]
+privmx-endpoint/2.7.5-dev.2
+
+[options]
+privmx-endpoint*:with_webrtc=False
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[layout]
+cmake_layout
