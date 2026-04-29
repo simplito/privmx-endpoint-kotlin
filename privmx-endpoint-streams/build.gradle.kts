@@ -130,7 +130,10 @@ signing {
 
 android {
     namespace = "com.simplito.kotlin.privmx_endpoint_streams_android"
-    //TODO: Add minimum sdk version
     compileSdk = 36
+
+    defaultConfig {
+        minSdk = 24
+    }
 }
 
