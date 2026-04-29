@@ -151,6 +151,9 @@ actual constructor(
     actual external fun acceptOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel)
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel)
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun subscribeFor(subscriptionQueries: List<String>): List<String>
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
