@@ -84,6 +84,13 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
             }
         }
+
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.webrtc.android)
+            }
+        }
+
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlin.test)
