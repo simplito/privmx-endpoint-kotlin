@@ -18,8 +18,6 @@ import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
-import com.simplito.kotlin.privmx_endpoint.model.stream.Settings
-import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
 
 internal val ItemPolicy.pson: PsonValue.PsonObject
@@ -141,6 +139,3 @@ internal val SdpWithTypeModel.pson: PsonValue.PsonObject
         "sdp" to sdp.pson,
         "type" to type.pson
     ).pson
-
-internal val Settings.pson: PsonValue.PsonObject
-    get() = mapOfWithNulls<String, PsonValue<*>>().pson
