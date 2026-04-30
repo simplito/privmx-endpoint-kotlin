@@ -1,8 +1,11 @@
 [requires]
 privmx-endpoint/2.7.5-dev.2
+poco/1.13.2
+privmxdrvnet/1.0.3
 
 [options]
 privmx-endpoint*:with_webrtc=False
+poco*:shared = True
 
 [generators]
 CMakeDeps

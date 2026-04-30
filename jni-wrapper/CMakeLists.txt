@@ -13,6 +13,8 @@ project("privmx-endpoint-kotlin")
 message("module path ${CMAKE_MODULE_PATH}")
 message("toolchain path ${CMAKE_TOOLCHAIN_FILE}")
 find_package(privmxendpoint REQUIRED)
+find_package(poco REQUIRED)
+find_package(privmxdrvnet REQUIRED)
 add_library(${CMAKE_PROJECT_NAME} SHARED
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/parser.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/utils.cpp
@@ -31,9 +33,11 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/modules/ExtKey.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/modules/Utils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/modules/KvdbApi.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/modules/StreamApiLow.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/modules/WebRTCInterfaceJNI.cpp
 )
 
-include_directories(${JAVA_HOME}/include ${JAVA_HOME}/include/darwin )
+include_directories(${JAVA_HOME}/include ${JAVA_HOME}/include/darwin)
 target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC
         privmxendpoint::privmxendpointcore
         privmxendpoint::privmxendpointcrypto
@@ -42,5 +46,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC
         privmxendpoint::privmxendpointinbox
         privmxendpoint::privmxendpointkvdb
         privmxendpoint::privmxendpointevent
+        privmxendpoint::privmxendpointstream
+        Poco::Foundation
+        privmxdrvnet::privmxdrvnet
 )
 install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
