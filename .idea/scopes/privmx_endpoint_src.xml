@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="privmx-endpoint-src" pattern="file[privmx-endpoint-kotlin.privmx-endpoint.*]:*/*.java||file[privmx-endpoint-kotlin.privmx-endpoint.*]:*/*.kt" />
+</component>
