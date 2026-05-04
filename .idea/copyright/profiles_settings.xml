@@ -1,0 +1,8 @@
+<component name="CopyrightManager">
+  <settings>
+    <module2copyright>
+      <element module="privmx-endpoint-extra-src" copyright="PrivMX Endpoint Extra Kotlin Copyright" />
+      <element module="privmx-endpoint-src" copyright="PrivMX Endpoint Kotlin Copyright" />
+    </module2copyright>
+  </settings>
+</component>
