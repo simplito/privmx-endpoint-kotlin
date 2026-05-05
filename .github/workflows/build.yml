@@ -49,7 +49,7 @@ jobs:
 
       - name: Prepare properties configuration
         run: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT\n" >> local.properties
+          echo "sdk.dir=${{env.ANDROID_SDK_ROOT}}\n" >> local.properties
           echo "ndk.version=${{env.ndk_version}}\n" >> local.properties
 
       - name: Compile android jni with conan dependencies
