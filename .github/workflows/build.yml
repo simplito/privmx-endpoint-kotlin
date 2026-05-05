@@ -6,13 +6,13 @@ on:
       - dev
       - release/*
     tags:
-      - '*'
+      - '**'
   push:
     branches:
       - main
       - dev
       - release/*
-      - '*'
+      - '**'
 
 
 jobs:
