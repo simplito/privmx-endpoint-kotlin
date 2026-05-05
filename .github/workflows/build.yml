@@ -1,0 +1,96 @@
+name: Builds
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+      - release/*
+    tags:
+      - '**'
+  push:
+    branches:
+      - main
+      - dev
+      - release/*
+      - '**'
+env:
+  ndk_version: 29.0.13599879
+
+jobs:
+  build-jni-android:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: 'oracle'
+          cache: "gradle"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Setup Android NDK
+        run: sdkmanager --install "ndk;${{env.ndk_version}}"
+
+      - name: Configure PrivMX conan repository and build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake pipx
+          sudo pipx install conan
+          echo "/root/.local/bin" >> $GITHUB_PATH
+
+      - name: Setup conan
+        run: |
+          conan profile detect --force
+          conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx
+
+      - name: Prepare properties configuration
+        run: |
+          echo "sdk.dir=${{env.ANDROID_SDK_ROOT}}" >> local.properties
+          echo "ndk.version=${{env.ndk_version}}" >> local.properties
+          cat local.properties
+
+      - name: Compile android jni with conan dependencies
+        run: ./gradlew :jni-wrapper:compileAndroid
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: 'android-jni-${{github.sha}}'
+          path: '${{github.workspace}}/jni-wrapper/build/native/install/Android/*'
+
+  build-jni-darwin:
+    timeout-minutes: 15
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: 'oracle'
+          cache: "gradle"
+
+      - name: Configure PrivMX conan repository and build tools
+        run: |
+          brew install pipx
+          pipx install conan
+          echo "~/.local/bin" >> $GITHUB_PATH
+
+      - name: Setup conan
+        run: |
+          conan profile detect --force
+          conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx
+
+      - name: Prepare properties configuration
+        run: touch local.properties
+
+      - name: Compile android jni with conan dependencies
+        run: ./gradlew :jni-wrapper:compileDarwin
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: 'darwin-jni-${{github.sha}}'
+          path: '${{github.workspace}}/jni-wrapper/build/native/install/Darwin/*'
