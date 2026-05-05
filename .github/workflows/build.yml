@@ -13,7 +13,8 @@ on:
       - dev
       - release/*
       - '**'
-
+env:
+  ndk_version: 29.0.13599879
 
 jobs:
   build-jni-android:
@@ -28,6 +29,12 @@ jobs:
           distribution: 'oracle'
           cache: "gradle"
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Setup Android NDK
+        run: sdkmanager --install "ndk;${{env.ndk_version}}"
+
       - name: Configure PrivMX conan repository and build tools
         run: |
           sudo apt-get update
@@ -39,6 +46,11 @@ jobs:
         run: |
           conan profile detect --force
           conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx
+
+      - name: Prepare properties configuration
+        run: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT\n" >> local.properties
+          echo "ndk.version=${{env.ndk_version}}\n" >> local.properties
 
       - name: Compile android jni with conan dependencies
         run: ./gradlew :jni-wrapper:compileAndroid
@@ -62,7 +74,7 @@ jobs:
 
       - name: Configure PrivMX conan repository and build tools
         run: |
-          pip3 install --upgrade pipx
+          brew install pipx
           pipx install conan
           echo "~/.local/bin" >> $GITHUB_PATH
 
