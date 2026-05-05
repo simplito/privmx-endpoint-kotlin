@@ -39,7 +39,7 @@ kotlin {
 publishing {
     val properties = Properties()
     properties.load(file(rootDir.absolutePath + "/local.properties").inputStream())
-    val repositoryURL: String = properties.getProperty("repositoryURL")
+    val repositoryURL: String = properties.getProperty("repositoryURL") ?: rootProject.layout.buildDirectory.get().dir("publications").asFile.absolutePath
     repositories {
         maven {
             name = "localRepo"
