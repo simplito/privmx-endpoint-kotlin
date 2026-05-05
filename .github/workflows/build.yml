@@ -26,7 +26,7 @@ jobs:
         with:
           java-version: 21
           distribution: 'oracle'
-          cache: "maven"
+          cache: "gradle"
 
       - name: Configure PrivMX conan repository and build tools
         run: |
@@ -58,7 +58,7 @@ jobs:
         with:
           java-version: 21
           distribution: 'oracle'
-          cache: "maven"
+          cache: "gradle"
 
       - name: Configure PrivMX conan repository and build tools
         run: |
