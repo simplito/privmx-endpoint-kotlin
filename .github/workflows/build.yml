@@ -83,6 +83,9 @@ jobs:
           conan profile detect --force
           conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx
 
+      - name: Prepare properties configuration
+        run: touch local.properties
+
       - name: Compile android jni with conan dependencies
         run: ./gradlew :jni-wrapper:compileDarwin
 

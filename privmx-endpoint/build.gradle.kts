@@ -110,7 +110,7 @@ publishing {
         val localProperties = Properties().apply {
             load(file(rootDir.absolutePath + "/local.properties").inputStream())
         }
-        val repositoryURL: String = localProperties.getProperty("repositoryURL")
+        val repositoryURL: String = localProperties.getProperty("repositoryURL") ?: rootProject.layout.buildDirectory.get().dir("publications").asFile.absolutePath
         maven {
             name = "localRepo"
             url = uri(repositoryURL)
