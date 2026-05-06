@@ -51,6 +51,7 @@ jobs:
         run: |
           echo "sdk.dir=${{env.ANDROID_SDK_ROOT}}\n" >> local.properties
           echo "ndk.version=${{env.ndk_version}}\n" >> local.properties
+          cat local.properties
 
       - name: Compile android jni with conan dependencies
         run: ./gradlew :jni-wrapper:compileAndroid
