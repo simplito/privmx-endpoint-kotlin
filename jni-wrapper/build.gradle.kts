@@ -199,7 +199,7 @@ object AndroidProfileConfig {
     val Properties.sdkPath: String? get() = this["sdk.dir"] as? String
     val Properties.ndkVersion: String? get() = this["ndk.version"] as? String
     val Properties.ndkPath: String?
-        get() = if (sdkPath == null || ndkVersion == null) throw IllegalArgumentException(
+        get() = if (sdkPath.isNullOrBlank() || ndkVersion.isNullOrBlank()) throw IllegalArgumentException(
             "sdk.dir or ndk.version is not defined in local.properties"
         ) else "$sdkPath/ndk/$ndkVersion"
 }
