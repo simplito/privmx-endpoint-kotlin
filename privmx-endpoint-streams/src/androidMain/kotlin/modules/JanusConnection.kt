@@ -17,7 +17,7 @@ open class JanusConnection(
     onConnectionChange: (PeerConnection.IceConnectionState) -> Unit = {}
 ) {
     protected val peerConnection: PeerConnection
-    private var sessionId: Long = -1L
+    var sessionId: Long = -1L
     private val pcObserver: PcObserver
 
     init {
