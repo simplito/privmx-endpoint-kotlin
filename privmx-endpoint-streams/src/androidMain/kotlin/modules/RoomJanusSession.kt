@@ -4,13 +4,14 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.Key
 import com.simplito.kotlin.privmx_endpoint.model.stream.KeyType
 import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
 import com.simplito.kotlin.privmx_endpoint.modules.stream.WebRtcInterface
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.runBlocking
 import org.webrtc.MediaStreamTrack
 import org.webrtc.PeerConnection
 import org.webrtc.PeerConnectionFactory
 import org.webrtc.PmxFrameCryptor
 import org.webrtc.PmxFrameCryptorFactory
 import org.webrtc.PmxKeyStore
-import java.util.concurrent.Executors
 
 
 internal class RoomJanusSession(
@@ -100,12 +101,13 @@ internal class RoomJanusSession(
     }
 
     inner class WebRTCImpl : WebRtcInterface {
-        private val executor = Executors.newSingleThreadExecutor()
+        private val context = newSingleThreadContext("WebRTCImplThread")
 
         override fun createOfferAndSetLocalDescription(streamRoomId: String): String {
-            return runCatching {
-                publisher?.createOffer() ?: throw RuntimeException("Create publisher first")
-            }.getOrDefault("")
+            return runBlocking(context) {
+                val pub = publisher ?: throw RuntimeException("Create publisher first")
+                pub.createOffer()
+            }
         }
 
         override fun createAnswerAndSetDescriptions(
@@ -113,10 +115,10 @@ internal class RoomJanusSession(
             sdp: String,
             type: String
         ): String {
-            return runCatching {
-                subscriber?.createAnswer(sdp, type)
-                    ?: throw RuntimeException("Create subscriber first")
-            }.getOrDefault("")
+            return runBlocking(context) {
+                val sub = subscriber ?: throw RuntimeException("Create subscriber first")
+                sub.createAnswer(sdp, type)
+            }
         }
 
         override fun setAnswerAndSetRemoteDescription(
@@ -124,21 +126,24 @@ internal class RoomJanusSession(
             sdp: String,
             type: String
         ) {
-            runCatching {
-                publisher?.setAnswer(sdp, type) ?: throw RuntimeException("Create publisher first")
+            runBlocking(context) {
+                val pub = publisher ?: throw RuntimeException("Create publisher first")
+                pub.setAnswer(sdp, type)
             }
         }
 
         override fun close(streamRoomId: String) {
-            publisher?.close()
-            subscriber?.close()
+            runBlocking(context) {
+                publisher?.close()
+                subscriber?.close()
+            }
         }
 
         override fun updateKeys(
             streamRoomId: String,
             keys: List<Key>
         ) {
-            executor.execute {
+            runBlocking(context) {
                 keyStore.setKeys(keys.map { key ->
                     PmxKeyStore.Key(
                         key.keyId,

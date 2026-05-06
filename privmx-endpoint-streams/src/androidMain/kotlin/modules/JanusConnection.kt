@@ -8,6 +8,9 @@ import org.webrtc.PmxFrameCryptor
 import org.webrtc.PmxKeyStore
 import org.webrtc.SessionDescription
 import java.util.concurrent.CompletableFuture
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 internal open class JanusConnection(
     protected val peerConnectionFactory: PeerConnectionFactory,
@@ -50,14 +53,16 @@ internal open class JanusConnection(
     }
 
     internal class SdpObserver(
-        private val res: CompletableFuture<SessionDescription>?
+        private val continuation: Continuation<SessionDescription>?
     ) : org.webrtc.SdpObserver {
         override fun onCreateSuccess(sessionDescription: SessionDescription) {
-            res?.complete(sessionDescription)
+            continuation?.resume(sessionDescription)
         }
 
         override fun onSetSuccess() {}
-        override fun onCreateFailure(s: String?) {}
+        override fun onCreateFailure(s: String?) {
+            continuation?.resumeWithException(Exception(s))
+        }
         override fun onSetFailure(s: String?) {}
     }
 

@@ -1,10 +1,10 @@
 package modules
 
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.webrtc.MediaConstraints
 import org.webrtc.PeerConnectionFactory
 import org.webrtc.PmxKeyStore
 import org.webrtc.SessionDescription
-import java.util.concurrent.CompletableFuture
 
 internal class JanusSubscriber(
     pcFactory: PeerConnectionFactory,
@@ -12,20 +12,30 @@ internal class JanusSubscriber(
     observer: TrackObserver?,
     onTrickle: (Long, String) -> Unit
 ) : JanusConnection(pcFactory, keyStore, observer, onTrickle) {
-    fun createAnswer(offerSdp: String, type: String): String {
-        val res = CompletableFuture<SessionDescription>()
-        peerConnection.setRemoteDescription(
-            SdpObserver(null),
-            SessionDescription(SessionDescription.Type.fromCanonicalForm(type), offerSdp)
-        )
-        peerConnection.createAnswer(SdpObserver(res), MediaConstraints())
+    suspend fun createAnswer(offerSdp: String, type: String): String {
 
-        return runCatching {
-            val answer = res.get()
-            peerConnection.setLocalDescription(SdpObserver(null), answer)
-            answer.description
-        }.getOrElse {
-            throw RuntimeException("Cannot create answer")
+        suspendCancellableCoroutine { continuation ->
+            peerConnection.setRemoteDescription(
+                SdpObserver(continuation),
+                SessionDescription(SessionDescription.Type.fromCanonicalForm(type), offerSdp)
+            )
         }
+
+        val answer = runCatching {
+            suspendCancellableCoroutine { continuation ->
+                peerConnection.createAnswer(
+                    SdpObserver(continuation), MediaConstraints()
+                )
+            }
+        }.getOrElse { throw RuntimeException("Cannot create answer") }
+
+        suspendCancellableCoroutine { continuation ->
+            peerConnection.setLocalDescription(
+                SdpObserver(continuation),
+                answer
+            )
+        }
+
+        return answer.description
     }
 }

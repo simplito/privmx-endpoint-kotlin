@@ -1,6 +1,12 @@
 package modules
 
 import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.webrtc.AudioTrack
 import org.webrtc.MediaConstraints
 import org.webrtc.PeerConnection
@@ -11,10 +17,9 @@ import org.webrtc.PmxKeyStore
 import org.webrtc.RtpSender
 import org.webrtc.SessionDescription
 import org.webrtc.VideoTrack
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Executors
 import java.util.function.Consumer
 
+@OptIn(ExperimentalCoroutinesApi::class)
 internal class JanusPublisher(
     pcFactory: PeerConnectionFactory,
     keyStore: PmxKeyStore,
@@ -26,7 +31,9 @@ internal class JanusPublisher(
 
     private val audioTracks = mutableMapOf<String, AudioTrackInfo>()
     private val videoTracks = mutableMapOf<String, VideoTrackInfo>()
-    private val executorService = Executors.newSingleThreadExecutor()
+
+    @OptIn(DelicateCoroutinesApi::class)
+    val context = newSingleThreadContext("JanusPublisherThread")
 
     fun addAudioTrack(audioTrack: AudioTrack) {
         synchronized(audioTracks) {
@@ -77,23 +84,32 @@ internal class JanusPublisher(
         }
     }
 
-    fun createOffer(): String {
-        val res = CompletableFuture<SessionDescription>()
-        peerConnection.createOffer(SdpObserver(res), MediaConstraints())
-        return runCatching {
-            val offer = res.get()
-            peerConnection.setLocalDescription(SdpObserver(null), offer)
-            offer.description
-        }.getOrElse {
-            throw RuntimeException("Cannot create offer")
+    suspend fun createOffer(): String {
+        val sdp = runCatching {
+            suspendCancellableCoroutine { continuation ->
+                peerConnection.createOffer(
+                    SdpObserver(continuation),
+                    MediaConstraints()
+                )
+            }
+        }.getOrElse { throw RuntimeException("Cannot create offer") }
+
+        suspendCancellableCoroutine { continuation ->
+            peerConnection.setLocalDescription(
+                SdpObserver(continuation),
+                sdp
+            )
         }
+        return sdp.description
     }
 
-    fun setAnswer(sdp: String?, type: String) {
-        peerConnection.setRemoteDescription(
-            SdpObserver(null),
-            SessionDescription(SessionDescription.Type.fromCanonicalForm(type), sdp)
-        )
+    suspend fun setAnswer(sdp: String?, type: String) {
+        suspendCancellableCoroutine { continuation ->
+            peerConnection.setRemoteDescription(
+                SdpObserver(continuation),
+                SessionDescription(SessionDescription.Type.fromCanonicalForm(type), sdp)
+            )
+        }
     }
 
 
@@ -116,7 +132,7 @@ internal class JanusPublisher(
 
     override fun onRenegotiationNeeded() {
         if (sessionId > -1) {
-            executorService.execute {
+            CoroutineScope(context).launch() {
                 setNewOfferOnReconfigure(
                     sessionId,
                     SdpWithTypeModel(createOffer(), SessionDescription.Type.OFFER.canonicalForm())
