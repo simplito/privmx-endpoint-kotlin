@@ -1,5 +1,7 @@
 package modules
 
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.json.JSONObject
 import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection
@@ -30,7 +32,7 @@ internal open class JanusConnection(
             trackObserver = trackObserver,
             iceCandidateCallback = { iceCandidate: IceCandidate ->
                 if (sessionId > -1) {
-                    val obj = JSONObject().apply {
+                    val obj = buildJsonObject {
                         runCatching {
                             put("sdp", iceCandidate.sdp)
                             put("adapterType", iceCandidate.adapterType.ordinal)
