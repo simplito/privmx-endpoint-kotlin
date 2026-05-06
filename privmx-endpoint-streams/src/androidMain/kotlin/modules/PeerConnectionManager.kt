@@ -5,7 +5,7 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import org.webrtc.PeerConnectionFactory
 import java.lang.AutoCloseable
 
-class PeerConnectionManager(
+internal class PeerConnectionManager(
     public val pcFactory: PeerConnectionFactory,
     private val onTrickle: (Long, String) -> Unit,
     private val setNewOfferOnReconfigure: (Long, SdpWithTypeModel) -> Unit

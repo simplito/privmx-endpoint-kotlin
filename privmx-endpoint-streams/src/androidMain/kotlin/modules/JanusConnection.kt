@@ -9,7 +9,7 @@ import org.webrtc.PmxKeyStore
 import org.webrtc.SessionDescription
 import java.util.concurrent.CompletableFuture
 
-open class JanusConnection(
+internal open class JanusConnection(
     protected val peerConnectionFactory: PeerConnectionFactory,
     protected val keyStore: PmxKeyStore,
     trackObserver: TrackObserver?,

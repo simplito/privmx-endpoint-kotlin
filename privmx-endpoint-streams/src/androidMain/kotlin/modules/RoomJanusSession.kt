@@ -13,7 +13,7 @@ import org.webrtc.PmxKeyStore
 import java.util.concurrent.Executors
 
 
-class RoomJanusSession(
+internal class RoomJanusSession(
     val roomID: String,
     val pcFactory: PeerConnectionFactory,
     private val onTrickle: (Long, String) -> Unit,

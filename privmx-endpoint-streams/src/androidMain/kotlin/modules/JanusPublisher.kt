@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.function.Consumer
 
-class JanusPublisher(
+internal class JanusPublisher(
     pcFactory: PeerConnectionFactory,
     keyStore: PmxKeyStore,
     observer: TrackObserver?,

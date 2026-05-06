@@ -6,7 +6,7 @@ import org.webrtc.PmxKeyStore
 import org.webrtc.SessionDescription
 import java.util.concurrent.CompletableFuture
 
-class JanusSubscriber(
+internal class JanusSubscriber(
     pcFactory: PeerConnectionFactory,
     keyStore: PmxKeyStore,
     observer: TrackObserver?,
