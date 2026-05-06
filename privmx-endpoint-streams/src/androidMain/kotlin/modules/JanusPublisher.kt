@@ -21,7 +21,7 @@ class JanusPublisher(
     observer: TrackObserver?,
     onTrickle: (Long, String) -> Unit,
     private val setNewOfferOnReconfigure: (Long, SdpWithTypeModel) -> Unit,
-    onConnectionChange: (PeerConnection.IceConnectionState) -> Unit = {}
+    onConnectionChange: (PeerConnection.IceConnectionState) -> Unit
 ) : JanusConnection(pcFactory, keyStore, observer, onTrickle, onConnectionChange) {
 
     private val audioTracks = mutableMapOf<String, AudioTrackInfo>()
@@ -34,7 +34,8 @@ class JanusPublisher(
             val frameCryptor = PmxFrameCryptorFactory.createPmxFrameCryptorFromRtpSender(
                 peerConnectionFactory,
                 rtpSender,
-                keyStore
+                keyStore,
+                null
             )
             audioTracks.put(
                 audioTrack.id(),
@@ -50,7 +51,8 @@ class JanusPublisher(
             val frameCryptor = PmxFrameCryptorFactory.createPmxFrameCryptorFromRtpSender(
                 peerConnectionFactory,
                 rtpSender,
-                keyStore
+                keyStore,
+                null
             )
             videoTracks.put(
                 videoTrack.id(),

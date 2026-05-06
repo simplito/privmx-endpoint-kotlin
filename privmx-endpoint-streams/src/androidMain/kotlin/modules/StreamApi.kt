@@ -210,7 +210,13 @@ class StreamApi(
     }
 
     fun unpublishStream(streamHandle: StreamHandle) {
+        val session = resolveSession(streamHandle)
+        if (session.publisher == null)
+            throw IllegalStateException("No stream to unpublish. Call createStream and publishStream first.")
+
         api.unpublishStream(streamHandle)
+        session.unpublish()
+        pcManager.closeHandleToRoom(streamHandle)
     }
 
     fun subscribeToRemoteStreams(streamRoomId: String, subscriptions: List<StreamSubscription>) {
@@ -283,6 +289,10 @@ class StreamApi(
 
     private fun resolveSession(roomId: String): RoomJanusSession =
         pcManager.getSession(roomId)
+            ?: throw IllegalStateException("Session to this room does not exist. Call joinStreamRoom first.")
+
+    private fun resolveSession(handle: StreamHandle): RoomJanusSession =
+        pcManager.getSession(handle)
             ?: throw IllegalStateException("Session to this room does not exist. Call joinStreamRoom first.")
 
     private fun resolvePublisher(streamHandle: StreamHandle): JanusPublisher {

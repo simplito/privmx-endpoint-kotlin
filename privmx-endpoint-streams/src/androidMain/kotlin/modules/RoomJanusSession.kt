@@ -87,6 +87,18 @@ class RoomJanusSession(
         onConnectionChangeCallback(connectionState)
     }
 
+    @Synchronized
+    fun unpublish() {
+        publisher?.let {
+            if (!it.isEnded()) {
+                synchronized(it) {
+                    it.close()
+                    publisher = null
+                }
+            }
+        }
+    }
+
     inner class WebRTCImpl : WebRtcInterface {
         private val executor = Executors.newSingleThreadExecutor()
 

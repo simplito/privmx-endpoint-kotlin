@@ -38,6 +38,10 @@ class PeerConnectionManager(
 
     fun getRoomIds(): Set<String> = sessions.keys
 
+    fun closeHandleToRoom(handle: StreamHandle) {
+        sessionHandles.remove(handle.value)
+    }
+
     override fun close() {
         sessionHandles.clear()
         pcFactory.dispose()

@@ -11,7 +11,7 @@ import org.webrtc.PmxKeyStore
 import org.webrtc.RtpReceiver
 
 class PcObserver(
-    private val peerConnectionFactory: PeerConnectionFactory?,
+    private val peerConnectionFactory: PeerConnectionFactory,
     private val keyStore: PmxKeyStore,
     private val trackObserver: TrackObserver?,
     private val iceCandidateCallback: (IceCandidate) -> Unit,
@@ -50,16 +50,15 @@ class PcObserver(
         val track = receiver.track() ?: return
         val trackId = track.id() ?: return
 
-        if (peerConnectionFactory != null) {
-            frameCryptorMap.put(
-                trackId,
-                PmxFrameCryptorFactory.createPmxFrameCryptorForRtpReceiver(
-                    peerConnectionFactory,
-                    receiver,
-                    keyStore
-                )
+        frameCryptorMap.put(
+            trackId,
+            PmxFrameCryptorFactory.createPmxFrameCryptorForRtpReceiver(
+                peerConnectionFactory,
+                receiver,
+                keyStore,
+                null
             )
-        }
+        )
 
         trackObserver?.let { observer ->
             mediaStreams.firstOrNull()?.id?.let { streamId ->
