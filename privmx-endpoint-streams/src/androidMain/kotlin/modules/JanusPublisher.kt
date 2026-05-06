@@ -126,14 +126,14 @@ internal class JanusPublisher(
     }
 
     private data class AudioTrackInfo(
-        var track: AudioTrack?,
-        var sender: RtpSender?,
+        var track: AudioTrack,
+        var sender: RtpSender,
         var frameCryptor: PmxFrameCryptor
     )
 
     private data class VideoTrackInfo(
-        var track: VideoTrack?,
-        var sender: RtpSender?,
+        var track: VideoTrack,
+        var sender: RtpSender,
         var frameCryptor: PmxFrameCryptor
     )
 }
