@@ -12,10 +12,8 @@ class TrackFactory internal constructor(
 ) {
     private val factory: PeerConnectionFactory = pcManager.pcFactory
 
-    fun createVideoSource(isScreenCast: Boolean): VideoSource =
-        factory.createVideoSource(isScreenCast)
-
-    fun createVideoSource(isScreenCast: Boolean, alignTimestamps: Boolean): VideoSource =
+    @JvmOverloads
+    fun createVideoSource(isScreenCast: Boolean, alignTimestamps: Boolean = true): VideoSource =
         factory.createVideoSource(isScreenCast, alignTimestamps)
 
     fun createAudioSource(): AudioSource =
