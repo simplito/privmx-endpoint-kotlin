@@ -164,8 +164,8 @@ internal class RoomJanusSession(
 
     private inner class TrackObserverImpl : TrackObserver {
         override fun OnRemoteTrack(
-            streamId: String?,
-            track: MediaStreamTrack?
+            streamId: String,
+            track: MediaStreamTrack
         ) {
             synchronized(trackObserversByStreamId) {
                 trackObserversByStreamId[streamId]?.OnRemoteTrack(streamId, track)
