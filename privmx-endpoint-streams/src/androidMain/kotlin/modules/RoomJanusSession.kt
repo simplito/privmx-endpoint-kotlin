@@ -156,8 +156,8 @@ internal class RoomJanusSession(
             connectionType: String
         ) {
             when (connectionType) {
-                "subscriber" -> subscriber?.updateSessionId(sessionId)
-                "publisher" -> publisher?.updateSessionId(sessionId)
+                "subscriber" -> subscriber?.sessionId = sessionId
+                "publisher" -> publisher?.sessionId = sessionId
             }
         }
     }

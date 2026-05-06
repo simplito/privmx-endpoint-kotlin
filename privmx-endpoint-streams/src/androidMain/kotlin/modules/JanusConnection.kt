@@ -71,10 +71,6 @@ internal open class JanusConnection(
     fun getConnectionState(): PeerConnection.PeerConnectionState =
         peerConnection.connectionState()
 
-    fun updateSessionId(sessionId: Long) {
-        this.sessionId = sessionId
-    }
-
     open fun setFrameCryptorOptions(options: PmxFrameCryptor.PmxFrameCryptorOptions) {
         pcObserver.setFrameCryptorOptions(options)
     }
