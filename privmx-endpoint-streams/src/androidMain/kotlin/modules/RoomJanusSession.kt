@@ -35,7 +35,7 @@ internal class RoomJanusSession(
 
     @Synchronized
     fun createSubscriber(observer: TrackObserver = trackObserver) {
-        if (subscriber != null && !subscriber!!.isEnded()) {
+        if (!(subscriber?.isEnded() ?: true)) {
             throw IllegalStateException("Subscriber is currently active.")
         }
 
@@ -50,7 +50,7 @@ internal class RoomJanusSession(
 
     @Synchronized
     fun createPublisher(observer: TrackObserver? = null) {
-        if (publisher != null && !publisher!!.isEnded()) {
+        if (!(publisher?.isEnded() ?: true)) {
             throw IllegalStateException("Publisher is currently active.")
         }
 
