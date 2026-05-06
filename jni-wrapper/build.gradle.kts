@@ -43,7 +43,8 @@ val localProperties = Properties().apply {
     load(file(rootDir.absolutePath + "/local.properties").inputStream())
 }
 
-val androidArchs = listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+//val androidArchs = listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+val androidArchs = listOf("arm64-v8a")
 val darwinArchs = listOf("arm64")
 
 //TODO: Use cpp-library plugin compilation tasks
