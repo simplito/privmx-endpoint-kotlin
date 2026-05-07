@@ -10,6 +10,7 @@
 //
 
 #include "model_native_initializers.h"
+#include "parser.h"
 
 namespace privmx {
     namespace wrapper {
