@@ -13,7 +13,7 @@ project("privmx-endpoint-kotlin")
 message("module path ${CMAKE_MODULE_PATH}")
 message("toolchain path ${CMAKE_TOOLCHAIN_FILE}")
 find_package(privmxendpoint REQUIRED)
-find_package(poco REQUIRED)
+find_package(Poco REQUIRED)
 find_package(privmxdrvnet REQUIRED)
 add_library(${CMAKE_PROJECT_NAME} SHARED
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/parser.cpp
@@ -37,7 +37,14 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/modules/WebRTCInterfaceJNI.cpp
 )
 
-include_directories(${JAVA_HOME}/include ${JAVA_HOME}/include/darwin)
+include_directories(${JAVA_HOME}/include)
+if(CMAKE_HOST_APPLE)
+    include_directories(${JAVA_HOME}/include/darwin)
+elseif(CMAKE_HOST_WIN32)
+    include_directories(${JAVA_HOME}/include/win32)
+else()
+    include_directories(${JAVA_HOME}/include/linux)
+endif()
 target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC
         privmxendpoint::privmxendpointcore
         privmxendpoint::privmxendpointcrypto
