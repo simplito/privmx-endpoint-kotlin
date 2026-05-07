@@ -1,18 +1,17 @@
 name: Builds
+
 on:
   pull_request:
-    branches:
-      - main
-      - dev
-      - release/*
-    tags:
-      - '**'
+    branches: [main, dev, 'release/*']
   push:
-    branches:
-      - main
-      - dev
-      - release/*
-      - '**'
+    branches: [main, dev, 'release/*']
+    tags: ['**']
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 env:
   ndk_version: 29.0.13599879
 
@@ -20,46 +19,69 @@ jobs:
   build-jni-android:
     timeout-minutes: 30
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
           java-version: 21
           distribution: 'oracle'
-          cache: "gradle"
+          cache: 'gradle'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v4
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+
+      - name: Cache NDK
+        id: ndk-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ env.ANDROID_SDK_ROOT }}/ndk/${{ env.ndk_version }}
+          key: ndk-${{ runner.os }}-${{ env.ndk_version }}
 
       - name: Setup Android NDK
-        run: sdkmanager --install "ndk;${{env.ndk_version}}"
+        if: steps.ndk-cache.outputs.cache-hit != 'true'
+        run: sdkmanager --install "ndk;${{ env.ndk_version }}"
 
-      - name: Configure PrivMX conan repository and build tools
+      - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake pipx
-          sudo pipx install conan
-          echo "/root/.local/bin" >> $GITHUB_PATH
+          sudo apt-get install -y cmake build-essential
 
-      - name: Setup conan
+      - name: Install Conan
+        run: |
+          pipx install conan
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Cache Conan packages
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.conan2
+          key: conan-${{ runner.os }}-android-${{ hashFiles('**/conanfile.*', '**/conan.lock') }}
+          restore-keys: |
+            conan-${{ runner.os }}-android-
+
+      - name: Setup Conan
         run: |
           conan profile detect --force
-          conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx
+          conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx --force
 
       - name: Prepare properties configuration
         run: |
-          echo "sdk.dir=${{env.ANDROID_SDK_ROOT}}" >> local.properties
-          echo "ndk.version=${{env.ndk_version}}" >> local.properties
-          cat local.properties
+          cat > local.properties <<EOF
+          sdk.dir=${{ env.ANDROID_SDK_ROOT }}
+          ndk.version=${{ env.ndk_version }}
+          EOF
 
-      - name: Compile android jni with conan dependencies
+      - name: Compile Android JNI
         run: ./gradlew :jni-wrapper:compileAndroid
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: 'android-jni-${{github.sha}}'
-          path: '${{github.workspace}}/jni-wrapper/build/native/install/Android/*'
+          name: android-jni-${{ github.sha }}
+          path: jni-wrapper/build/native/install/Android/*
+          if-no-files-found: error
+          retention-days: 14
+
 
   build-jni-darwin:
     timeout-minutes: 15
