@@ -15,7 +15,6 @@ import org.webrtc.PmxKeyStore
 import org.webrtc.RtpSender
 import org.webrtc.SessionDescription
 import org.webrtc.VideoTrack
-import java.util.function.Consumer
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class JanusPublisher(
@@ -112,8 +111,8 @@ internal class JanusPublisher(
 
     override fun close() {
         try {
-            audioTracks.values.forEach(Consumer { track: AudioTrackInfo? -> track!!.frameCryptor.dispose() })
-            videoTracks.values.forEach(Consumer { track: VideoTrackInfo? -> track!!.frameCryptor.dispose() })
+            audioTracks.values.forEach { track: AudioTrackInfo? -> track!!.frameCryptor.dispose() }
+            videoTracks.values.forEach { track: VideoTrackInfo? -> track!!.frameCryptor.dispose() }
         } catch (ignored: IllegalStateException) {
         }
         audioTracks.clear()
