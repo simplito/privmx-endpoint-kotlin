@@ -95,11 +95,33 @@ jobs:
           distribution: 'oracle'
           cache: "gradle"
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+
+      - name: Cache NDK
+        id: ndk-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ env.ANDROID_SDK_ROOT }}/ndk/${{ env.ndk_version }}
+          key: ndk-${{ runner.os }}-${{ env.ndk_version }}
+
+      - name: Setup Android NDK
+        if: steps.ndk-cache.outputs.cache-hit != 'true'
+        run: sdkmanager --install "ndk;${{ env.ndk_version }}"
+
       - name: Configure PrivMX conan repository and build tools
         run: |
           brew install pipx
           pipx install conan
           echo "~/.local/bin" >> $GITHUB_PATH
+
+      - name: Cache Conan packages
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.conan2
+          key: conan-${{ runner.os }}-darwin-${{ hashFiles('**/conanfile.*', '**/conan.lock') }}
+          restore-keys: |
+            conan-${{ runner.os }}-darwin-
 
       - name: Setup conan
         run: |
@@ -107,7 +129,11 @@ jobs:
           conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx
 
       - name: Prepare properties configuration
-        run: touch local.properties
+        run: |
+          cat > local.properties <<EOF
+          sdk.dir=${{ env.ANDROID_SDK_ROOT }}
+          ndk.version=${{ env.ndk_version }}
+          EOF
 
       - name: Compile android jni with conan dependencies
         run: ./gradlew :jni-wrapper:compileDarwin
@@ -116,3 +142,72 @@ jobs:
         with:
           name: 'darwin-jni-${{github.sha}}'
           path: '${{github.workspace}}/jni-wrapper/build/native/install/Darwin/*'
+
+
+  build-ios:
+    timeout-minutes: 15
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: 'oracle'
+          cache: "gradle"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+
+      - name: Cache NDK
+        id: ndk-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ env.ANDROID_SDK_ROOT }}/ndk/${{ env.ndk_version }}
+          key: ndk-${{ runner.os }}-${{ env.ndk_version }}
+
+      - name: Setup Android NDK
+        if: steps.ndk-cache.outputs.cache-hit != 'true'
+        run: sdkmanager --install "ndk;${{ env.ndk_version }}"
+
+      - name: Configure PrivMX conan repository and build tools
+        run: |
+          brew install pipx
+          pipx install conan
+          echo "~/.local/bin" >> $GITHUB_PATH
+
+      - name: Cache Conan packages
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.conan2
+          key: conan-${{ runner.os }}-ios-${{ hashFiles('**/conanfile.*', '**/conan.lock') }}
+          restore-keys: |
+            conan-${{ runner.os }}-ios-
+
+      - name: Setup conan
+        run: |
+          conan profile detect --force
+          conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx
+
+      - name: Prepare properties configuration
+        run: |
+          cat > local.properties <<EOF
+          sdk.dir=${{ env.ANDROID_SDK_ROOT }}
+          ndk.version=${{ env.ndk_version }}
+          EOF
+
+      - name: Compile iOS endpoint
+        run: ./gradlew :jni-wrapper:buildIosWithConan
+
+      - name: Compile iOSSimulator endpoint
+        run: ./gradlew :jni-wrapper:buildIosSimulatorWithConan
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: 'ios-${{github.sha}}'
+          path: '${{github.workspace}}/jni-wrapper/build/native/install/iOS/*'
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: 'ios-simulator-${{github.sha}}'
+          path: '${{github.workspace}}/jni-wrapper/build/native/install/iOSSimulator/*'
