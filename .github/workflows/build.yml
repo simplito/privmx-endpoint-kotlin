@@ -83,36 +83,95 @@ jobs:
           retention-days: 14
 
 
-#  build-jni-darwin:
-#    timeout-minutes: 15
-#    runs-on: macos-latest
-#
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: actions/setup-java@v5
-#        with:
-#          java-version: 21
-#          distribution: 'oracle'
-#          cache: "gradle"
-#
-#      - name: Configure PrivMX conan repository and build tools
-#        run: |
-#          brew install pipx
-#          pipx install conan
-#          echo "~/.local/bin" >> $GITHUB_PATH
-#
-#      - name: Setup conan
-#        run: |
-#          conan profile detect --force
-#          conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx
-#
-#      - name: Prepare properties configuration
-#        run: touch local.properties
-#
-#      - name: Compile android jni with conan dependencies
-#        run: ./gradlew :jni-wrapper:compileDarwin
-#
-#      - uses: actions/upload-artifact@v7
-#        with:
-#          name: 'darwin-jni-${{github.sha}}'
-#          path: '${{github.workspace}}/jni-wrapper/build/native/install/Darwin/*'
+  build-jni-darwin:
+    timeout-minutes: 15
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: 'oracle'
+          cache: "gradle"
+
+      - name: Configure PrivMX conan repository and build tools
+        run: |
+          brew install pipx
+          pipx install conan
+          echo "~/.local/bin" >> $GITHUB_PATH
+
+      - name: Cache Conan packages
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.conan2
+          key: conan-${{ runner.os }}-darwin-${{ hashFiles('**/conanfile.*', '**/conan.lock') }}
+          restore-keys: |
+            conan-${{ runner.os }}-darwin-
+
+      - name: Setup conan
+        run: |
+          conan profile detect --force
+          conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx
+
+      - name: Prepare properties configuration
+        run: touch local.properties
+
+      - name: Compile android jni with conan dependencies
+        run: ./gradlew :jni-wrapper:compileDarwin
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: 'darwin-jni-${{github.sha}}'
+          path: '${{github.workspace}}/jni-wrapper/build/native/install/Darwin/*'
+
+
+  build-ios:
+    timeout-minutes: 15
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: 'oracle'
+          cache: "gradle"
+
+      - name: Configure PrivMX conan repository and build tools
+        run: |
+          brew install pipx
+          pipx install conan
+          echo "~/.local/bin" >> $GITHUB_PATH
+
+      - name: Cache Conan packages
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.conan2
+          key: conan-${{ runner.os }}-ios-${{ hashFiles('**/conanfile.*', '**/conan.lock') }}
+          restore-keys: |
+            conan-${{ runner.os }}-ios-
+
+      - name: Setup conan
+        run: |
+          conan profile detect --force
+          conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx
+
+      - name: Prepare properties configuration
+        run: touch local.properties
+
+      - name: Compile iOS endpoint
+        run: ./gradlew :jni-wrapper:buildIosWithConan
+
+      - name: Compile iOSSimulator endpoint
+        run: ./gradlew :jni-wrapper:buildIosSimulatorWithConan
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: 'ios-${{github.sha}}'
+          path: '${{github.workspace}}/jni-wrapper/build/native/install/iOS/*'
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: 'ios-simulator-${{github.sha}}'
+          path: '${{github.workspace}}/jni-wrapper/build/native/install/iOSSimulator/*'

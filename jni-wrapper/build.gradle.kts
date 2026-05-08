@@ -43,8 +43,8 @@ val localProperties = Properties().apply {
     load(file(rootDir.absolutePath + "/local.properties").inputStream())
 }
 
-//val androidArchs = listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
-val androidArchs = listOf("arm64-v8a")
+val androidArchs = listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+//val androidArchs = listOf("arm64-v8a")
 val darwinArchs = listOf("arm64")
 
 //TODO: Use cpp-library plugin compilation tasks
@@ -101,7 +101,6 @@ val compileAndroid = tasks.create("compileAndroid") {
             }
         }
     }
-
 }
 
 val buildType = BuildTypes.Debug
@@ -253,6 +252,50 @@ tasks.register("buildMacosWithConan") {
                         " --deployer=runtime_deploy" +
                         " --output-folder=build/conan" +
                         " --deployer-folder build/native/install/Darwin/$privmxEndpointJavaVersion/$arch" +
+                        " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os','settings.arch']\""
+            )
+        }
+    }
+}
+
+tasks.register("buildIosWithConan") {
+    doFirst {
+        val conanArch = "armv8"
+        val arch = "arm64"
+        exec {
+            workingDir = layout.projectDirectory.asFile
+            commandLine(
+                "sh", "-c",
+                "conan install ." +
+                        " -pr ./conan/profiles/ios" +
+                        " -s build_type=${buildType.name}" +
+                        " -s arch=${conanArch}" +
+                        " --build missing" +
+                        " --deployer=runtime_deploy" +
+                        " --output-folder=build/conan" +
+                        " --deployer-folder build/native/install/iOS/$privmxEndpointJavaVersion/$arch" +
+                        " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os','settings.arch']\""
+            )
+        }
+    }
+}
+
+tasks.register("buildIosSimulatorWithConan") {
+    doFirst {
+        val conanArch = "armv8"
+        val arch = "arm64"
+        exec {
+            workingDir = layout.projectDirectory.asFile
+            commandLine(
+                "sh", "-c",
+                "conan install ." +
+                        " -pr ./conan/profiles/iosSimulator" +
+                        " -s build_type=${buildType.name}" +
+                        " -s arch=${conanArch}" +
+                        " --build missing" +
+                        " --deployer=runtime_deploy" +
+                        " --output-folder=build/conan-ios-simulator" +
+                        " --deployer-folder build/native/install/iOSSimulator/$privmxEndpointJavaVersion/$arch" +
                         " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os','settings.arch']\""
             )
         }
