@@ -95,6 +95,20 @@ jobs:
           distribution: 'oracle'
           cache: "gradle"
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+
+      - name: Cache NDK
+        id: ndk-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ env.ANDROID_SDK_ROOT }}/ndk/${{ env.ndk_version }}
+          key: ndk-${{ runner.os }}-${{ env.ndk_version }}
+
+      - name: Setup Android NDK
+        if: steps.ndk-cache.outputs.cache-hit != 'true'
+        run: sdkmanager --install "ndk;${{ env.ndk_version }}"
+
       - name: Configure PrivMX conan repository and build tools
         run: |
           brew install pipx
@@ -115,7 +129,11 @@ jobs:
           conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx
 
       - name: Prepare properties configuration
-        run: touch local.properties
+        run: |
+          cat > local.properties <<EOF
+          sdk.dir=${{ env.ANDROID_SDK_ROOT }}
+          ndk.version=${{ env.ndk_version }}
+          EOF
 
       - name: Compile android jni with conan dependencies
         run: ./gradlew :jni-wrapper:compileDarwin
@@ -138,6 +156,20 @@ jobs:
           distribution: 'oracle'
           cache: "gradle"
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+
+      - name: Cache NDK
+        id: ndk-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ env.ANDROID_SDK_ROOT }}/ndk/${{ env.ndk_version }}
+          key: ndk-${{ runner.os }}-${{ env.ndk_version }}
+
+      - name: Setup Android NDK
+        if: steps.ndk-cache.outputs.cache-hit != 'true'
+        run: sdkmanager --install "ndk;${{ env.ndk_version }}"
+
       - name: Configure PrivMX conan repository and build tools
         run: |
           brew install pipx
@@ -158,7 +190,11 @@ jobs:
           conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx
 
       - name: Prepare properties configuration
-        run: touch local.properties
+        run: |
+          cat > local.properties <<EOF
+          sdk.dir=${{ env.ANDROID_SDK_ROOT }}
+          ndk.version=${{ env.ndk_version }}
+          EOF
 
       - name: Compile iOS endpoint
         run: ./gradlew :jni-wrapper:buildIosWithConan
