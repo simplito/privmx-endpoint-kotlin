@@ -1,15 +1,14 @@
 package modules
 
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import org.json.JSONObject
 import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection
 import org.webrtc.PeerConnectionFactory
 import org.webrtc.PmxFrameCryptor
 import org.webrtc.PmxKeyStore
 import org.webrtc.SessionDescription
-import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -24,6 +23,8 @@ internal open class JanusConnection(
     protected val peerConnection: PeerConnection
     var sessionId: Long = -1L
     private val pcObserver: PcObserver
+
+    protected val configurationMutex = Mutex()
 
     init {
         this.pcObserver = PcObserver(
@@ -55,15 +56,15 @@ internal open class JanusConnection(
     }
 
     internal class SdpObserver(
-        private val continuation: Continuation<SessionDescription>?
+        private val continuation: Continuation<SessionDescription>
     ) : org.webrtc.SdpObserver {
         override fun onCreateSuccess(sessionDescription: SessionDescription) {
-            continuation?.resume(sessionDescription)
+            continuation.resume(sessionDescription)
         }
 
         override fun onSetSuccess() {}
         override fun onCreateFailure(s: String?) {
-            continuation?.resumeWithException(Exception(s))
+            continuation.resumeWithException(Exception(s))
         }
         override fun onSetFailure(s: String?) {}
     }
