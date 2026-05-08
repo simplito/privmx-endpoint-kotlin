@@ -126,7 +126,7 @@ jobs:
       - name: Setup conan
         run: |
           conan profile detect --force
-          conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx
+          conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx --force
 
       - name: Prepare properties configuration
         run: |
@@ -187,7 +187,7 @@ jobs:
       - name: Setup conan
         run: |
           conan profile detect --force
-          conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx
+          conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx --force
 
       - name: Prepare properties configuration
         run: |
