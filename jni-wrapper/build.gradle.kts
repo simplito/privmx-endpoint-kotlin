@@ -460,21 +460,34 @@ tasks.register("preparePmxEndpointXCFramework") {
 
 tasks.register("updateConanfileVersion") {
     group = "privmx native"
-    doFirst {
-        val conanfile = layout.projectDirectory.file("conanfile.txt").asFile
-        val version = "$nativeEndpointVersion$nativeAdditionalReleaseConanSuffix"
-        val updated = conanfile.readText()
-            .replace(Regex("privmx-endpoint/[^\n]+"), "privmx-endpoint/$version")
-        conanfile.writeText(updated)
+    val conanfile = layout.projectDirectory.file("conanfile.txt").asFile
+    val conanfileContent = conanfile.readText()
+
+    val version = "$nativeEndpointVersion$nativeAdditionalReleaseConanSuffix"
+
+    val requiresSectionRegex =
+        Regex(
+            ".*\\[requires\\]\\s*(?<content>(?:(?<line>(?!(?:\\[.*\\])).)*\\s*)*)", RegexOption.MULTILINE)
+    val requiresSectionContent = requiresSectionRegex.find(conanfileContent)?.value
+
+    val updatedConanfileContent = if (requiresSectionContent == null) {
+        """
+            [requires]
+            privmx-endpoint/$version
+        """.trimIndent() + conanfileContent
+    } else {
+        val updated = requiresSectionContent.replace(Regex("privmx-endpoint/\\S*"), "privmx-endpoint/$version")
+        conanfileContent.replace(requiresSectionContent, updated)
     }
+    conanfile.writeText(updatedConanfileContent)
 }
 
 tasks.register("clonePrivmxSources") {
     doFirst {
         val buildDirFile = layout.buildDirectory.locationOnly.get().asFile
-        val repoDir = File(buildDirFile,"privmx-endpoint")
-        if(!buildDirFile.exists()) buildDirFile.mkdirs()
-        if(repoDir.exists()) repoDir.deleteRecursively()
+        val repoDir = File(buildDirFile, "privmx-endpoint")
+        if (!buildDirFile.exists()) buildDirFile.mkdirs()
+        if (repoDir.exists()) repoDir.deleteRecursively()
         exec {
             workingDir = buildDirFile
             commandLine(
