@@ -222,7 +222,6 @@ tasks.register("buildAndroidWithConan") {
                     "sh", "-c",
                     "conan install ." +
                             " -pr ./conan/profiles/android" +
-                            " --requires \"privmx-endpoint/$nativeEndpointVersion$nativeAdditionalReleaseConanSuffix\"" +
                             " -s build_type=${buildType.name}" +
                             " -s arch=${conanArch}" +
                             " --build missing" +
@@ -247,7 +246,6 @@ tasks.register("buildMacosWithConan") {
                 "sh", "-c",
                 "conan install ." +
                         " -pr ./conan/profiles/macos" +
-                        " --requires \"privmx-endpoint/$nativeEndpointVersion$nativeAdditionalReleaseConanSuffix\"" +
                         " -s build_type=${buildType.name}" +
                         " -s arch=${conanArch}" +
                         " --build missing" +
