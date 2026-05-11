@@ -5,4 +5,5 @@ compiler.libcxx=libc++
 compiler.version=16
 os=iOS
 os.version=13.0
+os.sdk=iphoneos
 arch=armv8
