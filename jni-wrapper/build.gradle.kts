@@ -1,6 +1,7 @@
 import org.gradle.internal.jvm.Jvm
 import org.gradle.kotlin.dsl.support.zipTo
 import java.util.Properties
+import kotlin.text.replace
 
 plugins {
     alias(libs.plugins.android.library)
@@ -298,6 +299,174 @@ tasks.register("buildIosSimulatorWithConan") {
                         " --output-folder=build/conan" +
                         " --deployer-folder build/native/install/iOSSimulator/$privmxEndpointJavaVersion/$arch" +
                         " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os','settings.arch']\""
+            )
+        }
+    }
+}
+
+//val privmxEndpointVersionTag = "v2.7.5"
+
+tasks.register("buildIOSSimulatorStaticFromSources") {
+    dependsOn("clonePrivmxSources")
+    doFirst {
+        val clonedEndpointDir = layout.buildDirectory.dir("privmx-endpoint").get().asFile
+        val profile = layout.projectDirectory.file("conan/profiles/iosSimulator").asFile.absolutePath
+        exec {
+            workingDir = clonedEndpointDir
+            commandLine(
+                "sh", "-c",
+                "conan install ." +
+                        " -pr $profile" +
+                        " -s build_type=${buildType.name}" +
+                        " --build missing" +
+                        " --deployer=runtime_deploy" +
+                        " --output-folder=../conan" +
+                        " --deployer-folder ../native/install/iOSSimulator/$privmxEndpointJavaVersion/arm64" +
+                        " -o \"*:shared=False\"" +
+                        " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os', 'settings.os.sdk','settings.arch']\""
+            )
+        }
+
+        val INSTALL_DIR =
+            layout.buildDirectory.get().dir("native/install/iOSSimulator/$privmxEndpointJavaVersion/arm64").asFile
+        val COMPILED_DIR =
+            layout.buildDirectory.get().dir("native/compile/iOSSimulator/$privmxEndpointJavaVersion/arm64").asFile
+        exec {
+            workingDir = clonedEndpointDir
+            commandLine(
+                "sh", "-c",
+                "cmake" +
+                        " -B\"${COMPILED_DIR.absolutePath}\"" +
+                        " -DCMAKE_BUILD_TYPE=${buildType.name}" +
+                        " -DCMAKE_CXX_FLAGS=-std=c++17" +
+                        " -DPRIVMX_BUILD_ENDPOINT=ON" +
+                        " -DBUILD_SHARED_LIBS=OFF" +
+                        " -DPRIVMX_BUILD_ENDPOINT_ENDPOINT=ON" +
+                        " -DPRIVMX_CONAN=ON" +
+                        " -DPRIVMX_DRIVER_CRYPTO=ON" +
+                        " -DPRIVMX_DRIVER_NET=ON" +
+                        " -DCMAKE_TOOLCHAIN_FILE=\"${layout.buildDirectory.asFile.get().absolutePath}/conan/build/ios-iphonesimulator-armv8/${buildType.name}/generators/conan_toolchain.cmake\"" +
+                        " -DCMAKE_INSTALL_PREFIX=\"${INSTALL_DIR.absolutePath}\""
+            )
+        }
+
+        exec {
+            workingDir = COMPILED_DIR
+            commandLine("sh", "-c", "cmake --build .")
+        }
+
+        exec {
+            workingDir = COMPILED_DIR
+            commandLine("sh", "-c", "make -s -j8")
+        }
+        exec {
+            workingDir = COMPILED_DIR
+            commandLine("sh", "-c", "make -s install")
+        }
+        exec {
+            workingDir = INSTALL_DIR
+            commandLine("sh", "-c", "/usr/bin/libtool -static -o libpmxend.a ./lib/*.a")
+        }
+    }
+}
+
+
+tasks.register("buildIOSStaticFromSources") {
+    dependsOn("clonePrivmxSources")
+    doFirst {
+        val clonedEndpointDir = layout.buildDirectory.dir("privmx-endpoint").get().asFile
+        val profile = layout.projectDirectory.file("conan/profiles/ios").asFile.absolutePath
+        exec {
+            workingDir = clonedEndpointDir
+            commandLine(
+                "sh", "-c",
+                "conan install ." +
+                        " -pr $profile" +
+                        " -s build_type=${buildType.name}" +
+                        " --build missing" +
+                        " --deployer=runtime_deploy" +
+                        " --output-folder=../conan" +
+                        " --deployer-folder ../native/install/iOS/$privmxEndpointJavaVersion/arm64" +
+                        " -o \"*:shared=False\"" +
+                        " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os','settings.arch']\""
+            )
+        }
+
+        //iphoneSimulator
+        val INSTALL_DIR = layout.buildDirectory.get().dir("native/install/iOS/$privmxEndpointJavaVersion/arm64").asFile
+        val COMPILED_DIR = layout.buildDirectory.get().dir("native/compile/iOS/$privmxEndpointJavaVersion/arm64").asFile
+
+        exec {
+            workingDir = clonedEndpointDir
+            commandLine(
+                "sh", "-c",
+                "cmake" +
+                        " -B\"${COMPILED_DIR.absolutePath}\"" +
+                        " -DCMAKE_BUILD_TYPE=${buildType.name}" +
+                        " -DPRIVMX_BUILD_ENDPOINT=ON" +
+                        " -DCMAKE_CXX_FLAGS=-std=c++17" +
+                        " -DBUILD_SHARED_LIBS=OFF" +
+                        " -DPRIVMX_BUILD_ENDPOINT_ENDPOINT=ON" +
+                        " -DPRIVMX_CONAN=ON" +
+                        " -DPRIVMX_DRIVER_CRYPTO=ON" +
+                        " -DPRIVMX_DRIVER_NET=ON" +
+                        " -DCMAKE_TOOLCHAIN_FILE=\"${layout.buildDirectory.asFile.get().absolutePath}/conan/build/ios-armv8/${buildType.name}/generators/conan_toolchain.cmake\"" +
+                        " -DCMAKE_INSTALL_PREFIX=\"${INSTALL_DIR.absolutePath}\""
+            )
+        }
+
+        exec {
+            workingDir = COMPILED_DIR
+            commandLine("sh", "-c", "cmake --build .")
+        }
+
+        exec {
+            workingDir = COMPILED_DIR
+            commandLine("sh", "-c", "make -s -j8")
+        }
+
+        exec {
+            workingDir = COMPILED_DIR
+            commandLine("sh", "-c", "make -s install")
+        }
+
+        exec {
+            workingDir = INSTALL_DIR
+            commandLine("sh", "-c", "/usr/bin/libtool -static -o ./libpmxend.a ./lib/*.a")
+        }
+    }
+}
+
+tasks.register("preparePmxEndpointXCFramework") {
+    dependsOn("buildIOSSimulatorStaticFromSources")
+    dependsOn("buildIOSStaticFromSources")
+    doFirst {
+        val installDir = layout.buildDirectory.get().dir("native/install")
+        val iosDir = installDir.dir("iOS/$privmxEndpointJavaVersion/arm64")
+        val iosSimulatorDir = installDir.dir("iOSSimulator/$privmxEndpointJavaVersion/arm64")
+        exec {
+            workingDir = installDir.asFile
+            commandLine(
+                "sh", "-c", "xcodebuild -create-xcframework" +
+                        " -output frameworks/$privmxEndpointJavaVersion/privmx-endpoint.xcframework" +
+                        " -library ${iosDir.file("libpmxend.a").asFile.absolutePath} -headers ${iosDir.dir("include").asFile.absolutePath}" +
+                        " -library ${iosSimulatorDir.file("libpmxend.a").asFile.absolutePath} -headers ${
+                            iosSimulatorDir.dir(
+                                "include"
+                            ).asFile.absolutePath
+                        }"
+            )
+        }
+    }
+}
+
+tasks.register("clonePrivmxSources") {
+    doFirst {
+        exec {
+            workingDir = layout.buildDirectory.asFile.get()
+            commandLine(
+                "sh", "-c",
+                "git clone --depth 1 -b v$nativeEndpointVersion https://github.com/simplito/privmx-endpoint.git"
             )
         }
     }
