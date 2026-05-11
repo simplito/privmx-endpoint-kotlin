@@ -458,10 +458,25 @@ tasks.register("preparePmxEndpointXCFramework") {
     }
 }
 
+tasks.register("updateConanfileVersion") {
+    group = "privmx native"
+    doFirst {
+        val conanfile = layout.projectDirectory.file("conanfile.txt").asFile
+        val version = "$nativeEndpointVersion$nativeAdditionalReleaseConanSuffix"
+        val updated = conanfile.readText()
+            .replace(Regex("privmx-endpoint/[^\n]+"), "privmx-endpoint/$version")
+        conanfile.writeText(updated)
+    }
+}
+
 tasks.register("clonePrivmxSources") {
     doFirst {
+        val buildDirFile = layout.buildDirectory.locationOnly.get().asFile
+        val repoDir = File(buildDirFile,"privmx-endpoint")
+        if(!buildDirFile.exists()) buildDirFile.mkdirs()
+        if(repoDir.exists()) repoDir.deleteRecursively()
         exec {
-            workingDir = layout.buildDirectory.asFile.get()
+            workingDir = buildDirFile
             commandLine(
                 "sh", "-c",
                 "git clone --depth 1 -b v$nativeEndpointVersion https://github.com/simplito/privmx-endpoint.git"
