@@ -196,18 +196,10 @@ jobs:
           ndk.version=${{ env.ndk_version }}
           EOF
 
-      - name: Compile iOS endpoint
-        run: ./gradlew :jni-wrapper:buildIosWithConan
-
-      - name: Compile iOSSimulator endpoint
-        run: ./gradlew :jni-wrapper:buildIosSimulatorWithConan
+      - name: Prepare iOS and iOSSimulator endpoint xcframework
+        run: ./gradlew :jni-wrapper:preparePmxEndpointXCFramework
 
       - uses: actions/upload-artifact@v7
         with:
-          name: 'ios-${{github.sha}}'
-          path: '${{github.workspace}}/jni-wrapper/build/native/install/iOS/*'
-
-      - uses: actions/upload-artifact@v7
-        with:
-          name: 'ios-simulator-${{github.sha}}'
-          path: '${{github.workspace}}/jni-wrapper/build/native/install/iOSSimulator/*'
+          name: 'privmx-endpoint-xcframework-${{github.sha}}'
+          path: '${{github.workspace}}/jni-wrapper/build/native/install/frameworks/*/privmx-endpoint.xcframework'
