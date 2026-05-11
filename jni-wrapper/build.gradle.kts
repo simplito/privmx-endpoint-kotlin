@@ -45,6 +45,19 @@ val localProperties = Properties().apply {
 
 val androidArchs = listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
 val darwinArchs = listOf("arm64")
+val nativeEndpointVersion = libs.versions.nativePrivmxEndpoint.get()
+val nativeAdditionalReleaseConanSuffix = "-dev.2"
+val buildType = BuildTypes.Debug
+private val privmxEndpointJavaVersion get() = project(":privmx-endpoint").version
+
+object AndroidProfileConfig {
+    val Properties.sdkPath: String? get() = this["sdk.dir"] as? String
+    val Properties.ndkVersion: String? get() = this["ndk.version"] as? String
+    val Properties.ndkPath: String?
+        get() = if (sdkPath.isNullOrBlank() || ndkVersion.isNullOrBlank()) throw IllegalArgumentException(
+            "sdk.dir or ndk.version is not defined in local.properties"
+        ) else "$sdkPath/ndk/$ndkVersion"
+}
 
 //TODO: Use cpp-library plugin compilation tasks
 val compileAndroid = tasks.create("compileAndroid") {
@@ -102,9 +115,6 @@ val compileAndroid = tasks.create("compileAndroid") {
     }
 
 }
-
-val buildType = BuildTypes.Debug
-
 //TODO: Use cpp-library plugin compilation tasks
 val compileDarwin = tasks.create("compileDarwin") {
     group = "privmx native"
@@ -191,17 +201,6 @@ tasks.create("zipAndroidNative") {
             zipTo(zipFile, sourceFile)
         }
     }
-}
-
-private val privmxEndpointJavaVersion get() = project(":privmx-endpoint").version
-
-object AndroidProfileConfig {
-    val Properties.sdkPath: String? get() = this["sdk.dir"] as? String
-    val Properties.ndkVersion: String? get() = this["ndk.version"] as? String
-    val Properties.ndkPath: String?
-        get() = if (sdkPath.isNullOrBlank() || ndkVersion.isNullOrBlank()) throw IllegalArgumentException(
-            "sdk.dir or ndk.version is not defined in local.properties"
-        ) else "$sdkPath/ndk/$ndkVersion"
 }
 
 tasks.register("buildAndroidWithConan") {
@@ -294,7 +293,7 @@ tasks.register("buildIosSimulatorWithConan") {
                         " -s arch=${conanArch}" +
                         " --build missing" +
                         " --deployer=runtime_deploy" +
-                        " --output-folder=build/conan-ios-simulator" +
+                        " --output-folder=build/conan" +
                         " --deployer-folder build/native/install/iOSSimulator/$privmxEndpointJavaVersion/$arch" +
                         " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os','settings.arch']\""
             )
