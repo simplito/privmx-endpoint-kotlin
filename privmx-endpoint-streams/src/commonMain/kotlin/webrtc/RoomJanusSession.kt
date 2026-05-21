@@ -9,7 +9,6 @@ expect class RoomJanusSession(
     onTrickle: (Long, String) -> Unit,
 //    setNewOfferOnReconfigure: (Long, SdpWithTypeModel) -> Unit
 ) {
-    ////    private val keyStore: PMXKeyStore = // PmxFrameCryptorFactory.createPmxKeyStore()
 //    private val trackObserversByStreamId = mutableMapOf<String?, TrackObserver>()
 //    private val trackObserver: TrackObserver = TrackObserverImpl()
 //    private var onConnectionChangeCallback: (PeerConnection.IceConnectionState) -> Unit = {}
@@ -107,74 +106,8 @@ expect class RoomJanusSession(
 //    }
 //
     inner class WebRTCImpl
-//{
-//
-//        override fun createOfferAndSetLocalDescription(streamRoomId: String): String {
-//            return runBlocking(context) {
-//                val pub = publisher ?: throw RuntimeException("Create publisher first")
-//                pub.createOffer()
-//            }
-//        }
-//
-//        override fun createAnswerAndSetDescriptions(
-//            streamRoomId: String,
-//            sdp: String,
-//            type: String
-//        ): String {
-//            return runBlocking(context) {
-//                val sub = subscriber ?: throw RuntimeException("Create subscriber first")
-//                sub.createAnswer(sdp, type)
-//            }
-//        }
-//
-//        override fun setAnswerAndSetRemoteDescription(
-//            streamRoomId: String,
-//            sdp: String,
-//            type: String
-//        ) {
-//            runBlocking(context) {
-//                val pub = publisher ?: throw RuntimeException("Create publisher first")
-//                pub.setAnswer(sdp, type)
-//            }
-//        }
-//
-//        override fun close(streamRoomId: String) {
-//            runBlocking(context) {
-//                publisher?.close()
-//                subscriber?.close()
-//            }
-//        }
-//
-//        override fun updateKeys(
-//            streamRoomId: String,
-//            keys: List<Key>
-//        ) {
-//            runBlocking(context) {
-//                keyStore.setKeys(keys.map { key ->
-//                    PmxKeyStore.Key(
-//                        key.keyId,
-//                        key.key,
-//                        if (key.type == KeyType.LOCAL) PmxKeyStore.KeyType.LOCAL
-//                        else PmxKeyStore.KeyType.REMOTE
-//                    )
-//                })
-//            }
-//        }
-//
-//        override fun updateSessionId(
-//            streamRoomId: String,
-//            sessionId: Long,
-//            connectionType: String
-//        ) {
-//            runBlocking(context) {
-//                when (connectionType) {
-//                    "subscriber" -> subscriber?.sessionId = sessionId
-//                    "publisher" -> publisher?.sessionId = sessionId
-//                }
-//            }
-//        }
-//    }
-//
+
+
 //    private inner class TrackObserverImpl : TrackObserver {
 //        override fun OnRemoteTrack(
 //            streamId: String,

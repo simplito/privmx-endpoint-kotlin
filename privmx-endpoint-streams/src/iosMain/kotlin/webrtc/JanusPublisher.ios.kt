@@ -24,10 +24,10 @@ actual class JanusPublisher(
     actual fun addVideoTrack(videoTrack: VideoTrack) {
     }
 
-    actual suspend fun removeAudioTrack(id: String) {
+    actual  fun removeAudioTrack(id: String) {
     }
 
-    actual suspend fun removeVideoTrack(id: String) {
+    actual  fun removeVideoTrack(id: String) {
     }
 
     actual suspend fun createOffer(): String {
