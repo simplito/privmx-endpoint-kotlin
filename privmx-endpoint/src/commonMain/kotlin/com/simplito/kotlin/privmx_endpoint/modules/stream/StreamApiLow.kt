@@ -16,12 +16,9 @@ import com.simplito.java.privmx_endpoint.model.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
-import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.EventSelectorType
-import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.EventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
-import com.simplito.kotlin.privmx_endpoint.model.stream.Settings
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamEncryptionMode
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
@@ -31,6 +28,7 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
 import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.modules.event.EventApi
+import kotlin.jvm.JvmOverloads
 
 /**
  * Low-level Stream API for PrivMX Bridge.
@@ -43,7 +41,7 @@ expect class StreamApiLow
 @Throws(IllegalStateException::class)
 constructor(
     connection: Connection,
-    eventApi: EventApi? = null,
+    eventApi: EventApi,
     streamEncryptionMode: StreamEncryptionMode = StreamEncryptionMode.SINGLE_KEY
 ) : AutoCloseable {
 
@@ -73,6 +71,7 @@ constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     fun createStreamRoom(
         contextId: String,
         users: List<UserWithPubKey>,
@@ -99,6 +98,7 @@ constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     fun updateStreamRoom(
         streamRoomId: String,
         users: List<UserWithPubKey>,
@@ -127,6 +127,7 @@ constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     fun listStreamRooms(
         contextId: String,
         skip: Long,
@@ -249,7 +250,6 @@ constructor(
      *
      * @param streamRoomId ID of the room where streams are
      * @param subscriptions list of subscriptions
-     * @param options additional settings
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
@@ -257,8 +257,7 @@ constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun subscribeToRemoteStreams(
         streamRoomId: String,
-        subscriptions: List<StreamSubscription>,
-        options: Settings
+        subscriptions: List<StreamSubscription>
     )
 
     /**
@@ -267,7 +266,6 @@ constructor(
      * @param streamRoomId ID of the room where streams are
      * @param subscriptionsToAdd list of subscriptions to add
      * @param subscriptionsToRemove list of subscriptions to remove
-     * @param options additional settings
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
@@ -276,8 +274,7 @@ constructor(
     fun modifyRemoteStreamsSubscriptions(
         streamRoomId: String,
         subscriptionsToAdd: List<StreamSubscription>,
-        subscriptionsToRemove: List<StreamSubscription>,
-        options: Settings
+        subscriptionsToRemove: List<StreamSubscription>
     )
 
     /**
@@ -359,6 +356,12 @@ constructor(
         selectorType: StreamEventSelectorType,
         selectorId: String
     ): String
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun setNewOfferOnReconfigure(
+        sessionId: Long,
+        sdp: SdpWithTypeModel
+    )
 
     /**
      * Enables or disables key management for a room.
