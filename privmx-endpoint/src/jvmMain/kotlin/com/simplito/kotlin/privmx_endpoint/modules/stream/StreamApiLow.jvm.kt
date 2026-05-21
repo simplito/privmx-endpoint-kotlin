@@ -22,7 +22,6 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.model.stream.RecordingEncKey
 import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
-import com.simplito.kotlin.privmx_endpoint.model.stream.Settings
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamEncryptionMode
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
@@ -142,7 +141,6 @@ actual constructor(
     actual fun subscribeToRemoteStreams(
         streamRoomId: String,
         subscriptions: List<StreamSubscription>,
-        options: Settings
     ) {
         throw NotImplementedError("StreamApiLow is not implemented for JVM.")
     }
@@ -152,7 +150,6 @@ actual constructor(
         streamRoomId: String,
         subscriptionsToAdd: List<StreamSubscription>,
         subscriptionsToRemove: List<StreamSubscription>,
-        options: Settings
     ) {
         throw NotImplementedError("StreamApiLow is not implemented for JVM.")
     }
@@ -203,5 +200,8 @@ actual constructor(
      * Frees memory.
      */
     actual override fun close() {
+    }
+
+    actual fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel?) {
     }
 }
