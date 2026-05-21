@@ -1,3 +1,5 @@
+import java.util.Properties
+
 pluginManagement {
     repositories {
         google()
@@ -7,9 +9,21 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
+    val localRepoPath = Properties()
+        .apply {
+            file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+        }.getProperty("repositoryURL")
+
     repositories {
         google()
         mavenCentral()
+
+        if (!localRepoPath.isNullOrEmpty()) {
+            maven {
+                name = "LocalMaven"
+                url = uri(localRepoPath)
+            }
+        }
     }
 }
 
