@@ -196,66 +196,50 @@ privmx::endpoint::inbox::FilesConfig parseFilesConfig(JniContextUtils &ctx, jobj
     return result;
 }
 
-jobject initEvent(JniContextUtils &ctx, std::string type, std::string channel, int64_t connectionId,
-        std::vector<std::string> &subscriptions, int64_t timestamp, jobject data_j) {
+jobject initEvent(
+        JniContextUtils &ctx,
+        std::string type,
+        std::string channel,
+        int64_t connectionId,
+        std::vector <std::string> &subscriptions,
+        int64_t timestamp,
+        jobject data_j
+) {
     if (type.empty()) return nullptr;
     jclass eventCls = ctx->FindClass("com/simplito/kotlin/privmx_endpoint/model/Event");
-    jmethodID eventInitMID = ctx->GetMethodID(eventCls, "<init>", "()V");
-    jfieldID eventTypeFieldID = ctx->GetFieldID(eventCls, "type", "Ljava/lang/String;");
-    jfieldID eventDataFieldID = ctx->GetFieldID(eventCls, "data", "Ljava/lang/Object;");
-    jfieldID eventConnectionIdFieldID = ctx->GetFieldID(eventCls, "connectionId",
-            "Ljava/lang/Long;");
-    jfieldID eventChannelFieldID = ctx->GetFieldID(eventCls, "channel", "Ljava/lang/String;");
+    jclass arrayCls = ctx->FindClass("java/util/ArrayList");
+    jmethodID initArrayMID = ctx->GetMethodID(arrayCls, "<init>", "()V");
+    jmethodID addToArrayMID = ctx->GetMethodID(arrayCls, "add", "(Ljava/lang/Object;)Z");
 
-    jfieldID eventSubscriptionsFieldID = ctx->GetFieldID(eventCls, "subscriptions",
-            "Ljava/util/List;");
-    jfieldID eventTimestampFieldID = ctx->GetFieldID(eventCls, "timestamp",
-            "Ljava/lang/Long;");
-
-    jclass arrayListCls = ctx->FindClass("java/util/ArrayList");
-    jmethodID arrayListInit = ctx->GetMethodID(arrayListCls, "<init>", "()V");
-    jmethodID arrayListAdd = ctx->GetMethodID(arrayListCls, "add", "(Ljava/lang/Object;)Z");
-
-    jobject subscriptionsList = ctx->NewObject(arrayListCls, arrayListInit);
-
-    for (const std::string &sub: subscriptions) {
-        jstring jSub = ctx->NewStringUTF(sub.c_str());
-        ctx->CallBooleanMethod(subscriptionsList, arrayListAdd, jSub);
+    jobject subs = ctx->NewObject(arrayCls, initArrayMID);
+    for (const auto &subscription: subscriptions) {
+        jstring jSub = ctx->NewStringUTF(subscription.c_str());
+        ctx->CallBooleanMethod(subs, addToArrayMID, jSub);
     }
 
-    jobject event_j = ctx->NewObject(eventCls, eventInitMID);
-    ctx->SetObjectField(
-            event_j,
-            eventTypeFieldID,
-            ctx->NewStringUTF(type.c_str())
-    );
-    ctx->SetObjectField(
-            event_j,
-            eventDataFieldID,
-            data_j
-    );
-    ctx->SetObjectField(
-            event_j,
-            eventConnectionIdFieldID,
-            ctx.long2jLong(connectionId)
-    );
-    ctx->SetObjectField(
-            event_j,
-            eventChannelFieldID,
-            ctx->NewStringUTF(channel.c_str())
-    );
-    ctx->SetObjectField(
-            event_j,
-            eventSubscriptionsFieldID,
-            subscriptionsList
-    );
-    ctx->SetObjectField(
-            event_j,
-            eventTimestampFieldID,
-            ctx.long2jLong(timestamp)
+    jmethodID eventInitMID = ctx->GetMethodID(
+            eventCls,
+            "<init>",
+            "("
+            "Ljava/lang/String;"   // type
+            "Ljava/lang/String;"   // channel
+            "Ljava/lang/Long;"     // connectionId
+            "Ljava/util/List;"     // subscriptions
+            "Ljava/lang/Long;"     // timestamp
+            "Ljava/lang/Object;"   // data
+            ")V"
     );
 
-    return event_j;
+    return ctx->NewObject(
+            eventCls,
+            eventInitMID,
+            ctx->NewStringUTF(type.c_str()),
+            ctx->NewStringUTF(channel.c_str()),
+            ctx.long2jLong(connectionId),
+            subs,
+            ctx.long2jLong(timestamp),
+            data_j
+    );
 }
 
 jobject
