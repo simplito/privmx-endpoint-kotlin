@@ -12,6 +12,11 @@ cmake_minimum_required(VERSION 3.22.1)
 project("privmx-endpoint-kotlin")
 message("module path ${CMAKE_MODULE_PATH}")
 message("toolchain path ${CMAKE_TOOLCHAIN_FILE}")
+
+if(APPLE)
+    set(CMAKE_INSTALL_RPATH "@loader_path")
+endif()
+
 find_package(privmxendpoint REQUIRED)
 find_package(Poco REQUIRED)
 find_package(privmxdrvnet REQUIRED)
