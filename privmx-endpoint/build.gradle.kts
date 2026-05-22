@@ -19,6 +19,8 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest
 import java.io.IOException
+import java.io.PipedInputStream
+import java.io.PipedOutputStream
 
 import java.util.Properties
 import java.util.UUID
@@ -491,8 +493,6 @@ tasks.withType<KotlinJvmTest> {
         listOf(
             "*",
             "**/**",
-            "E2ETests/**",
-            "E2ETests/CoreTest*",
         )
     )
 }
@@ -509,4 +509,58 @@ tasks.withType<KotlinNativeSimulatorTest> {
         into(layout.buildDirectory.dir("bin/$targetName/debugTest/resources"))
     }
 
+}
+
+tasks.register<Exec>("GeneratePemKey") {
+    val path = "src/commonTest/resources/private-key.pem"
+    commandLine(
+        "openssl",
+        "ecparam",
+        "-name",
+        "prime256v1",
+        "-genkey",
+        "-noout",
+        "-out",
+        path
+    )
+}
+
+val pgp_key_uid = "user_id"
+tasks.register("GeneratePGPKey") {
+    val path = "privmx-endpoint/src/commonTest/resources/pgp-public-key.asc"
+    var fingerprint = ""
+    doFirst {
+        val inPip = PipedInputStream()
+        val outPip = PipedOutputStream(inPip)
+        exec {
+            commandLine(
+                "/bin/bash",
+                "-c",
+                "gpg --no-tty --with-fingerprint --quick-generate-key $pgp_key_uid secp256k1 sign never", // uid algo usage no-expire
+            )
+            standardOutput = outPip;
+        }
+
+        val res = String(inPip.readAllBytes());
+        Regex("pub *secp256k1.*\\n *(.*)").find(res)?.let {
+            fingerprint = it.groupValues[1]
+        }
+        exec {
+            commandLine(
+                "/bin/bash",
+                "-c",
+                "gpg --armor --export $pgp_key_uid"
+            )
+            standardOutput = File(path).outputStream()
+        }
+
+        exec {
+            isIgnoreExitValue = true
+            commandLine(
+                "/bin/bash",
+                "-c",
+                "gpg --no-tty --batch --yes --delete-secret-and-public-key \"$fingerprint\""
+            )
+        }
+    }
 }
