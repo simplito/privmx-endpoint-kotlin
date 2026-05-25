@@ -532,18 +532,20 @@ tasks.register("GeneratePGPKey") {
     doFirst {
         val inPip = PipedInputStream()
         val outPip = PipedOutputStream(inPip)
+        file(path).ensureParentDirsCreated()
         exec {
             commandLine(
                 "/bin/bash",
                 "-c",
-                "gpg --no-tty --with-fingerprint --quick-generate-key $pgp_key_uid secp256k1 sign never", // uid algo usage no-expire
+                "gpg --no-tty --batch --yes --passphrase '' --quick-generate-key --with-fingerprint \"$pgp_key_uid\" secp256k1 sign never"
             )
             standardOutput = outPip;
+            errorOutput = outPip;
         }
 
-        val res = String(inPip.readAllBytes());
-        Regex("pub *secp256k1.*\\n *(.*)").find(res)?.let {
-            fingerprint = it.groupValues[1]
+        val res = inPip.readAllBytes().decodeToString()
+        Regex("(?:pub *secp256k1.*\\n *(.*))|(?:.*/(.*).rev'$)").find(res)?.let {
+            fingerprint = it.groupValues[1].run { if(isNullOrBlank()) it.groupValues[2] else "" }
         }
         exec {
             commandLine(
