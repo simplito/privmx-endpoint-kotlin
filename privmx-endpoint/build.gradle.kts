@@ -532,7 +532,6 @@ tasks.register("GeneratePGPKey") {
     doFirst {
         val inPip = PipedInputStream()
         val outPip = PipedOutputStream(inPip)
-        file(path).ensureParentDirsCreated()
         exec {
             commandLine(
                 "/bin/bash",
