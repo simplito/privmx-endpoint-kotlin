@@ -55,12 +55,29 @@ jobs:
           brew install colima docker docker-compose qemu
           colima start --vm-type=vz --cpu 4 --memory 8
 
+      - name: Cache Docker images
+        id: docker-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: /tmp/docker-cache
+          key: docker-${{ runner.os }}-${{ hashFiles('tests/compose.yaml') }}
+
+      - name: Load cached Docker images
+        if: steps.docker-cache.outputs.cache-hit == 'true'
+        run: docker load -i /tmp/docker-cache/images.tar
+
       - name: Start backend services
         run: |
           cd tests
           docker compose up -d
           sleep 15
           cd ..
+
+      - name: Save Docker images to cache
+        if: steps.docker-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p /tmp/docker-cache
+          docker save simplito/janus-gateway-docker:v1.4.0 coturn/coturn mongo:7.0 -o /tmp/docker-cache/images.tar
 
       - name: Prepare properties configuration
         run: |
