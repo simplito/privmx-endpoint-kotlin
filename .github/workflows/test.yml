@@ -53,7 +53,7 @@ jobs:
       - name: Install Colima + Docker
         run: |
           brew install colima docker docker-compose
-          colima start --vm-type=vz --vz-rosetta --cpu 4 --memory 8
+          colima start --arch aarch64 --vm-type=vz --vz-rosetta --cpu 4 --memory 8
 
       - name: Start backend services
         run: |
