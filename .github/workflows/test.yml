@@ -18,7 +18,7 @@ env:
 jobs:
   run-tests:
     timeout-minutes: 15
-    runs-on: macos-latest
+    runs-on: macos-26-intel
 
     steps:
       - uses: actions/checkout@v4
@@ -41,6 +41,11 @@ jobs:
       - name: Setup Android NDK
         if: steps.ndk-cache.outputs.cache-hit != 'true'
         run: sdkmanager --install "ndk;${{ env.ndk_version }}"
+
+      - name: Install Colima + Docker
+        run: |
+          brew install colima docker docker-compose qemu
+          colima start --vm-type=vz --cpu 4 --memory 8
 
       - name: Start backend services
         run: |
