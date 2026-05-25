@@ -50,6 +50,11 @@ jobs:
         if: steps.ndk-cache.outputs.cache-hit != 'true'
         run: sdkmanager --install "ndk;${{ env.ndk_version }}"
 
+      - name: Install Colima + Docker
+        run: |
+          brew install colima docker docker-compose
+          colima start --cpu 4 --memory 8
+
       - name: Start backend services
         run: |
           cd tests
