@@ -52,8 +52,8 @@ jobs:
 
       - name: Install Colima + Docker
         run: |
-          brew install colima docker docker-compose
-          colima start --arch aarch64 --vm-type=vz --cpu 4 --memory 8
+          brew install colima docker docker-compose qemu
+          colima start --vm-type=vz --cpu 4 --memory 8
 
       - name: Start backend services
         run: |
