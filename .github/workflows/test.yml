@@ -49,9 +49,10 @@ jobs:
 
       - name: Start backend services
         run: |
-        cd tests
-        docker compose up -d
-        sleep 15
+          cd tests
+          docker compose up -d
+          sleep 15
+          cd ..
 
       - name: Prepare env to tests
         run: ./gradlew :privmx-endpoint:testsPreConfig
