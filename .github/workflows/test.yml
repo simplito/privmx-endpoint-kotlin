@@ -24,14 +24,6 @@ jobs:
           distribution: 'oracle'
           cache: "gradle"
 
-      - name: Download darwin JNI artifact
-        if: github.event_name == 'workflow_run'
-        uses: actions/download-artifact@v4
-        with:
-          name: darwin-jni-${{ github.sha }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: privmx-endpoint/jniTestLibs/Darwin/arm64/
-
       - name: Setup Android SDK
         uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
 
@@ -101,6 +93,14 @@ jobs:
         run: |
           ./gradlew :privmx-endpoint:GeneratePemKey
           ./gradlew :privmx-endpoint:GeneratePGPKey
+
+      - name: Download darwin JNI artifact
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v4
+        with:
+          name: darwin-jni-${{ github.sha }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: privmx-endpoint/jniTestLibs/Darwin/arm64/
 
       - name: Run PrivMX Endpoint Java Tests
         run: ./gradlew :privmx-endpoint:jvmTest
