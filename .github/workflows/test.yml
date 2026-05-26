@@ -3,6 +3,8 @@ name: Tests
 on:
   push:
     branches: ["**"]
+  pull_request:
+      branches: [ main, dev, 'release/*' ]
   workflow_run:
     workflows: ["Native Builds"]
     branches: ["main","dev","release/*","**"]
