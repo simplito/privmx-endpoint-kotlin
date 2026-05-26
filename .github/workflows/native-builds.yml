@@ -1,4 +1,4 @@
-name: native-builds
+name: Native Builds
 
 on:
   pull_request:
