@@ -18,6 +18,7 @@
 #include "../utils.hpp"
 #include "../parser.h"
 #include "../exceptions.h"
+#include <privmx/drv/net.h>
 
 using namespace privmx::endpoint;
 
@@ -136,6 +137,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_core_Connection_setCertsPath(
     }
     ctx.callVoidEndpointApi([&ctx, &certs_path]() {
         privmx::endpoint::core::Config::setCertsPath(ctx.jString2string(certs_path));
+        //TODO: Should be called in endpoint
+        privmxDrvNet_setConfig(std::string("caCertPath=" + ctx.jString2string(certs_path)).c_str());
     });
 }
 
