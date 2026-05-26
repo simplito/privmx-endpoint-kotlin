@@ -4,7 +4,7 @@ on:
   push:
     branches: ["**"]
   workflow_run:
-    workflows: ["Native Builds"]
+    workflows: ["native-build"]
     branches: ["main","dev","release/*","**"]
     types: ["completed"]
   workflow_dispatch:
