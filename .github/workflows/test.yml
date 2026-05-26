@@ -42,6 +42,18 @@ jobs:
         if: steps.ndk-cache.outputs.cache-hit != 'true'
         run: sdkmanager --install "ndk;${{ env.ndk_version }}"
 
+      - name: Cache Homebrew packages
+        id: brew-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: |
+            ~/Library/Caches/Homebrew
+            /usr/local/Cellar/colima
+            /usr/local/Cellar/docker
+            /usr/local/Cellar/docker-compose
+            /usr/local/Cellar/qemu
+          key: brew-${{ runner.os }}-colima-docker-docker-compose-qemu
+
       - name: Install Colima + Docker
         run: |
           brew install colima docker docker-compose qemu
