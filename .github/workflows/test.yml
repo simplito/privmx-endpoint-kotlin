@@ -2,8 +2,8 @@ name: test.yml
 
 on:
   workflow_run:
-    workflows: ["native-builds"]
-    branches: ["main","dev","release/*"]
+    workflows: ["Native Builds"]
+    branches: ["main","dev","release/*","**"]
     types: ["completed"]
   workflow_dispatch:
 
