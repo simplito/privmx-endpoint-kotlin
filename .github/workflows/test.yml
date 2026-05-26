@@ -1,23 +1,18 @@
 name: test.yml
 
 on:
-  pull_request:
-    branches: [main, dev, 'release/*']
-  push:
-    branches: [main, dev, 'release/*', '**']
-    tags: ['*']
-  workflow_dispatch:
   workflow_run:
-    workflows: ["native-builds"]
-    types:
-      - completed
+    workflows: ["Native Builds"]
+    branches: ["main","dev","release/*","**"]
+    types: ["completed"]
+  workflow_dispatch:
 
 env:
   ndk_version: 29.0.13599879
 
 jobs:
   run-tests:
-    timeout-minutes: 15
+    timeout-minutes: 30
     runs-on: macos-26-intel
 
     steps:
