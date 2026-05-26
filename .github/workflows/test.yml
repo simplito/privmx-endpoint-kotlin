@@ -1,11 +1,11 @@
 name: test.yml
 
 on:
-  workflow_dispatch:
   workflow_run:
     workflows: ["native-builds"]
-    types:
-      - completed
+    branches: ["main","dev","release/*"]
+    types: ["completed"]
+  workflow_dispatch:
 
 env:
   ndk_version: 29.0.13599879
