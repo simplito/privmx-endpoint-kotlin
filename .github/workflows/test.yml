@@ -1,12 +1,8 @@
 name: test.yml
 
 on:
-  push:
-    branches: ["**"]
-  pull_request:
-      branches: [ main, dev, 'release/*' ]
   workflow_run:
-    workflows: ["native-build"]
+    workflows: ["native-builds"]
     branches: ["main","dev","release/*","**"]
     types: ["completed"]
   workflow_dispatch:
@@ -19,7 +15,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: false
 
 jobs:
   run-tests:
