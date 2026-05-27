@@ -14,6 +14,9 @@ on:
 env:
   ndk_version: 29.0.13599879
 
+permissions:
+  actions: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -103,6 +106,7 @@ jobs:
       - name: Download darwin JNI artifact
         uses: actions/download-artifact@v4
         with:
+          run-id: ${{ github.event.workflow_run.id }}
           name: darwin-jni-${{ github.sha }}
           github-token: ${{ github.token }}
           path: privmx-endpoint/jniTestLibs/Darwin/
