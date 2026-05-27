@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   run-tests:
-    timeout-minutes: 30
+    timeout-minutes: 60
     runs-on: macos-26-intel
     steps:
       - uses: actions/checkout@v4
@@ -105,7 +105,11 @@ jobs:
         with:
           name: darwin-jni-${{ github.sha }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: privmx-endpoint/jniTestLibs/Darwin/arm64/
+          path: privmx-endpoint/jniTestLibs/Darwin/
+
+      - name: Copy darwin libs to correct dir
+        run: |
+          cp -r privmx-endpoint/jniTestLibs/Darwin/*/* privmx-endpoint/jniTestLibs/Darwin/
 
       - name: Run PrivMX Endpoint Java Tests
         run: ./gradlew :privmx-endpoint:jvmTest
