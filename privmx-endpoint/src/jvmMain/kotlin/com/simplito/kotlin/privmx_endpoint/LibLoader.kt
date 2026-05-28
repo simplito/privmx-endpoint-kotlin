@@ -46,6 +46,10 @@ internal object LibLoader {
             if (arch.equals("aarch64", ignoreCase = true)) return "/lib/Darwin/arm64"
         }
 
+        if (os.startsWith("linux", ignoreCase = true)) {
+            if (arch.equals("amd64", ignoreCase = true) || arch.equals("x86_64", ignoreCase = true)) return "/lib/Linux/x86_64"
+        }
+
         throw UnsatisfiedLinkError("os: $os, arch: $arch is not supported.")
     }
 
