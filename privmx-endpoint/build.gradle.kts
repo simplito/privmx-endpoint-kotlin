@@ -483,7 +483,7 @@ data class IniData(
 tasks.withType<KotlinJvmTest> {
     // Run each test class in seperated process with limit to 3 processes at one time
     //TODO: check runner platform and set correct path for it
-    val jniPath= layout.projectDirectory.file("jniTestLibs/Darwin/arm64/").asFile.absolutePath
+    val jniPath = layout.projectDirectory.file("jniTestLibs/Linux/x86_64/").asFile.absolutePath
     systemProperty("java.library.path", jniPath)
     this.forkEvery = 1
     this.maxParallelForks = 3
