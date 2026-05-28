@@ -15,6 +15,8 @@ message("toolchain path ${CMAKE_TOOLCHAIN_FILE}")
 
 if(APPLE)
     set(CMAKE_INSTALL_RPATH "@loader_path")
+elseif(UNIX)
+    set(CMAKE_INSTALL_RPATH "$ORIGIN")
 endif()
 
 find_package(privmxendpoint REQUIRED)
