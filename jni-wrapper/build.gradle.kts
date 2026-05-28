@@ -322,7 +322,9 @@ tasks.register("buildLinuxWithConan") {
                         " --deployer=runtime_deploy" +
                         " --output-folder=build/conan" +
                         " --deployer-folder build/native/install/Linux/$privmxEndpointJavaVersion/$arch" +
-                        " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os','settings.arch']\""
+                        " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os','settings.arch']\"" +
+                        " -c \"tools.build:sharedlinkflags=['-Wl,-rpath,\$ORIGIN']\"" +
+                        " -c \"tools.build:exelinkflags=['-Wl,-rpath,\$ORIGIN']\""
             )
         }
     }
