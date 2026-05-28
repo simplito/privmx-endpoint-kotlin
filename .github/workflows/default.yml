@@ -450,3 +450,12 @@ jobs:
       - name: Run PrivMX Endpoint Java Tests
         run: ./gradlew :privmx-endpoint:jvmTest
 
+      - name: Upload JVM test results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: jvm-test-results-${{ github.sha }}
+          path: privmx-endpoint/build/reports/tests/jvmTest/
+          if-no-files-found: ignore
+          retention-days: 14
+
