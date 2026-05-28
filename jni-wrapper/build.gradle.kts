@@ -166,6 +166,54 @@ val compileDarwin = tasks.create("compileDarwin") {
     }
 }
 
+//TODO: Use cpp-library plugin compilation tasks
+val compileLinux = tasks.create("compileLinux") {
+    group = "privmx native"
+    dependsOn("buildLinuxWithConan")
+    val os = "Linux"
+    val conanArch = "x86_64"
+    val arch = "x86_64"
+    val compileDir = layout.buildDirectory.dir("native/compile").get()
+    val installDir = layout.buildDirectory.dir("native/install").get()
+    doFirst {
+        val platformInstallDir = installDir.file("$os/$privmxEndpointJavaVersion/$arch").asFile
+        val platformCompileDir = compileDir.file("$os/$privmxEndpointJavaVersion/$arch").asFile
+        if (!platformCompileDir.exists()) {
+            platformCompileDir.mkdirs()
+        }
+        if (!platformInstallDir.exists()) {
+            platformInstallDir.mkdirs()
+        }
+        exec {
+            workingDir = layout.projectDirectory.asFile
+            commandLine(
+                "sh", "-c",
+                "cmake" +
+                        " -B${platformCompileDir.absolutePath}" +
+                        " -DCMAKE_BUILD_TYPE=${buildType.name}" +
+                        " -DCMAKE_CXX_FLAGS=-std=c++17" +
+                        " -DJAVA_HOME=\"${Jvm.current().javaHome.absolutePath}\"" +
+                        " -DCMAKE_INSTALL_PREFIX=\"${platformInstallDir.absolutePath}\"" +
+                        " -DCMAKE_TOOLCHAIN_FILE=\"${layout.buildDirectory.asFile.get().absolutePath}/conan/build/linux-$conanArch/${buildType.name}/generators/conan_toolchain.cmake\""
+            )
+        }
+
+        exec {
+            workingDir = platformCompileDir
+            commandLine("sh", "-c", "cmake --build .")
+        }
+
+        exec {
+            workingDir = platformCompileDir
+            commandLine("sh", "-c", "make -s -j8")
+        }
+        exec {
+            workingDir = platformCompileDir
+            commandLine("sh", "-c", "make -s install")
+        }
+    }
+}
+
 tasks.create("zipDarwin") {
     group = "privmx native"
     val dstDir = layout.buildDirectory.dir("native/zip").get()
@@ -252,6 +300,28 @@ tasks.register("buildMacosWithConan") {
                         " --deployer=runtime_deploy" +
                         " --output-folder=build/conan" +
                         " --deployer-folder build/native/install/Darwin/$privmxEndpointJavaVersion/$arch" +
+                        " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os','settings.arch']\""
+            )
+        }
+    }
+}
+
+tasks.register("buildLinuxWithConan") {
+    doFirst {
+        val conanArch = "x86_64"
+        val arch = "x86_64"
+        exec {
+            workingDir = layout.projectDirectory.asFile
+            commandLine(
+                "sh", "-c",
+                "conan install ." +
+                        " -pr ./conan/profiles/linux-x86_64" +
+                        " -s build_type=${buildType.name}" +
+                        " -s arch=${conanArch}" +
+                        " --build missing" +
+                        " --deployer=runtime_deploy" +
+                        " --output-folder=build/conan" +
+                        " --deployer-folder build/native/install/Linux/$privmxEndpointJavaVersion/$arch" +
                         " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os','settings.arch']\""
             )
         }
