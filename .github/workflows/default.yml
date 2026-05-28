@@ -447,6 +447,9 @@ jobs:
         run: |
           cp -r privmx-endpoint/jniTestLibs/Linux/*/* privmx-endpoint/jniTestLibs/Linux/
 
+      - name: List jniTestLibs/Linux structure
+        run: find privmx-endpoint/jniTestLibs/Linux -maxdepth 4 | sort
+
       - name: Run PrivMX Endpoint Java Tests
         run: ./gradlew :privmx-endpoint:jvmTest
 
