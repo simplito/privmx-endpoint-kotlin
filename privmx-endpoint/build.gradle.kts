@@ -489,12 +489,10 @@ tasks.withType<KotlinJvmTest> {
     this.maxParallelForks = 3
     // configure junitPlatform
     useJUnitPlatform { }
-    setIncludes(
-        listOf(
-            "*",
-            "**/**",
-        )
-    )
+        if (project.hasProperty("excludeTests")) {
+            println((project.property("excludeTests") as String))
+            filter.setExcludePatterns((project.property("excludeTests") as String))
+        }
 }
 
 tasks.withType<KotlinNativeSimulatorTest> {
