@@ -211,6 +211,12 @@ val compileLinux = tasks.create("compileLinux") {
             workingDir = platformCompileDir
             commandLine("sh", "-c", "make -s install")
         }
+
+        fileTree(platformInstallDir) { include("**/*.so") }.forEach { soFile ->
+            exec {
+                commandLine("patchelf", "--set-rpath", "\$ORIGIN", soFile.absolutePath)
+            }
+        }
     }
 }
 
@@ -322,9 +328,7 @@ tasks.register("buildLinuxWithConan") {
                         " --deployer=runtime_deploy" +
                         " --output-folder=build/conan" +
                         " --deployer-folder build/native/install/Linux/$privmxEndpointJavaVersion/$arch" +
-                        " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os','settings.arch']\"" +
-                        " -c \"tools.build:sharedlinkflags=['-Wl,-rpath,\$ORIGIN']\"" +
-                        " -c \"tools.build:exelinkflags=['-Wl,-rpath,\$ORIGIN']\""
+                        " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os','settings.arch']\""
             )
         }
     }
