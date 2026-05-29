@@ -211,6 +211,12 @@ val compileLinux = tasks.create("compileLinux") {
             workingDir = platformCompileDir
             commandLine("sh", "-c", "make -s install")
         }
+
+        fileTree(platformInstallDir) { include("**/*.so") }.forEach { soFile ->
+            exec {
+                commandLine("patchelf", "--set-rpath", "\$ORIGIN", soFile.absolutePath)
+            }
+        }
     }
 }
 
