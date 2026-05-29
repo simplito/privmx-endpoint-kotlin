@@ -447,14 +447,27 @@ jobs:
         run: |
           cp -r privmx-endpoint/jniTestLibs/Linux/*/* privmx-endpoint/jniTestLibs/Linux/
 
-      - name: Run PrivMX Endpoint Java Tests
-        run: ./gradlew :privmx-endpoint:jvmTest
+      - name: Run PrivMX Endpoint Java Tests without Events
+        run: ./gradlew :privmx-endpoint:cleanJvmTest :privmx-endpoint:jvmTest -PexcludeTests="*EventsTest*"
 
       - name: Upload JVM test results
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: jvm-test-results-${{ github.sha }}
+          path: privmx-endpoint/build/reports/tests/jvmTest/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Run PrivMX Endpoint Java Events Tests
+        if: always()
+        run: ./gradlew :privmx-endpoint:cleanJvmTest :privmx-endpoint:jvmTest --tests "EventsTest"
+
+      - name: Upload JVM test results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: jvm-events-test-results-${{ github.sha }}
           path: privmx-endpoint/build/reports/tests/jvmTest/
           if-no-files-found: ignore
           retention-days: 14
