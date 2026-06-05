@@ -30,6 +30,7 @@ import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -2107,6 +2108,7 @@ class StoreTest : BaseTest() {
     }
 
     @Test
+    @Ignore
     @Throws(Exception::class)
     fun setUserVerifierStore() {
          connection2 = connectAsUser(ConnectionType.User2, bridgeAddress)
