@@ -480,10 +480,25 @@ data class IniData(
     }
 }
 
+fun currentJniPlatform(): String {
+    val osName = System.getProperty("os.name").lowercase()
+    val os = when {
+        osName.contains("mac") || osName.contains("darwin") -> "Darwin"
+        osName.contains("linux") -> "Linux"
+        osName.contains("win") -> "Windows"
+        else -> error("Unsupported OS: $osName")
+    }
+    val arch = when (val raw = System.getProperty("os.arch").lowercase()) {
+        "aarch64" -> "arm64"
+        "amd64" -> "x86_64"
+        else -> raw
+    }
+    return "$os/$arch"
+}
+
 tasks.withType<KotlinJvmTest> {
     // Run each test class in seperated process with limit to 3 processes at one time
-    //TODO: check runner platform and set correct path for it
-    val jniPath= layout.projectDirectory.file("jniTestLibs/Darwin/arm64/").asFile.absolutePath
+    val jniPath = layout.projectDirectory.file("jniTestLibs/${currentJniPlatform()}/").asFile.absolutePath
     systemProperty("java.library.path", jniPath)
     this.forkEvery = 1
     this.maxParallelForks = 3
