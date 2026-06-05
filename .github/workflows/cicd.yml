@@ -2,9 +2,9 @@ name: cicd.yml
 
 on:
   pull_request:
-    branches: [ main, dev, 'release/*' ]
-  push:
     branches: [ '**' ]
+  push:
+    branches: [ main, dev, 'release/*' ]
     tags: [ '**' ]
   workflow_dispatch:
 
