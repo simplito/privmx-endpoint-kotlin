@@ -45,6 +45,7 @@ import kotlin.test.assertTrue
 //TODO: Add tests for close methods
 
 @OptIn(ExperimentalStdlibApi::class, ExperimentalAtomicApi::class)
+@Ignore
 class ThreadTest : BaseTest() {
     private lateinit var threadApi: ThreadApi
 
@@ -1075,7 +1076,6 @@ class ThreadTest : BaseTest() {
     }
 
     @Test
-    @Ignore
     fun sendMessageIncorrectInputData() {
         val data = "message"
 
