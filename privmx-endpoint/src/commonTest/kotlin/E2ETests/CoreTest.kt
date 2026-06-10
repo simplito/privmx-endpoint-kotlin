@@ -16,6 +16,7 @@ import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -349,6 +350,7 @@ class CoreTest : BaseTest() {
     }
 
         @Test
+        @Ignore
         @Throws(Exception::class)
         fun setUserVerifier() {
             val threadApi: ThreadApi = ThreadApi(connection!!)

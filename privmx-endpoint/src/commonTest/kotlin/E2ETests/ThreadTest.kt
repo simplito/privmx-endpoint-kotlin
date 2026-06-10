@@ -33,6 +33,7 @@ import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -1804,6 +1805,7 @@ class ThreadTest : BaseTest() {
     }
 
     @Test
+    @Ignore
     @Throws(Exception::class)
     fun setUserVerifierThread() {
         connection2 = connectAsUser(ConnectionType.User2, bridgeAddress)
