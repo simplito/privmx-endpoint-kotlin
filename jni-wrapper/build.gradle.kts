@@ -259,6 +259,7 @@ tasks.create("zipAndroidNative") {
 }
 
 tasks.register("buildAndroidWithConan") {
+    dependsOn("updateConanfileVersion")
     val conanArchsMap = mapOf(
         "armeabi-v7a" to "armv7",
         "arm64-v8a" to "armv8",
@@ -291,6 +292,7 @@ tasks.register("buildAndroidWithConan") {
 }
 
 tasks.register("buildMacosWithConan") {
+    dependsOn("updateConanfileVersion")
     doFirst {
         val conanArch = "armv8"
         val arch = "arm64"
@@ -313,6 +315,7 @@ tasks.register("buildMacosWithConan") {
 }
 
 tasks.register("buildLinuxWithConan") {
+    dependsOn("updateConanfileVersion")
     doFirst {
         val conanArch = "x86_64"
         val arch = "x86_64"
@@ -536,26 +539,29 @@ tasks.register("preparePmxEndpointXCFramework") {
 
 tasks.register("updateConanfileVersion") {
     group = "privmx native"
-    val conanfile = layout.projectDirectory.file("conanfile.txt").asFile
-    val conanfileContent = conanfile.readText()
+    doFirst {
+        val conanfile = layout.projectDirectory.file("conanfile.txt").asFile
+        val conanfileContent = conanfile.readText()
 
-    val version = "$nativeEndpointVersion$nativeAdditionalReleaseConanSuffix"
+        val version = "$nativeEndpointVersion$nativeAdditionalReleaseConanSuffix"
 
-    val requiresSectionRegex =
-        Regex(
-            ".*\\[requires\\]\\s*(?<content>(?:(?<line>(?!(?:\\[.*\\])).)*\\s*)*)", RegexOption.MULTILINE)
-    val requiresSectionContent = requiresSectionRegex.find(conanfileContent)?.value
+        val requiresSectionRegex =
+            Regex(
+                ".*\\[requires\\]\\s*(?<content>(?:(?<line>(?!(?:\\[.*\\])).)*\\s*)*)", RegexOption.MULTILINE
+            )
+        val requiresSectionContent = requiresSectionRegex.find(conanfileContent)?.value
 
-    val updatedConanfileContent = if (requiresSectionContent == null) {
-        """
+        val updatedConanfileContent = if (requiresSectionContent == null) {
+            """
             [requires]
             privmx-endpoint/$version
         """.trimIndent() + conanfileContent
-    } else {
-        val updated = requiresSectionContent.replace(Regex("privmx-endpoint/\\S*"), "privmx-endpoint/$version")
-        conanfileContent.replace(requiresSectionContent, updated)
+        } else {
+            val updated = requiresSectionContent.replace(Regex("privmx-endpoint/\\S*"), "privmx-endpoint/$version")
+            conanfileContent.replace(requiresSectionContent, updated)
+        }
+        conanfile.writeText(updatedConanfileContent)
     }
-    conanfile.writeText(updatedConanfileContent)
 }
 
 tasks.register("clonePrivmxSources") {
