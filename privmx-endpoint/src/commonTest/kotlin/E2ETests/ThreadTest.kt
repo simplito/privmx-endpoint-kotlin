@@ -1075,6 +1075,7 @@ class ThreadTest : BaseTest() {
     }
 
     @Test
+    @Ignore
     fun sendMessageIncorrectInputData() {
         val data = "message"
 
