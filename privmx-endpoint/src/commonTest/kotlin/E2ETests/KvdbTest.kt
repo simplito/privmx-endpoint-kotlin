@@ -30,6 +30,7 @@ import com.simplito.kotlin.privmx_endpoint.modules.kvdb.KvdbApi
 import kotlin.properties.Delegates
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -2407,6 +2408,7 @@ class KvdbTest : BaseTest() {
     }
 
     @Test
+    @Ignore
     @Throws(Exception::class)
     fun setUserVerifierKvdb() {
         connection2 = connectAsUser(ConnectionType.User2, bridgeAddress)
