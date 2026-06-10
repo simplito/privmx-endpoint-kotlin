@@ -501,7 +501,7 @@ tasks.withType<KotlinJvmTest> {
     val jniPath = layout.projectDirectory.file("jniTestLibs/${currentJniPlatform()}/").asFile.absolutePath
     systemProperty("java.library.path", jniPath)
     this.forkEvery = 1
-    this.maxParallelForks = 3
+    this.maxParallelForks = 1
     // configure junitPlatform
     useJUnitPlatform { }
         if (project.hasProperty("excludeTests")) {
