@@ -216,7 +216,7 @@ jobs:
 
 
   build-ios:
-    timeout-minutes: 15
+    timeout-minutes: 30
     runs-on: macos-latest
 
     steps:
