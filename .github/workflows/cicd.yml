@@ -448,7 +448,7 @@ jobs:
           cp -r privmx-endpoint/jniTestLibs/Linux/*/* privmx-endpoint/jniTestLibs/Linux/
 
       - name: Run PrivMX Endpoint Java Tests without Events
-        run: ./gradlew :privmx-endpoint:cleanJvmTest :privmx-endpoint:jvmTest -PexcludeTests="*EventsTest*" --stacktrace --debug
+        run: ./gradlew :privmx-endpoint:cleanJvmTest :privmx-endpoint:jvmTest -PexcludeTests="*EventsTest*"
 
       - name: Upload JVM test results
         if: always()
