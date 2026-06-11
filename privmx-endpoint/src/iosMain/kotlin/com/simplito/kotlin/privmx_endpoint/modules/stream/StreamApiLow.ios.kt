@@ -709,6 +709,21 @@ actual constructor(
         _nativeStreamApiLow.value = null
         proxyWebrtcList.close()
     }
+
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun subscribeToRemoteStreams(
+        streamRoomId: String,
+        subscriptions: List<StreamSubscription>
+    ) {
+    }
+
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun modifyRemoteStreamsSubscriptions(
+        streamRoomId: String,
+        subscriptionsToAdd: List<StreamSubscription>,
+        subscriptionsToRemove: List<StreamSubscription>
+    ) {
+    }
 }
 
 private class ProxyWebrtcList : AutoCloseable {
