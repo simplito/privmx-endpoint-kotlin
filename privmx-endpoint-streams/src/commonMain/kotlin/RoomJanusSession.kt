@@ -5,6 +5,7 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
 import com.simplito.kotlin.privmx_endpoint.modules.stream.WebRtcInterface
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.CoroutineContext
 
 class RoomJanusSession(
@@ -28,13 +29,13 @@ class RoomJanusSession(
 
     val webrtc: WebRtcInterface = WebRTCImpl()
 
-    fun createSubscriber(observer: TrackObserver = trackObserver) = runBlockingOn(context) {
+    fun createSubscriber(observer: TrackObserver = trackObserver) = runBlocking(context) {
         check(subscriber?.isEnded ?: true) { "Subscriber is currently active." }
         subscriber?.close()
         subscriber = JanusSubscriber(pcFactory, keyStore, observer, onTrickle)
     }
 
-    fun createPublisher(observer: TrackObserver? = null) = runBlockingOn(context) {
+    fun createPublisher(observer: TrackObserver? = null) = runBlocking(context) {
         check(publisher?.isEnded ?: true) { "Publisher is currently active." }
         publisher?.close()
         publisher = JanusPublisher(
@@ -45,11 +46,11 @@ class RoomJanusSession(
 
     fun setTrackObserver(observer: TrackObserver) = setTrackObserver(null, observer)
 
-    fun setTrackObserver(streamId: String?, observer: TrackObserver) = runBlockingOn(context) {
+    fun setTrackObserver(streamId: String?, observer: TrackObserver) = runBlocking(context) {
         trackObserversByStreamId[streamId] = observer
     }
 
-    fun setOnConnectionChange(onConnectionChange: (IceConnectionState) -> Unit) = runBlockingOn(context) {
+    fun setOnConnectionChange(onConnectionChange: (IceConnectionState) -> Unit) = runBlocking(context) {
         onConnectionChangeCallback = onConnectionChange
     }
 
@@ -58,7 +59,7 @@ class RoomJanusSession(
         publisher?.setFrameCryptorOptions(options)
     }
 
-    fun unpublish() = runBlockingOn(context) {
+    fun unpublish() = runBlocking(context) {
         publisher?.let {
             if (!it.isEnded) {
                 it.close()
@@ -71,26 +72,26 @@ class RoomJanusSession(
 
     private inner class WebRTCImpl : WebRtcInterface {
         override fun createOfferAndSetLocalDescription(streamRoomId: String): String =
-            runBlockingOn(context) {
+            runBlocking(context) {
                 (publisher ?: throw RuntimeException("Create publisher first")).createOffer()
             }
 
         override fun createAnswerAndSetDescriptions(
             streamRoomId: String, sdp: String, type: String
-        ): String = runBlockingOn(context) {
+        ): String = runBlocking(context) {
             (subscriber ?: throw RuntimeException("Create subscriber first")).createAnswer(sdp, type)
         }
 
         override fun setAnswerAndSetRemoteDescription(
             streamRoomId: String, sdp: String, type: String
         ) {
-            runBlockingOn(context) {
+            runBlocking(context) {
                 (publisher ?: throw RuntimeException("Create publisher first")).setAnswer(sdp, type)
             }
         }
 
         override fun updateSessionId(streamRoomId: String, sessionId: Long, connectionType: String) {
-            runBlockingOn(context) {
+            runBlocking(context) {
                 when (connectionType) {
                     "subscriber" -> subscriber?.sessionId = sessionId
                     "publisher" -> publisher?.sessionId = sessionId
@@ -99,20 +100,20 @@ class RoomJanusSession(
         }
 
         override fun close(streamRoomId: String) {
-            runBlockingOn(context) {
+            runBlocking(context) {
                 publisher?.close()
                 subscriber?.close()
             }
         }
 
-        override fun updateKeys(streamRoomId: String, keys: List<Key>) = runBlockingOn(context) {
+        override fun updateKeys(streamRoomId: String, keys: List<Key>) = runBlocking(context) {
             keyStore.applyKeys(keys)
         }
     }
 
     private inner class TrackObserverImpl : TrackObserver {
         override fun onRemoteTrack(streamId: String?, track: MediaStreamTrack) {
-            runBlockingOn(context) {
+            runBlocking(context) {
                 trackObserversByStreamId[streamId]?.onRemoteTrack(streamId, track)
                 trackObserversByStreamId[null]?.onRemoteTrack(streamId, track)
             }

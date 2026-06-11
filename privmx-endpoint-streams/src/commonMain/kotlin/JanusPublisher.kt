@@ -1,4 +1,5 @@
 import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -56,7 +57,7 @@ class JanusPublisher(
 
     override fun onRenegotiationNeeded() {
         if (sessionId > -1) {
-            val offer = runBlockingOn(EmptyCoroutineContext) { createOffer() }
+            val offer = runBlocking(EmptyCoroutineContext) { createOffer() }
             acceptOfferOnReconfigure(sessionId, SdpWithTypeModel(offer, "offer"))
 
 

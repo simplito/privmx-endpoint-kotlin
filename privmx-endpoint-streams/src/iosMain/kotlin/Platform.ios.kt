@@ -175,6 +175,3 @@ internal actual fun KeyStore.applyKeys(keys: List<Key>) {
         )
     })
 }
-
-internal actual fun <T> runBlockingOn(context: CoroutineContext, block: suspend () -> T): T =
-    runBlocking(context) { block() }

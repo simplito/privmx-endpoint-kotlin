@@ -60,6 +60,3 @@ internal expect fun IceCandidate.toJson(): String
 // — KeyStore —
 internal expect fun createKeyStore(): KeyStore
 internal expect fun KeyStore.applyKeys(keys: List<Key>)
-
-// — coroutines (brak runBlocking w commonMain) —
-internal expect fun <T> runBlockingOn(context: CoroutineContext, block: suspend () -> T): T
