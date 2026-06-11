@@ -1,4 +1,3 @@
-fun interface TrackObserver{
-    fun onRemoteTrack(streamId: String?, track: RTCMediaStreamTrack)
+fun interface TrackObserver {
+    fun onRemoteTrack(streamId: String?, track: MediaStreamTrack)
 }
-
