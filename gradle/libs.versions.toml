@@ -2,6 +2,8 @@
 publishPrivmxEndpoint = "2.6.0"
 nativePrivmxEndpoint = "2.7.5"
 pson = "1.0.7"
+apple-endpoint-frameworks="2.7.3"
+webrtc="125.0.0"
 kotlinxIoCore = "0.7.0"
 kotlin-serialization = "2.1.20"
 serialization-json = "1.8.1"

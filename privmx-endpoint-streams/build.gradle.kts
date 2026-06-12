@@ -1,3 +1,6 @@
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
@@ -7,6 +10,7 @@ plugins {
     alias(libs.plugins.kotlinPluginSerialization)
     id("maven-publish")
     id("signing")
+    id("de.undercouch.download") version "5.7.0"
 }
 
 group = "com.simplito.kotlin"
@@ -127,3 +131,21 @@ android {
     compileSdk = 36
 }
 
+tasks.register<de.undercouch.gradle.tasks.download.Download>("downloadWebrtcFramework") {
+    val xcframeworkDir = layout.projectDirectory.dir("src/iosMain/cinterop/webrtc/WebRTC.xcframework").asFile
+    val releaseVersion = libs.versions.apple.endpoint.frameworks.get()
+    val webrtcVersion = libs.versions.webrtc.get()
+    val fileName = "webrtc-privmx-m$webrtcVersion.xcframework.zip"
+    val zipFile = layout.buildDirectory.file("tmp/$fileName").get().asFile
+
+    src("https://github.com/simplito/privmx-endpoint-xcframeworks/releases/download/$releaseVersion/$fileName")
+    dest(zipFile)
+    overwrite(true)
+
+    doLast {
+        copy {
+            from(zipTree(zipFile))
+            into(xcframeworkDir.parentFile)
+        }
+    }
+}
