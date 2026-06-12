@@ -106,7 +106,7 @@ actual class Connection private constructor(
                 disconnect()
             } catch (e: PrivmxException) {
                 //if endpoint not throw exception about disconnected state
-                if (e.getCode() != 131086u ) throw e
+                if (e.message != "Endpoint is not connected or not initialized") throw e
             }
             deinit()
         }
