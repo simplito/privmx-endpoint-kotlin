@@ -1,6 +1,7 @@
 [versions]
 publishPrivmxEndpoint = "2.6.0"
 nativePrivmxEndpoint = "2.7.5"
+pson = "1.0.7"
 kotlinxIoCore = "0.7.0"
 kotlin-serialization = "2.1.20"
 serialization-json = "1.8.1"
