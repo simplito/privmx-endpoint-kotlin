@@ -584,3 +584,60 @@ tasks.register("GeneratePGPKey") {
         }
     }
 }
+
+tasks.register("PrepareCInteropIosFrameworks") {
+    val jniWrapperProject = project(":jni-wrapper")
+    dependsOn(jniWrapperProject.tasks.findByName("preparePmxEndpointXCFramework"))
+    dependsOn("movePsonHeaders")
+    doFirst {
+        val privmxEndpointJavaVersion = project(":privmx-endpoint").version
+        copy {
+            from(jniWrapperProject.layout.buildDirectory.file("native/install/frameworks/$privmxEndpointJavaVersion/privmx-endpoint.xcframework"))
+            into(layout.projectDirectory.dir("src/nativeInterop/cinterop/privmx-endpoint.xcframework"))
+        }
+    }
+}
+
+tasks.register("movePsonHeaders") {
+    val jniWrapperProject = project(":jni-wrapper")
+    dependsOn(jniWrapperProject.tasks.findByName("preparePmxEndpointXCFramework"))
+    doFirst {
+        val iosSimulatorPsonDir = findPsonDir(true)
+        val iosPsonDir = findPsonDir(false)
+
+        copy {
+            from(iosPsonDir)
+            include("include/**/*.h")
+            into(layout.projectDirectory.dir("src/nativeInterop/cinterop/Pson/ios-arm64"))
+        }
+
+        copy {
+            from(iosSimulatorPsonDir)
+            include("include/**/*.h")
+            into(layout.projectDirectory.dir("src/nativeInterop/cinterop/Pson/ios-arm64-simulator"))
+        }
+    }
+}
+
+fun findPsonDir(isSimulator: Boolean): String{
+    val psonVersion = libs.versions.pson.get()
+    val osSdk = if(isSimulator) "iphonesimulator" else "iphoneos"
+    val result = ProcessBuilder(
+        "conan", "list", "pson/$psonVersion:*", "-fs", "os=iOS", "-fs", "os.sdk=$osSdk", "-f", "compact"
+    ).start().run {
+        waitFor(10, TimeUnit.SECONDS)
+        if(exitValue() == 0) inputStream.readAllBytes()?.decodeToString() else null
+    } ?: throw IOException("pson $psonVersion not found for $osSdk")
+    val psonPackageRegex = Regex("pson/(?<version>[0-9]\\.[0-9]\\.[0-9])#(?<revision>\\S+):(?<pkg>\\S+)", RegexOption.MULTILINE)
+    val groups = psonPackageRegex.find(result)?.groups ?: throw RuntimeException("Cannot find pkg hash for pson $psonVersion")
+    val (version,revision,pkg) = listOf(groups["version"]?.value, groups["revision"]?.value, groups["pkg"]?.value)
+    println("Found for $osSdk with version: $version, revision: $revision, pkg: $pkg")
+
+    val result2 = ProcessBuilder(
+        "conan", "cache", "path", "pson/$psonVersion:$pkg"
+    ).start().run {
+        waitFor(10, TimeUnit.SECONDS)
+        if(exitValue() == 0) inputStream.readAllBytes()?.decodeToString() else null
+    } ?: throw IOException("pson $psonVersion not found for $osSdk")
+    return result2.trim()
+}
