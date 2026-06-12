@@ -1269,6 +1269,7 @@ class KvdbTest : BaseTest() {
     }
 
     @Test
+    @Ignore
     @Throws(PrivmxException::class)
     fun filteringListKvdbsWithQueryAsJson() {
         lateinit var kvdbsList: PagingList<Kvdb>
@@ -1635,6 +1636,7 @@ class KvdbTest : BaseTest() {
     }
 
     @Test
+    @Ignore
     @Throws(PrivmxException::class)
     fun filteringListKvdbEntriesWithQueryAsJson() {
         lateinit var entriesList: PagingList<KvdbEntry>

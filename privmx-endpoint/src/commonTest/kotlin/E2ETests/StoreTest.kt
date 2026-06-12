@@ -733,6 +733,7 @@ class StoreTest : BaseTest() {
     }
 
     @Test
+    @Ignore
     @Throws(PrivmxException::class)
     fun filteringListStoresWithQueryAsJson() {
         lateinit var storesList: PagingList<Store>

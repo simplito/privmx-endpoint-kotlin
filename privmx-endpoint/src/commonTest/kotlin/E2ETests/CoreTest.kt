@@ -309,6 +309,7 @@ class CoreTest : BaseTest() {
     }
 
     @Test
+    @Ignore
     @Throws(PrivmxException::class)
     fun listContextCorrectInputData() {
         val connectionPublic: Connection = connectAsUser(

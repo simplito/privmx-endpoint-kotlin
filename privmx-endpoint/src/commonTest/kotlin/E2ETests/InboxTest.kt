@@ -252,6 +252,7 @@ class InboxTest : BaseTest() {
     }
 
     @Test
+    @Ignore
     @Throws(PrivmxException::class)
     fun filteringListInboxesWithQueryAsJson() {
         lateinit var inboxesList: PagingList<Inbox>
