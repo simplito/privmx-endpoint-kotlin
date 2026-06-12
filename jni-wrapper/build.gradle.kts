@@ -385,6 +385,7 @@ tasks.register("buildIosSimulatorWithConan") {
 
 tasks.register("buildIOSSimulatorStaticFromSources") {
     dependsOn("clonePrivmxSources")
+    onlyIf { layout.buildDirectory.dir("native/install/iOSSimulator/$privmxEndpointJavaVersion/arm64").orNull?.asFile?.exists() != true}
     doFirst {
         val clonedEndpointDir = layout.buildDirectory.dir("privmx-endpoint").get().asFile
         val profile = layout.projectDirectory.file("conan/profiles/iosSimulator").asFile.absolutePath
@@ -450,6 +451,7 @@ tasks.register("buildIOSSimulatorStaticFromSources") {
 
 tasks.register("buildIOSStaticFromSources") {
     dependsOn("clonePrivmxSources")
+    onlyIf { layout.buildDirectory.dir("native/install/iOS/$privmxEndpointJavaVersion/arm64").orNull?.asFile?.exists() != true }
     doFirst {
         val clonedEndpointDir = layout.buildDirectory.dir("privmx-endpoint").get().asFile
         val profile = layout.projectDirectory.file("conan/profiles/ios").asFile.absolutePath
@@ -521,6 +523,11 @@ tasks.register("preparePmxEndpointXCFramework") {
         val installDir = layout.buildDirectory.get().dir("native/install")
         val iosDir = installDir.dir("iOS/$privmxEndpointJavaVersion/arm64")
         val iosSimulatorDir = installDir.dir("iOSSimulator/$privmxEndpointJavaVersion/arm64")
+        installDir.dir("frameworks/$privmxEndpointJavaVersion/privmx-endpoint.xcframework").asFile.apply {
+            if(exists()){
+                deleteRecursively()
+            }
+        }
         exec {
             workingDir = installDir.asFile
             commandLine(
