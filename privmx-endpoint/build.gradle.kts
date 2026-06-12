@@ -47,7 +47,8 @@ group = "com.simplito.kotlin"
 version = libs.versions.publishPrivmxEndpoint.get()
 
 kotlin {
-
+    val platformNameToFrameworkTargetMap =
+        mapOf("iosSimulatorArm64" to "ios-arm64-simulator", "iosArm64" to "ios-arm64")
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
@@ -61,21 +62,26 @@ kotlin {
         iosSimulatorArm64(),
         iosArm64(),
     ).forEach {
+        val targetName = platformNameToFrameworkTargetMap[it.name]
         it.compilations.getByName("main") {
             cinterops {
                 val libprivmxendpoint by creating {
                     this.extraOpts = listOf(
                         "-libraryPath",
-                        "src/nativeInterop/cinterop/privmx-endpoint/${it.name}/lib",
+                        "src/nativeInterop/cinterop/privmx-endpoint.xcframework/$targetName",
                         "-compilerOpts",
-                        "-Isrc/nativeInterop/cinterop/privmx-endpoint/${it.name}/include"
+                        "-Isrc/nativeInterop/cinterop/privmx-endpoint.xcframework/$targetName/Headers",
+                        "-compilerOpts",
+                        "-Isrc/nativeInterop/cinterop/Pson/$targetName/include",
                     )
-                    val headerFiles =
-                        fileTree("src/nativeInterop/cinterop/privmx-endpoint/${it.name}/include").matching {
+                    val endpointHeaders =
+                        fileTree("src/nativeInterop/cinterop/privmx-endpoint.xcframework/$targetName/Headers").matching {
                             include("privmx/endpoint/**/cinterface/*.h")
-                            include("Pson/pson.h")
                         }.files
-                    headers(headerFiles)
+                    val psonHeaders = fileTree("src/nativeInterop/cinterop/Pson/$targetName/include").matching {
+                        include("Pson/*.h")
+                    }.files
+                    headers(endpointHeaders + psonHeaders)
                 }
             }
         }
