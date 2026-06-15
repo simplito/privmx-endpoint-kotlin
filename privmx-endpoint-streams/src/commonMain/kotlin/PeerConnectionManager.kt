@@ -19,10 +19,10 @@ internal class PeerConnectionManager(
     fun getSession(streamRoomId: String): RoomJanusSession? = sessions[streamRoomId]
 
     fun getSession(handle: StreamHandle): RoomJanusSession? =
-        sessionHandles[handle]?.let(sessions::get)
+        sessionHandles[handle.value]?.let(sessions::get)
 
     fun createHandleToRoom(handle: StreamHandle, roomId: String) {
-        sessionHandles[handle] = roomId
+        sessionHandles[handle.value] = roomId
     }
 
     fun leaveStreamRoom(streamRoomId: String) {
@@ -34,7 +34,7 @@ internal class PeerConnectionManager(
     fun getRoomIds(): Set<String> = sessions.keys
 
     fun closeHandleToRoom(handle: StreamHandle) {
-        sessionHandles.remove(handle)
+        sessionHandles.remove(handle.value)
     }
 
     override fun close() {
