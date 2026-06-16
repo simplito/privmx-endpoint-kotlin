@@ -1,6 +1,5 @@
 import com.simplito.kotlin.privmx_endpoint.model.stream.Key
 import com.simplito.kotlin.privmx_endpoint.model.stream.KeyType
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -9,7 +8,6 @@ import org.webrtc.PmxFrameCryptor
 import org.webrtc.PmxFrameCryptorFactory
 import org.webrtc.PmxKeyStore
 import kotlin.coroutines.Continuation
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -22,7 +20,11 @@ actual typealias IceCandidate = org.webrtc.IceCandidate
 actual typealias SessionDescription = org.webrtc.SessionDescription
 actual typealias RtpSender = org.webrtc.RtpSender
 actual typealias FrameCryptor = PmxFrameCryptor
-actual typealias FrameCryptorOptions = PmxFrameCryptor.PmxFrameCryptorOptions
+actual class PmxFrameCryptorOptions actual constructor(dropFrameIfCryptionFailed: Boolean): PmxFrameCryptor.PmxFrameCryptorOptions(){
+    init {
+        this.dropFrameIfCryptionFailed = dropFrameIfCryptionFailed
+    }
+}
 actual typealias Observer = org.webrtc.PeerConnection.Observer
 
 /* ── PeerConnectionFactory ── */
@@ -110,7 +112,7 @@ internal actual fun sessionDescription(type: String, sdp: String): SessionDescri
 
 /* ── FrameCryptor ── */
 internal actual fun FrameCryptor.disposeCryptor() = dispose()
-internal actual fun FrameCryptor.applyOptions(options: FrameCryptorOptions) = setOptions(options)
+internal actual fun FrameCryptor.applyOptions(options: PmxFrameCryptorOptions) = setOptions(options)
 
 /* ── IceCandidate ── */
 internal actual fun IceCandidate.toJson(): String = buildJsonObject {

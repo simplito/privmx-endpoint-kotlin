@@ -36,7 +36,7 @@ open class JanusConnection(
             PeerConnectionState.FAILED
         )
 
-    open fun setFrameCryptorOptions(options: FrameCryptorOptions) {
+    open fun setFrameCryptorOptions(options: PmxFrameCryptorOptions) {
         pcObserver.setFrameCryptorOptions(options)
     }
 

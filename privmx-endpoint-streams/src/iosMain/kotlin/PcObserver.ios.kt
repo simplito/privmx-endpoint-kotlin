@@ -24,7 +24,7 @@ actual class PcObserver actual constructor(
 ) : Observer, NSObject() {
     private val frameCryptorMap = mutableMapOf<String, PMXFrameCryptorTransformer>()
 
-    actual fun setFrameCryptorOptions(options: FrameCryptorOptions) {
+    actual fun setFrameCryptorOptions(options: PmxFrameCryptorOptions) {
         frameCryptorMap.values.forEach { it.setDropFramesIfCryptionFailed(options.dropFrameIfCryptionFailed) }
     }
 

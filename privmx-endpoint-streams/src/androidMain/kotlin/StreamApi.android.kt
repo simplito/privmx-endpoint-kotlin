@@ -59,11 +59,3 @@ actual fun StreamApi.joinStreamRoom(streamRoomId: String) {
     val session = pcManager.createSession(streamRoomId)
     api.joinStreamRoom(streamRoomId, session.webrtc)
 }
-
-actual fun StreamApi.dropBrokenFrames(streamRoomId: String, enable: Boolean) {
-    pcManager.getSession(streamRoomId)?.setFrameCryptorOptions(
-        PmxFrameCryptor.PmxFrameCryptorOptions().apply {
-            dropFrameIfCryptionFailed = enable
-        }
-    )
-}

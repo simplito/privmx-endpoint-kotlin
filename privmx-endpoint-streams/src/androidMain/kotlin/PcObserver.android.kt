@@ -15,7 +15,7 @@ actual class PcObserver actual constructor(
 ) : Observer {
     private val frameCryptorMap = mutableMapOf<String, PmxFrameCryptor>()
 
-    actual fun setFrameCryptorOptions(options: FrameCryptorOptions) {
+    actual fun setFrameCryptorOptions(options: PmxFrameCryptorOptions) {
         frameCryptorMap.values.forEach { it.setOptions(options) }
     }
 

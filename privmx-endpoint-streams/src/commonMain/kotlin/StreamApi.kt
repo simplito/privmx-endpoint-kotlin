@@ -220,6 +220,12 @@ class StreamApi(
         resolveSession(roomId).setOnConnectionChange(observer)
     }
 
+    fun dropBrokenFrames(streamRoomId: String, enable: Boolean) {
+        pcManager.getSession(streamRoomId)?.setFrameCryptorOptions(
+            PmxFrameCryptorOptions(enable)
+        )
+    }
+
     override fun close() {
         pcManager.getRoomIds().toList().forEach { leaveStreamRoom(it) }
         pcManager.close()
@@ -247,10 +253,4 @@ internal expect fun StreamApi.getRTCConfiguration(): List<IceServer>
 
 expect fun StreamApi.joinStreamRoom(
     streamRoomId: String
-)
-
-// todo - only for andoroid
-expect fun StreamApi.dropBrokenFrames(
-    streamRoomId: String,
-    enable: Boolean
 )
