@@ -63,10 +63,10 @@ internal actual fun PeerConnectionFactory.makeVideoTrack(
     id: String,
     isScreenCast: Boolean,
     alignTimestamps: Boolean  // TODO(iOS): brak odpowiednika alignTimestamps
-): VideoTrack = videoTrackWithSource(videoSourceForScreenCast(isScreenCast), id).toCommon()
+): VideoTrack = videoTrackWithSource(videoSourceForScreenCast(isScreenCast), id)
 
 internal actual fun PeerConnectionFactory.makeAudioTrack(id: String): AudioTrack =
-    audioTrackWithSource(audioSourceWithConstraints(mediaConstraints()), id).toCommon()
+    audioTrackWithSource(audioSourceWithConstraints(mediaConstraints()), id)
 
 internal actual fun PeerConnectionFactory.createSenderFrameCryptor(
     sender: RtpSender,
@@ -99,10 +99,8 @@ internal actual fun PeerConnection.applyIceServers(iceServers: List<IceServer>) 
 internal actual fun PeerConnection.disposeConnection() = close()
 
 internal actual fun PeerConnection.addTrack(track: MediaStreamTrack): RtpSender =
-    addTrack(
-        (track as NativeTrack).native,
-        listOf(track.trackId)
-    ) ?: throw IllegalStateException("Failed to add track — session may be closed")
+    addTrack(track, listOf(track.trackId))
+        ?: throw IllegalStateException("Failed to add track — session may be closed")
 
 internal actual fun PeerConnection.removeTrack(sender: RtpSender) {
     removeTrack(sender)

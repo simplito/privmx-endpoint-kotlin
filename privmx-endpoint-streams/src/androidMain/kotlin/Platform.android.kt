@@ -38,10 +38,10 @@ internal actual fun PeerConnectionFactory.makeVideoTrack(
     id: String,
     isScreenCast: Boolean,
     alignTimestamps: Boolean
-): VideoTrack = createVideoTrack(id, createVideoSource(isScreenCast, alignTimestamps)).toCommon()
+): VideoTrack = createVideoTrack(id, createVideoSource(isScreenCast, alignTimestamps))
 
 internal actual fun PeerConnectionFactory.makeAudioTrack(id: String): AudioTrack =
-    createAudioTrack(id, createAudioSource(MediaConstraints())).toCommon()
+    createAudioTrack(id, createAudioSource(MediaConstraints()))
 
 internal actual fun PeerConnectionFactory.createSenderFrameCryptor(
     sender: RtpSender,
@@ -72,8 +72,7 @@ internal actual fun PeerConnection.applyIceServers(iceServers: List<IceServer>) 
 
 internal actual fun PeerConnection.disposeConnection() = dispose()
 
-internal actual fun PeerConnection.addTrack(track: MediaStreamTrack): RtpSender =
-    addTrack((track as NativeTrack).native)
+internal actual fun PeerConnection.addTrack(track: MediaStreamTrack): RtpSender = addTrack(track)
 
 internal actual fun PeerConnection.removeTrack(sender: RtpSender) {
     removeTrack(sender)

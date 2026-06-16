@@ -1,14 +1,13 @@
 enum class TrackState { LIVE, ENDED }
 
-interface MediaStreamTrack {
-    val trackId: String
-    val kind: String
-    var isEnabled: Boolean
-    val state: TrackState
-}
+expect open class MediaStreamTrack
+expect val MediaStreamTrack.trackId: String
+expect val MediaStreamTrack.kind: String
+expect var MediaStreamTrack.isEnabled: Boolean
+expect val MediaStreamTrack.state: TrackState
 
-interface AudioTrack : MediaStreamTrack
-interface VideoTrack : MediaStreamTrack
+expect class AudioTrack : MediaStreamTrack
+expect class VideoTrack : MediaStreamTrack
 
 data class AudioTrackInfo(
     val track: AudioTrack,
