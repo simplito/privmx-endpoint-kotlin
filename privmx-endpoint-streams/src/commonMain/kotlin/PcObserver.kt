@@ -6,6 +6,6 @@ expect class PcObserver(
     onRenegotiationNeededCallback: () -> Unit = {},
     onIceConnectionChangeCallback: (candidate: IceConnectionState) -> Unit = {}
 ): Observer{
-    fun setFrameCryptorOptions(options: FrameCryptorOptions)
+    fun setFrameCryptorOptions(options: PmxFrameCryptorOptions)
     fun dispose()
 }

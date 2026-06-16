@@ -1,5 +1,4 @@
 import com.simplito.kotlin.privmx_endpoint.model.stream.Key
-import kotlin.coroutines.CoroutineContext
 
 expect class PeerConnectionFactory
 expect class PeerConnection
@@ -9,7 +8,7 @@ expect class IceCandidate
 expect class SessionDescription
 expect class RtpSender
 expect class FrameCryptor
-expect class FrameCryptorOptions
+expect class PmxFrameCryptorOptions(dropFrameIfCryptionFailed: Boolean)
 
 expect interface Observer
 
@@ -52,7 +51,7 @@ internal expect fun sessionDescription(type: String, sdp: String): SessionDescri
 
 // — FrameCryptor —
 internal expect fun FrameCryptor.disposeCryptor()
-internal expect fun FrameCryptor.applyOptions(options: FrameCryptorOptions)
+internal expect fun FrameCryptor.applyOptions(options: PmxFrameCryptorOptions)
 
 // — IceCandidate —
 internal expect fun IceCandidate.toJson(): String

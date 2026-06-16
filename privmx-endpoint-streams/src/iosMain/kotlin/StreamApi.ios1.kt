@@ -43,7 +43,3 @@ internal actual fun StreamApi.getRTCConfiguration(): List<IceServer> {
         )
     }
 }
-
-actual fun StreamApi.dropBrokenFrames(streamRoomId: String, enable: Boolean) {
-    TODO("Not implemented - probably not available in iOS.")
-}

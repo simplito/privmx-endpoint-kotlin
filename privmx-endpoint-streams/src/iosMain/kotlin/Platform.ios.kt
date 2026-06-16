@@ -21,13 +21,11 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.KeyType
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import platform.Foundation.NSData
 import platform.Foundation.dataWithBytes
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -42,11 +40,9 @@ actual typealias FrameCryptor = PMXFrameCryptorTransformer
 actual typealias Observer = RTCPeerConnectionDelegateProtocol
 
 /** Opcje frame cryptora po stronie iOS (brak gotowego typu we frameworku). */
-data class PmxFrameCryptorOptions(
-    val dropFrameIfCryptionFailed: Boolean = false
+actual data class PmxFrameCryptorOptions actual constructor(
+    val dropFrameIfCryptionFailed: Boolean
 )
-
-actual typealias FrameCryptorOptions = PmxFrameCryptorOptions
 
 private fun mediaConstraints() =
     RTCMediaConstraints(mandatoryConstraints = emptyMap<Any?, Any>(), optionalConstraints = null)
@@ -151,7 +147,7 @@ private fun String.toSdpType(): RTCSdpType = when (this) {
 /* ── FrameCryptor ── */
 internal actual fun FrameCryptor.disposeCryptor() {}
 
-internal actual fun FrameCryptor.applyOptions(options: FrameCryptorOptions) {
+internal actual fun FrameCryptor.applyOptions(options: PmxFrameCryptorOptions) {
     setDropFramesIfCryptionFailed(options.dropFrameIfCryptionFailed)
 }
 

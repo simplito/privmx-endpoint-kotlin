@@ -50,7 +50,7 @@ class JanusPublisher(
             sessionDescription(type, sdp ?: "").also { peerConnection.setRemoteDescription(it) }
         }
 
-    override fun setFrameCryptorOptions(options: FrameCryptorOptions) {
+    override fun setFrameCryptorOptions(options: PmxFrameCryptorOptions) {
         audioTracks.values.forEach { it.frameCryptor.applyOptions(options) }
         videoTracks.values.forEach { it.frameCryptor.applyOptions(options) }
     }

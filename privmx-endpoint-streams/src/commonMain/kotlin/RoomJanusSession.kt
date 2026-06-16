@@ -54,7 +54,7 @@ class RoomJanusSession(
         onConnectionChangeCallback = onConnectionChange
     }
 
-    fun setFrameCryptorOptions(options: FrameCryptorOptions) {
+    fun setFrameCryptorOptions(options: PmxFrameCryptorOptions) {
         subscriber?.setFrameCryptorOptions(options)
         publisher?.setFrameCryptorOptions(options)
     }
