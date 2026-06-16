@@ -6,30 +6,19 @@ import WebRTCFramework.RTCMediaStreamTrackState
 import WebRTCFramework.RTCVideoTrack
 import kotlinx.cinterop.ExperimentalForeignApi
 
-internal interface NativeTrack {
-    val native: RTCMediaStreamTrack
-}
+actual typealias MediaStreamTrack = RTCMediaStreamTrack
+actual typealias VideoTrack = RTCVideoTrack
+actual typealias AudioTrack = RTCAudioTrack
 
-private fun RTCMediaStreamTrack.toState(): TrackState =
-    when (readyState) {
-        RTCMediaStreamTrackState.RTCMediaStreamTrackStateLive -> TrackState.LIVE
-        else -> TrackState.ENDED
+actual val MediaStreamTrack.trackId: String get() = trackId
+actual val MediaStreamTrack.kind: String get() = kind
+actual var MediaStreamTrack.isEnabled: Boolean
+    set(value){
+        isEnabled = value
     }
+    get() = isEnabled
 
-open class IosMediaStreamTrack(
-    override val native: RTCMediaStreamTrack
-) : MediaStreamTrack, NativeTrack {
-    override val trackId: String get() = native.trackId
-    override val kind: String get() = native.kind
-    override var isEnabled: Boolean
-        get() = native.isEnabled
-        set(value) { native.isEnabled = value }
-    override val state: TrackState get() = native.toState()
+actual val MediaStreamTrack.state: TrackState get() = when (readyState) {
+    RTCMediaStreamTrackState.RTCMediaStreamTrackStateLive -> TrackState.LIVE
+    else -> TrackState.ENDED
 }
-
-class IosAudioTrack(native: RTCAudioTrack) : IosMediaStreamTrack(native), AudioTrack
-class IosVideoTrack(native: RTCVideoTrack) : IosMediaStreamTrack(native), VideoTrack
-
-fun RTCMediaStreamTrack.toCommon(): MediaStreamTrack = IosMediaStreamTrack(this)
-fun RTCAudioTrack.toCommon(): AudioTrack = IosAudioTrack(this)
-fun RTCVideoTrack.toCommon(): VideoTrack = IosVideoTrack(this)
