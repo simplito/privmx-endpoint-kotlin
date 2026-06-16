@@ -42,9 +42,9 @@ actual typealias FrameCryptor = PMXFrameCryptorTransformer
 actual typealias Observer = RTCPeerConnectionDelegateProtocol
 
 /** Opcje frame cryptora po stronie iOS (brak gotowego typu we frameworku). */
-class PmxFrameCryptorOptions {
-    var dropFrameIfCryptionFailed: Boolean = false
-}
+data class PmxFrameCryptorOptions(
+    val dropFrameIfCryptionFailed: Boolean = false
+)
 
 actual typealias FrameCryptorOptions = PmxFrameCryptorOptions
 
