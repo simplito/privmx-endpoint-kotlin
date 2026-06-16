@@ -33,7 +33,7 @@ actual class PcObserver actual constructor(
         frameCryptorMap[trackId] = PmxFrameCryptorFactory.createPmxFrameCryptorForRtpReceiver(
             peerConnectionFactory, receiver, keyStore, null
         )
-        trackObserver?.onRemoteTrack(mediaStreams.firstOrNull()?.id, track.toCommon())
+        trackObserver?.onRemoteTrack(mediaStreams.firstOrNull()?.id, track)
     }
 
     override fun onRemoveTrack(receiver: RtpReceiver) {

@@ -47,7 +47,7 @@ actual class PcObserver actual constructor(
 
         //TODO: Pass correct streamId for this track
         // (streams.firstOrNull() as? RTCMediaStream)?.streamId,
-        trackObserver?.onRemoteTrack(null, track.toCommon())
+        trackObserver?.onRemoteTrack(null, track)
     }
 
     override fun peerConnectionShouldNegotiate(peerConnection: RTCPeerConnection) =
