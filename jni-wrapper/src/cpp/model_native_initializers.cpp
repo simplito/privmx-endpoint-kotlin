@@ -2219,5 +2219,34 @@ namespace privmx {
             );
         }
 
+        jobject
+        dataChannelMessage2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::stream::DataChannelMessage message
+        ) {
+            jclass cls = ctx->FindClass("com/simplito/kotlin/privmx_endpoint/model/stream/events/DataChannelMessage");
+            jmethodID initMID = ctx->GetMethodID(
+                    cls,
+                    "<init>",
+                    "("
+                    "[B"                    // message
+                    "Ljava/lang/Long;"      // seq
+                    ")V"
+            );
+
+            jbyteArray data_c = ctx->NewByteArray(message.data.size());
+            ctx->SetByteArrayRegion(
+                    data_c, 0,
+                    message.data.size(),
+                    (jbyte *) message.data.data());
+
+            return ctx->NewObject(
+                    cls,
+                    initMID,
+                    data_c,
+                    ctx.long2jLong(message.seq)
+            );
+        }
+
     } // wrapper
 } // privmx

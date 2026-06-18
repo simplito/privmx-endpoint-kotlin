@@ -303,6 +303,12 @@ namespace privmx {
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::StreamsUpdatedData data
         );
+
+        jobject
+        dataChannelMessage2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::stream::DataChannelMessage message
+        );
     } // wrapper
 } // privmx
 
