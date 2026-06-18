@@ -19,6 +19,8 @@ import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.kotlin.privmx_endpoint.model.stream.DataChannelMessage
+import com.simplito.kotlin.privmx_endpoint.model.stream.DecryptedDataChannelMessage
 import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
@@ -171,4 +173,11 @@ actual constructor(
     actual override fun close() {
         deinit()
     }
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun encryptDataChannelMessage(
+        streamRoomId: String,
+        plainMessage: DataChannelMessage
+    ): ByteArray
+
 }
