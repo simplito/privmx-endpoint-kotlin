@@ -186,4 +186,10 @@ actual constructor(
         remoteStreamId: String
     )
 
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun decryptDataChannelMessage(
+        streamRoomId: String,
+        remoteStreamId: String,
+        encryptedData: ByteArray
+    ): DecryptedDataChannelMessage
 }
