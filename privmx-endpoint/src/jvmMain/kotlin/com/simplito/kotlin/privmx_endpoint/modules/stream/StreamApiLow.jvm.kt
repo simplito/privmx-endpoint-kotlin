@@ -28,22 +28,17 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
 import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
-import com.simplito.kotlin.privmx_endpoint.modules.event.EventApi
 import kotlin.jvm.JvmOverloads
 
 /**
  * Low-level Stream API for PrivMX Bridge.
  * @param connection active connection to PrivMX Bridge
- * @param eventApi   instance of [EventApi] created on passed Connection
- * @param streamEncryptionMode encryption mode for streams
  * @throws IllegalStateException when one of the passed parameters is closed
  */
 actual class StreamApiLow
 @Throws(IllegalStateException::class)
 actual constructor(
-    connection: Connection,
-    eventApi: EventApi,
-    streamEncryptionMode: StreamEncryptionMode
+    connection: Connection
 ) : AutoCloseable {
 
     companion object {
@@ -55,7 +50,7 @@ actual constructor(
     private var api: Long? = null
 
     init {
-        api = init(connection, eventApi, streamEncryptionMode)
+        api = init(connection)
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
@@ -168,9 +163,7 @@ actual constructor(
 
     @Throws(IllegalStateException::class)
     private external fun init(
-        connection: Connection,
-        eventApi: EventApi,
-        streamEncryptionMode: StreamEncryptionMode
+        connection: Connection
     ): Long?
 
     @Throws(IllegalStateException::class)
