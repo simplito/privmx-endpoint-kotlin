@@ -180,4 +180,10 @@ actual constructor(
         plainMessage: DataChannelMessage
     ): ByteArray
 
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun registerRemoteDataChannel(
+        streamRoomId: String,
+        remoteStreamId: String
+    )
+
 }
