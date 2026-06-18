@@ -7,7 +7,6 @@
 #include "../parser.h"
 #include "../model_native_initializers.h"
 #include "Connection.h"
-#include "EventApi.h"
 
 #include "WebRTCInterfaceJNI.h"
 #include "privmx/endpoint/stream/StreamApiLow.hpp"
@@ -30,27 +29,19 @@ JNIEXPORT jobject JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_init(
         JNIEnv *env,
         jobject thiz,
-        jobject connection,
-        jobject eventApi,
-        jobject stream_encryption_mode
+        jobject connection
 ) {
     JniContextUtils ctx(env);
     jobject result;
 
-    if (ctx.nullCheck(connection, "Connection") ||
-            ctx.nullCheck(eventApi, "EventApi") ||
-        ctx.nullCheck(stream_encryption_mode, "Stream Encryption Mode")
-            ) {
+    if (ctx.nullCheck(connection, "Connection")) {
         return nullptr;
     }
 
-    ctx.callResultEndpointApi<jobject>(&result, [&ctx, &env, &connection, &eventApi, &stream_encryption_mode] {
+    ctx.callResultEndpointApi<jobject>(&result, [&ctx, &env, &connection] {
         auto connection_c = getConnection(env, connection);
-        auto eventApi_c = getEventApi(env, eventApi);
         auto streamApiLow = stream::StreamApiLow::create(
-                *connection_c,
-                *eventApi_c,
-                parseStreamEncryptionMode(ctx, stream_encryption_mode)
+                *connection_c
         );
         auto streamApiLow_ptr = new stream::StreamApiLow();
         *streamApiLow_ptr = streamApiLow;
