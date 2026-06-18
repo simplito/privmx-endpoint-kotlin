@@ -13,7 +13,7 @@ package com.simplito.kotlin.privmx_endpoint.modules.stream
 
 import com.simplito.java.privmx_endpoint.model.events.eventSelectorTypes.StreamEventSelectorType
 import com.simplito.java.privmx_endpoint.model.events.eventTypes.StreamEventType
-import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
+import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
@@ -74,7 +74,7 @@ constructor(
         managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        policies: ContainerPolicy? = null
+        policies: ContainerPolicyWithoutItem? = null
     ): String
 
     /**
@@ -103,7 +103,7 @@ constructor(
         version: Long,
         force: Boolean,
         forceGenerateNewKey: Boolean,
-        policies: ContainerPolicy? = null
+        policies: ContainerPolicyWithoutItem? = null
     )
 
     /**
