@@ -863,7 +863,27 @@ privmx::endpoint::stream::SdpWithTypeModel parseSdpWithTypeModel(JniContextUtils
     return result;
 }
 
+privmx::endpoint::stream::DataChannelMessage parseDataChannelMessage(
+        JniContextUtils &ctx,
+        jobject dataChannelMessage
+) {
+    privmx::endpoint::stream::DataChannelMessage result;
+    jclass cls = ctx->GetObjectClass(dataChannelMessage);
 
+    jfieldID dataFID = ctx->GetFieldID(cls, "data", "[B");
+    jfieldID seqFID = ctx->GetFieldID(cls, "seq", "Ljava/lang/Long");
+
+    result.seq = ctx.getObject(ctx->GetObjectField(dataChannelMessage, seqFID)).getLongValue();
+    auto data = (jbyteArray)(ctx->GetObjectField(dataChannelMessage, dataFID));
+
+    if (data != nullptr) {
+        jsize len = ctx->GetArrayLength(data);
+        jbyte *bytes = ctx->GetByteArrayElements(data, nullptr);
+        result.data = core::Buffer::from(ctx.jByteArray2String(data));
+    }
+
+    return result;
+}
 
 int64_t jobject2long(JniContextUtils &ctx, jobject jLong) {
     jclass longClass = ctx->FindClass("java/lang/Long");

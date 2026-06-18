@@ -51,6 +51,7 @@ jobject parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core:
 
 privmx::endpoint::core::PagingQuery parsePagingQuery(JniContextUtils &ctx, jobject pagingQuery);
 
+privmx::endpoint::stream::DataChannelMessage parseDataChannelMessage(JniContextUtils &ctx, jobject dataChannelMessage);
 
 // java -> c++
 
