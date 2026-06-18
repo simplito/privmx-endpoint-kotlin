@@ -585,6 +585,22 @@ actual constructor(
         }
     }
 
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) = memScoped {
+        TODO("Waiting for implementation of setNewOfferOnReconfigure in cinterface")
+
+//        val pson_result = allocPointerTo<pson_value>()
+//        val args = makeArgs(sessionId.pson, sdp.pson)
+//        try {
+//            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 26, args, pson_result.ptr)
+//            pson_result.value?.asResponse?.getResultOrThrow()
+//            Unit
+//        } finally {
+//            pson_free_result(pson_result.value)
+//            pson_free_value(args)
+//        }
+    }
+
     /**
      * Subscribes for stream events.
      *

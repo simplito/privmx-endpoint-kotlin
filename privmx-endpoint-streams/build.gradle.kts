@@ -88,6 +88,13 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
             }
         }
+
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.webrtc.android)
+            }
+        }
+
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlin.test)
@@ -127,8 +134,11 @@ signing {
 
 android {
     namespace = "com.simplito.kotlin.privmx_endpoint_streams_android"
-    //TODO: Add minimum sdk version
     compileSdk = 36
+
+    defaultConfig {
+        minSdk = 24
+    }
 }
 
 tasks.register<de.undercouch.gradle.tasks.download.Download>("downloadWebrtcFramework") {
