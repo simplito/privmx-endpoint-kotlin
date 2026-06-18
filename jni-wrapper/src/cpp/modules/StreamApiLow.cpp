@@ -845,3 +845,42 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_registerRe
         );
     });
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_decryptDataChannelMessage(
+        JNIEnv *env,
+        jobject thiz,
+        jstring stream_room_id,
+        jstring remote_stream_id,
+        jbyteArray encrypted_data
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(stream_room_id, "Stream room ID") ||
+            ctx.nullCheck(remote_stream_id, "Remote stream ID") ||
+            ctx.nullCheck(encrypted_data, "Encrypted data")) {
+        return nullptr;
+    }
+
+    jobject result;
+    ctx.callResultEndpointApi<jobject>(
+            &result,
+            [&ctx, &thiz, &stream_room_id, &remote_stream_id, &encrypted_data]() {
+                auto message_c = getStreamApi(ctx, thiz)->decryptDataChannelMessage(
+                        ctx.jString2string(stream_room_id),
+                        ctx.jString2string(remote_stream_id),
+                        core::Buffer::from(ctx.jByteArray2String(encrypted_data))
+                );
+
+                return privmx::wrapper::decryptedDataChannelMessage2Java(
+                        ctx,
+                        message_c
+                );
+
+            });
+
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
+    }
+    return result;
+}
