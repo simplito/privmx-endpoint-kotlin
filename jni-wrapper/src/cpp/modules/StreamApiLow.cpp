@@ -115,8 +115,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
                 std::vector<core::UserWithPubKey> managers_c = usersToVector(
                         ctx,
                         ctx.jObject2jArray(managers));
-                auto container_policies_c = std::optional<core::ContainerPolicy>(
-                        parseContainerPolicy(ctx, policies));
+                auto container_policies_c = std::optional<core::ContainerPolicyWithoutItem>(
+                        parseContainerPolicyWithoutItem(ctx, policies));
                 return ctx->NewStringUTF(
                         getStreamApi(ctx, thiz)->createStreamRoom(
                                 ctx.jString2string(context_id),
@@ -176,8 +176,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_updateStre
                 std::vector<core::UserWithPubKey> managers_c = usersToVector(
                         ctx,
                         ctx.jObject2jArray(managers));
-                auto container_policies_c = std::optional<core::ContainerPolicy>(
-                        parseContainerPolicy(ctx, policies));
+                auto container_policies_c = std::optional<core::ContainerPolicyWithoutItem>(
+                        parseContainerPolicyWithoutItem(ctx, policies));
                 getStreamApi(ctx, thiz)->updateStreamRoom(
                         ctx.jString2string(stream_room_id),
                         users_c,
