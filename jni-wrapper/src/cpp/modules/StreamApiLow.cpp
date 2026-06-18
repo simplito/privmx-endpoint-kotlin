@@ -779,3 +779,47 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_setNewOffe
         );
     });
 }
+
+extern "C"
+JNIEXPORT jbyteArray JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_encryptDataChannelMessage(
+        JNIEnv *env,
+        jobject thiz,
+        jstring stream_room_id,
+        jobject plain_message
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(stream_room_id, "Stream room ID") ||
+            ctx.nullCheck(plain_message, "Data channel message")) {
+        return nullptr;
+    }
+    jbyteArray result;
+
+    ctx.callResultEndpointApi<jbyteArray>(
+            &result,
+            [&ctx, &thiz, &stream_room_id, &plain_message]() {
+                auto buff = getStreamApi(ctx, thiz)->encryptDataChannelMessage(
+                        ctx.jString2string(stream_room_id),
+                        parseDataChannelMessage(
+                                ctx,
+                                plain_message
+                        )
+                ).stdString();
+
+                jbyteArray data = ctx->NewByteArray(buff.length());
+
+                ctx->SetByteArrayRegion(
+                        data,
+                        0,
+                        buff.length(),
+                        (jbyte *) buff.c_str()
+                );
+                return data;
+
+            });
+
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
+    }
+    return result;
+}
