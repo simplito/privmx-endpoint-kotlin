@@ -39,9 +39,7 @@ import com.simplito.kotlin.privmx_endpoint.modules.event.EventApi
 expect class StreamApiLow
 @Throws(IllegalStateException::class)
 constructor(
-    connection: Connection,
-    eventApi: EventApi,
-    streamEncryptionMode: StreamEncryptionMode = StreamEncryptionMode.SINGLE_KEY
+    connection: Connection
 ) : AutoCloseable {
 
     /**
