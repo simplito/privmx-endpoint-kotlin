@@ -18,8 +18,9 @@ import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.kotlin.privmx_endpoint.model.stream.DataChannelMessage
+import com.simplito.kotlin.privmx_endpoint.model.stream.DecryptedDataChannelMessage
 import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
-import com.simplito.kotlin.privmx_endpoint.model.stream.StreamEncryptionMode
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
@@ -351,17 +352,24 @@ constructor(
         selectorId: String
     ): String
 
-    /**
-     * Enables or disables key management for a room.
-     *
-     * @param streamRoomId ID of the room
-     * @param disable whether to disable key management
-     * @throws PrivmxException thrown when method encounters an exception
-     * @throws NativeException thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
-     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun keyManagement(streamRoomId: String, disable: Boolean)
+    fun encryptDataChannelMessage(
+        streamRoomId: String,
+        plainMessage: DataChannelMessage
+    ): ByteArray
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun registerRemoteDataChannel(
+        streamRoomId: String,
+        remoteStreamId: String,
+    )
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun decryptDataChannelMessage(
+        streamRoomId: String,
+        remoteStreamId: String,
+        encryptedData: ByteArray
+    ): DecryptedDataChannelMessage
 
     /**
      * Frees memory.
