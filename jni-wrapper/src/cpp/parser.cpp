@@ -864,25 +864,6 @@ privmx::endpoint::stream::SdpWithTypeModel parseSdpWithTypeModel(JniContextUtils
 }
 
 
-privmx::endpoint::stream::StreamEncryptionMode parseStreamEncryptionMode(
-        JniContextUtils &ctx,
-        jobject streamEncryptionMode
-) {
-    jclass cls = ctx->GetObjectClass(streamEncryptionMode);
-    jmethodID nameFID = ctx->GetMethodID(
-            cls,
-            "name",
-            "()Ljava/lang/String;"
-    );
-
-    auto name_j = (jstring) ctx->CallObjectMethod(streamEncryptionMode, nameFID);
-    std::string name_c = ctx.jString2string(name_j);
-
-    if (name_c == "SINGLE_KEY") return privmx::endpoint::stream::StreamEncryptionMode::SINGLE_KEY;
-    if (name_c == "MULTIPLE_KEY") return privmx::endpoint::stream::StreamEncryptionMode::MULTIPLE_KEY;
-
-    return {};
-}
 
 int64_t jobject2long(JniContextUtils &ctx, jobject jLong) {
     jclass longClass = ctx->FindClass("java/lang/Long");
