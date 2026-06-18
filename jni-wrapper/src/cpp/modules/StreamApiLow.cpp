@@ -580,28 +580,6 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_buildSubsc
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_keyManagement(
-        JNIEnv *env,
-        jobject thiz,
-        jstring stream_room_id,
-        jboolean disable
-) {
-    JniContextUtils ctx(env);
-    if (ctx.nullCheck(stream_room_id, "Stream Room ID")) {
-        return;
-    }
-
-    ctx.callVoidEndpointApi([&ctx, &thiz, &stream_room_id, &disable]() {
-        getStreamApi(ctx, thiz)->keyManagement(
-                ctx.jString2string(stream_room_id),
-                disable == JNI_TRUE
-        );
-
-    });
-}
-
-extern "C"
-JNIEXPORT void JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_trickle(
         JNIEnv *env,
         jobject thiz,
