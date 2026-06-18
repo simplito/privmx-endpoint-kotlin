@@ -1,6 +1,7 @@
 package com.simplito.kotlin.privmx_endpoint.model.stream
 
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
+import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 
 data class StreamRoom(
     val contextId: String,
@@ -14,7 +15,7 @@ data class StreamRoom(
     val version: Long,
     val publicMeta: ByteArray,
     val privateMeta: ByteArray,
-    val policy: ContainerPolicy,
+    val policy: ContainerPolicyWithoutItem,
     val statusCode: Long,
     val schemaVersion: Long,
     val closed: Boolean,
@@ -59,7 +60,7 @@ data class StreamRoom(
         result = 31 * result + managers.hashCode()
         result = 31 * result + publicMeta.contentHashCode()
         result = 31 * result + privateMeta.contentHashCode()
-        result = 31 * result + (policy.hashCode())
+        result = 31 * result + policy.hashCode()
         return result
     }
 }
