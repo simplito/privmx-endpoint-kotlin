@@ -20,7 +20,6 @@ import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
-import com.simplito.kotlin.privmx_endpoint.model.stream.StreamEncryptionMode
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
@@ -157,9 +156,6 @@ actual constructor(
         selectorType: StreamEventSelectorType,
         selectorId: String
     ): String
-
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun keyManagement(streamRoomId: String, disable: Boolean)
 
     @Throws(IllegalStateException::class)
     private external fun init(
