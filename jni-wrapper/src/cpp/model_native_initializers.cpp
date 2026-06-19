@@ -1610,7 +1610,7 @@ namespace privmx {
                     "Ljava/lang/Long;"      // version
                     "[B"                    // publicMeta
                     "[B"                    // privateMeta
-                    "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicy;" // policy
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicyWithoutItem;" // policy
                     "Ljava/lang/Long;"      // statusCode
                     "Ljava/lang/Long;"      // schemaVersion
                     "Ljava/lang/Boolean;"   // closed
@@ -1642,7 +1642,7 @@ namespace privmx {
                     ctx.long2jLong(streamRoom_c.version),
                     publicMeta,
                     privateMeta,
-                    privmx::wrapper::containerPolicy2Java(ctx, streamRoom_c.policy),
+                    privmx::wrapper::containerPolicyWithoutItem2Java(ctx, streamRoom_c.policy),
                     ctx.long2jLong(streamRoom_c.statusCode),
                     ctx.long2jLong(streamRoom_c.schemaVersion),
                     ctx.bool2jBoolean(streamRoom_c.closed)
