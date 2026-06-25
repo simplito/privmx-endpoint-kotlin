@@ -7,6 +7,7 @@ import WebRTCFramework.RTCIceServer
 import WebRTCFramework.RTCPeerConnectionFactory
 import WebRTCFramework.RTCPeerConnectionFactoryOptions
 import webrtc.IceServer
+import webrtc.PeerConnectionFactory
 
 actual class StreamApiInit
 
@@ -16,18 +17,6 @@ private fun DefaultPeerConnectionFactory(
     RTCDefaultVideoEncoderFactory(),
     RTCDefaultVideoDecoderFactory()
 )
-
-actual fun StreamApi.initialFun() {
-    this.pcManager = PeerConnectionManager(
-        DefaultPeerConnectionFactory(
-            RTCPeerConnectionFactoryOptions(),
-        ),
-        onTrickle = { sessionId, rtcConfiguration ->
-            this.api.trickle(sessionId, rtcConfiguration)
-        },
-        acceptOfferOnReconfigure = {_ , _ -> TODO("Not implemented yet.") }
-    )
-}
 
 actual fun StreamApi.joinStreamRoom(streamRoomId: String) {
     //TODO: Rollback this change, it is do only for run test
@@ -43,4 +32,12 @@ internal actual fun StreamApi.getRTCConfiguration(): List<IceServer> {
             item.password
         )
     }
+}
+
+actual fun StreamApi.createDefaultPeerConnectionFactory(
+    init: StreamApiInit
+): PeerConnectionFactory {
+    return  DefaultPeerConnectionFactory(
+        RTCPeerConnectionFactoryOptions(),
+    )
 }
