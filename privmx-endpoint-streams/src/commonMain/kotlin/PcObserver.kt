@@ -1,3 +1,10 @@
+import webrtc.IceCandidate
+import webrtc.IceConnectionState
+import webrtc.KeyStore
+import webrtc.Observer
+import webrtc.PeerConnectionFactory
+import webrtc.PmxFrameCryptorOptions
+
 expect class PcObserver(
     peerConnectionFactory: PeerConnectionFactory,
     keyStore: KeyStore,
