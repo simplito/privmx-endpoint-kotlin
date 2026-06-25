@@ -3,7 +3,6 @@ import org.webrtc.DefaultVideoDecoderFactory
 import org.webrtc.DefaultVideoEncoderFactory
 import org.webrtc.EglBase
 import org.webrtc.PeerConnection
-import org.webrtc.PmxFrameCryptor
 import org.webrtc.audio.JavaAudioDeviceModule
 import webrtc.IceServer
 import webrtc.PeerConnectionFactory
@@ -35,19 +34,6 @@ private fun createDefaultPeerConnectionFactory(
     return factory
 }
 
-actual fun StreamApi.initialFun() {
-    val factory = createDefaultPeerConnectionFactory(this.apiInit.appContext, this.apiInit.rootEglBase)
-    this.pcManager = PeerConnectionManager(
-        factory,
-        onTrickle = { sessionId, rtcConfiguration ->
-            this.api.trickle(sessionId, rtcConfiguration)
-        },
-        acceptOfferOnReconfigure = { sessionId, sdp ->
-            this.api.acceptOfferOnReconfigure(sessionId, sdp)
-        }
-    )
-}
-
 internal actual fun StreamApi.getRTCConfiguration(): List<IceServer> {
     return this.api.getTurnCredentials().map { item ->
         PeerConnection.IceServer.builder(item.url)
@@ -61,3 +47,10 @@ actual fun StreamApi.joinStreamRoom(streamRoomId: String) {
     val session = pcManager.createSession(streamRoomId)
     api.joinStreamRoom(streamRoomId, session.webrtc)
 }
+
+actual fun StreamApi.createDefaultPeerConnectionFactory(
+    init: StreamApiInit,
+): PeerConnectionFactory = createDefaultPeerConnectionFactory(
+    init.appContext,
+    init.rootEglBase
+)
