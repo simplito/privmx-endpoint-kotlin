@@ -651,28 +651,6 @@ actual constructor(
         }
     }
 
-    /**
-     * Enables or disables key management for a room.
-     *
-     * @param streamRoomId ID of the room
-     * @param disable whether to disable key management
-     * @throws PrivmxException thrown when method encounters an exception
-     * @throws NativeException thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
-     */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun keyManagement(streamRoomId: String, disable: Boolean) = memScoped {
-        val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(streamRoomId.pson, disable.pson)
-        try {
-            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 21, args, pson_result.ptr)
-            pson_result.value?.asResponse?.getResultOrThrow()
-            Unit
-        } finally {
-            pson_free_result(pson_result.value)
-            pson_free_value(args)
-        }
-    }
 
     /**
      * Frees memory.
