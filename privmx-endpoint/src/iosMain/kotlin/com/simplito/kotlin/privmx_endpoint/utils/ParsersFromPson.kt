@@ -21,6 +21,7 @@ import com.simplito.kotlin.privmx_endpoint.model.BIP39
 import com.simplito.kotlin.privmx_endpoint.model.BridgeIdentity
 import com.simplito.kotlin.privmx_endpoint.model.CollectionItemChange
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
+import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.Event
 import com.simplito.kotlin.privmx_endpoint.model.File
@@ -170,6 +171,16 @@ internal fun PsonObject.toContainerPolicy(): ContainerPolicy =
         this["updaterCanBeRemovedFromManagers"]?.typedValue(),
         this["ownerCanBeRemovedFromManagers"]?.typedValue(),
         (this["item"] as PsonObject?)?.toItemPolicy()
+    )
+
+internal fun PsonObject.toContainerPolicyWithoutItem(): ContainerPolicyWithoutItem =
+    ContainerPolicyWithoutItem(
+        this["get"]?.typedValue(),
+        this["update"]?.typedValue(),
+        this["delete_"]?.typedValue(),
+        this["updatePolicy"]?.typedValue(),
+        this["updaterCanBeRemovedFromManagers"]?.typedValue(),
+        this["ownerCanBeRemovedFromManagers"]?.typedValue()
     )
 
 internal fun PsonObject.toFilesConfig(): FilesConfig =
@@ -474,7 +485,7 @@ internal fun PsonObject.toStreamRoom(): StreamRoom = StreamRoom(
     this["version"]!!.typedValue(),
     this["publicMeta"]!!.typedValue(),
     this["privateMeta"]!!.typedValue(),
-    (this["policy"] as PsonObject?)?.toContainerPolicy(),
+    (this["policy"] as PsonObject).toContainerPolicyWithoutItem(),
     //TODO: No status code in room
     0,//    this["statusCode"]!!.typedValue(),
     //TODO: No schemaVersion code in room
