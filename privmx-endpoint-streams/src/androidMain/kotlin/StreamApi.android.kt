@@ -5,6 +5,8 @@ import org.webrtc.EglBase
 import org.webrtc.PeerConnection
 import org.webrtc.PmxFrameCryptor
 import org.webrtc.audio.JavaAudioDeviceModule
+import webrtc.IceServer
+import webrtc.PeerConnectionFactory
 
 actual data class StreamApiInit(
     val appContext: Context,
