@@ -1,11 +1,12 @@
 @file:OptIn(ExperimentalForeignApi::class)
 
+import kotlinx.cinterop.ExperimentalForeignApi
 import WebRTCFramework.RTCDefaultVideoDecoderFactory
 import WebRTCFramework.RTCDefaultVideoEncoderFactory
 import WebRTCFramework.RTCIceServer
 import WebRTCFramework.RTCPeerConnectionFactory
 import WebRTCFramework.RTCPeerConnectionFactoryOptions
-import kotlinx.cinterop.ExperimentalForeignApi
+import webrtc.IceServer
 
 actual class StreamApiInit
 
