@@ -43,17 +43,13 @@ import libprivmxendpoint.*
 /**
  * Low-level Stream API for PrivMX Bridge.
  * @param connection active connection to PrivMX Bridge
- * @param eventApi   instance of [EventApi] created on passed Connection
- * @param streamEncryptionMode encryption mode for streams
  * @throws IllegalStateException when one of the passed parameters is closed
  */
 @OptIn(ExperimentalForeignApi::class)
 actual class StreamApiLow
 @Throws(IllegalStateException::class)
 actual constructor(
-    connection: Connection,
-    eventApi: EventApi,
-    streamEncryptionMode: StreamEncryptionMode
+    connection: Connection
 ) : AutoCloseable {
     private val _nativeStreamApiLow = nativeHeap.allocPointerTo<cnames.structs.StreamApiLow>()
     private val proxyWebrtcList = ProxyWebrtcList()
@@ -64,13 +60,11 @@ actual constructor(
     init {
         privmx_endpoint_newStreamApiLow(
             connection.getConnectionPtr(),
-            eventApi.getEventPtr(),
             _nativeStreamApiLow.ptr
         )
 
         memScoped {
             val args = makeArgs()
-//                streamEncryptionMode.ordinal.toLong().pson)
             val pson_result = allocPointerTo<pson_value>()
             try {
                 privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 0, args, pson_result.ptr)
