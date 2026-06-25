@@ -13,6 +13,7 @@ import webrtc.AudioTrack
 import webrtc.IceConnectionState
 import webrtc.IceServer
 import webrtc.MediaStreamTrack
+import webrtc.PeerConnectionFactory
 import webrtc.PmxFrameCryptorOptions
 import webrtc.VideoTrack
 import webrtc.kind
@@ -26,12 +27,21 @@ class StreamApi(
     val api: StreamApiLow,
     val apiInit: StreamApiInit
 ) : AutoCloseable {
-    internal lateinit var pcManager: PeerConnectionManager
+    internal var pcManager: PeerConnectionManager
     var trackFactory: TrackFactory
         private set
 
     init {
-        initialFun()
+        val factory = createDefaultPeerConnectionFactory(apiInit)
+        pcManager = PeerConnectionManager(
+            factory,
+            onTrickle = { sessionId, rtcConfiguration ->
+                this.api.trickle(sessionId, rtcConfiguration)
+            },
+            acceptOfferOnReconfigure = { sessionId, sdp ->
+                this.api.acceptOfferOnReconfigure(sessionId, sdp)
+            }
+        )
         trackFactory = TrackFactory(pcManager)
     }
 
@@ -256,7 +266,7 @@ class StreamApi(
     }
 }
 
-expect fun StreamApi.initialFun()
+expect fun StreamApi.createDefaultPeerConnectionFactory(init: StreamApiInit): PeerConnectionFactory
 internal expect fun StreamApi.getRTCConfiguration(): List<IceServer>
 
 expect fun StreamApi.joinStreamRoom(
