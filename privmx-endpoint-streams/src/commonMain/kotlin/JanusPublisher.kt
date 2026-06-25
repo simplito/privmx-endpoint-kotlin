@@ -1,6 +1,26 @@
 import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
+import webrtc.AudioTrack
+import webrtc.AudioTrackInfo
+import webrtc.IceConnectionState
+import webrtc.KeyStore
+import webrtc.PeerConnectionFactory
+import webrtc.PmxFrameCryptorOptions
+import webrtc.SessionDescription
+import webrtc.VideoTrack
+import webrtc.VideoTrackInfo
+import webrtc.addTrack
+import webrtc.applyOptions
+import webrtc.createOffer
+import webrtc.createSenderFrameCryptor
+import webrtc.disposeCryptor
+import webrtc.removeTrack
+import webrtc.sdp
+import webrtc.sessionDescription
+import webrtc.setLocalDescription
+import webrtc.setRemoteDescription
+import webrtc.trackId
 import kotlin.coroutines.EmptyCoroutineContext
 
 class JanusPublisher(
