@@ -12,8 +12,8 @@
 package com.simplito.kotlin.privmx_endpoint.modules.stream
 
 import cnames.structs.pson_value
-import com.simplito.java.privmx_endpoint.model.events.eventSelectorTypes.StreamEventSelectorType
-import com.simplito.java.privmx_endpoint.model.events.eventTypes.StreamEventType
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
@@ -387,7 +387,7 @@ actual constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun publishStream(streamHandle: StreamHandle): StreamPublishResult = memScoped {
         val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(streamHandle.pson)
+        val args = makeArgs(streamHandle.value.pson)
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 14, args, pson_result.ptr)
             val psonObject = pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonObject
@@ -410,7 +410,7 @@ actual constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun updateStream(streamHandle: StreamHandle): StreamPublishResult = memScoped {
         val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(streamHandle.pson)
+        val args = makeArgs(streamHandle.value.pson)
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 22, args, pson_result.ptr)
             val psonObject = pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonObject
@@ -432,7 +432,7 @@ actual constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun unpublishStream(streamHandle: StreamHandle) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(streamHandle.pson)
+        val args = makeArgs(streamHandle.value.pson)
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 15, args, pson_result.ptr)
             pson_result.value?.asResponse?.getResultOrThrow()
