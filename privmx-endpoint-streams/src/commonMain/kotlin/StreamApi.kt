@@ -1,6 +1,6 @@
-import com.simplito.java.privmx_endpoint.model.events.eventSelectorTypes.StreamEventSelectorType
-import com.simplito.java.privmx_endpoint.model.events.eventTypes.StreamEventType
-import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
+import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
@@ -9,6 +9,14 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
 import com.simplito.kotlin.privmx_endpoint.modules.stream.StreamApiLow
+import webrtc.AudioTrack
+import webrtc.IceConnectionState
+import webrtc.IceServer
+import webrtc.MediaStreamTrack
+import webrtc.PmxFrameCryptorOptions
+import webrtc.VideoTrack
+import webrtc.kind
+import webrtc.trackId
 import kotlin.jvm.JvmOverloads
 
 

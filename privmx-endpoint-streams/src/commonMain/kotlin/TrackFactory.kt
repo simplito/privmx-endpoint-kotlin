@@ -1,3 +1,9 @@
+import webrtc.AudioTrack
+import webrtc.PeerConnectionFactory
+import webrtc.VideoTrack
+import webrtc.makeAudioTrack
+import webrtc.makeVideoTrack
+
 class TrackFactory internal constructor(pcManager: PeerConnectionManager) {
 
     val factory: PeerConnectionFactory = pcManager.pcFactory
