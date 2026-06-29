@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalForeignApi::class)
 
-package webrtc
+package com.simplito.kotlin.privmx_endpoint_streams.webrtc
 
 import WebRTCFramework.PMXFrameCryptorTransformer
 import WebRTCFramework.RTCConfiguration
