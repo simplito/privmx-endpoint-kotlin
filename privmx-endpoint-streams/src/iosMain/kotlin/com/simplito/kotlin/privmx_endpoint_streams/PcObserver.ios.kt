@@ -41,23 +41,6 @@ actual class PcObserver actual constructor(
         frameCryptorMap.clear()
     }
 
-    override fun peerConnection(
-        peerConnection: RTCPeerConnection,
-        didStartReceivingOnTransceiver: RTCRtpTransceiver
-    ) {
-        val track = didStartReceivingOnTransceiver.receiver.track() ?: return
-        frameCryptorMap[track.trackId] = PMXFrameCryptorTransformer(
-            forRtpReceiver = didStartReceivingOnTransceiver.receiver,
-            withPeerConnectionFactory = peerConnectionFactory,
-            keyStore,
-            null
-        )
-
-        //TODO: Pass correct streamId for this track
-        // (streams.firstOrNull() as? RTCMediaStream)?.streamId,
-        trackObserver?.onRemoteTrack(null, track)
-    }
-
     override fun peerConnectionShouldNegotiate(peerConnection: RTCPeerConnection) =
         onRenegotiationNeededCallback()
 
@@ -70,6 +53,22 @@ actual class PcObserver actual constructor(
         peerConnection: RTCPeerConnection,
         didGenerateIceCandidate: RTCIceCandidate
     ) = onIceCandidateCallback(didGenerateIceCandidate)
+
+    override fun peerConnection(peerConnection: RTCPeerConnection, didAddReceiver: RTCRtpReceiver, streams: List<*>) {
+        val track = didAddReceiver.track() ?: return
+        frameCryptorMap[track.trackId] = PMXFrameCryptorTransformer(
+            forRtpReceiver = didAddReceiver,
+            withPeerConnectionFactory = peerConnectionFactory,
+            keyStore,
+            null
+        )
+        val streamId = (streams.firstOrNull() as? RTCMediaStream)?.streamId
+        trackObserver?.onRemoteTrack(streamId, track)
+    }
+
+    override fun peerConnection(
+        peerConnection: RTCPeerConnection,
+        didStartReceivingOnTransceiver: RTCRtpTransceiver){}
 
     override fun peerConnection(peerConnection: RTCPeerConnection, didChangeSignalingState: RTCSignalingState) {}
     override fun peerConnection(peerConnection: RTCPeerConnection, didAddReceiver: RTCRtpReceiver, streams: List<*>) {}
