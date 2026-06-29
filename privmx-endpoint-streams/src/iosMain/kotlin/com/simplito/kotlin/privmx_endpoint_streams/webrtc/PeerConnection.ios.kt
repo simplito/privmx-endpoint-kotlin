@@ -12,16 +12,20 @@ import kotlin.coroutines.resumeWithException
 
 actual typealias PeerConnection = RTCPeerConnection
 
+actual enum class PeerConnectionState(internal val platform: RTCPeerConnectionState) {
+    NEW(RTCPeerConnectionState.RTCPeerConnectionStateNew),
+    CONNECTING(RTCPeerConnectionState.RTCPeerConnectionStateConnecting),
+    CONNECTED(RTCPeerConnectionState.RTCPeerConnectionStateConnected),
+    DISCONNECTED(RTCPeerConnectionState.RTCPeerConnectionStateDisconnected),
+    FAILED(RTCPeerConnectionState.RTCPeerConnectionStateFailed),
+    CLOSED(RTCPeerConnectionState.RTCPeerConnectionStateClosed)
+}
+
+internal fun RTCPeerConnectionState.toCommon(): PeerConnectionState =
+    PeerConnectionState.entries.first { it.platform == this }
+
 internal actual val PeerConnection.peerConnectionState: PeerConnectionState
-    get() = when (connectionState()) {
-        RTCPeerConnectionState.RTCPeerConnectionStateNew -> PeerConnectionState.NEW
-        RTCPeerConnectionState.RTCPeerConnectionStateConnecting -> PeerConnectionState.CONNECTING
-        RTCPeerConnectionState.RTCPeerConnectionStateConnected -> PeerConnectionState.CONNECTED
-        RTCPeerConnectionState.RTCPeerConnectionStateDisconnected -> PeerConnectionState.DISCONNECTED
-        RTCPeerConnectionState.RTCPeerConnectionStateFailed -> PeerConnectionState.FAILED
-        RTCPeerConnectionState.RTCPeerConnectionStateClosed -> PeerConnectionState.CLOSED
-        else -> PeerConnectionState.FAILED
-    }
+    get() = connectionState().toCommon()
 
 internal actual fun PeerConnection.applyIceServers(iceServers: List<IceServer>) {
     setConfiguration(RTCConfiguration().also { it.setIceServers(iceServers) })
