@@ -13,7 +13,6 @@ import kotlinx.cinterop.ExperimentalForeignApi
 actual typealias PeerConnectionFactory = RTCPeerConnectionFactory
 
 internal actual fun PeerConnectionFactory.createPeerConnection(observer: Observer): PeerConnection =
-    // TODO(iOS): zweryfikuj sygnaturę peerConnectionWithConfiguration:constraints:delegate:
     peerConnectionWithConfiguration(RTCConfiguration(), mediaConstraints(), observer)
         ?: throw IllegalStateException("Failed to create PeerConnection")
 
@@ -32,7 +31,6 @@ internal actual fun PeerConnectionFactory.createSenderFrameCryptor(
     sender: RtpSender,
     keyStore: KeyStore
 ): FrameCryptor =
-    // TODO(iOS): zweryfikuj inicjalizator forRtpSender (analogicznie do forRtpReceiver w PcObserver)
     PMXFrameCryptorTransformer(
         forRtpSender = sender,
         withPeerConnectionFactory = this,
@@ -40,13 +38,12 @@ internal actual fun PeerConnectionFactory.createSenderFrameCryptor(
         null
     )
 
-// -----------
 internal fun PeerConnectionFactory.makeVideoTrack(
     id: String,
     videoSource: RTCVideoSource
 ): VideoTrack = videoTrackWithSource(videoSource, id)
 
-internal  fun PeerConnectionFactory.makeAudioTrack(
+internal fun PeerConnectionFactory.makeAudioTrack(
     id: String,
     audioSource: RTCAudioSource
 ): AudioTrack =
