@@ -71,7 +71,6 @@ actual class PcObserver actual constructor(
         didStartReceivingOnTransceiver: RTCRtpTransceiver){}
 
     override fun peerConnection(peerConnection: RTCPeerConnection, didChangeSignalingState: RTCSignalingState) {}
-    override fun peerConnection(peerConnection: RTCPeerConnection, didAddReceiver: RTCRtpReceiver, streams: List<*>) {}
 
     @ObjCSignatureOverride
     override fun peerConnection(peerConnection: RTCPeerConnection, didAddStream: RTCMediaStream) {}
