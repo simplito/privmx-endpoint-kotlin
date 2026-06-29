@@ -9,16 +9,20 @@ import kotlin.coroutines.resumeWithException
 
 actual typealias PeerConnection = org.webrtc.PeerConnection
 
+actual enum class PeerConnectionState(internal val platform:  org.webrtc.PeerConnection.PeerConnectionState) {
+    NEW( org.webrtc.PeerConnection.PeerConnectionState.NEW),
+    CONNECTING( org.webrtc.PeerConnection.PeerConnectionState.CONNECTING),
+    CONNECTED( org.webrtc.PeerConnection.PeerConnectionState.CONNECTED),
+    DISCONNECTED( org.webrtc.PeerConnection.PeerConnectionState.DISCONNECTED),
+    FAILED( org.webrtc.PeerConnection.PeerConnectionState.FAILED),
+    CLOSED( org.webrtc.PeerConnection.PeerConnectionState.CLOSED)
+}
+
+internal fun org.webrtc.PeerConnection.PeerConnectionState.toCommon(): PeerConnectionState =
+    PeerConnectionState.entries.first { it.platform == this }
+
 internal actual val PeerConnection.peerConnectionState: PeerConnectionState
-    get() = when (connectionState()) {
-        org.webrtc.PeerConnection.PeerConnectionState.NEW -> PeerConnectionState.NEW
-        org.webrtc.PeerConnection.PeerConnectionState.CONNECTING -> PeerConnectionState.CONNECTING
-        org.webrtc.PeerConnection.PeerConnectionState.CONNECTED -> PeerConnectionState.CONNECTED
-        org.webrtc.PeerConnection.PeerConnectionState.DISCONNECTED -> PeerConnectionState.DISCONNECTED
-        org.webrtc.PeerConnection.PeerConnectionState.FAILED -> PeerConnectionState.FAILED
-        org.webrtc.PeerConnection.PeerConnectionState.CLOSED -> PeerConnectionState.CLOSED
-        null -> PeerConnectionState.FAILED
-    }
+    get() = connectionState().toCommon()
 
 internal actual fun PeerConnection.applyIceServers(iceServers: List<IceServer>) {
     setConfiguration(org.webrtc.PeerConnection.RTCConfiguration(iceServers))
