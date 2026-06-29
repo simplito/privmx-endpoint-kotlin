@@ -24,29 +24,9 @@ import com.simplito.kotlin.privmx_endpoint_streams.webrtc.setRemoteDescription
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.trackId
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
-import webrtc.AudioTrack
-import webrtc.AudioTrackInfo
-import webrtc.IceConnectionState
-import webrtc.KeyStore
-import webrtc.PeerConnectionFactory
-import webrtc.PmxFrameCryptorOptions
-import webrtc.SessionDescription
-import webrtc.VideoTrack
-import webrtc.VideoTrackInfo
-import webrtc.addTrack
-import webrtc.applyOptions
-import webrtc.createOffer
-import webrtc.createSenderFrameCryptor
-import webrtc.disposeCryptor
-import webrtc.removeTrack
-import webrtc.sdp
-import webrtc.sessionDescription
-import webrtc.setLocalDescription
-import webrtc.setRemoteDescription
-import webrtc.trackId
 import kotlin.coroutines.EmptyCoroutineContext
 
-class JanusPublisher(
+internal class JanusPublisher(
     peerConnectionFactory: PeerConnectionFactory,
     keyStore: KeyStore,
     trackObserver: TrackObserver?,
@@ -90,7 +70,7 @@ class JanusPublisher(
 
     suspend fun setAnswer(sdp: String?, type: String): SessionDescription =
         configurationMutex.withLock {
-            sessionDescription(type, sdp ?: "").also { peerConnection.setRemoteDescription(it) }
+            sessionDescription(fromCanonicalForm(type), sdp ?: "").also { peerConnection.setRemoteDescription(it) }
         }
 
     override fun setFrameCryptorOptions(options: PmxFrameCryptorOptions) {

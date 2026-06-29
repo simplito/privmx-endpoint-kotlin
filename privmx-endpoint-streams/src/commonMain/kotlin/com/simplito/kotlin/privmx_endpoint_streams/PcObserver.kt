@@ -14,7 +14,7 @@ expect class PcObserver(
     onIceCandidateCallback: (candidate: IceCandidate) -> Unit,
     onRenegotiationNeededCallback: () -> Unit = {},
     onIceConnectionChangeCallback: (candidate: IceConnectionState) -> Unit = {}
-): Observer{
+): Observer {
     fun setFrameCryptorOptions(options: PmxFrameCryptorOptions)
     fun dispose()
 }

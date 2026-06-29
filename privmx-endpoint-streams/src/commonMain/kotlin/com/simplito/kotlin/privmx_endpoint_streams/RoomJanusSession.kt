@@ -15,16 +15,9 @@ import com.simplito.kotlin.privmx_endpoint_streams.webrtc.createKeyStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import webrtc.IceConnectionState
-import webrtc.KeyStore
-import webrtc.MediaStreamTrack
-import webrtc.PeerConnectionFactory
-import webrtc.PmxFrameCryptorOptions
-import webrtc.applyKeys
-import webrtc.createKeyStore
 import kotlin.coroutines.CoroutineContext
 
-class RoomJanusSession(
+internal class RoomJanusSession(
     val roomId: String,
     private val pcFactory: PeerConnectionFactory,
     private val onTrickle: (Long, String) -> Unit,
