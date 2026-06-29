@@ -10,12 +10,21 @@ actual typealias SessionDescription = RTCSessionDescription
 
 internal actual val SessionDescription.sdp: String get() = this.sdp
 
-internal actual fun sessionDescription(type: String, sdp: String): SessionDescription =
-    RTCSessionDescription(type.toSdpType(), sdp)
+internal actual fun sessionDescription(
+    type: SdpType,
+    sdp: String
+): SessionDescription = RTCSessionDescription(type.type, sdp)
 
-private fun String.toSdpType(): RTCSdpType = when (this) {
-    "offer" -> RTCSdpType.RTCSdpTypeOffer
-    "answer" -> RTCSdpType.RTCSdpTypeAnswer
-    "pranswer" -> RTCSdpType.RTCSdpTypePrAnswer
-    else -> RTCSdpType.RTCSdpTypeOffer
+actual enum class SdpType(internal val type: RTCSdpType) {
+    OFFER(RTCSdpType.RTCSdpTypeOffer),
+    ANSWER(RTCSdpType.RTCSdpTypeAnswer),
+    PRANSWER(RTCSdpType.RTCSdpTypePrAnswer),
+    ROLLBACK(RTCSdpType.RTCSdpTypeRollback)
 }
+
+internal fun RTCSdpType.toCommon(): SdpType =
+    SdpType.entries.first { it.type == this }
+
+internal actual fun fromCanonicalForm(
+    canonical: String
+): SdpType = RTCSessionDescription.typeForString(canonical).toCommon()
