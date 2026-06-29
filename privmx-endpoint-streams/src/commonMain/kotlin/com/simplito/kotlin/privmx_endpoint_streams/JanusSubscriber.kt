@@ -9,7 +9,7 @@ import com.simplito.kotlin.privmx_endpoint_streams.webrtc.setLocalDescription
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.setRemoteDescription
 import kotlinx.coroutines.sync.withLock
 
-class JanusSubscriber(
+internal class JanusSubscriber(
     peerConnectionFactory: PeerConnectionFactory,
     keyStore: KeyStore,
     trackObserver: TrackObserver?,

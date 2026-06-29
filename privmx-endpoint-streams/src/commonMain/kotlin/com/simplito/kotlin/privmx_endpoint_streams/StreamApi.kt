@@ -152,7 +152,7 @@ class StreamApi(
 
     fun createStream(streamRoomId: String): StreamHandle {
         val session = pcManager.getSession(streamRoomId)
-            ?: throw IllegalStateException("Session to this room does not exist. Call joinStreamRoom first.")
+            ?: throw IllegalStateException("Session to this room does not exist. Call privmx_endpoint_streams.joinStreamRoom first.")
 
         runCatching { session.createPublisher() }
             .onFailure { throw IllegalStateException("Publisher is now active, try use modifyRemoteStreamsSubscriptions") }
@@ -189,7 +189,7 @@ class StreamApi(
     ) {
         val session = this.resolveSession(streamRoomId)
         session.subscriber?.setRTCConfiguration(getRTCConfiguration())
-            ?:   throw IllegalStateException("No active subscription to unsubscribe from. Call subscribeToRemoteStreams first.");
+            ?: throw IllegalStateException("No active subscription to unsubscribe from. Call subscribeToRemoteStreams first.");
 
         api.unsubscribeFromRemoteStreams(streamRoomId, subscriptionsToRemove)
     }
@@ -261,11 +261,11 @@ class StreamApi(
 
     internal fun resolveSession(roomId: String): RoomJanusSession =
         pcManager.getSession(roomId)
-            ?: throw IllegalStateException("Session to this room does not exist. Call joinStreamRoom first.")
+            ?: throw IllegalStateException("Session to this room does not exist. Call privmx_endpoint_streams.joinStreamRoom first.")
 
     private fun resolveSession(handle: StreamHandle): RoomJanusSession =
         pcManager.getSession(handle)
-            ?: throw IllegalStateException("Session to this room does not exist. Call joinStreamRoom first.")
+            ?: throw IllegalStateException("Session to this room does not exist. Call privmx_endpoint_streams.joinStreamRoom first.")
 
     private fun resolvePublisher(streamHandle: StreamHandle): JanusPublisher {
         val session = pcManager.getSession(streamHandle)

@@ -2,7 +2,7 @@ package com.simplito.kotlin.privmx_endpoint_streams.webrtc
 
 expect class PeerConnection
 
-enum class PeerConnectionState {
+expect enum class PeerConnectionState {
     NEW, CONNECTING, CONNECTED, DISCONNECTED, FAILED, CLOSED
 }
 
