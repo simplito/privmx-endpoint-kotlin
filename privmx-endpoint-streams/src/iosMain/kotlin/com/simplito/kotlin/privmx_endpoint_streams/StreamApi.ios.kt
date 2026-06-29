@@ -21,7 +21,6 @@ private fun DefaultPeerConnectionFactory(
 )
 
 actual fun StreamApi.joinStreamRoom(streamRoomId: String) {
-    //TODO: Rollback this change, it is do only for run test
     val session: RoomJanusSession = pcManager.createSession(streamRoomId)
     api.joinStreamRoom(streamRoomId, session.webrtc)
 }

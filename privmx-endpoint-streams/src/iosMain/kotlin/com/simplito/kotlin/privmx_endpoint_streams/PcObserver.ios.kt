@@ -38,7 +38,6 @@ actual class PcObserver actual constructor(
     }
 
     actual fun dispose() {
-        // TODO(iOS): brak dispose() na PMXFrameCryptorTransformer?
         frameCryptorMap.clear()
     }
 

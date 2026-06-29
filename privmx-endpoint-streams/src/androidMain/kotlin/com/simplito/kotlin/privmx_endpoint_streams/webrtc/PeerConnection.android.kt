@@ -60,7 +60,6 @@ internal actual suspend fun PeerConnection.setRemoteDescription(sdp: SessionDesc
     }
 }
 
-/** Resumuje przy create — ORAZ set-success (set-success → null). */
 private class SdpObserver(
     private val cont: Continuation<SessionDescription?>
 ) : org.webrtc.SdpObserver {
