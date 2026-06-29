@@ -63,13 +63,3 @@ actual class PcObserver actual constructor(
     override fun onRemoveStream(p0: MediaStream?) {}
     override fun onDataChannel(p0: DataChannel?) {}
 }
-
-internal fun PeerConnection.IceConnectionState.toCommon(): IceConnectionState = when (this) {
-    PeerConnection.IceConnectionState.NEW -> IceConnectionState.NEW
-    PeerConnection.IceConnectionState.CHECKING -> IceConnectionState.CHECKING
-    PeerConnection.IceConnectionState.CONNECTED -> IceConnectionState.CONNECTED
-    PeerConnection.IceConnectionState.COMPLETED -> IceConnectionState.COMPLETED
-    PeerConnection.IceConnectionState.DISCONNECTED -> IceConnectionState.DISCONNECTED
-    PeerConnection.IceConnectionState.CLOSED -> IceConnectionState.CLOSED
-    PeerConnection.IceConnectionState.FAILED -> IceConnectionState.FAILED
-}
