@@ -28,8 +28,8 @@ actual class PcObserver actual constructor(
         frameCryptorMap.values.forEach { it.setOptions(options) }
     }
 
-    override fun onIceConnectionChange(p0: PeerConnection.IceConnectionState) =
-        onIceConnectionChangeCallback(p0.toCommon())
+    override fun onIceConnectionChange(state: PeerConnection.IceConnectionState) =
+        onIceConnectionChangeCallback(state.toCommon())
 
     override fun onIceCandidate(p0: IceCandidate) = onIceCandidateCallback(p0)
 
