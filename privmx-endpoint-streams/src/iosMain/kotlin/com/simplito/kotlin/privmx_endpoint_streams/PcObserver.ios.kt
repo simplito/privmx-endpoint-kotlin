@@ -82,14 +82,3 @@ actual class PcObserver actual constructor(
     override fun peerConnection(peerConnection: RTCPeerConnection, didRemoveIceCandidates: List<*>) {}
     override fun peerConnection(peerConnection: RTCPeerConnection, didOpenDataChannel: RTCDataChannel) {}
 }
-
-internal fun RTCIceConnectionState.toCommon(): IceConnectionState = when (this) {
-    RTCIceConnectionState.RTCIceConnectionStateNew -> IceConnectionState.NEW
-    RTCIceConnectionState.RTCIceConnectionStateChecking -> IceConnectionState.CHECKING
-    RTCIceConnectionState.RTCIceConnectionStateConnected -> IceConnectionState.CONNECTED
-    RTCIceConnectionState.RTCIceConnectionStateCompleted -> IceConnectionState.COMPLETED
-    RTCIceConnectionState.RTCIceConnectionStateDisconnected -> IceConnectionState.DISCONNECTED
-    RTCIceConnectionState.RTCIceConnectionStateClosed -> IceConnectionState.CLOSED
-    RTCIceConnectionState.RTCIceConnectionStateFailed -> IceConnectionState.FAILED
-    else -> IceConnectionState.FAILED   // todo - new / failed ?
-}
