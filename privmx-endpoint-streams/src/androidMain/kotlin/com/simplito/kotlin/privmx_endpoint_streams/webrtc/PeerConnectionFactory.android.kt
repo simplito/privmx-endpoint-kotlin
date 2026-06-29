@@ -1,4 +1,4 @@
-package webrtc
+package com.simplito.kotlin.privmx_endpoint_streams.webrtc
 
 import org.webrtc.MediaConstraints
 import org.webrtc.PmxFrameCryptorFactory
