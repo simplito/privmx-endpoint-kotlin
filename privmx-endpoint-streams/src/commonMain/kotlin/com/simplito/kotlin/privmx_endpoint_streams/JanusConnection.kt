@@ -13,20 +13,8 @@ import com.simplito.kotlin.privmx_endpoint_streams.webrtc.disposeConnection
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.peerConnectionState
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.toJson
 import kotlinx.coroutines.sync.Mutex
-import webrtc.IceConnectionState
-import webrtc.IceServer
-import webrtc.KeyStore
-import webrtc.PeerConnection
-import webrtc.PeerConnectionFactory
-import webrtc.PeerConnectionState
-import webrtc.PmxFrameCryptorOptions
-import webrtc.applyIceServers
-import webrtc.createPeerConnection
-import webrtc.disposeConnection
-import webrtc.peerConnectionState
-import webrtc.toJson
 
-open class JanusConnection(
+internal open class JanusConnection(
     protected val peerConnectionFactory: PeerConnectionFactory,
     protected val keyStore: KeyStore,
     trackObserver: TrackObserver?,
