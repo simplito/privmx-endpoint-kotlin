@@ -1,6 +1,8 @@
 package com.simplito.kotlin.privmx_endpoint_streams
 
 import android.content.Context
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.IceServer
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.PeerConnectionFactory
 import org.webrtc.DefaultVideoDecoderFactory
@@ -8,6 +10,7 @@ import org.webrtc.DefaultVideoEncoderFactory
 import org.webrtc.EglBase
 import org.webrtc.PeerConnection
 import org.webrtc.audio.JavaAudioDeviceModule
+import kotlin.Throws
 
 actual data class StreamApiInit(
     val appContext: Context,
@@ -45,6 +48,11 @@ internal actual fun StreamApi.getRTCConfiguration(): List<IceServer> {
     }
 }
 
+@Throws(
+    PrivmxException::class,
+    NativeException::class,
+    IllegalStateException::class
+)
 actual fun StreamApi.joinStreamRoom(streamRoomId: String) {
     val session = pcManager.createSession(streamRoomId)
     api.joinStreamRoom(streamRoomId, session.webrtc)
