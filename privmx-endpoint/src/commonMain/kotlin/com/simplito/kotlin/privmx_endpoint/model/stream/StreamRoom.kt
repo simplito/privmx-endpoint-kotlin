@@ -1,8 +1,26 @@
 package com.simplito.kotlin.privmx_endpoint.model.stream
 
-import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 
+/**
+ * Represents a stream room within a PrivMX context.
+ *
+ * @property contextId            Identifier of the context this stream room belongs to
+ * @property streamRoomId         Identifier of the stream room
+ * @property createDate           Timestamp of when the stream room was created
+ * @property creator              Identifier of the user who created the stream room
+ * @property lastModificationDate Timestamp of when the stream room was last modified
+ * @property lastModifier         Identifier of the user who last modified the stream room
+ * @property users                IDs of users with management rights in the stream room
+ * @property managers             IDs of users with management rights in the stream room
+ * @property version              Version number (changes on updates)
+ * @property publicMeta           StreamRoom's public metadata
+ * @property privateMeta          StreamRoom's private metadata
+ * @property policy               StreamRoom's policies
+ * @property statusCode           Status code of retrieval and decryption of the [StreamRoom]
+ * @property schemaVersion        Version of the StreamRoom data structure and how it is encoded/encrypted
+ * @property closed               Whether the stream room is closed
+ */
 data class StreamRoom(
     val contextId: String,
     val streamRoomId: String,
