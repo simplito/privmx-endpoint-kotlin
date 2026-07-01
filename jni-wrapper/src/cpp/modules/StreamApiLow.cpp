@@ -416,7 +416,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_listStream
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_unpublishStream(
+Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_removeStream(
         JNIEnv *env,
         jobject thiz,
         jlong stream_handle
@@ -424,8 +424,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_unpublishS
     JniContextUtils ctx(env);
 
     ctx.callVoidEndpointApi([&ctx, &thiz, &stream_handle]() {
-        getStreamApi(ctx, thiz)->unpublishStream(
-                parseStreamHandle(ctx, stream_handle)
+        getStreamApi(ctx, thiz)->removeStream(
                 stream_handle
         );
     });
