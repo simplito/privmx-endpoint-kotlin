@@ -50,7 +50,8 @@ WebRTCInterfaceJNI::WebRTCInterfaceJNI(JNIEnv *env, jobject jwebRTCInterface) {
 }
 
 std::string WebRTCInterfaceJNI::createOfferAndSetLocalDescription(
-        const std::string &streamRoomId
+        const std::string &streamRoomId,
+        const std::string &connectionType
 ) {
     JNIEnv *env = AttachCurrentThreadIfNeeded();
     JniContextUtils ctx(env);
@@ -64,13 +65,18 @@ std::string WebRTCInterfaceJNI::createOfferAndSetLocalDescription(
     jmethodID jmethodId = env->GetMethodID(
             jwebRTCInterfaceClass,
             "createOfferAndSetLocalDescription",
-            "(Ljava/lang/String;)Ljava/lang/String;"
+            "("
+            "Ljava/lang/String;"
+            "Ljava/lang/String;"
+            ")"
+            "Ljava/lang/String;"
     );
 
     auto result = (jstring) env->CallObjectMethod(
             jwebRTCInterface,
             jmethodId,
-            env->NewStringUTF(streamRoomId.c_str())
+            env->NewStringUTF(streamRoomId.c_str()),
+            env->NewStringUTF(connectionType.c_str())
     );
     if (result == nullptr) {
         env->ThrowNew(
@@ -85,7 +91,8 @@ std::string WebRTCInterfaceJNI::createOfferAndSetLocalDescription(
 std::string WebRTCInterfaceJNI::createAnswerAndSetDescriptions(
         const std::string &streamRoomId,
         const std::string &sdp,
-        const std::string &type
+        const std::string &type,
+        const std::string &connectionType
 ) {
     JNIEnv *env = AttachCurrentThreadIfNeeded();
     JniContextUtils ctx(env);
@@ -97,6 +104,7 @@ std::string WebRTCInterfaceJNI::createAnswerAndSetDescriptions(
             "Ljava/lang/String;"
             "Ljava/lang/String;"
             "Ljava/lang/String;"
+            "Ljava/lang/String;"
             ")Ljava/lang/String;"
     );
     auto result = (jstring) env->CallObjectMethod(
@@ -104,8 +112,9 @@ std::string WebRTCInterfaceJNI::createAnswerAndSetDescriptions(
             jmethodId,
             env->NewStringUTF(streamRoomId.c_str()),
             env->NewStringUTF(sdp.c_str()),
-            env->NewStringUTF(type.c_str())
-            );
+            env->NewStringUTF(type.c_str()),
+            env->NewStringUTF(connectionType.c_str())
+    );
 
     if (result == nullptr) {
         env->ThrowNew(
@@ -119,7 +128,8 @@ std::string WebRTCInterfaceJNI::createAnswerAndSetDescriptions(
 void WebRTCInterfaceJNI::setAnswerAndSetRemoteDescription(
         const std::string &streamRoomId,
         const std::string &sdp,
-        const std::string &type
+        const std::string &type,
+        const std::string &connectionType
 ) {
     JNIEnv *env = AttachCurrentThreadIfNeeded();
     JniContextUtils ctx(env);
@@ -137,6 +147,7 @@ void WebRTCInterfaceJNI::setAnswerAndSetRemoteDescription(
             "Ljava/lang/String;"
             "Ljava/lang/String;"
             "Ljava/lang/String;"
+            "Ljava/lang/String;"
             ")V"
     );
     env->CallVoidMethod(
@@ -144,7 +155,8 @@ void WebRTCInterfaceJNI::setAnswerAndSetRemoteDescription(
             jmethodId,
             env->NewStringUTF(streamRoomId.c_str()),
             env->NewStringUTF(sdp.c_str()),
-            env->NewStringUTF(type.c_str())
+            env->NewStringUTF(type.c_str()),
+            env->NewStringUTF(connectionType.c_str())
     );
 }
 
@@ -174,12 +186,34 @@ void WebRTCInterfaceJNI::updateSessionId(
     );
 }
 
-void WebRTCInterfaceJNI::close(const std::string &streamRoomId) {
+void WebRTCInterfaceJNI::close(
+        const std::string &streamRoomId,
+        const std::string& connectionType
+        ) {
     JNIEnv *env = AttachCurrentThreadIfNeeded();
     jclass jwebRTCInterfaceClass = env->GetObjectClass(jwebRTCInterface);
     jmethodID jmethodId = env->GetMethodID(
             jwebRTCInterfaceClass,
             "close",
+            "("
+            "Ljava/lang/String;"
+            "Ljava/lang/String;"
+            ")V"
+    );
+    env->CallVoidMethod(
+            jwebRTCInterface,
+            jmethodId,
+            env->NewStringUTF(streamRoomId.c_str()),
+            env->NewStringUTF(connectionType.c_str())
+    );
+}
+
+void WebRTCInterfaceJNI::closeAll(const std::string &streamRoomId) {
+    JNIEnv *env = AttachCurrentThreadIfNeeded();
+    jclass jwebRTCInterfaceClass = env->GetObjectClass(jwebRTCInterface);
+    jmethodID jmethodId = env->GetMethodID(
+            jwebRTCInterfaceClass,
+            "closeAll",
             "("
             "Ljava/lang/String;"
             ")V"
@@ -205,19 +239,19 @@ void WebRTCInterfaceJNI::updateKeys(
             "Ljava/lang/String;"
             "Ljava/util/List;"
             ")V"
-            );
+    );
     jclass arrayCls = env->FindClass("java/util/ArrayList");
     jmethodID initArrayMID = env->GetMethodID(
             arrayCls,
             "<init>",
             "()V"
-            );
+    );
     jobject jKeysArray = env->NewObject(arrayCls, initArrayMID);
     jmethodID addToArrayMID = env->GetMethodID(
             arrayCls,
             "add",
             "(Ljava/lang/Object;)Z"
-            );
+    );
     ctx.setClassLoaderFromObject(jwebRTCInterface);
     for (auto &key_c: keys) {
         env->CallBooleanMethod(

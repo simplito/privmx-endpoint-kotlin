@@ -25,18 +25,23 @@ public:
 //
 //    void updateKeys(const std::vector<Key> &keys) override;
 
-    std::string createOfferAndSetLocalDescription(const std::string &streamRoomId) override;
+    std::string createOfferAndSetLocalDescription(
+            const std::string &streamRoomId,
+            const std::string &connectionType
+    ) override;
 
     std::string createAnswerAndSetDescriptions(
             const std::string &streamRoomId,
             const std::string &sdp,
-            const std::string &type
+            const std::string &type,
+            const std::string &connectionType
     ) override;
 
     void setAnswerAndSetRemoteDescription(
             const std::string &streamRoomId,
             const std::string &sdp,
-            const std::string &type
+            const std::string &type,
+            const std::string &connectionType
     ) override;
 
     void updateSessionId(
@@ -45,15 +50,22 @@ public:
             const std::string &connectionType
     ) override;
 
-    void close(const std::string &streamRoomId) override;
+    void close(
+            const std::string &streamRoomId,
+            const std::string &connectionType
+    ) override;
+
+    void closeAll(const std::string &streamRoomId) override;
 
     void updateKeys(
             const std::string &streamRoomId,
             const std::vector<Key> &keys
     ) override;
 
-    WebRTCInterfaceJNI (const WebRTCInterfaceJNI&) = delete;
-    WebRTCInterfaceJNI& operator= (const WebRTCInterfaceJNI&) = delete;
+    WebRTCInterfaceJNI(const WebRTCInterfaceJNI &) = delete;
+
+    WebRTCInterfaceJNI &operator=(const WebRTCInterfaceJNI &) = delete;
+
 //protected:
     ~WebRTCInterfaceJNI() override = default;
 
