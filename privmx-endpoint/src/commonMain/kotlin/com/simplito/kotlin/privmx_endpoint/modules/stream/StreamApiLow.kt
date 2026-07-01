@@ -26,7 +26,10 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
+import com.simplito.kotlin.privmx_endpoint.model.stream.SubscriberStreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.modules.event.EventApi
 import kotlin.jvm.JvmOverloads
@@ -240,7 +243,7 @@ constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun unpublishStream(streamHandle: StreamHandle)
+    fun removeStream(streamHandle: StreamHandle)
 
     /**
      * Subscribes to remote streams.
@@ -248,19 +251,20 @@ constructor(
      * @param streamRoomId ID of the room where streams are
      * @param subscriptions list of subscriptions
      * @throws PrivmxException thrown when method encounters an exception
+     * @return // todo
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun subscribeToRemoteStreams(
+    fun createSubscriberStream(
         streamRoomId: String,
         subscriptions: List<StreamSubscription>
-    )
+    ): SubscriberStreamHandle
 
     /**
      * Modifies remote streams subscriptions.
      *
-     * @param streamRoomId ID of the room where streams are
+     * @param subscriptionHandle // todo
      * @param subscriptionsToAdd list of subscriptions to add
      * @param subscriptionsToRemove list of subscriptions to remove
      * @throws PrivmxException thrown when method encounters an exception
@@ -268,8 +272,8 @@ constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun modifyRemoteStreamsSubscriptions(
-        streamRoomId: String,
+    fun updateSubscriberStream(
+        subscriptionHandle: SubscriberStreamHandle,
         subscriptionsToAdd: List<StreamSubscription>,
         subscriptionsToRemove: List<StreamSubscription>
     )
@@ -277,16 +281,14 @@ constructor(
     /**
      * Unsubscribes from remote streams.
      *
-     * @param streamRoomId ID of the room where streams are
-     * @param subscriptionsToRemove list of subscriptions to remove
+     * @param subscriptionHandle // todo
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun unsubscribeFromRemoteStreams(
-        streamRoomId: String,
-        subscriptionsToRemove: List<StreamSubscription>
+    fun removeSubscriberStream(
+        subscriptionHandle: SubscriberStreamHandle,
     )
 
     /**
@@ -312,6 +314,9 @@ constructor(
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun acceptOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel)
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel)
 
     /**
      * Subscribes for stream events.

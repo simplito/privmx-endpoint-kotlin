@@ -27,7 +27,10 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
+import com.simplito.kotlin.privmx_endpoint.model.stream.SubscriberStreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import kotlin.jvm.JvmOverloads
 
@@ -251,7 +254,7 @@ actual constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun unpublishStream(streamHandle: StreamHandle)
+    actual external fun removeStream(streamHandle: StreamHandle)
 
     /**
      * Subscribes to remote streams.
@@ -263,10 +266,10 @@ actual constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun subscribeToRemoteStreams(
+    actual external fun createSubscriberStream(
         streamRoomId: String,
         subscriptions: List<StreamSubscription>
-    )
+    ): SubscriberStreamHandle
 
     /**
      * Modifies remote streams subscriptions.
@@ -279,8 +282,8 @@ actual constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun modifyRemoteStreamsSubscriptions(
-        streamRoomId: String,
+    actual external fun updateSubscriberStream(
+        subscriptionHandle: SubscriberStreamHandle,
         subscriptionsToAdd: List<StreamSubscription>,
         subscriptionsToRemove: List<StreamSubscription>
     )
@@ -295,9 +298,8 @@ actual constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun unsubscribeFromRemoteStreams(
-        streamRoomId: String,
-        subscriptionsToRemove: List<StreamSubscription>
+    actual external fun removeSubscriberStream(
+        subscriptionHandle: SubscriberStreamHandle
     )
 
     /**
@@ -365,21 +367,6 @@ actual constructor(
         selectorId: String
     ): String
 
-    @Throws(IllegalStateException::class)
-    private external fun init(
-        connection: Connection
-    ): Long?
-
-    @Throws(IllegalStateException::class)
-    private external fun deinit()
-
-    /**
-     * Frees memory.
-     */
-    actual override fun close() {
-        deinit()
-    }
-
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun encryptDataChannelMessage(
         streamRoomId: String,
@@ -398,4 +385,23 @@ actual constructor(
         remoteStreamId: String,
         encryptedData: ByteArray
     ): DecryptedDataChannelMessage
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) {
+    }
+
+    @Throws(IllegalStateException::class)
+    private external fun init(
+        connection: Connection
+    ): Long?
+
+    @Throws(IllegalStateException::class)
+    private external fun deinit()
+
+    /**
+     * Frees memory.
+     */
+    actual override fun close() {
+        deinit()
+    }
 }

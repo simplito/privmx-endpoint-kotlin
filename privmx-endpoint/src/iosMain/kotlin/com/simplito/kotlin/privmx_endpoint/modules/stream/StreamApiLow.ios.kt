@@ -20,14 +20,16 @@ import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.model.stream.*
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
 import com.simplito.kotlin.privmx_endpoint.utils.asResponse
 import com.simplito.kotlin.privmx_endpoint.utils.makeArgs
 import com.simplito.kotlin.privmx_endpoint.utils.mapOfWithNulls
 import com.simplito.kotlin.privmx_endpoint.utils.pson
+import com.simplito.kotlin.privmx_endpoint.utils.toHandle
 import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
-import com.simplito.kotlin.privmx_endpoint.utils.toStreamHandle
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamInfo
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamPublishResult
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamRoom
@@ -367,7 +369,7 @@ actual constructor(
         val args = makeArgs(streamRoomId.pson)
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 13, args, pson_result.ptr)
-            (pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonLong).toStreamHandle()
+            (pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonLong).toHandle()
         } finally {
             pson_free_result(pson_result.value)
             pson_free_value(args)
@@ -429,7 +431,7 @@ actual constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun unpublishStream(streamHandle: StreamHandle) = memScoped {
+    actual fun removeStream(streamHandle: StreamHandle) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(streamHandle.value!!.pson)
         try {
@@ -447,15 +449,16 @@ actual constructor(
      *
      * @param streamRoomId ID of the room where streams are
      * @param subscriptions list of subscriptions
+     * @return // todo
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun subscribeToRemoteStreams(
+    actual fun createSubscriberStream(
         streamRoomId: String,
         subscriptions: List<StreamSubscription>,
-    ) = memScoped {
+    ): SubscriberStreamHandle = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             streamRoomId.pson,
@@ -463,8 +466,8 @@ actual constructor(
         )
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 16, args, pson_result.ptr)
-            pson_result.value?.asResponse?.getResultOrThrow()
-            Unit
+            val psonObject = pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonLong
+            psonObject.toHandle()
         } finally {
             pson_free_result(pson_result.value)
             pson_free_value(args)
@@ -474,7 +477,7 @@ actual constructor(
     /**
      * Modifies remote streams subscriptions.
      *
-     * @param streamRoomId ID of the room where streams are
+     * @param subscriptionHandle // todo
      * @param subscriptionsToAdd list of subscriptions to add
      * @param subscriptionsToRemove list of subscriptions to remove
      * @throws PrivmxException thrown when method encounters an exception
@@ -482,14 +485,14 @@ actual constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun modifyRemoteStreamsSubscriptions(
-        streamRoomId: String,
+    actual fun updateSubscriberStream(
+        subscriptionHandle: SubscriberStreamHandle,
         subscriptionsToAdd: List<StreamSubscription>,
         subscriptionsToRemove: List<StreamSubscription>
     ) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
-            streamRoomId.pson,
+            subscriptionHandle.value.pson,
             subscriptionsToAdd.map { it.pson }.pson,
             subscriptionsToRemove.map { it.pson }.pson
         )
@@ -506,21 +509,18 @@ actual constructor(
     /**
      * Unsubscribes from remote streams.
      *
-     * @param streamRoomId ID of the room where streams are
-     * @param subscriptionsToRemove list of subscriptions to remove
+     * @param subscriptionHandle // todo
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun unsubscribeFromRemoteStreams(
-        streamRoomId: String,
-        subscriptionsToRemove: List<StreamSubscription>
+    actual fun removeSubscriberStream(
+        subscriptionHandle: SubscriberStreamHandle,
     ) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
-            streamRoomId.pson,
-            subscriptionsToRemove.map { it.pson }.pson
+            subscriptionHandle.value.pson,
         )
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 18, args, pson_result.ptr)
@@ -707,6 +707,11 @@ actual constructor(
         privmx_endpoint_freeStreamApiLow(nativeStreamApiLow.value)
         _nativeStreamApiLow.value = null
         proxyWebrtcList.close()
+    }
+
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) {
+        TODO("Not yet implemented")
     }
 }
 
