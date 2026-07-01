@@ -1649,27 +1649,6 @@ namespace privmx {
             );
         }
 
-        jobject streamHandle2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::StreamHandle streamHandle_c
-        ) {
-            jclass itemCls = ctx->FindClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/stream/StreamHandle");
-
-            jmethodID initItemMID = ctx->GetMethodID(
-                    itemCls,
-                    "<init>",
-                    "("
-                    "Ljava/lang/Long;"      // value
-                    ")V"
-            );
-
-            return ctx->NewObject(
-                    itemCls,
-                    initItemMID,
-                    ctx.long2jLong(streamHandle_c)
-            );
-        }
 
         jobject streamTrackInfo2Java(
                 JniContextUtils &ctx,
