@@ -607,23 +607,22 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_removeSubs
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_modifyRemoteStreamsSubscriptions(
+Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_updateSubscriberStream(
         JNIEnv *env,
         jobject thiz,
-        jstring stream_room_id,
+        jlong subscription_handle,
         jobject subscriptions_to_add,
         jobject subscriptions_to_remove
 ) {
     JniContextUtils ctx(env);
-    if (ctx.nullCheck(stream_room_id, "Stream Room ID") ||
-        ctx.nullCheck(subscriptions_to_add, "Subscriptions to add") ||
-        ctx.nullCheck(subscriptions_to_add, "Subscriptions to remove")) {
+    if (ctx.nullCheck(subscriptions_to_add, "Subscriptions to add") ||
+            ctx.nullCheck(subscriptions_to_remove, "Subscriptions to remove")) {
         return;
     }
 
     ctx.callVoidEndpointApi(
-            [&ctx, &thiz, &stream_room_id, &subscriptions_to_add, &subscriptions_to_remove]() {
-                auto subscriptions_to_add_arr = ctx.jObject2jArray(subscriptions_to_remove);
+            [&ctx, &thiz, &subscription_handle, &subscriptions_to_add, &subscriptions_to_remove]() {
+                auto subscriptions_to_add_arr = ctx.jObject2jArray(subscriptions_to_add);
                 auto subscriptions_to_remove_arr = ctx.jObject2jArray(subscriptions_to_remove);
 
                 auto subscriptions_to_add_c = jArrayToVector<StreamSubscription>(
@@ -639,8 +638,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_modifyRemo
                         false
                 );
 
-                getStreamApi(ctx, thiz)->modifyRemoteStreamsSubscriptions(
-                        ctx.jString2string(stream_room_id),
+                getStreamApi(ctx, thiz)->updateSubscriberStream(
+                        subscription_handle,
                         subscriptions_to_add_c,
                         subscriptions_to_remove_c
                 );
