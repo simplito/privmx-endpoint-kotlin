@@ -361,11 +361,23 @@ actual constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun buildSubscriptionQuery(
+    actual fun buildSubscriptionQuery(
         eventType: StreamEventType,
         selectorType: StreamEventSelectorType,
         selectorId: String
-    ): String
+    ): String{
+        return buildSubscriptionQuery (
+            eventType.ordinal.toLong(),
+            selectorType.ordinal.toLong(),
+            selectorId
+        )
+    }
+
+    private external fun buildSubscriptionQuery(
+        eventType: Long,
+        selectorType: Long,
+        selectorId: String
+    ):String
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun encryptDataChannelMessage(
