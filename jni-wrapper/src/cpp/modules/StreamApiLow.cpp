@@ -309,7 +309,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_deleteStre
 }
 
 extern "C"
-JNIEXPORT jobject JNICALL
+JNIEXPORT jlong JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStream(
         JNIEnv *env,
         jobject thiz,
@@ -319,18 +319,14 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
     if (ctx.nullCheck(stream_room_id, "Stream room ID"))
         return {};
 
-    jobject result;
-    ctx.callResultEndpointApi<jobject>(&result, [&ctx, &thiz, &stream_room_id] {
-
-        return ctx.long2jLong(
-                getStreamApi(ctx, thiz)->createStream(
-                        ctx.jString2string(stream_room_id)
-                )
+    jlong result;
+    ctx.callResultEndpointApi<jlong>(&result, [&ctx, &thiz, &stream_room_id] {
+        return (jlong) getStreamApi(ctx, thiz)->createStream(
+                ctx.jString2string(stream_room_id)
         );
-
     });
     if (ctx->ExceptionCheck()) {
-        return nullptr;
+        return {};
     }
     return result;
 }
@@ -340,18 +336,16 @@ JNIEXPORT jobject JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_publishStream(
         JNIEnv *env,
         jobject thiz,
-        jobject stream_handle
+        jlong stream_handle
 ) {
     JniContextUtils ctx(env);
-    if (ctx.nullCheck(stream_handle, "Stream Handle"))
-        return {};
 
     jobject result;
     ctx.callResultEndpointApi<jobject>(&result, [&ctx, &thiz, &stream_handle] {
-
         auto result = getStreamApi(ctx, thiz)->publishStream(
-                ctx.getObject(stream_handle).getLongValue()
+                stream_handle
         );
+
         return privmx::wrapper::streamPublishResult2Java(
                 ctx,
                 result
@@ -425,7 +419,7 @@ JNIEXPORT void JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_unpublishStream(
         JNIEnv *env,
         jobject thiz,
-        jobject stream_handle
+        jlong stream_handle
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(stream_handle, "Stream Handle")) {
@@ -434,7 +428,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_unpublishS
 
     ctx.callVoidEndpointApi([&ctx, &thiz, &stream_handle]() {
         getStreamApi(ctx, thiz)->unpublishStream(
-                ctx.getObject(stream_handle).getLongValue()
+                parseStreamHandle(ctx, stream_handle)
+                stream_handle
         );
     });
 }
@@ -698,31 +693,26 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_subscribeT
         );
     });
 }
+
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_updateStream(
         JNIEnv *env,
         jobject thiz,
-        jobject stream_handle
+        jlong stream_handle
 ) {
     JniContextUtils ctx(env);
-    if (ctx.nullCheck(stream_handle, "Stream Handle")) {
-        return nullptr;
-    }
 
     jobject result;
 
     ctx.callResultEndpointApi<jobject>(
             &result, [
                     &ctx,
-                    &env,
                     &thiz,
                     &stream_handle
             ] {
-
-                auto stream_handle_c = parseStreamHandle(ctx, stream_handle);
                 auto stream_result = getStreamApi(ctx, thiz)->updateStream(
-                        stream_handle_c
+                        stream_handle
                 );
 
                 return privmx::wrapper::streamPublishResult2Java(
