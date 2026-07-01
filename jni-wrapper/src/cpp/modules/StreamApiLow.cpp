@@ -422,9 +422,6 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_unpublishS
         jlong stream_handle
 ) {
     JniContextUtils ctx(env);
-    if (ctx.nullCheck(stream_handle, "Stream Handle")) {
-        return;
-    }
 
     ctx.callVoidEndpointApi([&ctx, &thiz, &stream_handle]() {
         getStreamApi(ctx, thiz)->unpublishStream(
