@@ -43,8 +43,7 @@ import com.simplito.kotlin.privmx_endpoint.model.UserWithAction
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.VerificationRequest
 import com.simplito.kotlin.privmx_endpoint.model.stream.RecordingEncKey
-import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
-import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
+import com.simplito.kotlin.privmx_endpoint.model.stream.Handle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
@@ -513,7 +512,7 @@ internal fun PsonObject.toStreamTrackInfo(): StreamTrackInfo = StreamTrackInfo(
     this["simulcast"]?.typedValue()
 )
 
-internal fun PsonValue.PsonLong.toStreamHandle(): StreamHandle = this.typedValue()
+internal fun PsonValue.PsonLong.toHandle(): Handle = this.typedValue()
 
 internal fun PsonObject.toPublishedStream(): PublishedStreamData = PublishedStreamData(
     this["streamRoomId"]!!.typedValue(),
