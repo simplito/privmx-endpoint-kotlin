@@ -591,30 +591,16 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_trickle(
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_unsubscribeFromRemoteStreams(
+Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_removeSubscriberStream(
         JNIEnv *env,
         jobject thiz,
-        jstring stream_room_id,
-        jobject subscriptions_to_remove
+        jlong subscription_handle
 ) {
     JniContextUtils ctx(env);
-    if (ctx.nullCheck(stream_room_id, "Stream Room ID") ||
-        ctx.nullCheck(subscriptions_to_remove, "Subscriptions to remove")) {
-        return;
-    }
 
-    ctx.callVoidEndpointApi([&ctx, &thiz, &stream_room_id, &subscriptions_to_remove]() {
-        auto subscriptions_to_remove_arr = ctx.jObject2jArray(subscriptions_to_remove);
-        auto subscriptions_to_remove_c = jArrayToVector<StreamSubscription>(
-                ctx,
-                subscriptions_to_remove_arr,
-                parseStreamSubscription,
-                false
-        );
-
-        getStreamApi(ctx, thiz)->unsubscribeFromRemoteStreams(
-                ctx.jString2string(stream_room_id),
-                subscriptions_to_remove_c
+    ctx.callVoidEndpointApi([&ctx, &thiz, &subscription_handle]() {
+        getStreamApi(ctx, thiz)->removeSubscriberStream(
+                subscription_handle
         );
     });
 }
