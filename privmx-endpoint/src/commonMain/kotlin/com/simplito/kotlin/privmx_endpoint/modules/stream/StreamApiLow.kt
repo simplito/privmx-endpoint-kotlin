@@ -11,6 +11,8 @@
 
 package com.simplito.kotlin.privmx_endpoint.modules.stream
 
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
@@ -30,6 +32,7 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.modules.event.EventApi
+import kotlin.jvm.JvmOverloads
 
 /**
  * Low-level Stream API for PrivMX Bridge.
@@ -70,6 +73,7 @@ constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     fun createStreamRoom(
         contextId: String,
         users: List<UserWithPubKey>,
@@ -96,6 +100,7 @@ constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     fun updateStreamRoom(
         streamRoomId: String,
         users: List<UserWithPubKey>,
@@ -124,6 +129,7 @@ constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
     fun listStreamRooms(
         contextId: String,
         skip: Long,

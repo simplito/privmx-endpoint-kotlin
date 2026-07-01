@@ -1,5 +1,5 @@
 [versions]
-publishPrivmxEndpoint = "2.6.0"
+publishPrivmxEndpoint = "2.7.0"
 nativePrivmxEndpoint = "2.7.5"
 pson = "1.0.7"
 apple-endpoint-frameworks="2.7.3"
@@ -10,12 +10,14 @@ serialization-json = "1.8.1"
 kotlin = "2.4.0"
 agp = "8.12.0"
 coroutines = "1.10.2"
+webrtc-android = "125.0.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinx-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinxIoCore" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization-json" }
 kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+privmx-endpoint-webrtc-android = {group="com.simplito.webrtc", name="webrtc-android", version.ref= "webrtc-android"}
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

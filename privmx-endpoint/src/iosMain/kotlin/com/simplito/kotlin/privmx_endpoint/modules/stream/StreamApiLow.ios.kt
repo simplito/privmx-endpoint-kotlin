@@ -12,14 +12,14 @@
 package com.simplito.kotlin.privmx_endpoint.modules.stream
 
 import cnames.structs.pson_value
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.model.stream.*
-import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
-import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
 import com.simplito.kotlin.privmx_endpoint.utils.asResponse
