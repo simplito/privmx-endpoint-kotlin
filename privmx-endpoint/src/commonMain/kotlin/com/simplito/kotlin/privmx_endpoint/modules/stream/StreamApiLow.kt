@@ -180,7 +180,7 @@ constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun joinStreamRoom(
         streamRoomId: String,
-        webRtcInterface: WebRtcInterface
+        webRtcInterface: WebRTCInterface
     )
 
     /**

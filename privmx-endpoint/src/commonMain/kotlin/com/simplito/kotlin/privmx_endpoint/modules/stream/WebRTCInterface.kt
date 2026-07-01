@@ -2,7 +2,7 @@ package com.simplito.kotlin.privmx_endpoint.modules.stream
 
 import com.simplito.kotlin.privmx_endpoint.model.stream.Key
 
-interface WebRtcInterface {
+interface WebRTCInterface {
     fun createOfferAndSetLocalDescription(
         streamRoomId: String,
         connectionType: String
