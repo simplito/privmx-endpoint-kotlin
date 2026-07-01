@@ -105,7 +105,7 @@ actual constructor(
     actual external fun listStreams(streamRoomId: String): List<StreamInfo>
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun joinStreamRoom(streamRoomId: String, webRtcInterface: WebRtcInterface)
+    actual external fun joinStreamRoom(streamRoomId: String, webRtcInterface: WebRTCInterface)
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun leaveStreamRoom(streamRoomId: String)
