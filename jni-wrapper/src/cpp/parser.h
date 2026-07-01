@@ -46,12 +46,12 @@ privmx::endpoint::stream::StreamSubscription parseStreamSubscription(JniContextU
 
 privmx::endpoint::stream::SdpWithTypeModel parseSdpWithTypeModel(JniContextUtils &ctx, jobject sdpWithTypeModel);
 
-privmx::endpoint::stream::StreamEncryptionMode parseStreamEncryptionMode(JniContextUtils &ctx, jobject streamEncryptionMode);
 
 jobject parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core::Event> event);
 
 privmx::endpoint::core::PagingQuery parsePagingQuery(JniContextUtils &ctx, jobject pagingQuery);
 
+privmx::endpoint::stream::DataChannelMessage parseDataChannelMessage(JniContextUtils &ctx, jobject dataChannelMessage);
 
 // java -> c++
 

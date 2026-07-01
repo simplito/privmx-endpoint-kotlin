@@ -7,7 +7,6 @@
 #include "../parser.h"
 #include "../model_native_initializers.h"
 #include "Connection.h"
-#include "EventApi.h"
 
 #include "WebRTCInterfaceJNI.h"
 #include "privmx/endpoint/stream/StreamApiLow.hpp"
@@ -30,27 +29,19 @@ JNIEXPORT jobject JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_init(
         JNIEnv *env,
         jobject thiz,
-        jobject connection,
-        jobject eventApi,
-        jobject stream_encryption_mode
+        jobject connection
 ) {
     JniContextUtils ctx(env);
     jobject result;
 
-    if (ctx.nullCheck(connection, "Connection") ||
-            ctx.nullCheck(eventApi, "EventApi") ||
-        ctx.nullCheck(stream_encryption_mode, "Stream Encryption Mode")
-            ) {
+    if (ctx.nullCheck(connection, "Connection")) {
         return nullptr;
     }
 
-    ctx.callResultEndpointApi<jobject>(&result, [&ctx, &env, &connection, &eventApi, &stream_encryption_mode] {
+    ctx.callResultEndpointApi<jobject>(&result, [&ctx, &env, &connection] {
         auto connection_c = getConnection(env, connection);
-        auto eventApi_c = getEventApi(env, eventApi);
         auto streamApiLow = stream::StreamApiLow::create(
-                *connection_c,
-                *eventApi_c,
-                parseStreamEncryptionMode(ctx, stream_encryption_mode)
+                *connection_c
         );
         auto streamApiLow_ptr = new stream::StreamApiLow();
         *streamApiLow_ptr = streamApiLow;
@@ -124,8 +115,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
                 std::vector<core::UserWithPubKey> managers_c = usersToVector(
                         ctx,
                         ctx.jObject2jArray(managers));
-                auto container_policies_c = std::optional<core::ContainerPolicy>(
-                        parseContainerPolicy(ctx, policies));
+                auto container_policies_c = std::optional<core::ContainerPolicyWithoutItem>(
+                        parseContainerPolicyWithoutItem(ctx, policies));
                 return ctx->NewStringUTF(
                         getStreamApi(ctx, thiz)->createStreamRoom(
                                 ctx.jString2string(context_id),
@@ -185,8 +176,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_updateStre
                 std::vector<core::UserWithPubKey> managers_c = usersToVector(
                         ctx,
                         ctx.jObject2jArray(managers));
-                auto container_policies_c = std::optional<core::ContainerPolicy>(
-                        parseContainerPolicy(ctx, policies));
+                auto container_policies_c = std::optional<core::ContainerPolicyWithoutItem>(
+                        parseContainerPolicyWithoutItem(ctx, policies));
                 getStreamApi(ctx, thiz)->updateStreamRoom(
                         ctx.jString2string(stream_room_id),
                         users_c,
@@ -589,28 +580,6 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_buildSubsc
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_keyManagement(
-        JNIEnv *env,
-        jobject thiz,
-        jstring stream_room_id,
-        jboolean disable
-) {
-    JniContextUtils ctx(env);
-    if (ctx.nullCheck(stream_room_id, "Stream Room ID")) {
-        return;
-    }
-
-    ctx.callVoidEndpointApi([&ctx, &thiz, &stream_room_id, &disable]() {
-        getStreamApi(ctx, thiz)->keyManagement(
-                ctx.jString2string(stream_room_id),
-                disable == JNI_TRUE
-        );
-
-    });
-}
-
-extern "C"
-JNIEXPORT void JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_trickle(
         JNIEnv *env,
         jobject thiz,
@@ -809,4 +778,109 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_setNewOffe
                 parseSdpWithTypeModel(ctx, sdp)
         );
     });
+}
+
+extern "C"
+JNIEXPORT jbyteArray JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_encryptDataChannelMessage(
+        JNIEnv *env,
+        jobject thiz,
+        jstring stream_room_id,
+        jobject plain_message
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(stream_room_id, "Stream room ID") ||
+            ctx.nullCheck(plain_message, "Data channel message")) {
+        return nullptr;
+    }
+    jbyteArray result;
+
+    ctx.callResultEndpointApi<jbyteArray>(
+            &result,
+            [&ctx, &thiz, &stream_room_id, &plain_message]() {
+                auto buff = getStreamApi(ctx, thiz)->encryptDataChannelMessage(
+                        ctx.jString2string(stream_room_id),
+                        parseDataChannelMessage(
+                                ctx,
+                                plain_message
+                        )
+                ).stdString();
+
+                jbyteArray data = ctx->NewByteArray(buff.length());
+
+                ctx->SetByteArrayRegion(
+                        data,
+                        0,
+                        buff.length(),
+                        (jbyte *) buff.c_str()
+                );
+                return data;
+
+            });
+
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
+    }
+    return result;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_registerRemoteDataChannel(
+        JNIEnv *env,
+        jobject thiz,
+        jstring stream_room_id,
+        jstring remote_stream_id
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(stream_room_id, "Stream room ID") ||
+            ctx.nullCheck(remote_stream_id, "Remote stream ID")) {
+        return;
+    }
+
+    ctx.callVoidEndpointApi([&ctx, &thiz, &stream_room_id, &remote_stream_id]() {
+        getStreamApi(ctx, thiz)->registerRemoteDataChannel(
+                ctx.jString2string(stream_room_id),
+                ctx.jString2string(remote_stream_id)
+        );
+    });
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_decryptDataChannelMessage(
+        JNIEnv *env,
+        jobject thiz,
+        jstring stream_room_id,
+        jstring remote_stream_id,
+        jbyteArray encrypted_data
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(stream_room_id, "Stream room ID") ||
+            ctx.nullCheck(remote_stream_id, "Remote stream ID") ||
+            ctx.nullCheck(encrypted_data, "Encrypted data")) {
+        return nullptr;
+    }
+
+    jobject result;
+    ctx.callResultEndpointApi<jobject>(
+            &result,
+            [&ctx, &thiz, &stream_room_id, &remote_stream_id, &encrypted_data]() {
+                auto message_c = getStreamApi(ctx, thiz)->decryptDataChannelMessage(
+                        ctx.jString2string(stream_room_id),
+                        ctx.jString2string(remote_stream_id),
+                        core::Buffer::from(ctx.jByteArray2String(encrypted_data))
+                );
+
+                return privmx::wrapper::decryptedDataChannelMessage2Java(
+                        ctx,
+                        message_c
+                );
+
+            });
+
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
+    }
+    return result;
 }
