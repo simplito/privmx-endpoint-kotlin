@@ -2090,36 +2090,6 @@ namespace privmx {
         }
 
         jobject
-        newStreams2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::NewStreams data
-        ) {
-            jclass cls = ctx->FindClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/stream/events/NewStreams");
-            jmethodID initItemMID = ctx->GetMethodID(
-                    cls,
-                    "<init>",
-                    "("
-                    "Ljava/lang/String;"
-                    "Ljava/util/List;"
-                    ")V"
-            );
-
-            jobject streamsList = vectorTojArray(
-                    ctx,
-                    data.streams,
-                    streamInfo2Java
-            );
-
-            return ctx->NewObject(
-                    cls,
-                    initItemMID,
-                    ctx->NewStringUTF(data.room.c_str()),
-                    streamsList
-            );
-        }
-
-        jobject
         streamsUpdated2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::StreamsUpdatedData data
