@@ -254,6 +254,11 @@ namespace privmx {
                 privmx::endpoint::stream::StreamSubscription streamSubscription
         );
 
+        jobject streamSubscriber2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::stream::StreamSubscriber streamSubscriber
+        );
+
         jobject streamUpdatedEventData2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::StreamUpdatedEventData data

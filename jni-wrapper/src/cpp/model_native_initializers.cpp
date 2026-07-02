@@ -1890,6 +1890,41 @@ namespace privmx {
             );
         }
 
+        jobject streamSubscriber2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::stream::StreamSubscriber streamSubscriber
+        ){
+            jclass cls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/stream/StreamSubscriber");
+            jmethodID initItemMID = ctx->GetMethodID(
+                    cls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"   // userId
+                    "Ljava/util/List;"     // subscriptions
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/stream/StreamInfo;"  // publishedStream
+                    ")V"
+            );
+
+            jobject subscriptionsList = vectorTojArray(
+                    ctx,
+                    streamSubscriber.subscriptions,
+                    streamSubscription2Java
+            );
+
+            jobject publishedStream = nullptr;
+            if (streamSubscriber.publishedStream.has_value())
+                publishedStream = streamInfo2Java(ctx, streamSubscriber.publishedStream.value());
+
+            return ctx->NewObject(
+                    cls,
+                    initItemMID,
+                    ctx->NewStringUTF(streamSubscriber.userId.c_str()),
+                    subscriptionsList,
+                    publishedStream
+            );
+        }
+
         jobject streamRoomDeletedEventData2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::StreamRoomDeletedEventData data
