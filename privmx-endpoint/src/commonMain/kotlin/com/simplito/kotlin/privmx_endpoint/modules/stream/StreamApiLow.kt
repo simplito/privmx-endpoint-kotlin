@@ -23,6 +23,7 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscriber
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
 import com.simplito.kotlin.privmx_endpoint.model.stream.SubscriberStreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
@@ -168,6 +169,9 @@ constructor(
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun listStreams(streamRoomId: String): List<StreamInfo>
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun listStreamRoomParticipants(streamRoomId: String): List<StreamSubscriber>
 
     /**
      * Joins a stream room.
