@@ -249,6 +249,11 @@ namespace privmx {
                 endpoint::stream::StreamTrackModificationPair streamTrackModificationPair
         );
 
+        jobject streamSubscription2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::stream::StreamSubscription streamSubscription
+        );
+
         jobject streamUpdatedEventData2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::StreamUpdatedEventData data
