@@ -42,12 +42,6 @@ import com.simplito.kotlin.privmx_endpoint.model.UserStatusChange
 import com.simplito.kotlin.privmx_endpoint.model.UserWithAction
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.VerificationRequest
-import com.simplito.kotlin.privmx_endpoint.model.stream.RecordingEncKey
-import com.simplito.kotlin.privmx_endpoint.model.stream.Handle
-import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
-import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
-import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
-import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
 import com.simplito.kotlin.privmx_endpoint.model.events.CollectionChangedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextCustomEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextUserEventData
@@ -63,7 +57,13 @@ import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEven
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
 import com.simplito.kotlin.privmx_endpoint.model.stream.DataChannelMessage
 import com.simplito.kotlin.privmx_endpoint.model.stream.DecryptedDataChannelMessage
+import com.simplito.kotlin.privmx_endpoint.model.stream.Handle
+import com.simplito.kotlin.privmx_endpoint.model.stream.RecordingEncKey
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackInfo
+import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
 import com.simplito.kotlin.privmx_endpoint.model.stream.PublishedStreamData
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue.PsonObject
@@ -487,12 +487,9 @@ internal fun PsonObject.toStreamRoom(): StreamRoom = StreamRoom(
     this["publicMeta"]!!.typedValue(),
     this["privateMeta"]!!.typedValue(),
     (this["policy"] as PsonObject).toContainerPolicyWithoutItem(),
-    //TODO: No status code in room
-    0,//    this["statusCode"]!!.typedValue(),
-    //TODO: No schemaVersion code in room
-0,//    this["schemaVersion"]!!.typedValue(),
-    //TODO: No closed info
-false,//    this["closed"]!!.typedValue(),
+    this["statusCode"]!!.typedValue(),
+    this["schemaVersion"]!!.typedValue(),
+    this["state"]!!.typedValue(),       // "created" | "open" | "closed"
 )
 
 internal fun PsonObject.toStreamInfo(): StreamInfo = StreamInfo(
