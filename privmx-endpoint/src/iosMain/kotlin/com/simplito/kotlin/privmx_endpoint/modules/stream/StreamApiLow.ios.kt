@@ -725,9 +725,9 @@ actual constructor(
         proxyWebrtcList.close()
     }
 
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) {
-        TODO("Not yet implemented")
+        TODO("Not yet implemented") // there is no method code/number
     }
 }
 
