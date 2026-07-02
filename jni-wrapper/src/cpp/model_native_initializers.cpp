@@ -1890,60 +1890,6 @@ namespace privmx {
             );
         }
 
-        jobject
-        updatedStreamData2Java(
-                JniContextUtils &ctx,
-                endpoint::stream::UpdatedStreamData data
-        ) {
-            jclass cls = ctx->FindClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/stream/events/UpdatedStreamData");
-            jmethodID initItemMID = ctx->GetMethodID(
-                    cls,
-                    "<init>",
-                    "("
-                    "Ljava/lang/String;"
-                    "Ljava/lang/Long;"
-                    "Ljava/lang/String;"
-                    "Ljava/lang/Boolean;"
-                    "Ljava/lang/Boolean;"
-                    "Ljava/lang/String;"
-                    "Ljava/lang/Long;"
-                    "Ljava/lang/String;"
-                    "Ljava/lang/String;"
-                    ")V"
-            );
-
-            jobject jCodec = data.codec
-                    ? ctx->NewStringUTF(data.codec->c_str())
-                    : nullptr;
-
-            jobject jStreamId = data.streamId
-                    ? ctx.long2jLong(data.streamId.value())
-                    : nullptr;
-
-            jobject jStreamMid = data.streamMid
-                    ? ctx->NewStringUTF(data.streamMid->c_str())
-                    : nullptr;
-
-            jobject jStreamDisplay = data.stream_display
-                    ? ctx->NewStringUTF(data.stream_display->c_str())
-                    : nullptr;
-
-            return ctx->NewObject(
-                    cls,
-                    initItemMID,
-                    ctx->NewStringUTF(data.type.c_str()),
-                    ctx.long2jLong(data.mindex),
-                    ctx->NewStringUTF(data.mid.c_str()),
-                    ctx.bool2jBoolean(data.send),
-                    ctx.bool2jBoolean(data.ready),
-                    jCodec,
-                    jStreamId,
-                    jStreamMid,
-                    jStreamDisplay
-            );
-        }
-
         jobject streamRoomDeletedEventData2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::StreamRoomDeletedEventData data

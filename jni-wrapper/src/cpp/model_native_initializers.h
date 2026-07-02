@@ -259,11 +259,6 @@ namespace privmx {
                 privmx::endpoint::stream::StreamUpdatedEventData data
         );
 
-        jobject updatedStreamData2Java(
-                JniContextUtils &ctx,
-                endpoint::stream::UpdatedStreamData updatedStreamData
-        );
-
         jobject streamRoomDeletedEventData2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::StreamRoomDeletedEventData data
