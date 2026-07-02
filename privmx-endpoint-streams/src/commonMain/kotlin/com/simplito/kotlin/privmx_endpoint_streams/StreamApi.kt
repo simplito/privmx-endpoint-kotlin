@@ -9,7 +9,9 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscriber
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
+import com.simplito.kotlin.privmx_endpoint.model.stream.SubscriberStreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.modules.stream.StreamApiLow
@@ -233,6 +235,10 @@ class StreamApi(
         return api.listStreams(streamRoomId)
     }
 
+    fun listStreamRoomParticipants(streamRoomId: String): List<StreamSubscriber> {
+        return api.listStreamRoomParticipants(streamRoomId);
+    }
+
     /**
      * Subscribes for events for StreamRooms and their individual streams on the given subscription queries.
      *
@@ -407,15 +413,14 @@ class StreamApi(
         NativeException::class,
         IllegalStateException::class
     )
-    fun unsubscribeFromRemoteStreams(
-        streamRoomId: String,
-        subscriptionsToRemove: List<StreamSubscription>
+    fun removeSubscriberStream(
+        subscriptionHandle: SubscriberStreamHandle
     ) {
-        val session = this.resolveSession(streamRoomId)
+        val session = this.resolveSession(subscriptionHandle)
         session.subscriber?.setRTCConfiguration(getRTCConfiguration())
             ?: throw IllegalStateException("No active subscription to unsubscribe from. Call subscribeToRemoteStreams first.")
 
-        api.unsubscribeFromRemoteStreams(streamRoomId, subscriptionsToRemove)
+        api.removeSubscriberStream(subscriptionHandle)
     }
 
     /**
@@ -450,12 +455,12 @@ class StreamApi(
         NativeException::class,
         IllegalStateException::class
     )
-    fun unpublishStream(streamHandle: StreamHandle) {
+    fun removeStream(streamHandle: StreamHandle) {
         val session = resolveSession(streamHandle)
         if (session.publisher == null)
             throw IllegalStateException("No stream to unpublish. Call createStream and publishStream first.")
 
-        api.unpublishStream(streamHandle)
+        api.removeStream(streamHandle)
         session.unpublish()
         pcManager.closeHandleToRoom(streamHandle)
     }
@@ -497,13 +502,13 @@ class StreamApi(
         NativeException::class,
         IllegalStateException::class
     )
-    fun subscribeToRemoteStreams(streamRoomId: String, subscriptions: List<StreamSubscription>) {
+    fun createSubscriberStream(streamRoomId: String, subscriptions: List<StreamSubscription>):SubscriberStreamHandle {
         val session = resolveSession(streamRoomId)
         runCatching { session.createSubscriber() }
         session.subscriber?.setRTCConfiguration(getRTCConfiguration())
             ?: throw IllegalStateException("No active subscription to modify. Call subscribeToRemoteStreams first.")
 
-        api.subscribeToRemoteStreams(streamRoomId, subscriptions)
+       return api.createSubscriberStream(streamRoomId, subscriptions)
     }
 
 
@@ -522,17 +527,17 @@ class StreamApi(
         NativeException::class,
         IllegalStateException::class
     )
-    fun modifyRemoteStreamsSubscriptions(
-        streamRoomId: String,
+    fun updateSubscriberStream(
+        subscriberStreamHandle: SubscriberStreamHandle,
         subscriptionsToAdd: List<StreamSubscription>,
         subscriptionsToRemove: List<StreamSubscription>
     ) {
-        val session = resolveSession(streamRoomId)
+        val session = resolveSession(subscriberStreamHandle)
         session.subscriber?.setRTCConfiguration(getRTCConfiguration())
             ?: throw IllegalStateException("No active subscription to modify. Call subscribeToRemoteStreams first.")
 
-        api.modifyRemoteStreamsSubscriptions(
-            streamRoomId,
+        api.updateSubscriberStream(
+            subscriberStreamHandle,
             subscriptionsToAdd,
             subscriptionsToRemove
         )
