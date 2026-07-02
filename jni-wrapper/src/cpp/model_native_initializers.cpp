@@ -1861,6 +1861,34 @@ namespace privmx {
             );
         }
 
+        jobject streamSubscription2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::stream::StreamSubscription streamSubscription
+        ) {
+            jclass cls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/stream/StreamSubscription");
+            jmethodID initItemMID = ctx->GetMethodID(
+                    cls,
+                    "<init>",
+                    "("
+                    "J"                     // streamId
+                    "Ljava/lang/String;"    //streamTrackId
+                    ")V"
+            );
+
+            jstring streamTrackId = nullptr;
+
+            if (streamSubscription.streamTrackId.has_value()) {
+                streamTrackId = ctx->NewStringUTF(streamSubscription.streamTrackId->c_str());
+            }
+
+            return ctx->NewObject(
+                    cls,
+                    initItemMID,
+                    (jlong) streamSubscription.streamId,
+                    streamTrackId
+            );
+        }
 
         jobject
         updatedStreamData2Java(
