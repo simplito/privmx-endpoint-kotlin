@@ -2,7 +2,6 @@ package com.simplito.kotlin.privmx_endpoint_streams
 
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.KeyStore
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.PeerConnectionFactory
-import com.simplito.kotlin.privmx_endpoint_streams.webrtc.SdpType
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.createAnswer
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.fromCanonicalForm
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.sdp
@@ -19,7 +18,7 @@ internal class JanusSubscriber(
 ) : JanusConnection(peerConnectionFactory, keyStore, trackObserver, onTrickle) {
 
     suspend fun createAnswer(offerSdp: String, type: String): String = configurationMutex.withLock {
-        peerConnection.setRemoteDescription(sessionDescription(fromCanonicalForm(type), offerSdp))
+        peerConnection.setRemoteDescription(sessionDescription(fromCanonicalForm( type), offerSdp))
         val answer = peerConnection.createAnswer()
         peerConnection.setLocalDescription(answer)
         answer.sdp
