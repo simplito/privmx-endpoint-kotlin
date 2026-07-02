@@ -1861,35 +1861,6 @@ namespace privmx {
             );
         }
 
-        jobject
-        streamTrackModification2Java(
-                JniContextUtils &ctx,
-                endpoint::stream::StreamTrackModification streamTrackModification
-        ) {
-            jclass cls = ctx->FindClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/stream/StreamTrackModification");
-            jmethodID initItemMID = ctx->GetMethodID(
-                    cls,
-                    "<init>",
-                    "("
-                    "Ljava/lang/Long;"
-                    "Ljava/util/List;"
-                    ")V"
-            );
-
-            jobject tracksList = vectorTojArray(
-                    ctx,
-                    streamTrackModification.tracks,
-                    streamTrackModificationPair2Java
-            );
-
-            return ctx->NewObject(
-                    cls,
-                    initItemMID,
-                    ctx.long2jLong(streamTrackModification.streamId),
-                    tracksList
-            );
-        }
 
         jobject
         updatedStreamData2Java(
