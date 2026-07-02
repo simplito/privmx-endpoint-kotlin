@@ -56,6 +56,7 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.RecordingEncKey
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscriber
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
@@ -520,6 +521,12 @@ internal fun PsonObject.toDataChannelMessage(): DataChannelMessage = DataChannel
 internal fun PsonObject.toStreamSubscription(): StreamSubscription = StreamSubscription(
     this["streamId"]!!.typedValue(),
     this["streamTrackId"]?.typedValue()
+)
+
+internal fun PsonObject.toStreamSubscriber(): StreamSubscriber = StreamSubscriber(
+    this["userId"]!!.typedValue(),
+    this["subscriptions"]!!.typedList().map { (it as PsonObject).toStreamSubscription() },
+    (this["publishedStream"] as PsonObject).toStreamInfo(),
 )
 
 
