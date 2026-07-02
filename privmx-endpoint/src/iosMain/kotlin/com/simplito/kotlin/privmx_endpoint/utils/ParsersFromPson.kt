@@ -490,7 +490,7 @@ internal fun PsonObject.toStreamInfo(): StreamInfo = StreamInfo(
     this["id"]!!.typedValue(),
     this["userId"]!!.typedValue(),
     this["metadata"]?.typedValue(),
-    this["dummy"]?.typedValue(),
+    this["dummy"]!!.typedValue(),
     this["tracks"]!!.typedList().map { (it as PsonObject).toStreamTrackInfo() }
 )
 

@@ -1720,22 +1720,16 @@ namespace privmx {
                     "Ljava/lang/Long;"          // id
                     "Ljava/lang/String;"        // userId
                     "Ljava/lang/String;"        // metadata
-                    "Ljava/lang/Boolean;"       // dummy
+                    "Z"       // dummy
                     "Ljava/util/List;"          // tracks
                     ")V"
             );
 
             jobject metadata = nullptr;
-            jobject dummy = nullptr;
 
             if (streamInfo_c.metadata.has_value()) {
                 metadata = ctx->NewStringUTF(streamInfo_c.metadata.value().c_str());
             }
-
-            if (streamInfo_c.dummy.has_value()) {
-                dummy = ctx.bool2jBoolean(streamInfo_c.dummy.value());
-            }
-
 
             jobject tracks = ctx->NewObject(arrayCls, initArrayMID);
             for (auto &track: streamInfo_c.tracks) {
@@ -1754,7 +1748,7 @@ namespace privmx {
                     ctx.long2jLong(streamInfo_c.id),
                     ctx->NewStringUTF(streamInfo_c.userId.c_str()),
                     metadata,
-                    dummy,
+                    (jboolean) streamInfo_c.dummy,
                     tracks
             );
 
