@@ -2224,7 +2224,7 @@ namespace privmx {
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::DataChannelMessage message
         ) {
-            jclass cls = ctx->FindClass("com/simplito/kotlin/privmx_endpoint/model/stream/events/DataChannelMessage");
+            jclass cls = ctx->FindClass("com/simplito/kotlin/privmx_endpoint/model/stream/DataChannelMessage");
             jmethodID initMID = ctx->GetMethodID(
                     cls,
                     "<init>",
@@ -2253,7 +2253,7 @@ namespace privmx {
                 privmx::endpoint::stream::DecryptedDataChannelMessage message
         ) {
             jclass cls = ctx->FindClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/stream/events/DecryptedDataChannelMessage");
+                    "com/simplito/kotlin/privmx_endpoint/model/stream/DecryptedDataChannelMessage");
 
             jmethodID initMID = ctx->GetMethodID(
                     cls,
