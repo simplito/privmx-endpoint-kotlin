@@ -26,6 +26,7 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscriber
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
 import com.simplito.kotlin.privmx_endpoint.model.stream.SubscriberStreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
@@ -193,6 +194,9 @@ actual constructor(
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun listStreamRoomParticipants(streamRoomId: String): List<StreamSubscriber>
+
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun joinStreamRoom(streamRoomId: String, webRtcInterface: WebRTCInterface)
 

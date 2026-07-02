@@ -415,6 +415,39 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_listStream
 }
 
 extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_listStreamRoomParticipants(
+        JNIEnv *env,
+        jobject thiz,
+        jstring stream_room_id
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(stream_room_id, "Stream room ID")) {
+        return nullptr;
+    }
+
+    jobject result;
+    ctx.callResultEndpointApi<jobject>(&result, [&ctx, &thiz, &stream_room_id] {
+        auto stream_infos_c = getStreamApi(ctx, thiz)->listStreamRoomParticipants(
+                ctx.jString2string(stream_room_id)
+        );
+
+        jobject array = vectorTojArray(
+                ctx,
+                stream_infos_c,
+                privmx::wrapper::streamSubscriber2Java
+        );
+
+        return array;
+    });
+
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
+    }
+    return result;
+}
+
+extern "C"
 JNIEXPORT void JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_removeStream(
         JNIEnv *env,

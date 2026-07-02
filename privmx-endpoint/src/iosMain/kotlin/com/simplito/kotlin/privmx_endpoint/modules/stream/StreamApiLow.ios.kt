@@ -33,6 +33,7 @@ import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamInfo
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamPublishResult
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamRoom
+import com.simplito.kotlin.privmx_endpoint.utils.toStreamSubscriber
 import com.simplito.kotlin.privmx_endpoint.utils.typedList
 import com.simplito.kotlin.privmx_endpoint.utils.typedValue
 import kotlinx.cinterop.*
@@ -298,6 +299,21 @@ actual constructor(
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 10, args, pson_result.ptr)
             val psonObject = pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonArray<*>
             psonObject.getValue().map { (it as PsonValue.PsonObject).toStreamInfo() }
+        } finally {
+            pson_free_result(pson_result.value)
+            pson_free_value(args)
+        }
+    }
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun listStreamRoomParticipants(streamRoomId: String): List<StreamSubscriber> = memScoped{
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(streamRoomId.pson)
+        try {
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 26, args, pson_result.ptr)
+            val psonObject =
+                pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonArray<*>
+            psonObject.getValue().map { (it as PsonValue.PsonObject).toStreamSubscriber() }
         } finally {
             pson_free_result(pson_result.value)
             pson_free_value(args)
