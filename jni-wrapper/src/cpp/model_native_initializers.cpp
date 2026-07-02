@@ -1662,25 +1662,18 @@ namespace privmx {
                     "<init>",
                     "("
                     "Ljava/lang/String;"        // type
-                    "Ljava/lang/Long;"          // mindex
+                    "J"                         // mindex
                     "Ljava/lang/String;"        // mid
-                    "Ljava/lang/Boolean;"       // disabled         [optional]
+                    "Z"                         // disabled
                     "Ljava/lang/String;"        // codec            [optional]
                     "Ljava/lang/String;"        // description      [optional]
-                    "Ljava/lang/Boolean;"       // moderated        [optional]
-                    "Ljava/lang/Boolean;"       // simulcast        [optional]
+                    "Z"                         // moderated
+                    "Z"                         // simulcast
                     ")V"
             );
 
-            jobject disabled = nullptr;
             jobject codec = nullptr;
             jobject description = nullptr;
-            jobject moderated = nullptr;
-            jobject simulcast = nullptr;
-
-            if (streamTrackInfo_c.disabled.has_value()) {
-                disabled = ctx.bool2jBoolean(streamTrackInfo_c.disabled.value());
-            }
 
             if (streamTrackInfo_c.codec.has_value()) {
                 codec = ctx->NewStringUTF(streamTrackInfo_c.codec.value().c_str());
@@ -1690,25 +1683,17 @@ namespace privmx {
                 description = ctx->NewStringUTF(streamTrackInfo_c.description.value().c_str());
             }
 
-            if (streamTrackInfo_c.moderated.has_value()) {
-                moderated = ctx.bool2jBoolean(streamTrackInfo_c.moderated.value());
-            }
-
-            if (streamTrackInfo_c.simulcast.has_value()) {
-                simulcast = ctx.bool2jBoolean(streamTrackInfo_c.simulcast.value());
-            }
-
             return ctx->NewObject(
                     itemCls,
                     initItemMID,
                     ctx->NewStringUTF(streamTrackInfo_c.type.c_str()),
                     ctx.long2jLong(streamTrackInfo_c.mindex),
                     ctx->NewStringUTF(streamTrackInfo_c.mid.c_str()),
-                    disabled,
+                    (jboolean) streamTrackInfo_c.disabled,
                     codec,
                     description,
-                    moderated,
-                    simulcast
+                    (jboolean) streamTrackInfo_c.moderated,
+                    (jboolean) streamTrackInfo_c.simulcast
             );
         }
 
