@@ -4,7 +4,7 @@ package com.simplito.kotlin.privmx_endpoint_streams
 
 import com.simplito.kotlin.privmx_endpoint.model.stream.Key
 import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
-import com.simplito.kotlin.privmx_endpoint.modules.stream.WebRtcInterface
+import com.simplito.kotlin.privmx_endpoint.modules.stream.WebRTCInterface
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.IceConnectionState
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.KeyStore
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.MediaStreamTrack
@@ -36,7 +36,7 @@ internal class RoomJanusSession(
     var publisher: JanusPublisher? = null
         private set
 
-    val webrtc: WebRtcInterface = WebRTCImpl()
+    val webrtc: WebRTCInterface = WebRTCImpl()
 
     fun createSubscriber(observer: TrackObserver = trackObserver) = runBlocking(context) {
         check(subscriber?.isEnded ?: true) { "Subscriber is currently active." }
@@ -59,9 +59,10 @@ internal class RoomJanusSession(
         trackObserversByStreamId[streamId] = observer
     }
 
-    fun setOnConnectionChange(onConnectionChange: (IceConnectionState) -> Unit) = runBlocking(context) {
-        onConnectionChangeCallback = onConnectionChange
-    }
+    fun setOnConnectionChange(onConnectionChange: (IceConnectionState) -> Unit) =
+        runBlocking(context) {
+            onConnectionChangeCallback = onConnectionChange
+        }
 
     fun setFrameCryptorOptions(options: PmxFrameCryptorOptions) {
         subscriber?.setFrameCryptorOptions(options)
@@ -79,27 +80,43 @@ internal class RoomJanusSession(
 
     private fun onConnectionChange(state: IceConnectionState) = onConnectionChangeCallback(state)
 
-    private inner class WebRTCImpl : WebRtcInterface {
-        override fun createOfferAndSetLocalDescription(streamRoomId: String): String =
+    private inner class WebRTCImpl : WebRTCInterface {
+        override fun createOfferAndSetLocalDescription(
+            streamRoomId: String,
+            connectionType: String
+        ): String =
             runBlocking(context) {
                 (publisher ?: throw RuntimeException("Create publisher first")).createOffer()
             }
 
         override fun createAnswerAndSetDescriptions(
-            streamRoomId: String, sdp: String, type: String
+            streamRoomId: String,
+            sdp: String,
+            type: String,
+            connectionType: String
         ): String = runBlocking(context) {
-            (subscriber ?: throw RuntimeException("Create subscriber first")).createAnswer(sdp, type)
+            (subscriber ?: throw RuntimeException("Create subscriber first")).createAnswer(
+                sdp,
+                type
+            )
         }
 
         override fun setAnswerAndSetRemoteDescription(
-            streamRoomId: String, sdp: String, type: String
+            streamRoomId: String,
+            sdp: String,
+            type: String,
+            connectionType: String
         ) {
             runBlocking(context) {
                 (publisher ?: throw RuntimeException("Create publisher first")).setAnswer(sdp, type)
             }
         }
 
-        override fun updateSessionId(streamRoomId: String, sessionId: Long, connectionType: String) {
+        override fun updateSessionId(
+            streamRoomId: String,
+            sessionId: Long,
+            connectionType: String
+        ) {
             runBlocking(context) {
                 when (connectionType) {
                     "subscriber" -> subscriber?.sessionId = sessionId
@@ -108,10 +125,19 @@ internal class RoomJanusSession(
             }
         }
 
-        override fun close(streamRoomId: String) {
+        override fun closeAll(streamRoomId: String) {
             runBlocking(context) {
                 publisher?.close()
                 subscriber?.close()
+            }
+        }
+
+        override fun close(streamRoomId: String, connectionType: String) {
+            runBlocking(context) {
+                when(connectionType){
+                    "publisher" -> publisher?.close()
+                    "subscriber" -> subscriber?.close()
+                }
             }
         }
 
