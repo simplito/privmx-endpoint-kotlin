@@ -1,7 +1,7 @@
 package com.simplito.kotlin.privmx_endpoint.model.stream.events
 
-import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
-import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackModification
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackInfo
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackModificationPair
 
 /**
  * Data describing changes that occurred within a stream room during an active session.
@@ -14,7 +14,9 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackModification
  */
 data class StreamUpdatedEventData(
     val streamRoomId: String,
-    val streamsAdded: List<StreamInfo>,
-    val streamsRemoved: List<StreamInfo>,
-    val streamsModified: List<StreamTrackModification>,
+    val streamId: Long,
+    val userId: String,
+    val tracksAdded: List<StreamTrackInfo>,
+    val tracksRemoved: List<StreamTrackInfo>,
+    val tracksModified: List<StreamTrackModificationPair>,
 )

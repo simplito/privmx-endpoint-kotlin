@@ -1947,6 +1947,8 @@ namespace privmx {
                     "<init>",
                     "("
                     "Ljava/lang/String;"
+                    "J"
+                    "Ljava/lang/String;"
                     "Ljava/util/List;"
                     "Ljava/util/List;"
                     "Ljava/util/List;"
