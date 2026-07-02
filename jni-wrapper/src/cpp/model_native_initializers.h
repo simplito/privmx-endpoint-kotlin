@@ -274,17 +274,6 @@ namespace privmx {
                 privmx::endpoint::stream::StreamPublishedEventData data
         );
 
-        jobject streamEventData2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::StreamEventData data
-        );
-
-        jobject
-        streamLeftEventData2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::StreamLeftEventData data
-        );
-
         jobject streamUnpublishedEventData2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::StreamUnpublishedEventData data
