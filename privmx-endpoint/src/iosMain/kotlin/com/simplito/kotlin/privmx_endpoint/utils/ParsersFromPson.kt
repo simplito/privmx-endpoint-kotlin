@@ -11,12 +11,6 @@
 
 package com.simplito.kotlin.privmx_endpoint.utils
 
-import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEntryEventData
-import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEventData
-import com.simplito.kotlin.privmx_endpoint.model.events.KvdbStatsEventData
-import com.simplito.kotlin.privmx_endpoint.model.Kvdb
-import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
-import com.simplito.kotlin.privmx_endpoint.model.ServerKvdbEntryInfo
 import com.simplito.kotlin.privmx_endpoint.model.BIP39
 import com.simplito.kotlin.privmx_endpoint.model.BridgeIdentity
 import com.simplito.kotlin.privmx_endpoint.model.CollectionItemChange
@@ -504,11 +498,11 @@ internal fun PsonObject.toStreamTrackInfo(): StreamTrackInfo = StreamTrackInfo(
     this["type"]!!.typedValue(),
     this["mindex"]!!.typedValue(),
     this["mid"]!!.typedValue(),
-    this["disabled"]?.typedValue(),
+    this["disabled"]!!.typedValue(),
     this["codec"]?.typedValue(),
     this["description"]?.typedValue(),
-    this["moderated"]?.typedValue(),
-    this["simulcast"]?.typedValue()
+    this["moderated"]!!.typedValue(),
+    this["simulcast"]!!.typedValue()
 )
 
 internal fun PsonObject.toDecryptedDataChannelMessage(): DecryptedDataChannelMessage = DecryptedDataChannelMessage(
