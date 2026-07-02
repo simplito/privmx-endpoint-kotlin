@@ -669,6 +669,7 @@ actual constructor(
         }
     }
 
+
     /**
      * Frees memory.
      */
