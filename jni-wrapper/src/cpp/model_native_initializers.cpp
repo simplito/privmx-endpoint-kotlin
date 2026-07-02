@@ -2021,64 +2021,6 @@ namespace privmx {
         }
 
         jobject
-        streamEventData2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::StreamEventData data
-        ) {
-            jclass cls = ctx->FindClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/stream/events/StreamEventData");
-            jmethodID initItemMID = ctx->GetMethodID(
-                    cls,
-                    "<init>",
-                    "("
-                    "Ljava/lang/String;"
-                    "Ljava/util/List;"
-                    "Ljava/lang/String;"
-                    ")V"
-            );
-
-            jobject streamIds = vectorTojArray(
-                    ctx,
-                    data.streamIds,
-                    long2jobject
-            );
-
-            return ctx->NewObject(
-                    cls,
-                    initItemMID,
-                    ctx->NewStringUTF(data.streamRoomId.c_str()),
-                    streamIds,
-                    ctx->NewStringUTF(data.userId.c_str())
-            );
-        }
-
-        jobject
-        streamLeftEventData2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::StreamLeftEventData data
-        ) {
-            jclass cls = ctx->FindClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/stream/events/StreamLeftEventData");
-            jmethodID initItemMID = ctx->GetMethodID(
-                    cls,
-                    "<init>",
-                    "("
-                    "Ljava/lang/String;"
-                    "Ljava/lang/Long;"
-                    "Ljava/lang/String;"
-                    ")V"
-            );
-
-            return ctx->NewObject(
-                    cls,
-                    initItemMID,
-                    ctx->NewStringUTF(data.streamRoomId.c_str()),
-                    ctx.long2jLong(data.streamId),
-                    ctx->NewStringUTF(data.userId.c_str())
-            );
-        }
-
-        jobject
         streamUnpublishedEventData2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::StreamUnpublishedEventData data
