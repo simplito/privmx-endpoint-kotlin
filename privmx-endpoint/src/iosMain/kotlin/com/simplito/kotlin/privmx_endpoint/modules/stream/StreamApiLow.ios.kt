@@ -678,31 +678,31 @@ actual constructor(
         proxyWebrtcList.close()
     }
 
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) {
-        TODO("Not yet implemented")
+        TODO("Not yet implemented") // there is no method code/number
     }
 
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun encryptDataChannelMessage(
         streamRoomId: String,
         plainMessage: DataChannelMessage
     ): ByteArray {
-        TODO("Not yet implemented")
+        TODO("Not yet implemented") // there is no method code/number
     }
 
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun registerRemoteDataChannel(streamRoomId: String, remoteStreamId: String) {
-        TODO("Not yet implemented")
+        TODO("Not yet implemented") // there is no method code/number
     }
 
-    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun decryptDataChannelMessage(
         streamRoomId: String,
         remoteStreamId: String,
         encryptedData: ByteArray
     ): DecryptedDataChannelMessage {
-        TODO("Not yet implemented")
+        TODO("Not yet implemented") // there is no method code/number
     }
 }
 
