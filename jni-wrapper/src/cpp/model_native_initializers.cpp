@@ -2141,6 +2141,37 @@ namespace privmx {
             );
         }
 
+        jobject streamSubscriptionEventData2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::stream::StreamSubscriptionEventData data
+        ) {
+            jclass cls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/stream/events/StreamSubscriptionEventData");
+            jmethodID initItemMID = ctx->GetMethodID(
+                    cls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"
+                    "Ljava/lang/String;"
+                    "Ljava/util/List;"
+                    ")V"
+            );
+
+            jobject streamIds = vectorTojArray(
+                    ctx,
+                    data.subscriptions,
+                    streamSubscription2Java
+            );
+
+            return ctx->NewObject(
+                    cls,
+                    initItemMID,
+                    ctx->NewStringUTF(data.streamRoomId.c_str()),
+                    ctx->NewStringUTF(data.userId.c_str()),
+                    streamIds
+            );
+        }
+
         jobject
         streamsUpdated2Java(
                 JniContextUtils &ctx,
