@@ -7,7 +7,9 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscriber
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
+import com.simplito.kotlin.privmx_endpoint.model.stream.SubscriberStreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.modules.stream.StreamApiLow
@@ -114,6 +116,10 @@ class StreamApi(
         return api.listStreams(streamRoomId);
     }
 
+    fun listStreamRoomParticipants(streamRoomId: String): List<StreamSubscriber> {
+        return api.listStreamRoomParticipants(streamRoomId);
+    }
+
     fun subscribeFor(subscriptionQueries: List<String>): List<String> {
         return api.subscribeFor(subscriptionQueries);
     }
@@ -183,15 +189,14 @@ class StreamApi(
         resolveSession(roomId).setTrackObserver(streamId, observer)
     }
 
-    fun unsubscribeFromRemoteStreams(
-        streamRoomId: String,
-        subscriptionsToRemove: List<StreamSubscription>
+    fun removeSubscriberStream(
+        subscriptionHandle: SubscriberStreamHandle
     ) {
-        val session = this.resolveSession(streamRoomId)
+        val session = this.resolveSession(subscriptionHandle)
         session.subscriber?.setRTCConfiguration(getRTCConfiguration())
             ?: throw IllegalStateException("No active subscription to unsubscribe from. Call subscribeToRemoteStreams first.");
 
-        api.unsubscribeFromRemoteStreams(streamRoomId, subscriptionsToRemove)
+        api.removeSubscriberStream(subscriptionHandle)
     }
 
     fun publishStream(streamHandle: StreamHandle): StreamPublishResult {
@@ -199,12 +204,12 @@ class StreamApi(
         return api.publishStream(streamHandle)
     }
 
-    fun unpublishStream(streamHandle: StreamHandle) {
+    fun removeStream(streamHandle: StreamHandle) {
         val session = resolveSession(streamHandle)
         if (session.publisher == null)
             throw IllegalStateException("No stream to unpublish. Call createStream and publishStream first.")
 
-        api.unpublishStream(streamHandle)
+        api.removeStream(streamHandle)
         session.unpublish()
         pcManager.closeHandleToRoom(streamHandle)
     }
@@ -215,26 +220,26 @@ class StreamApi(
     }
 
 
-    fun subscribeToRemoteStreams(streamRoomId: String, subscriptions: List<StreamSubscription>) {
+    fun createSubscriberStream(streamRoomId: String, subscriptions: List<StreamSubscription>):SubscriberStreamHandle {
         val session = resolveSession(streamRoomId)
         runCatching { session.createSubscriber() }
         session.subscriber?.setRTCConfiguration(getRTCConfiguration())
             ?: throw IllegalStateException("No active subscription to modify. Call subscribeToRemoteStreams first.")
 
-        api.subscribeToRemoteStreams(streamRoomId, subscriptions)
+       return api.createSubscriberStream(streamRoomId, subscriptions)
     }
 
-    fun modifyRemoteStreamsSubscriptions(
-        streamRoomId: String,
+    fun updateSubscriberStream(
+        subscriberStreamHandle: SubscriberStreamHandle,
         subscriptionsToAdd: List<StreamSubscription>,
         subscriptionsToRemove: List<StreamSubscription>
     ) {
-        val session = resolveSession(streamRoomId)
+        val session = resolveSession(subscriberStreamHandle)
         session.subscriber?.setRTCConfiguration(getRTCConfiguration())
             ?: throw IllegalStateException("No active subscription to modify. Call subscribeToRemoteStreams first.")
 
-        api.modifyRemoteStreamsSubscriptions(
-            streamRoomId,
+        api.updateSubscriberStream(
+            subscriberStreamHandle,
             subscriptionsToAdd,
             subscriptionsToRemove
         )
