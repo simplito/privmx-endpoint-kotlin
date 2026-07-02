@@ -1955,31 +1955,33 @@ namespace privmx {
                     ")V"
             );
 
-            jobject addedList = vectorTojArray(
+            jobject tracksAddedList = vectorTojArray(
                     ctx,
-                    data.streamsAdded,
-                    streamInfo2Java
+                    data.tracksAdded,
+                    streamTrackInfo2Java
             );
 
-            jobject removedList = vectorTojArray(
+            jobject tracksRemovedList = vectorTojArray(
                     ctx,
-                    data.streamsRemoved,
-                    streamInfo2Java
+                    data.tracksRemoved,
+                    streamTrackInfo2Java
             );
 
-            jobject modifiedList = vectorTojArray(
+            jobject tracksModifiedList = vectorTojArray(
                     ctx,
-                    data.streamsModified,
-                    streamTrackModification2Java
+                    data.tracksModified,
+                    streamTrackModificationPair2Java
             );
 
             return ctx->NewObject(
                     cls,
                     initItemMID,
                     ctx->NewStringUTF(data.streamRoomId.c_str()),
-                    addedList,
-                    removedList,
-                    modifiedList
+                    ctx.long2jLong(data.streamId),
+                    ctx->NewStringUTF(data.userId.c_str()),
+                    tracksAddedList,
+                    tracksRemovedList,
+                    tracksModifiedList
             );
         }
 
