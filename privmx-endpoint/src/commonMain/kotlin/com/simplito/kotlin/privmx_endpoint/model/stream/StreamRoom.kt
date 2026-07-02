@@ -1,6 +1,5 @@
 package com.simplito.kotlin.privmx_endpoint.model.stream
 
-import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 
 data class StreamRoom(
@@ -18,7 +17,7 @@ data class StreamRoom(
     val policy: ContainerPolicyWithoutItem,
     val statusCode: Long,
     val schemaVersion: Long,
-    val closed: Boolean,
+    val state: String,   // "created" | "open" | "closed"
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -31,7 +30,6 @@ data class StreamRoom(
         if (version != other.version) return false
         if (statusCode != other.statusCode) return false
         if (schemaVersion != other.schemaVersion) return false
-        if (closed != other.closed) return false
         if (contextId != other.contextId) return false
         if (streamRoomId != other.streamRoomId) return false
         if (creator != other.creator) return false
@@ -41,6 +39,7 @@ data class StreamRoom(
         if (!publicMeta.contentEquals(other.publicMeta)) return false
         if (!privateMeta.contentEquals(other.privateMeta)) return false
         if (policy != other.policy) return false
+        if (state != other.state) return false
 
         return true
     }
@@ -51,7 +50,6 @@ data class StreamRoom(
         result = 31 * result + version.hashCode()
         result = 31 * result + statusCode.hashCode()
         result = 31 * result + schemaVersion.hashCode()
-        result = 31 * result + closed.hashCode()
         result = 31 * result + contextId.hashCode()
         result = 31 * result + streamRoomId.hashCode()
         result = 31 * result + creator.hashCode()
@@ -61,6 +59,7 @@ data class StreamRoom(
         result = 31 * result + publicMeta.contentHashCode()
         result = 31 * result + privateMeta.contentHashCode()
         result = 31 * result + policy.hashCode()
+        result = 31 * result + state.hashCode()
         return result
     }
 }

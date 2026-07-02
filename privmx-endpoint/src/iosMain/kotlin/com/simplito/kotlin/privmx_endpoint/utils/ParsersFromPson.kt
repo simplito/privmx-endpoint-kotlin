@@ -31,9 +31,12 @@ import com.simplito.kotlin.privmx_endpoint.model.Inbox
 import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
 import com.simplito.kotlin.privmx_endpoint.model.InboxPublicView
 import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
+import com.simplito.kotlin.privmx_endpoint.model.Kvdb
+import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
 import com.simplito.kotlin.privmx_endpoint.model.Message
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.ServerFileInfo
+import com.simplito.kotlin.privmx_endpoint.model.ServerKvdbEntryInfo
 import com.simplito.kotlin.privmx_endpoint.model.ServerMessageInfo
 import com.simplito.kotlin.privmx_endpoint.model.Store
 import com.simplito.kotlin.privmx_endpoint.model.Thread
@@ -42,18 +45,15 @@ import com.simplito.kotlin.privmx_endpoint.model.UserStatusChange
 import com.simplito.kotlin.privmx_endpoint.model.UserWithAction
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.VerificationRequest
-import com.simplito.kotlin.privmx_endpoint.model.stream.RecordingEncKey
-import com.simplito.kotlin.privmx_endpoint.model.stream.Handle
-import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
-import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
-import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
-import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
 import com.simplito.kotlin.privmx_endpoint.model.events.CollectionChangedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextCustomEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextUserEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextUsersStatusChangedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxEntryDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEntryEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbStatsEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreFileDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreFileUpdatedEventData
@@ -61,7 +61,13 @@ import com.simplito.kotlin.privmx_endpoint.model.events.StoreStatsChangedEventDa
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.Handle
+import com.simplito.kotlin.privmx_endpoint.model.stream.RecordingEncKey
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackInfo
+import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.PublishedStreamData
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue.PsonObject
@@ -485,12 +491,9 @@ internal fun PsonObject.toStreamRoom(): StreamRoom = StreamRoom(
     this["publicMeta"]!!.typedValue(),
     this["privateMeta"]!!.typedValue(),
     (this["policy"] as PsonObject).toContainerPolicyWithoutItem(),
-    //TODO: No status code in room
-    0,//    this["statusCode"]!!.typedValue(),
-    //TODO: No schemaVersion code in room
-0,//    this["schemaVersion"]!!.typedValue(),
-    //TODO: No closed info
-false,//    this["closed"]!!.typedValue(),
+    this["statusCode"]!!.typedValue(),
+    this["schemaVersion"]!!.typedValue(),
+    this["state"]!!.typedValue(),       // "created" | "open" | "closed"
 )
 
 internal fun PsonObject.toStreamInfo(): StreamInfo = StreamInfo(

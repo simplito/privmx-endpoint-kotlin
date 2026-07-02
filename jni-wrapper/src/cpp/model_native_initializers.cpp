@@ -1613,7 +1613,7 @@ namespace privmx {
                     "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicyWithoutItem;" // policy
                     "Ljava/lang/Long;"      // statusCode
                     "Ljava/lang/Long;"      // schemaVersion
-                    "Ljava/lang/Boolean;"   // closed
+                    "Ljava/lang/String;"    // state
                     ")V"
             );
 
@@ -1645,7 +1645,7 @@ namespace privmx {
                     privmx::wrapper::containerPolicyWithoutItem2Java(ctx, streamRoom_c.policy),
                     ctx.long2jLong(streamRoom_c.statusCode),
                     ctx.long2jLong(streamRoom_c.schemaVersion),
-                    ctx.bool2jBoolean(streamRoom_c.closed)
+                    ctx->NewStringUTF(streamRoom_c.state.c_str())
             );
         }
 
