@@ -513,6 +513,12 @@ internal fun PsonObject.toStreamTrackInfo(): StreamTrackInfo = StreamTrackInfo(
     this["simulcast"]?.typedValue()
 )
 
+
+internal fun PsonObject.toDataChannelMessage(): DataChannelMessage = DataChannelMessage(
+    this["data"]!!.typedValue(),
+    this["seq"]?.typedValue()
+)
+
 internal fun PsonValue.PsonLong.toStreamHandle(): StreamHandle = this.typedValue()
 
 internal fun PsonObject.toPublishedStream(): PublishedStreamData = PublishedStreamData(
