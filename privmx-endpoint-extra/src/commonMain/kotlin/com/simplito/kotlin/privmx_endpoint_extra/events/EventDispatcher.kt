@@ -240,7 +240,12 @@ class EventDispatcher(
         /**
          * CoreModules
          */
-        CORE
+        CORE,
+
+        /**
+         * Stream module case.
+         */
+        STREAM
     }
 
     private data class Pair(val context: Any, val callback: EventCallback<out Any>)
