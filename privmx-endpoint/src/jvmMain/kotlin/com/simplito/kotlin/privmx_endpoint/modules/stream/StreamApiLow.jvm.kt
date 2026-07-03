@@ -11,6 +11,8 @@
 
 package com.simplito.kotlin.privmx_endpoint.modules.stream
 
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
