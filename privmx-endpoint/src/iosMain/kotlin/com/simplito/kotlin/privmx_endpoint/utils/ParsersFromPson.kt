@@ -139,7 +139,7 @@ internal fun PsonObject.toInbox(): Inbox = Inbox(
     this["publicMeta"]!!.typedValue(),
     this["privateMeta"]!!.typedValue(),
     (this["filesConfig"] as PsonObject?)?.toFilesConfig(),
-    (this["policy"] as PsonObject).toContainerPolicy(),
+    (this["policy"] as PsonObject).toContainerPolicyWithoutItem(),
     this["statusCode"]?.typedValue(),
     this["schemaVersion"]?.typedValue()
 )
