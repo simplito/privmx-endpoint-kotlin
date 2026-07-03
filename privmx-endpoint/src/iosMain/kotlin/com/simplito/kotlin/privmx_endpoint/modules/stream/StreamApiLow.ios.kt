@@ -667,6 +667,23 @@ actual constructor(
         }
     }
 
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun registerRemoteDataChannel(
+        streamRoomId: String,
+        remoteStreamId: String
+    ) = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(streamRoomId.pson, remoteStreamId.pson)
+        try {
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 27, args, pson_result.ptr)
+            pson_result.value?.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_result(pson_result.value)
+            pson_free_value(args)
+        }
+    }
+
 
     /**
      * Frees memory.
