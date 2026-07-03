@@ -63,6 +63,7 @@ import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
 import com.simplito.kotlin.privmx_endpoint.model.stream.DataChannelMessage
+import com.simplito.kotlin.privmx_endpoint.model.stream.DecryptedDataChannelMessage
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.PublishedStreamData
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
