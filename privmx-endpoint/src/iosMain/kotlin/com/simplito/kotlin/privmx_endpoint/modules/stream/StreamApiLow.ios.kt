@@ -684,6 +684,22 @@ actual constructor(
         }
     }
 
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun decryptDataChannelMessage(
+        streamRoomId: String,
+        remoteStreamId: String,
+        encryptedData: ByteArray
+    ): DecryptedDataChannelMessage = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(streamRoomId.pson, remoteStreamId.pson, encryptedData.pson)
+        try {
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 29, args, pson_result.ptr)
+            pson_result.value?.asResponse?.getResultOrThrow()?.typedValue()!!
+        } finally {
+            pson_free_result(pson_result.value)
+            pson_free_value(args)
+        }
+    }
 
     /**
      * Frees memory.
