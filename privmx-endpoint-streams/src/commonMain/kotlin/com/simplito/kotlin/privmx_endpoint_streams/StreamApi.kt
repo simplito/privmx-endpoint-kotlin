@@ -613,8 +613,6 @@ class StreamApi(
 /**
  * Joins a StreamRoom and prepares the session for WebRTC communication.
  *
- * Must be called before `createStream`, `publishStream`, and any remote stream subscription calls for the room.
- *
  * @param streamRoomId ID of the StreamRoom to join
  * @throws PrivmxException       thrown when method encounters an exception
  * @throws NativeException       thrown when method encounters an unknown exception
