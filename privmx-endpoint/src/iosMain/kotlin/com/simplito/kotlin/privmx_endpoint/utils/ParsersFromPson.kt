@@ -62,6 +62,7 @@ import com.simplito.kotlin.privmx_endpoint.model.events.StoreStatsChangedEventDa
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.DataChannelMessage
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.PublishedStreamData
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
@@ -513,6 +514,11 @@ internal fun PsonObject.toStreamTrackInfo(): StreamTrackInfo = StreamTrackInfo(
     this["simulcast"]?.typedValue()
 )
 
+internal fun PsonObject.toDecryptedDataChannelMessage(): DecryptedDataChannelMessage = DecryptedDataChannelMessage(
+    this["statusCode"]?.typedValue(),
+    this["data"]!!.typedValue(),
+    this["seq"]?.typedValue()
+)
 
 internal fun PsonObject.toDataChannelMessage(): DataChannelMessage = DataChannelMessage(
     this["data"]!!.typedValue(),
