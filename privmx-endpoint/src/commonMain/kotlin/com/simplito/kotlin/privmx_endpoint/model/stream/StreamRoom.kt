@@ -5,14 +5,14 @@ import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 /**
  * Represents a stream room within a PrivMX context.
  *
- * @property contextId            Identifier of the context this stream room belongs to
- * @property streamRoomId         Identifier of the stream room
+ * @property contextId            ID of the Context
+ * @property streamRoomId         ID of the stream room
  * @property createDate           Timestamp of when the stream room was created
- * @property creator              Identifier of the user who created the stream room
- * @property lastModificationDate Timestamp of when the stream room was last modified
- * @property lastModifier         Identifier of the user who last modified the stream room
- * @property users                IDs of users with management rights in the stream room
- * @property managers             IDs of users with management rights in the stream room
+ * @property creator              ID of the user who created the stream room
+ * @property lastModificationDate Stream room last modification timestamp
+ * @property lastModifier         ID of the user who last modified the stream room
+ * @property users                List of users (their IDs) with access to the stream room
+ * @property managers             List of users (their IDs) with management rights
  * @property version              Version number (changes on updates)
  * @property publicMeta           StreamRoom's public metadata
  * @property privateMeta          StreamRoom's private metadata
