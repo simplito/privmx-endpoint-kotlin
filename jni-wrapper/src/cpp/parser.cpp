@@ -863,25 +863,26 @@ privmx::endpoint::stream::SdpWithTypeModel parseSdpWithTypeModel(JniContextUtils
     return result;
 }
 
-
-privmx::endpoint::stream::StreamEncryptionMode parseStreamEncryptionMode(
+privmx::endpoint::stream::DataChannelMessage parseDataChannelMessage(
         JniContextUtils &ctx,
-        jobject streamEncryptionMode
+        jobject dataChannelMessage
 ) {
-    jclass cls = ctx->GetObjectClass(streamEncryptionMode);
-    jmethodID nameFID = ctx->GetMethodID(
-            cls,
-            "name",
-            "()Ljava/lang/String;"
-    );
+    privmx::endpoint::stream::DataChannelMessage result;
+    jclass cls = ctx->GetObjectClass(dataChannelMessage);
 
-    auto name_j = (jstring) ctx->CallObjectMethod(streamEncryptionMode, nameFID);
-    std::string name_c = ctx.jString2string(name_j);
+    jfieldID dataFID = ctx->GetFieldID(cls, "data", "[B");
+    jfieldID seqFID = ctx->GetFieldID(cls, "seq", "J");
 
-    if (name_c == "SINGLE_KEY") return privmx::endpoint::stream::StreamEncryptionMode::SINGLE_KEY;
-    if (name_c == "MULTIPLE_KEY") return privmx::endpoint::stream::StreamEncryptionMode::MULTIPLE_KEY;
+    result.seq = ctx->GetLongField(dataChannelMessage, seqFID);
+    auto data = (jbyteArray)(ctx->GetObjectField(dataChannelMessage, dataFID));
 
-    return {};
+    if (data != nullptr) {
+        jsize len = ctx->GetArrayLength(data);
+        jbyte *bytes = ctx->GetByteArrayElements(data, nullptr);
+        result.data = core::Buffer::from(ctx.jByteArray2String(data));
+    }
+
+    return result;
 }
 
 int64_t jobject2long(JniContextUtils &ctx, jobject jLong) {

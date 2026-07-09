@@ -12,9 +12,9 @@
 package com.simplito.kotlin.privmx_endpoint.modules.stream
 
 import cnames.structs.pson_value
-import com.simplito.java.privmx_endpoint.model.events.eventSelectorTypes.StreamEventSelectorType
-import com.simplito.java.privmx_endpoint.model.events.eventTypes.StreamEventType
-import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
+import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
@@ -43,17 +43,13 @@ import libprivmxendpoint.*
 /**
  * Low-level Stream API for PrivMX Bridge.
  * @param connection active connection to PrivMX Bridge
- * @param eventApi   instance of [EventApi] created on passed Connection
- * @param streamEncryptionMode encryption mode for streams
  * @throws IllegalStateException when one of the passed parameters is closed
  */
 @OptIn(ExperimentalForeignApi::class)
 actual class StreamApiLow
 @Throws(IllegalStateException::class)
 actual constructor(
-    connection: Connection,
-    eventApi: EventApi,
-    streamEncryptionMode: StreamEncryptionMode
+    connection: Connection
 ) : AutoCloseable {
     private val _nativeStreamApiLow = nativeHeap.allocPointerTo<cnames.structs.StreamApiLow>()
     private val proxyWebrtcList = ProxyWebrtcList()
@@ -64,13 +60,11 @@ actual constructor(
     init {
         privmx_endpoint_newStreamApiLow(
             connection.getConnectionPtr(),
-            eventApi.getEventPtr(),
             _nativeStreamApiLow.ptr
         )
 
         memScoped {
             val args = makeArgs()
-//                streamEncryptionMode.ordinal.toLong().pson)
             val pson_result = allocPointerTo<pson_value>()
             try {
                 privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 0, args, pson_result.ptr)
@@ -124,7 +118,7 @@ actual constructor(
         managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        policies: ContainerPolicy?
+        policies: ContainerPolicyWithoutItem?
     ): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -170,7 +164,7 @@ actual constructor(
         version: Long,
         force: Boolean,
         forceGenerateNewKey: Boolean,
-        policies: ContainerPolicy?
+        policies: ContainerPolicyWithoutItem?
     ) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -393,7 +387,7 @@ actual constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun publishStream(streamHandle: StreamHandle): StreamPublishResult = memScoped {
         val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(streamHandle.pson)
+        val args = makeArgs(streamHandle.value.pson)
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 14, args, pson_result.ptr)
             val psonObject = pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonObject
@@ -416,7 +410,7 @@ actual constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun updateStream(streamHandle: StreamHandle): StreamPublishResult = memScoped {
         val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(streamHandle.pson)
+        val args = makeArgs(streamHandle.value.pson)
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 22, args, pson_result.ptr)
             val psonObject = pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonObject
@@ -438,7 +432,7 @@ actual constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun unpublishStream(streamHandle: StreamHandle) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(streamHandle.pson)
+        val args = makeArgs(streamHandle.value.pson)
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 15, args, pson_result.ptr)
             pson_result.value?.asResponse?.getResultOrThrow()
@@ -657,23 +651,50 @@ actual constructor(
         }
     }
 
-    /**
-     * Enables or disables key management for a room.
-     *
-     * @param streamRoomId ID of the room
-     * @param disable whether to disable key management
-     * @throws PrivmxException thrown when method encounters an exception
-     * @throws NativeException thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when instance is closed
-     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun keyManagement(streamRoomId: String, disable: Boolean) = memScoped {
+    actual fun encryptDataChannelMessage(
+        streamRoomId: String,
+        plainMessage: DataChannelMessage
+    ): ByteArray = memScoped {
         val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(streamRoomId.pson, disable.pson)
+        val args = makeArgs(streamRoomId.pson, plainMessage.pson)
         try {
-            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 21, args, pson_result.ptr)
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 28, args, pson_result.ptr)
+            pson_result.value?.asResponse?.getResultOrThrow()?.typedValue()!!
+        } finally {
+            pson_free_result(pson_result.value)
+            pson_free_value(args)
+        }
+    }
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun registerRemoteDataChannel(
+        streamRoomId: String,
+        remoteStreamId: String
+    ) = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(streamRoomId.pson, remoteStreamId.pson)
+        try {
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 27, args, pson_result.ptr)
             pson_result.value?.asResponse?.getResultOrThrow()
             Unit
+        } finally {
+            pson_free_result(pson_result.value)
+            pson_free_value(args)
+        }
+    }
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun decryptDataChannelMessage(
+        streamRoomId: String,
+        remoteStreamId: String,
+        encryptedData: ByteArray
+    ): DecryptedDataChannelMessage = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(streamRoomId.pson, remoteStreamId.pson, encryptedData.pson)
+        try {
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 29, args, pson_result.ptr)
+            pson_result.value?.asResponse?.getResultOrThrow()?.typedValue()!!
         } finally {
             pson_free_result(pson_result.value)
             pson_free_value(args)
