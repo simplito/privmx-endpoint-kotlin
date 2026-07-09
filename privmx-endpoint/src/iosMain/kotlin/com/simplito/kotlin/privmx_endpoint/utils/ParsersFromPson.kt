@@ -21,6 +21,7 @@ import com.simplito.kotlin.privmx_endpoint.model.BIP39
 import com.simplito.kotlin.privmx_endpoint.model.BridgeIdentity
 import com.simplito.kotlin.privmx_endpoint.model.CollectionItemChange
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
+import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.Event
 import com.simplito.kotlin.privmx_endpoint.model.File
@@ -61,6 +62,8 @@ import com.simplito.kotlin.privmx_endpoint.model.events.StoreStatsChangedEventDa
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.DataChannelMessage
+import com.simplito.kotlin.privmx_endpoint.model.stream.DecryptedDataChannelMessage
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.PublishedStreamData
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
@@ -138,7 +141,7 @@ internal fun PsonObject.toInbox(): Inbox = Inbox(
     this["publicMeta"]!!.typedValue(),
     this["privateMeta"]!!.typedValue(),
     (this["filesConfig"] as PsonObject?)?.toFilesConfig(),
-    (this["policy"] as PsonObject).toContainerPolicy(),
+    (this["policy"] as PsonObject).toContainerPolicyWithoutItem(),
     this["statusCode"]?.typedValue(),
     this["schemaVersion"]?.typedValue()
 )
@@ -170,6 +173,16 @@ internal fun PsonObject.toContainerPolicy(): ContainerPolicy =
         this["updaterCanBeRemovedFromManagers"]?.typedValue(),
         this["ownerCanBeRemovedFromManagers"]?.typedValue(),
         (this["item"] as PsonObject?)?.toItemPolicy()
+    )
+
+internal fun PsonObject.toContainerPolicyWithoutItem(): ContainerPolicyWithoutItem =
+    ContainerPolicyWithoutItem(
+        this["get"]?.typedValue(),
+        this["update"]?.typedValue(),
+        this["delete_"]?.typedValue(),
+        this["updatePolicy"]?.typedValue(),
+        this["updaterCanBeRemovedFromManagers"]?.typedValue(),
+        this["ownerCanBeRemovedFromManagers"]?.typedValue()
     )
 
 internal fun PsonObject.toFilesConfig(): FilesConfig =
@@ -474,7 +487,7 @@ internal fun PsonObject.toStreamRoom(): StreamRoom = StreamRoom(
     this["version"]!!.typedValue(),
     this["publicMeta"]!!.typedValue(),
     this["privateMeta"]!!.typedValue(),
-    (this["policy"] as PsonObject?)?.toContainerPolicy(),
+    (this["policy"] as PsonObject).toContainerPolicyWithoutItem(),
     //TODO: No status code in room
     0,//    this["statusCode"]!!.typedValue(),
     //TODO: No schemaVersion code in room
@@ -500,6 +513,17 @@ internal fun PsonObject.toStreamTrackInfo(): StreamTrackInfo = StreamTrackInfo(
     this["description"]?.typedValue(),
     this["moderated"]?.typedValue(),
     this["simulcast"]?.typedValue()
+)
+
+internal fun PsonObject.toDecryptedDataChannelMessage(): DecryptedDataChannelMessage = DecryptedDataChannelMessage(
+    this["statusCode"]?.typedValue(),
+    this["data"]!!.typedValue(),
+    this["seq"]?.typedValue()
+)
+
+internal fun PsonObject.toDataChannelMessage(): DataChannelMessage = DataChannelMessage(
+    this["data"]!!.typedValue(),
+    this["seq"]?.typedValue()
 )
 
 internal fun PsonValue.PsonLong.toStreamHandle(): StreamHandle = this.typedValue()

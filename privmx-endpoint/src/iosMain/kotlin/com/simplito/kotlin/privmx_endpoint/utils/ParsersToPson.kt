@@ -17,6 +17,7 @@ import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
 import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint.model.stream.DataChannelMessage
 import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
 
@@ -70,6 +71,12 @@ internal val PKIVerificationOptions.pson: PsonValue.PsonObject
     get() = mapOfWithNulls(
         "bridgePubKey" to bridgePubKey.nullablePson,
         "bridgeInstanceId" to bridgeInstanceId.nullablePson
+    ).pson
+
+internal val DataChannelMessage.pson: PsonValue.PsonObject
+    get() = mapOfWithNulls(
+        "data" to data.pson,
+        "seq" to seq.nullablePson,
     ).pson
 
 internal val String.pson: PsonValue.PsonString
