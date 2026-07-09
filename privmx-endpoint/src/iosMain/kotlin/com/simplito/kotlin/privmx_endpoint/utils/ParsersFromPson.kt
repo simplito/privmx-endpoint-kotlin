@@ -43,7 +43,6 @@ import com.simplito.kotlin.privmx_endpoint.model.UserWithAction
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.VerificationRequest
 import com.simplito.kotlin.privmx_endpoint.model.stream.RecordingEncKey
-import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
@@ -516,14 +515,14 @@ internal fun PsonObject.toStreamTrackInfo(): StreamTrackInfo = StreamTrackInfo(
 )
 
 internal fun PsonObject.toDecryptedDataChannelMessage(): DecryptedDataChannelMessage = DecryptedDataChannelMessage(
-    this["statusCode"]?.typedValue(),
+    this["statusCode"]!!.typedValue(),
     this["data"]!!.typedValue(),
-    this["seq"]?.typedValue()
+    this["seq"]!!.typedValue()
 )
 
 internal fun PsonObject.toDataChannelMessage(): DataChannelMessage = DataChannelMessage(
     this["data"]!!.typedValue(),
-    this["seq"]?.typedValue()
+    this["seq"]!!.typedValue()
 )
 
 internal fun PsonValue.PsonLong.toStreamHandle(): StreamHandle = this.typedValue()

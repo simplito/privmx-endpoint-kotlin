@@ -2230,7 +2230,7 @@ namespace privmx {
                     "<init>",
                     "("
                     "[B"                    // message
-                    "Ljava/lang/Long;"      // seq
+                    "J"                     // seq
                     ")V"
             );
 
@@ -2244,7 +2244,7 @@ namespace privmx {
                     cls,
                     initMID,
                     data_c,
-                    ctx.long2jLong(message.seq)
+                    (jlong) message.seq
             );
         }
 
@@ -2259,9 +2259,9 @@ namespace privmx {
                     cls,
                     "<init>",
                     "("
-                    "Ljava/lang/Long;"      // statusCode
+                    "J"                     // statusCode
                     "[B"                    // data
-                    "Ljava/lang/Long;"      // seq
+                    "J"                     // seq
                     ")V"
             );
 
@@ -2274,9 +2274,9 @@ namespace privmx {
             return ctx->NewObject(
                     cls,
                     initMID,
-                    ctx.long2jLong(message.statusCode),
+                    (jlong) message.statusCode,
                     data_c,
-                    ctx.long2jLong(message.seq)
+                    (jlong) message.seq
             );
         }
 
