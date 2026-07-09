@@ -1610,7 +1610,7 @@ namespace privmx {
                     "Ljava/lang/Long;"      // version
                     "[B"                    // publicMeta
                     "[B"                    // privateMeta
-                    "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicy;" // policy
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicyWithoutItem;" // policy
                     "Ljava/lang/Long;"      // statusCode
                     "Ljava/lang/Long;"      // schemaVersion
                     "Ljava/lang/Boolean;"   // closed
@@ -1642,7 +1642,7 @@ namespace privmx {
                     ctx.long2jLong(streamRoom_c.version),
                     publicMeta,
                     privateMeta,
-                    privmx::wrapper::containerPolicy2Java(ctx, streamRoom_c.policy),
+                    privmx::wrapper::containerPolicyWithoutItem2Java(ctx, streamRoom_c.policy),
                     ctx.long2jLong(streamRoom_c.statusCode),
                     ctx.long2jLong(streamRoom_c.schemaVersion),
                     ctx.bool2jBoolean(streamRoom_c.closed)
@@ -2216,6 +2216,67 @@ namespace privmx {
                     initItemMID,
                     ctx->NewStringUTF(data.room.c_str()),
                     streamsList
+            );
+        }
+
+        jobject
+        dataChannelMessage2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::stream::DataChannelMessage message
+        ) {
+            jclass cls = ctx->FindClass("com/simplito/kotlin/privmx_endpoint/model/stream/DataChannelMessage");
+            jmethodID initMID = ctx->GetMethodID(
+                    cls,
+                    "<init>",
+                    "("
+                    "[B"                    // message
+                    "Ljava/lang/Long;"      // seq
+                    ")V"
+            );
+
+            jbyteArray data_c = ctx->NewByteArray(message.data.size());
+            ctx->SetByteArrayRegion(
+                    data_c, 0,
+                    message.data.size(),
+                    (jbyte *) message.data.data());
+
+            return ctx->NewObject(
+                    cls,
+                    initMID,
+                    data_c,
+                    ctx.long2jLong(message.seq)
+            );
+        }
+
+        jobject decryptedDataChannelMessage2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::stream::DecryptedDataChannelMessage message
+        ) {
+            jclass cls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/stream/DecryptedDataChannelMessage");
+
+            jmethodID initMID = ctx->GetMethodID(
+                    cls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/Long;"      // statusCode
+                    "[B"                    // data
+                    "Ljava/lang/Long;"      // seq
+                    ")V"
+            );
+
+            jbyteArray data_c = ctx->NewByteArray(message.data.size());
+            ctx->SetByteArrayRegion(
+                    data_c, 0,
+                    message.data.size(),
+                    (jbyte *) message.data.data());
+
+            return ctx->NewObject(
+                    cls,
+                    initMID,
+                    ctx.long2jLong(message.statusCode),
+                    data_c,
+                    ctx.long2jLong(message.seq)
             );
         }
 

@@ -14,13 +14,14 @@ package com.simplito.kotlin.privmx_endpoint.modules.stream
 import com.simplito.java.privmx_endpoint.model.events.eventSelectorTypes.StreamEventSelectorType
 import com.simplito.java.privmx_endpoint.model.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.LibLoader
-import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
+import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.kotlin.privmx_endpoint.model.stream.DataChannelMessage
+import com.simplito.kotlin.privmx_endpoint.model.stream.DecryptedDataChannelMessage
 import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
-import com.simplito.kotlin.privmx_endpoint.model.stream.StreamEncryptionMode
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
@@ -28,22 +29,17 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
 import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
-import com.simplito.kotlin.privmx_endpoint.modules.event.EventApi
 import kotlin.jvm.JvmOverloads
 
 /**
  * Low-level Stream API for PrivMX Bridge.
  * @param connection active connection to PrivMX Bridge
- * @param eventApi   instance of [EventApi] created on passed Connection
- * @param streamEncryptionMode encryption mode for streams
  * @throws IllegalStateException when one of the passed parameters is closed
  */
 actual class StreamApiLow
 @Throws(IllegalStateException::class)
 actual constructor(
-    connection: Connection,
-    eventApi: EventApi,
-    streamEncryptionMode: StreamEncryptionMode
+    connection: Connection
 ) : AutoCloseable {
 
     companion object {
@@ -55,7 +51,7 @@ actual constructor(
     private var api: Long? = null
 
     init {
-        api = init(connection, eventApi, streamEncryptionMode)
+        api = init(connection)
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
@@ -69,7 +65,7 @@ actual constructor(
         managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        policies: ContainerPolicy?
+        policies: ContainerPolicyWithoutItem?
     ): String
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
@@ -83,7 +79,7 @@ actual constructor(
         version: Long,
         force: Boolean,
         forceGenerateNewKey: Boolean,
-        policies: ContainerPolicy?
+        policies: ContainerPolicyWithoutItem?
     )
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
@@ -163,14 +159,9 @@ actual constructor(
         selectorId: String
     ): String
 
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun keyManagement(streamRoomId: String, disable: Boolean)
-
     @Throws(IllegalStateException::class)
     private external fun init(
-        connection: Connection,
-        eventApi: EventApi,
-        streamEncryptionMode: StreamEncryptionMode
+        connection: Connection
     ): Long?
 
     @Throws(IllegalStateException::class)
@@ -182,4 +173,23 @@ actual constructor(
     actual override fun close() {
         deinit()
     }
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun encryptDataChannelMessage(
+        streamRoomId: String,
+        plainMessage: DataChannelMessage
+    ): ByteArray
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun registerRemoteDataChannel(
+        streamRoomId: String,
+        remoteStreamId: String
+    )
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun decryptDataChannelMessage(
+        streamRoomId: String,
+        remoteStreamId: String,
+        encryptedData: ByteArray
+    ): DecryptedDataChannelMessage
 }
