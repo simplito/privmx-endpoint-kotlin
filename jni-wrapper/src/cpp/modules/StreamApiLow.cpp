@@ -322,8 +322,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
     jobject result;
     ctx.callResultEndpointApi<jobject>(&result, [&ctx, &thiz, &stream_room_id] {
 
-        return privmx::wrapper::streamHandle2Java(
-                ctx,
+        return ctx.long2jLong(
                 getStreamApi(ctx, thiz)->createStream(
                         ctx.jString2string(stream_room_id)
                 )
@@ -351,7 +350,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_publishStr
     ctx.callResultEndpointApi<jobject>(&result, [&ctx, &thiz, &stream_handle] {
 
         auto result = getStreamApi(ctx, thiz)->publishStream(
-                parseStreamHandle(ctx, stream_handle)
+                ctx.getObject(stream_handle).getLongValue()
         );
         return privmx::wrapper::streamPublishResult2Java(
                 ctx,
@@ -435,7 +434,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_unpublishS
 
     ctx.callVoidEndpointApi([&ctx, &thiz, &stream_handle]() {
         getStreamApi(ctx, thiz)->unpublishStream(
-                parseStreamHandle(ctx, stream_handle)
+                ctx.getObject(stream_handle).getLongValue()
         );
     });
 }
