@@ -24,19 +24,19 @@ import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 data class StreamRoom(
     val contextId: String,
     val streamRoomId: String,
-    val createDate: Long,
+    val createDate: Long?,
     val creator: String,
-    val lastModificationDate: Long,
+    val lastModificationDate: Long?,
     val lastModifier: String,
     val users: List<String>,
     val managers: List<String>,
-    val version: Long,
+    val version: Long?,
     val publicMeta: ByteArray,
     val privateMeta: ByteArray,
     val policy: ContainerPolicyWithoutItem,
-    val statusCode: Long,
-    val schemaVersion: Long,
-    val closed: Boolean,
+    val statusCode: Long?,
+    val schemaVersion: Long?,
+    val closed: Boolean?,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

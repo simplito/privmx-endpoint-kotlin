@@ -14,7 +14,7 @@ package com.simplito.kotlin.privmx_endpoint.model.stream
  */
 data class StreamTrackInfo(
     val type: String,
-    val mindex: Long,
+    val mindex: Long?,
     val mid: String,
     val disabled: Boolean?,
     val codec: String?,

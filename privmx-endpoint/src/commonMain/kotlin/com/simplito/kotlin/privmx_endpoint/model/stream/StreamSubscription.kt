@@ -8,6 +8,6 @@ package com.simplito.kotlin.privmx_endpoint.model.stream
  * @property streamTrackId  Identifier of a specific track within the stream. If not provided, the entire stream is targeted.
  */
 data class StreamSubscription(
-    val streamId: Long,
+    val streamId: Long?,
     val streamTrackId: String?,
 )

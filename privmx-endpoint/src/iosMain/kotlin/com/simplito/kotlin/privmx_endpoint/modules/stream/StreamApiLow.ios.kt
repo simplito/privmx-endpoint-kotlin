@@ -386,7 +386,7 @@ actual constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun publishStream(streamHandle: StreamHandle): StreamPublishResult = memScoped {
         val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(streamHandle.value.pson)
+        val args = makeArgs(streamHandle.value!!.pson)
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 14, args, pson_result.ptr)
             val psonObject = pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonObject
@@ -409,7 +409,7 @@ actual constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun updateStream(streamHandle: StreamHandle): StreamPublishResult = memScoped {
         val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(streamHandle.value.pson)
+        val args = makeArgs(streamHandle.value!!.pson)
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 22, args, pson_result.ptr)
             val psonObject = pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonObject
@@ -431,7 +431,7 @@ actual constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun unpublishStream(streamHandle: StreamHandle) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(streamHandle.value.pson)
+        val args = makeArgs(streamHandle.value!!.pson)
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 15, args, pson_result.ptr)
             pson_result.value?.asResponse?.getResultOrThrow()
