@@ -1,2 +1,2 @@
-staticLibraries = libpmxend.a libpson.a
+staticLibraries = libpmxend.a
 noStringConversion= pson_new_binary pson_inspect_binary
