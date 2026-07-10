@@ -8,4 +8,4 @@ import kotlin.jvm.JvmInline
  * @property value  The value of the [StreamHandle]
  */
 @JvmInline
-value class StreamHandle internal constructor(val value: Long)
+value class StreamHandle internal constructor(val value: Long?)

@@ -99,7 +99,8 @@ internal class RoomJanusSession(
             }
         }
 
-        override fun updateSessionId(streamRoomId: String, sessionId: Long, connectionType: String) {
+        override fun updateSessionId(streamRoomId: String, sessionId: Long?, connectionType: String) {
+            if (sessionId == null) return
             runBlocking(context) {
                 when (connectionType) {
                     "subscriber" -> subscriber?.sessionId = sessionId

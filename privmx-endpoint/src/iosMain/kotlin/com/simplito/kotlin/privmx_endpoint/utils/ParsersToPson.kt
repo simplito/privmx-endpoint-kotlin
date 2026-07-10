@@ -137,7 +137,7 @@ internal val Map<String, PsonValue<Any>>?.nullablePson: PsonValue<Any>
 
 internal val StreamSubscription.pson: PsonValue.PsonObject
     get() = mapOfWithNulls(
-        "streamId" to streamId.pson,
+        "streamId" to streamId!!.pson,
         "streamTrackId" to streamTrackId.nullablePson
     ).pson
 

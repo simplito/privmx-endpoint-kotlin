@@ -26,7 +26,7 @@ internal class PeerConnectionManager(
         sessionHandles[handle.value]?.let(sessions::get)
 
     fun createHandleToRoom(handle: StreamHandle, roomId: String) {
-        sessionHandles[handle.value] = roomId
+        sessionHandles[handle.value!!] = roomId
     }
 
     fun leaveStreamRoom(streamRoomId: String) {

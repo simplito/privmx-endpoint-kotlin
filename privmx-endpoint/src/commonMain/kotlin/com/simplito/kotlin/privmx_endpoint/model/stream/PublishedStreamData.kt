@@ -1,6 +1,4 @@
-package com.simplito.kotlin.privmx_endpoint.model.stream.events
-
-import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
+package com.simplito.kotlin.privmx_endpoint.model.stream
 
 /**
  * Represents data of a published stream.
