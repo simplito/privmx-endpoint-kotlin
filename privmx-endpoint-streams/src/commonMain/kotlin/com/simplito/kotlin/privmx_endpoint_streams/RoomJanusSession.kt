@@ -123,10 +123,8 @@ internal class RoomJanusSession(
 
     private inner class TrackObserverImpl : TrackObserver {
         override fun onRemoteTrack(streamId: String?, track: MediaStreamTrack) {
-            runBlocking(context) {
-                trackObserversByStreamId[streamId]?.onRemoteTrack(streamId, track)
-                trackObserversByStreamId[null]?.onRemoteTrack(streamId, track)
-            }
+            trackObserversByStreamId[streamId]?.onRemoteTrack(streamId, track)
+            trackObserversByStreamId[null]?.onRemoteTrack(streamId, track)
         }
     }
 }
