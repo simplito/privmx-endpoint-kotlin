@@ -4,7 +4,7 @@ package com.simplito.kotlin.privmx_endpoint_streams
 
 import com.simplito.kotlin.privmx_endpoint.model.stream.Key
 import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
-import com.simplito.kotlin.privmx_endpoint.modules.stream.WebRtcInterface
+import com.simplito.kotlin.privmx_endpoint.modules.stream.WebRTCInterface
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.IceConnectionState
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.KeyStore
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.MediaStreamTrack
@@ -36,7 +36,7 @@ internal class RoomJanusSession(
     var publisher: JanusPublisher? = null
         private set
 
-    val webrtc: WebRtcInterface = WebRTCImpl()
+    val webrtc: WebRTCInterface = WebRTCImpl()
 
     fun createSubscriber(observer: TrackObserver = trackObserver) = runBlocking(context) {
         check(subscriber?.isEnded ?: true) { "Subscriber is currently active." }
@@ -79,7 +79,7 @@ internal class RoomJanusSession(
 
     private fun onConnectionChange(state: IceConnectionState) = onConnectionChangeCallback(state)
 
-    private inner class WebRTCImpl : WebRtcInterface {
+    private inner class WebRTCImpl : WebRTCInterface {
         override fun createOfferAndSetLocalDescription(streamRoomId: String): String =
             runBlocking(context) {
                 (publisher ?: throw RuntimeException("Create publisher first")).createOffer()
