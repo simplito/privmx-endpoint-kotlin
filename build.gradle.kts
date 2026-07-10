@@ -7,7 +7,6 @@ import org.apache.http.impl.client.HttpClients
 import org.jetbrains.dokka.DokkaConfiguration.Visibility
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.DokkaBaseConfiguration
-import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.dokka.gradle.AbstractDokkaTask
 import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
 import org.jetbrains.dokka.gradle.DokkaTaskPartial
@@ -21,7 +20,7 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
-    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.androidKMPLibrary) apply false
     id("org.jetbrains.dokka") version "2.0.0"
 }
 buildscript {

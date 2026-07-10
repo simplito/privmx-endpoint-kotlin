@@ -4,7 +4,8 @@ import java.util.Properties
 import kotlin.text.replace
 
 plugins {
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.androidKMPLibrary)
 }
 
 enum class BuildTypes {
@@ -13,31 +14,33 @@ enum class BuildTypes {
     MinSizeRel
 }
 
-android {
-    namespace = "com.simplito.privmx_endpoint_jni"
-    compileSdk = 36
-    ndkVersion = "29.0.13599879"
-    defaultConfig {
-        minSdk = 24
-        externalNativeBuild {
-            cmake {
-                cppFlags("-std=c++17")
-                this.arguments.addAll(
-                    listOf(
-                        "-DBUILD_ENDPOINT=ON",
-                        "-DBUILD_ANDROID_STREAM=ON",
-                        "-DCMAKE_TOOLCHAIN_FILE=conan_android_toolchain.cmake"
-                    )
-                )
-            }
-        }
-    }
-
-    externalNativeBuild {
-        cmake {
-            path = file("CMakeLists.txt")
-            version = "3.22.1"
-        }
+kotlin {
+    android {
+        namespace = "com.simplito.privmx_endpoint_jni"
+        compileSdk = 36
+//        ndkVersion = "29.0.13599879"
+//        defaultConfig {
+//            minSdk = 24
+//            externalNativeBuild {
+//                cmake {
+//                    cppFlags("-std=c++17")
+//                    this.arguments.addAll(
+//                        listOf(
+//                            "-DBUILD_ENDPOINT=ON",
+//                            "-DBUILD_ANDROID_STREAM=ON",
+//                            "-DCMAKE_TOOLCHAIN_FILE=conan_android_toolchain.cmake"
+//                        )
+//                    )
+//                }
+//            }
+//        }
+//
+//        externalNativeBuild {
+//            cmake {
+//                path = file("CMakeLists.txt")
+//                version = "3.22.1"
+//            }
+//        }
     }
 }
 val localProperties = Properties().apply {
