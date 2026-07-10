@@ -1755,9 +1755,9 @@ namespace privmx {
                     "("
                     "Ljava/lang/Long;"          // id
                     "Ljava/lang/String;"        // userId
-                    "Ljava/util/List;"          // tracks
                     "Ljava/lang/String;"        // metadata
                     "Ljava/lang/Boolean;"       // dummy
+                    "Ljava/util/List;"          // tracks
                     ")V"
             );
 
@@ -1789,9 +1789,9 @@ namespace privmx {
                     initItemMID,
                     ctx.long2jLong(streamInfo_c.id),
                     ctx->NewStringUTF(streamInfo_c.userId.c_str()),
-                    tracks,
                     metadata,
-                    dummy
+                    dummy,
+                    tracks
             );
 
         }
