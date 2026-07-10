@@ -1,12 +1,13 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
+import com.android.build.api.dsl.androidLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.androidKMPLibrary)
     alias(libs.plugins.kotlinPluginSerialization)
     id("maven-publish")
     id("signing")
@@ -74,9 +75,22 @@ kotlin {
             )
         }
     }
-    androidTarget {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+
+    androidLibrary {
+        namespace = "com.simplito.kotlin.privmx_endpoint_streams_android"
+        compileSdk = 36
+        minSdk = 24
+
+        // Enables Java compilation support.
+        // This improves build times when Java compilation is not needed
+        withJava()
+
+        compilations.configureEach {
+            compilerOptions.configure {
+                jvmTarget.set(
+                    JvmTarget.JVM_11
+                )
+            }
         }
     }
 
@@ -130,11 +144,6 @@ signing {
     sign(publishing.publications)
 }
 
-android {
-    namespace = "com.simplito.kotlin.privmx_endpoint_streams_android"
-    //TODO: Add minimum sdk version
-    compileSdk = 36
-}
 
 tasks.register<de.undercouch.gradle.tasks.download.Download>("downloadWebrtcFramework") {
     val xcframeworkDir = layout.projectDirectory.dir("src/iosMain/cinterop/webrtc/WebRTC.xcframework").asFile

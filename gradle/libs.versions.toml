@@ -21,5 +21,6 @@ privmx-endpoint-webrtc-android = {group="com.simplito.webrtc", name="webrtc-andr
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+androidKMPLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 kotlinPluginSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-serialization" }
 android-library = { id = "com.android.library", version.ref = "agp" }
