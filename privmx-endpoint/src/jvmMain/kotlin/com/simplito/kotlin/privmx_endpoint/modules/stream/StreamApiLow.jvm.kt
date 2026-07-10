@@ -214,6 +214,7 @@ actual constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmName("createStream")
     actual external fun createStream(streamRoomId: String): StreamHandle
 
     /**
@@ -226,6 +227,7 @@ actual constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmName("publishStream")
     actual external fun publishStream(streamHandle: StreamHandle): StreamPublishResult
 
     /**
