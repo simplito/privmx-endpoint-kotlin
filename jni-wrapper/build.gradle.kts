@@ -587,5 +587,23 @@ tasks.register("clonePrivmxSources") {
                 "git clone --depth 1 -b v$nativeEndpointVersion https://github.com/simplito/privmx-endpoint.git"
             )
         }
+        val conanfile = File(repoDir, "conanfile.txt")
+        val conanfileContent = conanfile.readText()
+        println(conanfile.absolutePath)
+
+        val requiresSectionRegex =
+            Regex(
+                ".*\\[requires\\]\\s*(?<content>(?:(?<line>(?!(?:^\\[.*\\]$)).)*\\s*)*)", RegexOption.MULTILINE
+            )
+        val requiresSectionContent = requiresSectionRegex.find(conanfileContent)?.value
+
+        val updatedConanfileContent = if (requiresSectionContent == null) {
+            conanfileContent
+        } else {
+            val updated = requiresSectionContent.replace(Regex("libwebrtc/\\S*"), "")
+            println(updated)
+            conanfileContent.replace(requiresSectionContent, updated)
+        }
+        conanfile.writeText(updatedConanfileContent)
     }
 }
