@@ -313,7 +313,7 @@ actual constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun joinStreamRoom(
         streamRoomId: String,
-        webRtcInterface: WebRtcInterface
+        webRtcInterface: WebRTCInterface
     ) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -714,7 +714,7 @@ private class ProxyWebrtcList : AutoCloseable {
     private val webrtcProxies: MutableList<ProxyWebrtc> = mutableListOf()
     private val webrtcProxyMutex = Mutex()
 
-    fun new(webRtcInterface: WebRtcInterface): ProxyWebrtc = runBlocking {
+    fun new(webRtcInterface: WebRTCInterface): ProxyWebrtc = runBlocking {
         webrtcProxyMutex.withLock {
             ProxyWebrtc(webRtcInterface).also(webrtcProxies::add)
         }

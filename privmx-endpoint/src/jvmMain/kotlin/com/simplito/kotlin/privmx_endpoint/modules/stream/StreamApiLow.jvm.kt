@@ -191,7 +191,7 @@ actual constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun joinStreamRoom(streamRoomId: String, webRtcInterface: WebRtcInterface)
+    actual external fun joinStreamRoom(streamRoomId: String, webRtcInterface: WebRTCInterface)
 
     /**
      * Leaves a stream room.

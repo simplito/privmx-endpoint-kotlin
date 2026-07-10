@@ -2,22 +2,14 @@ package com.simplito.kotlin.privmx_endpoint.modules.stream
 
 import com.simplito.kotlin.privmx_endpoint.model.stream.Key
 import com.simplito.kotlin.privmx_endpoint.model.stream.KeyType
-import com.simplito.kotlin.privmx_endpoint.utils.asResponse
 import kotlinx.cinterop.ByteVar
-import kotlinx.cinterop.ByteVarOf
-import kotlinx.cinterop.CFunction
-import kotlinx.cinterop.COpaque
 import kotlinx.cinterop.COpaquePointer
-import kotlinx.cinterop.CPointed
 import kotlinx.cinterop.CPointer
-import kotlinx.cinterop.CPointerVar
 import kotlinx.cinterop.CPointerVarOf
 import kotlinx.cinterop.CValue
-import kotlinx.cinterop.CValues
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.StableRef
 import kotlinx.cinterop.addressOf
-import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocArray
 import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.asStableRef
@@ -26,8 +18,6 @@ import kotlinx.cinterop.cstr
 import kotlinx.cinterop.get
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.nativeHeap
-import kotlinx.cinterop.placeTo
-import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.readBytes
 import kotlinx.cinterop.staticCFunction
@@ -43,13 +33,13 @@ import kotlin.getValue
 private fun privmx_endpoint_stream_KeyType.KType(): KeyType = KeyType.entries[ordinal]
 
 @OptIn(ExperimentalForeignApi::class)
-private val COpaquePointer?.webrtc: StableRef<WebRtcInterface>
+private val COpaquePointer?.webrtc: StableRef<WebRTCInterface>
     get() = memScoped {
-        this@webrtc!!.asStableRef<WebRtcInterface>()
+        this@webrtc!!.asStableRef<WebRTCInterface>()
     }
 
 @OptIn(ExperimentalForeignApi::class)
-private fun WebRtcInterface.toCWebRtcPointer(): CValue<libprivmxendpoint.privmx_endpoint_stream_WebRTCInterface> =
+private fun WebRTCInterface.toCWebRtcPointer(): CValue<libprivmxendpoint.privmx_endpoint_stream_WebRTCInterface> =
 //    memScoped {
     cValue {
         ctx = StableRef.create(this@toCWebRtcPointer).asCPointer()
@@ -132,7 +122,7 @@ private fun WebRtcInterface.toCWebRtcPointer(): CValue<libprivmxendpoint.privmx_
 
 @OptIn(ExperimentalForeignApi::class)
 class ProxyWebrtc(
-    webRtcInterface: WebRtcInterface
+    webRtcInterface: WebRTCInterface
 ) : AutoCloseable {
     private val cWebRtc = webRtcInterface.toCWebRtcPointer()
 
