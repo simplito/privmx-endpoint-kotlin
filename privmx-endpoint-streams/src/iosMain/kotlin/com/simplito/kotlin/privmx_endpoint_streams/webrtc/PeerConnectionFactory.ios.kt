@@ -2,6 +2,7 @@
 
 package com.simplito.kotlin.privmx_endpoint_streams.webrtc
 
+import WebRTCFramework.PMXAudioLevelAnalyzer
 import WebRTCFramework.PMXFrameCryptorTransformer
 import WebRTCFramework.RTCAudioSource
 import WebRTCFramework.RTCConfiguration
@@ -35,7 +36,7 @@ internal actual fun PeerConnectionFactory.createSenderFrameCryptor(
         forRtpSender = sender,
         withPeerConnectionFactory = this,
         keyStore,
-        null
+        PMXAudioLevelAnalyzer()
     )
 
 internal fun PeerConnectionFactory.makeVideoTrack(
