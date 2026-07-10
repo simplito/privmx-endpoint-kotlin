@@ -29,7 +29,8 @@ internal open class JanusConnection(
         keyStore = keyStore,
         trackObserver = trackObserver,
         onIceCandidateCallback = { candidate ->
-            if (sessionId > -1) onTrickle(sessionId, candidate.toJson())
+            //TODO: Uncomment when trickle working
+//            if (sessionId > -1) onTrickle(sessionId, candidate.toJson())
         },
         onRenegotiationNeededCallback = ::onRenegotiationNeeded,
         onIceConnectionChangeCallback = onConnectionChange
