@@ -2,6 +2,7 @@
 
 package com.simplito.kotlin.privmx_endpoint_streams
 
+import WebRTCFramework.PMXAudioLevelAnalyzer
 import WebRTCFramework.PMXFrameCryptorTransformer
 import WebRTCFramework.RTCDataChannel
 import WebRTCFramework.RTCIceCandidate
@@ -60,7 +61,7 @@ actual class PcObserver actual constructor(
             forRtpReceiver = didAddReceiver,
             withPeerConnectionFactory = peerConnectionFactory,
             keyStore,
-            null
+            PMXAudioLevelAnalyzer()
         )
         val streamId = (streams.firstOrNull() as? RTCMediaStream)?.streamId
         trackObserver?.onRemoteTrack(streamId, track)
