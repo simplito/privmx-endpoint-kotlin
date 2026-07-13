@@ -34,7 +34,7 @@ internal actual fun PeerConnection.applyIceServers(iceServers: List<IceServer>) 
 internal actual fun PeerConnection.disposeConnection() = close()
 
 internal actual fun PeerConnection.addTrack(track: MediaStreamTrack): RtpSender =
-    addTrack(track, listOf(track.trackId))
+    addTrack(track, emptyList<Any>())
         ?: throw IllegalStateException("Failed to add track — session may be closed")
 
 internal actual fun PeerConnection.removeTrack(sender: RtpSender) {
