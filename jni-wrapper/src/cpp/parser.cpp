@@ -871,9 +871,9 @@ privmx::endpoint::stream::DataChannelMessage parseDataChannelMessage(
     jclass cls = ctx->GetObjectClass(dataChannelMessage);
 
     jfieldID dataFID = ctx->GetFieldID(cls, "data", "[B");
-    jfieldID seqFID = ctx->GetFieldID(cls, "seq", "Ljava/lang/Long");
+    jfieldID seqFID = ctx->GetFieldID(cls, "seq", "J");
 
-    result.seq = ctx.getObject(ctx->GetObjectField(dataChannelMessage, seqFID)).getLongValue();
+    result.seq = ctx->GetLongField(dataChannelMessage, seqFID);
     auto data = (jbyteArray)(ctx->GetObjectField(dataChannelMessage, dataFID));
 
     if (data != nullptr) {

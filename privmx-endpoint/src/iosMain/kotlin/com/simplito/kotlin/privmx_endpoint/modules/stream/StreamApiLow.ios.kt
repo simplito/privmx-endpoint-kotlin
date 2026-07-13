@@ -650,6 +650,55 @@ actual constructor(
         }
     }
 
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun encryptDataChannelMessage(
+        streamRoomId: String,
+        plainMessage: DataChannelMessage
+    ): ByteArray = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(streamRoomId.pson, plainMessage.pson)
+        try {
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 28, args, pson_result.ptr)
+            pson_result.value?.asResponse?.getResultOrThrow()?.typedValue()!!
+        } finally {
+            pson_free_result(pson_result.value)
+            pson_free_value(args)
+        }
+    }
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun registerRemoteDataChannel(
+        streamRoomId: String,
+        remoteStreamId: String
+    ) = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(streamRoomId.pson, remoteStreamId.pson)
+        try {
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 27, args, pson_result.ptr)
+            pson_result.value?.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_result(pson_result.value)
+            pson_free_value(args)
+        }
+    }
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun decryptDataChannelMessage(
+        streamRoomId: String,
+        remoteStreamId: String,
+        encryptedData: ByteArray
+    ): DecryptedDataChannelMessage = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(streamRoomId.pson, remoteStreamId.pson, encryptedData.pson)
+        try {
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 29, args, pson_result.ptr)
+            pson_result.value?.asResponse?.getResultOrThrow()?.typedValue()!!
+        } finally {
+            pson_free_result(pson_result.value)
+            pson_free_value(args)
+        }
+    }
 
     /**
      * Frees memory.

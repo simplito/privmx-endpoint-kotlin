@@ -2224,13 +2224,13 @@ namespace privmx {
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::DataChannelMessage message
         ) {
-            jclass cls = ctx->FindClass("com/simplito/kotlin/privmx_endpoint/model/stream/events/DataChannelMessage");
+            jclass cls = ctx->FindClass("com/simplito/kotlin/privmx_endpoint/model/stream/DataChannelMessage");
             jmethodID initMID = ctx->GetMethodID(
                     cls,
                     "<init>",
                     "("
                     "[B"                    // message
-                    "Ljava/lang/Long;"      // seq
+                    "J"                     // seq
                     ")V"
             );
 
@@ -2244,7 +2244,7 @@ namespace privmx {
                     cls,
                     initMID,
                     data_c,
-                    ctx.long2jLong(message.seq)
+                    (jlong) message.seq
             );
         }
 
@@ -2253,15 +2253,15 @@ namespace privmx {
                 privmx::endpoint::stream::DecryptedDataChannelMessage message
         ) {
             jclass cls = ctx->FindClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/stream/events/DecryptedDataChannelMessage");
+                    "com/simplito/kotlin/privmx_endpoint/model/stream/DecryptedDataChannelMessage");
 
             jmethodID initMID = ctx->GetMethodID(
                     cls,
                     "<init>",
                     "("
-                    "Ljava/lang/Long;"      // statusCode
+                    "J"                     // statusCode
                     "[B"                    // data
-                    "Ljava/lang/Long;"      // seq
+                    "J"                     // seq
                     ")V"
             );
 
@@ -2274,9 +2274,9 @@ namespace privmx {
             return ctx->NewObject(
                     cls,
                     initMID,
-                    ctx.long2jLong(message.statusCode),
+                    (jlong) message.statusCode,
                     data_c,
-                    ctx.long2jLong(message.seq)
+                    (jlong) message.seq
             );
         }
 

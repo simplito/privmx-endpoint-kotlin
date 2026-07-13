@@ -790,7 +790,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_encryptDat
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(stream_room_id, "Stream room ID") ||
-            ctx.nullCheck(plain_message, "Data channel message")) {
+            ctx.nullCheck(plain_message, "Plain message")) {
         return nullptr;
     }
     jbyteArray result;

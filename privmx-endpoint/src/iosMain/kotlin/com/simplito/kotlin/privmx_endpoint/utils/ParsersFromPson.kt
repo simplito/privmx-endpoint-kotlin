@@ -43,7 +43,6 @@ import com.simplito.kotlin.privmx_endpoint.model.UserWithAction
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.VerificationRequest
 import com.simplito.kotlin.privmx_endpoint.model.stream.RecordingEncKey
-import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
@@ -62,6 +61,8 @@ import com.simplito.kotlin.privmx_endpoint.model.events.StoreStatsChangedEventDa
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.DataChannelMessage
+import com.simplito.kotlin.privmx_endpoint.model.stream.DecryptedDataChannelMessage
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.PublishedStreamData
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
@@ -139,7 +140,7 @@ internal fun PsonObject.toInbox(): Inbox = Inbox(
     this["publicMeta"]!!.typedValue(),
     this["privateMeta"]!!.typedValue(),
     (this["filesConfig"] as PsonObject?)?.toFilesConfig(),
-    (this["policy"] as PsonObject).toContainerPolicy(),
+    (this["policy"] as PsonObject).toContainerPolicyWithoutItem(),
     this["statusCode"]?.typedValue(),
     this["schemaVersion"]?.typedValue()
 )
@@ -511,6 +512,17 @@ internal fun PsonObject.toStreamTrackInfo(): StreamTrackInfo = StreamTrackInfo(
     this["description"]?.typedValue(),
     this["moderated"]?.typedValue(),
     this["simulcast"]?.typedValue()
+)
+
+internal fun PsonObject.toDecryptedDataChannelMessage(): DecryptedDataChannelMessage = DecryptedDataChannelMessage(
+    this["statusCode"]!!.typedValue(),
+    this["data"]!!.typedValue(),
+    this["seq"]!!.typedValue()
+)
+
+internal fun PsonObject.toDataChannelMessage(): DataChannelMessage = DataChannelMessage(
+    this["data"]!!.typedValue(),
+    this["seq"]!!.typedValue()
 )
 
 internal fun PsonValue.PsonLong.toStreamHandle(): StreamHandle = this.typedValue()
