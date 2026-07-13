@@ -49,8 +49,8 @@ class StreamApi(
 
     fun createStreamRoom(
         contextId: String,
-        users: MutableList<UserWithPubKey>,
-        managers: MutableList<UserWithPubKey>,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         policies: ContainerPolicyWithoutItem?
@@ -67,8 +67,8 @@ class StreamApi(
 
     fun updateStreamRoom(
         streamRoomId: String,
-        users: MutableList<UserWithPubKey>,
-        managers: MutableList<UserWithPubKey>,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         version: Long,
