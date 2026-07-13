@@ -11,7 +11,7 @@ internal actual fun PeerConnectionFactory.createPeerConnection(observer: Observe
     createPeerConnection(
         org.webrtc.PeerConnection.RTCConfiguration(emptyList<org.webrtc.PeerConnection.IceServer>()),
         observer
-    ) ?: throw IllegalStateException("Failed to create PeerConnection") // todo - zmienic message
+    ) ?: throw IllegalStateException("Failed to create PeerConnection")
 
 internal actual fun PeerConnectionFactory.disposeFactory() = dispose()
 
