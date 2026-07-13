@@ -34,8 +34,6 @@ import kotlin.jvm.JvmOverloads
 /**
  * Low-level Stream API for PrivMX Bridge.
  * @param connection active connection to PrivMX Bridge
- * @param eventApi   instance of [EventApi] created on passed Connection
- * @param streamEncryptionMode encryption mode for streams
  * @throws IllegalStateException when one of the passed parameters is closed
  */
 expect class StreamApiLow

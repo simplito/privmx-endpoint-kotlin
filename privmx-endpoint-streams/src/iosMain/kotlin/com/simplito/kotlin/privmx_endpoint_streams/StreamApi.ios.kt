@@ -8,6 +8,8 @@ import WebRTCFramework.RTCDefaultVideoEncoderFactory
 import WebRTCFramework.RTCIceServer
 import WebRTCFramework.RTCPeerConnectionFactory
 import WebRTCFramework.RTCPeerConnectionFactoryOptions
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
+import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.IceServer
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.PeerConnectionFactory
 
@@ -20,6 +22,11 @@ private fun DefaultPeerConnectionFactory(
     RTCDefaultVideoDecoderFactory()
 )
 
+@Throws(
+    PrivmxException::class,
+    NativeException::class,
+    IllegalStateException::class
+)
 actual fun StreamApi.joinStreamRoom(streamRoomId: String) {
     val session: RoomJanusSession = pcManager.createSession(streamRoomId)
     api.joinStreamRoom(streamRoomId, session.webrtc)
