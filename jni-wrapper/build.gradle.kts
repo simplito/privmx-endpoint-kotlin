@@ -358,6 +358,7 @@ tasks.register("buildAndroidFromSources") {
                     COMPILED_DIR,
                     "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/android-$conanArch/${buildType.name}/generators/conan_toolchain.cmake",
                 )
+                copyFilesFromDeploy(INSTALL_DIR,".so")
             }
         }
     }
@@ -402,7 +403,7 @@ tasks.register("buildMacosFromSources") {
             clonedEndpointDir,
             profile,
             "../conan",
-            "../native/install/Darwin/$privmxEndpointJavaVersion/$arch",
+            "../endpoint-prebuild/install/Darwin/$privmxEndpointJavaVersion/$arch",
             additionalParams = listOf(" -s arch=${conanArch}")
         )
         buildFromSources(
@@ -411,6 +412,7 @@ tasks.register("buildMacosFromSources") {
             "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/macos-$conanArch/${buildType.name}/generators/conan_toolchain.cmake",
             true
         )
+        copyFilesFromDeploy(INSTALL_DIR,".dylib")
     }
 }
 
@@ -485,7 +487,7 @@ tasks.register("buildIosSimulatorWithConan") {
 
 tasks.register("buildIOSSimulatorStaticFromSources") {
     dependsOn("clonePrivmxSources")
-    onlyIf { layout.buildDirectory.dir("native/install/iOSSimulator/$privmxEndpointJavaVersion/arm64").orNull?.asFile?.exists() != true }
+//    onlyIf { layout.buildDirectory.dir("native/install/iOSSimulator/$privmxEndpointJavaVersion/arm64").orNull?.asFile?.exists() != true }
     doFirst {
         val clonedEndpointDir = layout.buildDirectory.dir("privmx-endpoint").get().asFile
         val profile = layout.projectDirectory.file("conan/profiles/iosSimulator").asFile
@@ -509,6 +511,7 @@ tasks.register("buildIOSSimulatorStaticFromSources") {
             "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/ios-iphonesimulator-armv8/${buildType.name}/generators/conan_toolchain.cmake",
             false
         )
+        copyFilesFromDeploy(INSTALL_DIR,".a")
         exec {
             workingDir = INSTALL_DIR
             commandLine("sh", "-c", "/usr/bin/libtool -static -o libpmxend.a ./lib/*.a")
@@ -542,7 +545,7 @@ tasks.register("buildIOSStaticFromSources") {
             "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/ios-armv8/${buildType.name}/generators/conan_toolchain.cmake",
             false
         )
-
+        copyFilesFromDeploy(INSTALL_DIR,".a")
         exec {
             workingDir = INSTALL_DIR
             commandLine("sh", "-c", "/usr/bin/libtool -static -o ./libpmxend.a ./lib/*.a")
@@ -698,7 +701,7 @@ private fun Project.conanInstall(
                     " -pr \"${profile.absolutePath}\"" +
                     " -s build_type=${buildType.name}" +
                     " --build missing" +
-                    " --deployer=runtime_deploy" +
+                    " --deployer=full_deploy" +
                     " --output-folder=\"${outputFolderPath}\"" +
                     " --deployer-folder \"${deployerFolderPath}\"" +
                     " -o \"*:shared=${if (buildShared) "True" else "False"}\"" +
@@ -706,4 +709,20 @@ private fun Project.conanInstall(
                     additionalParams.joinToString(" ")
         )
     }
+}
+
+private fun Project.copyFilesFromDeploy(
+    workingDir: File,
+    extension: String,
+){
+
+    val deployDir = File(workingDir,"full_deploy").also { println(it.absolutePath) }
+    copy {
+        from(deployDir.absolutePath)
+        include("**/libPoco*$extension","**/libcrypto*$extension","**/libPson*$extension","**/libssl*$extension","**/libprivmx*$extension")
+        this.includeEmptyDirs = false
+        eachFile { path=name }
+        into(File(workingDir,"lib"))
+    }
+    deployDir.deleteRecursively()
 }
