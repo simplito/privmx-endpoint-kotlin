@@ -19,9 +19,8 @@ elseif(UNIX)
     set(CMAKE_INSTALL_RPATH "$ORIGIN")
 endif()
 
-find_package(privmxendpoint REQUIRED)
-find_package(Poco REQUIRED)
-find_package(privmxdrvnet REQUIRED)
+option(PRIVMX_USE_PREBUILT "Link prebuilt privmxendpoint binaries instead of Conan" OFF)
+
 add_library(${CMAKE_PROJECT_NAME} SHARED
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/parser.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/utils.cpp
@@ -52,16 +51,37 @@ elseif(CMAKE_HOST_WIN32)
 else()
     include_directories(${JAVA_HOME}/include/linux)
 endif()
-target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC
-        privmxendpoint::privmxendpointcore
-        privmxendpoint::privmxendpointcrypto
-        privmxendpoint::privmxendpointthread
-        privmxendpoint::privmxendpointstore
-        privmxendpoint::privmxendpointinbox
-        privmxendpoint::privmxendpointkvdb
-        privmxendpoint::privmxendpointevent
-        privmxendpoint::privmxendpointstream
-        Poco::Foundation
-        privmxdrvnet::privmxdrvnet
-)
+if(PRIVMX_USE_PREBUILT)
+    if(NOT PRIVMX_PREBUILT_DIR)
+        message(FATAL_ERROR
+                "PRIVMX_USE_PREBUILT=ON requires -DPRIVMX_PREBUILT_DIR=<install>/<OS>/<version>/<arch>")
+    endif()
+    # endpoint public headers from the prebuilt install dir
+    set(PRIVMX_PREBUILT_INCLUDE_DIR "${PRIVMX_PREBUILT_DIR}/include"
+            CACHE PATH "privmx endpoint public headers")
+    target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC ${PRIVMX_PREBUILT_INCLUDE_DIR})
+    file(GLOB PRIVMX_ENDPOINT_LIBS
+            "${PRIVMX_PREBUILT_DIR}/lib/libprivmxendpoint*")
+    file(GLOB PRIVMX_ENDPOINT_INSTALL_LIBS
+                "${PRIVMX_PREBUILT_DIR}/lib/lib*")
+    if(NOT PRIVMX_ENDPOINT_LIBS)
+        message(FATAL_ERROR "No libprivmx* libraries found in ${PRIVMX_PREBUILT_DIR}")
+    endif()
+    target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC ${PRIVMX_ENDPOINT_LIBS})
+    install(FILES ${PRIVMX_ENDPOINT_INSTALL_LIBS} DESTINATION ${CMAKE_INSTALL_PREFIX})
+else()
+    find_package(privmxendpoint REQUIRED)
+    find_package(Poco REQUIRED)
+    target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC
+            privmxendpoint::privmxendpointcore
+            privmxendpoint::privmxendpointcrypto
+            privmxendpoint::privmxendpointthread
+            privmxendpoint::privmxendpointstore
+            privmxendpoint::privmxendpointinbox
+            privmxendpoint::privmxendpointkvdb
+            privmxendpoint::privmxendpointevent
+            privmxendpoint::privmxendpointstream
+            Poco::Foundation
+    )
+endif()
 install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})

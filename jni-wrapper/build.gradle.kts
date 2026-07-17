@@ -66,11 +66,19 @@ object AndroidProfileConfig {
 //TODO: Use cpp-library plugin compilation tasks
 val compileAndroid = tasks.create("compileAndroid") {
     group = "privmx native"
-    dependsOn("buildAndroidWithConan")
+    var usePrebuiltEndpoint: Boolean = false
+    if(buildType == BuildTypes.MinSizeRel || buildType == BuildTypes.Release) {
+        dependsOn("buildAndroidWithConan")
+    }else{
+        dependsOn("buildAndroidFromSources")
+        usePrebuiltEndpoint = true
+    }
+
     val sdkDir = localProperties.getProperty("sdk.dir")
     val ndkVersion = localProperties.getProperty("ndk.version")
     val compileDir = layout.buildDirectory.dir("native/compile").get()
     val installDir = layout.buildDirectory.dir("native/install").get()
+    val prebuildEndpointDir = layout.buildDirectory.dir("endpoint-prebuild/install").get()
     val androidNdkPath = "$sdkDir/ndk/$ndkVersion"
     val os = "Android"
     val APILevel = "24"
@@ -83,6 +91,13 @@ val compileAndroid = tasks.create("compileAndroid") {
             }
             if (!platformInstallDir.exists()) {
                 platformInstallDir.mkdirs()
+            }
+            val endpointArgs = if (usePrebuiltEndpoint) {
+                " -DPRIVMX_USE_PREBUILT=ON" +
+                        " -DPRIVMX_PREBUILT_DIR=\"${prebuildEndpointDir.file("$os/$privmxEndpointJavaVersion/$ARCH").asFile.absolutePath}\"" +
+                        " -DCMAKE_TOOLCHAIN_FILE=\"$androidNdkPath/build/cmake/android.toolchain.cmake\""
+            } else {
+                " -DCMAKE_TOOLCHAIN_FILE=\"conan_android_toolchain.cmake\""
             }
             exec {
                 workingDir = layout.projectDirectory.asFile
@@ -97,7 +112,7 @@ val compileAndroid = tasks.create("compileAndroid") {
                             " -DANDROID_ABI=\"$ARCH\"" +
                             " -DJAVA_HOME=\"${Jvm.current().javaHome}\"" +
                             " -DCMAKE_INSTALL_PREFIX=\"${platformInstallDir.absolutePath}\"" +
-                            " -DCMAKE_TOOLCHAIN_FILE=\"conan_android_toolchain.cmake\""
+                            endpointArgs
                 )
             }
 
@@ -122,11 +137,18 @@ val compileAndroid = tasks.create("compileAndroid") {
 //TODO: Use cpp-library plugin compilation tasks
 val compileDarwin = tasks.create("compileDarwin") {
     group = "privmx native"
-    dependsOn("buildMacosWithConan")
+    var usePrebuiltEndpoint: Boolean = false
+    if(buildType == BuildTypes.MinSizeRel || buildType == BuildTypes.Release) {
+        dependsOn("buildMacosWithConan")
+    }else{
+        dependsOn("buildMacosFromSources")
+        usePrebuiltEndpoint = true
+    }
     val os = "Darwin"
     val conanArch = "armv8"
     val compileDir = layout.buildDirectory.dir("native/compile").get()
     val installDir = layout.buildDirectory.dir("native/install").get()
+    val prebuildEndpointDir = layout.buildDirectory.dir("endpoint-prebuild/install").get()
     doFirst {
         println(Jvm.current().javaHome.absolutePath)
         darwinArchs.onEach { ARCH ->
@@ -138,6 +160,12 @@ val compileDarwin = tasks.create("compileDarwin") {
             if (!platformInstallDir.exists()) {
                 platformInstallDir.mkdirs()
             }
+            val endpointArgs = if (usePrebuiltEndpoint) {
+                " -DPRIVMX_USE_PREBUILT=ON" +
+                        " -DPRIVMX_PREBUILT_DIR=\"${prebuildEndpointDir.file("$os/$privmxEndpointJavaVersion/$ARCH").asFile.absolutePath}\""
+            } else {
+                " -DCMAKE_TOOLCHAIN_FILE=\"${layout.buildDirectory.asFile.get().absolutePath}/conan/build/macos-$conanArch/${buildType.name}/generators/conan_toolchain.cmake\""
+            }
             exec {
                 workingDir = layout.projectDirectory.asFile
                 commandLine(
@@ -148,7 +176,7 @@ val compileDarwin = tasks.create("compileDarwin") {
                             " -DCMAKE_CXX_FLAGS=-std=c++17" +
                             " -DJAVA_HOME=\"${Jvm.current().javaHome.absolutePath}\"" +
                             " -DCMAKE_INSTALL_PREFIX=\"${platformInstallDir.absolutePath}\"" +
-                            " -DCMAKE_TOOLCHAIN_FILE=\"${layout.buildDirectory.asFile.get().absolutePath}/conan/build/macos-$conanArch/${buildType.name}/generators/conan_toolchain.cmake\""
+                            endpointArgs
                 )
             }
 
@@ -294,6 +322,48 @@ tasks.register("buildAndroidWithConan") {
     }
 }
 
+tasks.register("buildAndroidFromSources") {
+    dependsOn("clonePrivmxSources")
+    val conanArchsMap = mapOf(
+        "armeabi-v7a" to "armv7",
+        "arm64-v8a" to "armv8",
+        "x86" to "x86",
+        "x86_64" to "x86_64"
+    )
+//    onlyIf { layout.buildDirectory.dir("native/install/iOS/$privmxEndpointJavaVersion/arm64").orNull?.asFile?.exists() != true }
+    doFirst {
+        val clonedEndpointDir = layout.buildDirectory.dir("privmx-endpoint").get().asFile
+        val profile = layout.projectDirectory.file("conan/profiles/android").asFile
+        val ndkPath = with(AndroidProfileConfig) { localProperties.ndkPath }
+        androidArchs.forEach { arch ->
+            val conanArch = conanArchsMap[arch]
+                ?: throw IllegalArgumentException("Not supported android $arch architecture by conan")
+            val INSTALL_DIR =
+                layout.buildDirectory.get().dir("endpoint-prebuild/install/Android/$privmxEndpointJavaVersion/$arch").asFile
+            val COMPILED_DIR =
+                layout.buildDirectory.get().dir("endpoint-prebuild/compile/Android/$privmxEndpointJavaVersion/$arch").asFile
+            if(!INSTALL_DIR.exists()) {
+                conanInstall(
+                    clonedEndpointDir,
+                    profile,
+                    "../conan",
+                    "../native/install/Android/$privmxEndpointJavaVersion/$arch",
+                    additionalParams = listOf(
+                        " -s arch=${conanArch}",
+                        " -c \"tools.android:ndk_path=$ndkPath\""
+                    )
+                )
+                buildFromSources(
+                    INSTALL_DIR,
+                    COMPILED_DIR,
+                    "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/android-$conanArch/${buildType.name}/generators/conan_toolchain.cmake",
+                )
+                copyFilesFromDeploy(INSTALL_DIR,".so")
+            }
+        }
+    }
+}
+
 tasks.register("buildMacosWithConan") {
     dependsOn("updateConanfileVersion")
     doFirst {
@@ -314,6 +384,35 @@ tasks.register("buildMacosWithConan") {
                         " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os','settings.arch']\""
             )
         }
+    }
+}
+
+tasks.register("buildMacosFromSources") {
+    dependsOn("clonePrivmxSources")
+//    onlyIf { !layout.buildDirectory.get().dir("endpoint-prebuild/install/Darwin/$privmxEndpointJavaVersion/arm64").asFile.exists() }
+    doFirst {
+        val conanArch = "armv8"
+        val arch = "arm64"
+        val clonedEndpointDir = layout.buildDirectory.dir("privmx-endpoint").get().asFile
+        val profile = layout.projectDirectory.file("conan/profiles/macos").asFile
+        val INSTALL_DIR =
+            layout.buildDirectory.get().dir("endpoint-prebuild/install/Darwin/$privmxEndpointJavaVersion/$arch").asFile
+        val COMPILED_DIR =
+            layout.buildDirectory.get().dir("endpoint-prebuild/compile/Darwin/$privmxEndpointJavaVersion/$arch").asFile
+        conanInstall(
+            clonedEndpointDir,
+            profile,
+            "../conan",
+            "../endpoint-prebuild/install/Darwin/$privmxEndpointJavaVersion/$arch",
+            additionalParams = listOf(" -s arch=${conanArch}")
+        )
+        buildFromSources(
+            INSTALL_DIR,
+            COMPILED_DIR,
+            "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/macos-$conanArch/${buildType.name}/generators/conan_toolchain.cmake",
+            true
+        )
+        copyFilesFromDeploy(INSTALL_DIR,".dylib")
     }
 }
 
@@ -388,62 +487,31 @@ tasks.register("buildIosSimulatorWithConan") {
 
 tasks.register("buildIOSSimulatorStaticFromSources") {
     dependsOn("clonePrivmxSources")
-    onlyIf { layout.buildDirectory.dir("native/install/iOSSimulator/$privmxEndpointJavaVersion/arm64").orNull?.asFile?.exists() != true}
+//    onlyIf { layout.buildDirectory.dir("native/install/iOSSimulator/$privmxEndpointJavaVersion/arm64").orNull?.asFile?.exists() != true }
     doFirst {
         val clonedEndpointDir = layout.buildDirectory.dir("privmx-endpoint").get().asFile
-        val profile = layout.projectDirectory.file("conan/profiles/iosSimulator").asFile.absolutePath
-        exec {
-            workingDir = clonedEndpointDir
-            commandLine(
-                "sh", "-c",
-                "conan install ." +
-                        " -pr $profile" +
-                        " -s build_type=${buildType.name}" +
-                        " --build missing" +
-                        " --deployer=runtime_deploy" +
-                        " --output-folder=../conan" +
-                        " --deployer-folder ../native/install/iOSSimulator/$privmxEndpointJavaVersion/arm64" +
-                        " -o \"*:shared=False\"" +
-                        " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os', 'settings.os.sdk','settings.arch']\""
-            )
-        }
+        val profile = layout.projectDirectory.file("conan/profiles/iosSimulator").asFile
+        conanInstall(
+            clonedEndpointDir,
+            profile,
+            "../conan",
+            "../native/install/iOSSimulator/$privmxEndpointJavaVersion/arm64",
+            buildShared = false,
+            additionalSdkFolderVar = true
+        )
 
         val INSTALL_DIR =
             layout.buildDirectory.get().dir("native/install/iOSSimulator/$privmxEndpointJavaVersion/arm64").asFile
         val COMPILED_DIR =
             layout.buildDirectory.get().dir("native/compile/iOSSimulator/$privmxEndpointJavaVersion/arm64").asFile
-        exec {
-            workingDir = clonedEndpointDir
-            commandLine(
-                "sh", "-c",
-                "cmake" +
-                        " -B\"${COMPILED_DIR.absolutePath}\"" +
-                        " -DCMAKE_BUILD_TYPE=${buildType.name}" +
-                        " -DCMAKE_CXX_FLAGS=-std=c++17" +
-                        " -DPRIVMX_BUILD_ENDPOINT=ON" +
-                        " -DBUILD_SHARED_LIBS=OFF" +
-                        " -DPRIVMX_BUILD_ENDPOINT_ENDPOINT=ON" +
-                        " -DPRIVMX_CONAN=ON" +
-                        " -DPRIVMX_DRIVER_CRYPTO=ON" +
-                        " -DPRIVMX_DRIVER_NET=ON" +
-                        " -DCMAKE_TOOLCHAIN_FILE=\"${layout.buildDirectory.asFile.get().absolutePath}/conan/build/ios-iphonesimulator-armv8/${buildType.name}/generators/conan_toolchain.cmake\"" +
-                        " -DCMAKE_INSTALL_PREFIX=\"${INSTALL_DIR.absolutePath}\""
-            )
-        }
 
-        exec {
-            workingDir = COMPILED_DIR
-            commandLine("sh", "-c", "cmake --build .")
-        }
-
-        exec {
-            workingDir = COMPILED_DIR
-            commandLine("sh", "-c", "make -s -j8")
-        }
-        exec {
-            workingDir = COMPILED_DIR
-            commandLine("sh", "-c", "make -s install")
-        }
+        buildFromSources(
+            INSTALL_DIR,
+            COMPILED_DIR,
+            "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/ios-iphonesimulator-armv8/${buildType.name}/generators/conan_toolchain.cmake",
+            false
+        )
+        copyFilesFromDeploy(INSTALL_DIR,".a")
         exec {
             workingDir = INSTALL_DIR
             commandLine("sh", "-c", "/usr/bin/libtool -static -o libpmxend.a ./lib/*.a")
@@ -457,61 +525,27 @@ tasks.register("buildIOSStaticFromSources") {
     onlyIf { layout.buildDirectory.dir("native/install/iOS/$privmxEndpointJavaVersion/arm64").orNull?.asFile?.exists() != true }
     doFirst {
         val clonedEndpointDir = layout.buildDirectory.dir("privmx-endpoint").get().asFile
-        val profile = layout.projectDirectory.file("conan/profiles/ios").asFile.absolutePath
-        exec {
-            workingDir = clonedEndpointDir
-            commandLine(
-                "sh", "-c",
-                "conan install ." +
-                        " -pr $profile" +
-                        " -s build_type=${buildType.name}" +
-                        " --build missing" +
-                        " --deployer=runtime_deploy" +
-                        " --output-folder=../conan" +
-                        " --deployer-folder ../native/install/iOS/$privmxEndpointJavaVersion/arm64" +
-                        " -o \"*:shared=False\"" +
-                        " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os','settings.arch']\""
-            )
-        }
+        val profile = layout.projectDirectory.file("conan/profiles/ios").asFile
+        conanInstall(
+            clonedEndpointDir,
+            profile,
+            "../conan",
+            "../native/install/iOS/$privmxEndpointJavaVersion/arm64",
+            buildShared = false,
+            additionalSdkFolderVar = true
+        )
 
         //iphoneSimulator
         val INSTALL_DIR = layout.buildDirectory.get().dir("native/install/iOS/$privmxEndpointJavaVersion/arm64").asFile
         val COMPILED_DIR = layout.buildDirectory.get().dir("native/compile/iOS/$privmxEndpointJavaVersion/arm64").asFile
 
-        exec {
-            workingDir = clonedEndpointDir
-            commandLine(
-                "sh", "-c",
-                "cmake" +
-                        " -B\"${COMPILED_DIR.absolutePath}\"" +
-                        " -DCMAKE_BUILD_TYPE=${buildType.name}" +
-                        " -DPRIVMX_BUILD_ENDPOINT=ON" +
-                        " -DCMAKE_CXX_FLAGS=-std=c++17" +
-                        " -DBUILD_SHARED_LIBS=OFF" +
-                        " -DPRIVMX_BUILD_ENDPOINT_ENDPOINT=ON" +
-                        " -DPRIVMX_CONAN=ON" +
-                        " -DPRIVMX_DRIVER_CRYPTO=ON" +
-                        " -DPRIVMX_DRIVER_NET=ON" +
-                        " -DCMAKE_TOOLCHAIN_FILE=\"${layout.buildDirectory.asFile.get().absolutePath}/conan/build/ios-armv8/${buildType.name}/generators/conan_toolchain.cmake\"" +
-                        " -DCMAKE_INSTALL_PREFIX=\"${INSTALL_DIR.absolutePath}\""
-            )
-        }
-
-        exec {
-            workingDir = COMPILED_DIR
-            commandLine("sh", "-c", "cmake --build .")
-        }
-
-        exec {
-            workingDir = COMPILED_DIR
-            commandLine("sh", "-c", "make -s -j8")
-        }
-
-        exec {
-            workingDir = COMPILED_DIR
-            commandLine("sh", "-c", "make -s install")
-        }
-
+        buildFromSources(
+            INSTALL_DIR,
+            COMPILED_DIR,
+            "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/ios-iphoneos-armv8/${buildType.name}/generators/conan_toolchain.cmake",
+            false
+        )
+        copyFilesFromDeploy(INSTALL_DIR,".a")
         exec {
             workingDir = INSTALL_DIR
             commandLine("sh", "-c", "/usr/bin/libtool -static -o ./libpmxend.a ./lib/*.a")
@@ -527,7 +561,7 @@ tasks.register("preparePmxEndpointXCFramework") {
         val iosDir = installDir.dir("iOS/$privmxEndpointJavaVersion/arm64")
         val iosSimulatorDir = installDir.dir("iOSSimulator/$privmxEndpointJavaVersion/arm64")
         installDir.dir("frameworks/$privmxEndpointJavaVersion/privmx-endpoint.xcframework").asFile.apply {
-            if(exists()){
+            if (exists()) {
                 deleteRecursively()
             }
         }
@@ -600,10 +634,95 @@ tasks.register("clonePrivmxSources") {
         val updatedConanfileContent = if (requiresSectionContent == null) {
             conanfileContent
         } else {
-            val updated = requiresSectionContent.replace(Regex("libwebrtc/\\S*"), "")
+            val updated = requiresSectionContent.replace(Regex("libwebrtc/\\S*"), "").replace(Regex("gtest/\\S*"), "").replace(Regex("readline/\\S*"), "")
             println(updated)
             conanfileContent.replace(requiresSectionContent, updated)
         }
         conanfile.writeText(updatedConanfileContent)
     }
+}
+
+private fun Project.buildFromSources(
+    installDir: File,
+    compileDir: File,
+    toolChainPath: String,
+    buildShared: Boolean = true
+) {
+    val clonedEndpointDir = layout.buildDirectory.dir("privmx-endpoint").get().asFile
+    exec {
+        workingDir = clonedEndpointDir
+        commandLine(
+            "sh", "-c",
+            "cmake" +
+                    " -B\"${compileDir.absolutePath}\"" +
+                    " -DCMAKE_BUILD_TYPE=${buildType.name}" +
+                    " -DPRIVMX_BUILD_ENDPOINT=ON" +
+                    " -DCMAKE_CXX_FLAGS=-std=c++17" +
+                    " -DBUILD_SHARED_LIBS=${if (buildShared) "ON" else "OFF"}" +
+                    " -DPRIVMX_BUILD_ENDPOINT_ENDPOINT=ON" +
+                    " -DPRIVMX_CONAN=ON" +
+                    " -DPRIVMX_DRIVER_CRYPTO=ON" +
+                    " -DPRIVMX_DRIVER_NET=ON" +
+                    " -DCMAKE_TOOLCHAIN_FILE=\"$toolChainPath\"" +
+                    " -DCMAKE_INSTALL_PREFIX=\"${installDir.absolutePath}\""
+        )
+    }
+
+    exec {
+        workingDir = compileDir
+        commandLine("sh", "-c", "cmake --build .")
+    }
+
+    exec {
+        workingDir = compileDir
+        commandLine("sh", "-c", "make -s -j8")
+    }
+
+    exec {
+        workingDir = compileDir
+        commandLine("sh", "-c", "make -s install")
+    }
+}
+
+private fun Project.conanInstall(
+    workingDir: File,
+    profile: File,
+    outputFolderPath: String,
+    deployerFolderPath: String,
+    buildShared: Boolean = true,
+    additionalSdkFolderVar: Boolean = false,
+    additionalParams: List<String> = emptyList()
+) {
+    exec {
+        this.workingDir = workingDir
+        commandLine(
+            "sh", "-c",
+            "conan install ." +
+                    " -pr \"${profile.absolutePath}\"" +
+                    " -s build_type=${buildType.name}" +
+                    " --build missing" +
+                    " --deployer=full_deploy" +
+                    " --output-folder=\"${outputFolderPath}\"" +
+                    " --deployer-folder \"${deployerFolderPath}\"" +
+                    " -o \"*:shared=${if (buildShared) "True" else "False"}\"" +
+                    " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os'${if (additionalSdkFolderVar) ", 'settings.os.sdk'" else ""}, 'settings.arch']\"" +
+                    additionalParams.joinToString(" ")
+        )
+    }
+}
+
+private fun Project.copyFilesFromDeploy(
+    workingDir: File,
+    extension: String,
+){
+
+    val deployDir = File(workingDir,"full_deploy").also { println(it.absolutePath) }
+    copy {
+        from(deployDir.absolutePath)
+        include("**/libPoco*$extension","**/libcrypto*$extension","**/libPson*$extension","**/libssl*$extension","**/libprivmx*$extension")
+        this.includeEmptyDirs = false
+        eachFile { path=name }
+        into(File(workingDir,"lib"))
+    }
+    deployDir.deleteRecursively()
 }
