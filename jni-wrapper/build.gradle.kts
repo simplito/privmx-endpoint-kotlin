@@ -542,7 +542,7 @@ tasks.register("buildIOSStaticFromSources") {
         buildFromSources(
             INSTALL_DIR,
             COMPILED_DIR,
-            "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/ios-armv8/${buildType.name}/generators/conan_toolchain.cmake",
+            "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/ios-iphoneos-armv8/${buildType.name}/generators/conan_toolchain.cmake",
             false
         )
         copyFilesFromDeploy(INSTALL_DIR,".a")
