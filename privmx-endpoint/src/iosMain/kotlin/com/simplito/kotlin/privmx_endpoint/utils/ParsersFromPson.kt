@@ -25,9 +25,12 @@ import com.simplito.kotlin.privmx_endpoint.model.Inbox
 import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
 import com.simplito.kotlin.privmx_endpoint.model.InboxPublicView
 import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
+import com.simplito.kotlin.privmx_endpoint.model.Kvdb
+import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
 import com.simplito.kotlin.privmx_endpoint.model.Message
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.ServerFileInfo
+import com.simplito.kotlin.privmx_endpoint.model.ServerKvdbEntryInfo
 import com.simplito.kotlin.privmx_endpoint.model.ServerMessageInfo
 import com.simplito.kotlin.privmx_endpoint.model.Store
 import com.simplito.kotlin.privmx_endpoint.model.Thread
@@ -42,6 +45,9 @@ import com.simplito.kotlin.privmx_endpoint.model.events.ContextUserEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextUsersStatusChangedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxEntryDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEntryEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbStatsEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreFileDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreFileUpdatedEventData
