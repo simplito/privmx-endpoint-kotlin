@@ -36,6 +36,9 @@ internal actual fun PeerConnection.removeTrack(sender: RtpSender) {
     removeTrack(sender)
 }
 
+internal actual fun PeerConnection.createDataChannel(label: String, init: DataChannelInit): DataChannel =
+    createDataChannel(label, init)
+
 internal actual suspend fun PeerConnection.createOffer(): SessionDescription =
     suspendCancellableCoroutine { cont -> createOffer(SdpObserver(cont), MediaConstraints()) }!!
 

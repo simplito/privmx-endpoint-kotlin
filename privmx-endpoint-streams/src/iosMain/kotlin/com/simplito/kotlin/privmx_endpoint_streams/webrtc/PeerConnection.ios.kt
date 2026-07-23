@@ -6,6 +6,7 @@ import WebRTCFramework.RTCConfiguration
 import WebRTCFramework.RTCPeerConnection
 import WebRTCFramework.RTCPeerConnectionState
 import WebRTCFramework.statisticsWithCompletionHandler
+import WebRTCFramework.dataChannelForLabel
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -41,6 +42,10 @@ internal actual fun PeerConnection.addTrack(track: MediaStreamTrack): RtpSender 
 internal actual fun PeerConnection.removeTrack(sender: RtpSender) {
     removeTrack(sender)
 }
+
+internal actual fun PeerConnection.createDataChannel(label: String, init: DataChannelInit): DataChannel =
+    dataChannelForLabel(label, init)
+        ?: throw IllegalStateException("Failed to create data channel — session may be closed")
 
 internal actual suspend fun PeerConnection.createOffer(): SessionDescription =
     suspendCancellableCoroutine { cont ->

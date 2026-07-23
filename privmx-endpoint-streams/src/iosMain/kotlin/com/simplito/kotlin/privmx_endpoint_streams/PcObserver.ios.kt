@@ -24,13 +24,15 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride
 import platform.darwin.NSObject
 
-actual class PcObserver actual constructor(
+actual class PcObserver internal actual constructor(
     private val peerConnectionFactory: PeerConnectionFactory,
     private val keyStore: KeyStore,
-    private val trackObserver: TrackObserver?,
+    private val roomId: String,
+    private val dataChannelCryptoProvider: InternalDataChannelMessageCryptoProvider,
+    private val remoteStreamObserver: RemoteStreamObserver?,
     private val onIceCandidateCallback: (candidate: IceCandidate) -> Unit,
     private val onRenegotiationNeededCallback: () -> Unit,
-    private val onIceConnectionChangeCallback: (state: IceConnectionState) -> Unit
+    private val onIceConnectionChangeCallback: (state: IceConnectionState) -> Unit,
 ) : Observer, NSObject() {
     private val frameCryptorMap = mutableMapOf<String, PMXFrameCryptorTransformer>()
 
@@ -64,7 +66,7 @@ actual class PcObserver actual constructor(
             PMXAudioLevelAnalyzer()
         )
         val streamId = (streams.firstOrNull() as? RTCMediaStream)?.streamId
-        trackObserver?.onRemoteTrack(streamId, track)
+        remoteStreamObserver?.onTrack(streamId, track)
     }
 
     override fun peerConnection(
@@ -81,5 +83,7 @@ actual class PcObserver actual constructor(
 
     override fun peerConnection(peerConnection: RTCPeerConnection, didChangeIceGatheringState: RTCIceGatheringState) {}
     override fun peerConnection(peerConnection: RTCPeerConnection, didRemoveIceCandidates: List<*>) {}
-    override fun peerConnection(peerConnection: RTCPeerConnection, didOpenDataChannel: RTCDataChannel) {}
+    override fun peerConnection(peerConnection: RTCPeerConnection, didOpenDataChannel: RTCDataChannel) {
+        didOpenDataChannel.registerDataChannel(roomId,dataChannelCryptoProvider){ remoteStreamObserver }
+    }
 }

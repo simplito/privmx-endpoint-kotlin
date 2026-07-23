@@ -11,6 +11,7 @@ internal expect fun PeerConnection.applyIceServers(iceServers: List<IceServer>)
 internal expect fun PeerConnection.disposeConnection()
 internal expect fun PeerConnection.addTrack(track: MediaStreamTrack): RtpSender
 internal expect fun PeerConnection.removeTrack(sender: RtpSender)
+internal expect fun PeerConnection.createDataChannel(label: String, init: DataChannelInit): DataChannel
 internal expect suspend fun PeerConnection.createOffer(): SessionDescription
 internal expect suspend fun PeerConnection.createAnswer(): SessionDescription
 internal expect suspend fun PeerConnection.setLocalDescription(sdp: SessionDescription)

@@ -14,13 +14,15 @@ import com.simplito.kotlin.privmx_endpoint_streams.webrtc.Observer
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.PeerConnectionFactory
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.PmxFrameCryptorOptions
 
-actual class PcObserver actual constructor(
+actual class PcObserver internal actual constructor(
     private val peerConnectionFactory: PeerConnectionFactory,
     private val keyStore: KeyStore,
-    private val trackObserver: TrackObserver?,
+    private val roomId: String,
+    private val dataChannelCryptoProvider: InternalDataChannelMessageCryptoProvider,
+    private val remoteStreamObserver: RemoteStreamObserver?,
     private val onIceCandidateCallback: (candidate: IceCandidate) -> Unit,
     private val onRenegotiationNeededCallback: () -> Unit,
-    private val onIceConnectionChangeCallback: (state: IceConnectionState) -> Unit
+    private val onIceConnectionChangeCallback: (state: IceConnectionState) -> Unit,
 ) : Observer {
     private val frameCryptorMap = mutableMapOf<String, PmxFrameCryptor>()
 
@@ -42,7 +44,7 @@ actual class PcObserver actual constructor(
         frameCryptorMap[trackId] = PmxFrameCryptorFactory.createPmxFrameCryptorForRtpReceiver(
             peerConnectionFactory, receiver, keyStore, null
         )
-        trackObserver?.onRemoteTrack(mediaStreams.firstOrNull()?.id, track)
+        remoteStreamObserver?.onTrack(mediaStreams.firstOrNull()?.id, track)
     }
 
     override fun onRemoveTrack(receiver: RtpReceiver) {
@@ -61,5 +63,7 @@ actual class PcObserver actual constructor(
     override fun onIceCandidatesRemoved(p0: Array<out IceCandidate?>?) {}
     override fun onAddStream(p0: MediaStream?) {}
     override fun onRemoveStream(p0: MediaStream?) {}
-    override fun onDataChannel(p0: DataChannel?) {}
+    override fun onDataChannel(p0: DataChannel?) {
+        p0?.registerDataChannel(roomId,dataChannelCryptoProvider){ remoteStreamObserver }
+    }
 }
