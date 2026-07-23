@@ -1,20 +1,37 @@
 package com.simplito.kotlin.privmx_endpoint_streams
 
-import com.simplito.kotlin.privmx_endpoint_streams.webrtc.IceCandidate
-import com.simplito.kotlin.privmx_endpoint_streams.webrtc.IceConnectionState
-import com.simplito.kotlin.privmx_endpoint_streams.webrtc.KeyStore
-import com.simplito.kotlin.privmx_endpoint_streams.webrtc.Observer
-import com.simplito.kotlin.privmx_endpoint_streams.webrtc.PeerConnectionFactory
-import com.simplito.kotlin.privmx_endpoint_streams.webrtc.PmxFrameCryptorOptions
+import com.simplito.kotlin.privmx_endpoint_streams.webrtc.*
 
-expect class PcObserver(
+internal expect class PcObserver internal constructor(
     peerConnectionFactory: PeerConnectionFactory,
     keyStore: KeyStore,
-    trackObserver: TrackObserver?,
+    roomId: String,
+    dataChannelCryptoProvider: InternalDataChannelMessageCryptoProvider,
+    remoteStreamObserver: RemoteStreamObserver?,
     onIceCandidateCallback: (candidate: IceCandidate) -> Unit,
     onRenegotiationNeededCallback: () -> Unit = {},
-    onIceConnectionChangeCallback: (candidate: IceConnectionState) -> Unit = {}
-): Observer {
+    onIceConnectionChangeCallback: (candidate: IceConnectionState) -> Unit = {},
+) : Observer {
     fun setFrameCryptorOptions(options: PmxFrameCryptorOptions)
     fun dispose()
+}
+
+internal fun DataChannel.registerDataChannel(
+    roomId: String,
+    dataChannelCryptoProvider: InternalDataChannelMessageCryptoProvider,
+    getRemoteStreamObserver: () -> RemoteStreamObserver?
+) {
+    dataChannelCryptoProvider.registerDataChannel(roomId,label)
+    registerObserver(object : DataChannelObserver {
+        override fun onStateChange() {}
+
+        override fun onMessage(message: ByteArray) {
+            val message = dataChannelCryptoProvider.decryptMessage(roomId,label,message)
+            if(message.statusCode == 0L) {
+                getRemoteStreamObserver()?.onMessage(label, message.data)
+            }
+        }
+
+        override fun onBufferedAmountChange(bufferedAmount: Long) {}
+    })
 }

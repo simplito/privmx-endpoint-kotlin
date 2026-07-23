@@ -5,6 +5,8 @@ import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.kotlin.privmx_endpoint.model.stream.DataChannelMessage
+import com.simplito.kotlin.privmx_endpoint.model.stream.DecryptedDataChannelMessage
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
@@ -16,6 +18,7 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.modules.stream.StreamApiLow
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.AudioTrack
+import com.simplito.kotlin.privmx_endpoint_streams.webrtc.DataChannelClosedException
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.IceConnectionState
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.IceServer
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.MediaStreamTrack
@@ -52,7 +55,7 @@ class StreamApi(
      */
     var trackFactory: TrackFactory
         private set
-
+    private val dataChannelCryptoProvider = InternalDataChannelMessageCryptoProvider(api)
     init {
         if (!initialized) {
             initPeerConnectionFactory(apiInit)
@@ -364,7 +367,7 @@ class StreamApi(
     fun createStream(streamRoomId: String): StreamHandle {
         val session = resolveSession(streamRoomId)
 
-        runCatching { session.createPublisher() }
+        runCatching { session.createPublisher(dataChannelCryptoProvider) }
             .onFailure { throw IllegalStateException("Stream has already been created for this StreamRoom, try use updateStream.")}
 
         val handle = api.createStream(streamRoomId)
@@ -393,7 +396,7 @@ class StreamApi(
     }
 
     /**
-     * Registers a [TrackObserver] to receive callbacks when a remote media track becomes available.
+     * Registers a [RemoteStreamObserver] to receive callbacks when a remote media track becomes available.
      *
      * @param roomId   ID of the StreamRoom
      * @param observer observer implementation receiving track callbacks
@@ -401,12 +404,12 @@ class StreamApi(
      * @throws IllegalStateException thrown when there is no active session for the given room
      */
     @JvmOverloads
-    fun setTrackObserver(
+    fun setRemoteStreamObserver(
         roomId: String,
-        observer: TrackObserver,
+        observer: RemoteStreamObserver,
         streamId: String? = null
     ) {
-        resolveSession(roomId).setTrackObserver(streamId, observer)
+        resolveSession(roomId).setRemoteStreamObserver(streamId, observer)
     }
 
     /**
@@ -515,9 +518,8 @@ class StreamApi(
     )
     fun createSubscriberStream(streamRoomId: String, subscriptions: List<StreamSubscription>):SubscriberStreamHandle {
         val session = resolveSession(streamRoomId)
-        runCatching { session.createSubscriber() }
+        runCatching { session.createSubscriber(dataChannelCryptoProvider) }
             .onFailure { throw IllegalStateException("Subscriber stream has already been created for this StreamRoom, try use updateSubscriberStream.") }
-
         session.subscriber?.setRTCConfiguration(getRTCConfiguration())
 
         val handle =  api.createSubscriberStream(streamRoomId, subscriptions)
@@ -555,6 +557,47 @@ class StreamApi(
             subscriptionsToAdd,
             subscriptionsToRemove
         )
+    }
+
+    /**
+     * Creates a new data channel for sending messages.
+     * Before you start using the data channel, you have to call [publishStream] or [updateStream] to start opening process.
+     */
+    @Throws(IllegalStateException::class)
+    suspend fun createDataChannel(streamHandle: StreamHandle){
+        try {
+            resolvePublisher(streamHandle).openDataChannel()
+        }catch (e: IllegalStateException){
+            throw IllegalStateException("You have already created/opened data channel to this room.")
+        }
+    }
+
+    /**
+     * This method sends the message using an opened data channel for the streamHandle.
+     *
+     * When dataChanel:
+     * - Is not created, then this method throws [IllegalStateException]
+     * - Is not opened, then a message will be queued until the data channel is not opened.
+     * - Is closed, then this method throws [DataChannelClosedException]
+     *
+     * @param streamHandle streamHandle returned by [createStream] for which [createDataChannel] method was called
+     * @param byteArray message to send
+     *
+     * @throws IllegalStateException when a data channel is not created yet for the [streamHandle].
+     * @throws DataChannelClosedException when a data channel is closed for the [streamHandle].
+     */
+    @Throws(
+        DataChannelClosedException::class,
+        IllegalStateException::class
+    )
+    suspend fun sendMessage(streamHandle: StreamHandle, byteArray: ByteArray){
+        try {
+            resolvePublisher(streamHandle).sendMessage(byteArray)
+        }catch (e: IllegalStateException){
+            throw IllegalStateException("You not have any created data channel yet. Create it using createDataChannelMessage")
+        }catch (e: DataChannelClosedException){
+            throw DataChannelClosedException("Data channel is closed. Create new for send message.")
+        }
     }
 
     /**
@@ -653,3 +696,20 @@ expect fun StreamApi.joinStreamRoom(
 internal expect fun StreamApi.createDefaultPeerConnectionFactory(init: StreamApiInit): PeerConnectionFactory
 internal expect fun StreamApi.getRTCConfiguration(): List<IceServer>
 internal expect fun StreamApi.initPeerConnectionFactory(init: StreamApiInit)
+
+
+internal class InternalDataChannelMessageCryptoProvider(
+    private val streamApiLow: StreamApiLow
+){
+    fun registerDataChannel(streamRoomId: String, remoteStreamId: String){
+        streamApiLow.registerRemoteDataChannel(streamRoomId,remoteStreamId)
+    }
+
+    fun encryptMessage(streamRoomId: String, message: DataChannelMessage): ByteArray{
+        return streamApiLow.encryptDataChannelMessage(streamRoomId, message)
+    }
+
+    fun decryptMessage(streamRoomId: String,remoteStreamId: String, encryptedMessage: ByteArray): DecryptedDataChannelMessage{
+        return streamApiLow.decryptDataChannelMessage(streamRoomId,remoteStreamId,encryptedMessage)
+    }
+}

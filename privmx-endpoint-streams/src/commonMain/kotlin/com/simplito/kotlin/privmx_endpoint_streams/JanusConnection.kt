@@ -17,7 +17,9 @@ import kotlinx.coroutines.sync.Mutex
 internal open class JanusConnection(
     protected val peerConnectionFactory: PeerConnectionFactory,
     protected val keyStore: KeyStore,
-    trackObserver: TrackObserver?,
+    protected val roomId: String,
+    protected val dataChannelCryptoProvider: InternalDataChannelMessageCryptoProvider,
+    remoteStreamObserver: RemoteStreamObserver?,
     private val onTrickle: (Long, String) -> Unit,
     onConnectionChange: (IceConnectionState) -> Unit = {}
 ) : AutoCloseable {
@@ -26,7 +28,9 @@ internal open class JanusConnection(
     protected val pcObserver: PcObserver = PcObserver(
         peerConnectionFactory = peerConnectionFactory,
         keyStore = keyStore,
-        trackObserver = trackObserver,
+        roomId,
+        dataChannelCryptoProvider,
+        remoteStreamObserver = remoteStreamObserver,
         onIceCandidateCallback = { candidate ->
             //TODO: Uncomment when trickle working
 //            if (sessionId > -1) onTrickle(sessionId, candidate.toJson())

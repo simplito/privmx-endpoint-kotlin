@@ -15,7 +15,18 @@ import com.simplito.kotlin.privmx_endpoint_streams.webrtc.createKeyStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlin.ByteArray
+import kotlin.Long
+import kotlin.OptIn
+import kotlin.RuntimeException
+import kotlin.String
+import kotlin.Unit
+import kotlin.check
+import kotlin.collections.List
+import kotlin.collections.mutableMapOf
+import kotlin.collections.set
 import kotlin.coroutines.CoroutineContext
+import kotlin.let
 
 internal class RoomJanusSession(
     val roomId: String,
@@ -25,8 +36,8 @@ internal class RoomJanusSession(
 ) {
     internal val keyStore: KeyStore = createKeyStore()
 
-    private val trackObserversByStreamId = mutableMapOf<String?, TrackObserver>()
-    private val trackObserver: TrackObserver = TrackObserverImpl()
+    private val remoteStreamObserversByStreamId = mutableMapOf<String?, RemoteStreamObserver>()
+    private val remoteStreamObserver: RemoteStreamObserver = RemoteStreamObserverImpl()
     private var onConnectionChangeCallback: (IceConnectionState) -> Unit = {}
 
     private val context: CoroutineContext = Dispatchers.Default.limitedParallelism(1)
@@ -38,25 +49,25 @@ internal class RoomJanusSession(
 
     val webrtc: WebRTCInterface = WebRTCImpl()
 
-    fun createSubscriber(observer: TrackObserver = trackObserver) = runBlocking(context) {
+    fun createSubscriber(dataChannelCryptoProvider: InternalDataChannelMessageCryptoProvider, observer: RemoteStreamObserver = remoteStreamObserver) = runBlocking(context) {
         check(subscriber?.isEnded ?: true) { "Subscriber is currently active." }
         subscriber?.close()
-        subscriber = JanusSubscriber(pcFactory, keyStore, observer, onTrickle)
+        subscriber = JanusSubscriber(pcFactory, keyStore, roomId, dataChannelCryptoProvider, observer, onTrickle)
     }
 
-    fun createPublisher(observer: TrackObserver? = null) = runBlocking(context) {
+    fun createPublisher(dataChannelCryptoProvider: InternalDataChannelMessageCryptoProvider, observer: RemoteStreamObserver? = null) = runBlocking(context) {
         check(publisher?.isEnded ?: true) { "Publisher is currently active." }
         publisher?.close()
         publisher = JanusPublisher(
-            pcFactory, keyStore, observer, onTrickle,
+            pcFactory, keyStore, roomId, dataChannelCryptoProvider, observer, onTrickle,
             acceptOfferOnReconfigure, ::onConnectionChange
         )
     }
 
-    fun setTrackObserver(observer: TrackObserver) = setTrackObserver(null, observer)
+    fun setRemoteStreamObserver(observer: RemoteStreamObserver) = setRemoteStreamObserver(null, observer)
 
-    fun setTrackObserver(streamId: String?, observer: TrackObserver) = runBlocking(context) {
-        trackObserversByStreamId[streamId] = observer
+    fun setRemoteStreamObserver(streamId: String?, observer: RemoteStreamObserver) = runBlocking(context) {
+        remoteStreamObserversByStreamId[streamId] = observer
     }
 
     fun setOnConnectionChange(onConnectionChange: (IceConnectionState) -> Unit) =
@@ -94,7 +105,7 @@ internal class RoomJanusSession(
             streamRoomId: String,
             connectionType: String
         ): String =
-            runBlocking(context) {
+            runBlocking {
                 (publisher ?: throw RuntimeException("Create publisher first")).createOffer()
             }
 
@@ -103,7 +114,7 @@ internal class RoomJanusSession(
             sdp: String,
             type: String,
             connectionType: String
-        ): String = runBlocking(context) {
+        ): String = runBlocking {
             (subscriber ?: throw RuntimeException("Create subscriber first")).createAnswer(
                 sdp,
                 type
@@ -116,7 +127,7 @@ internal class RoomJanusSession(
             type: String,
             connectionType: String
         ) {
-            runBlocking(context) {
+            runBlocking {
                 (publisher ?: throw RuntimeException("Create publisher first")).setAnswer(sdp, type)
             }
         }
@@ -127,7 +138,7 @@ internal class RoomJanusSession(
             connectionType: String
         ) {
             if (sessionId == null) return
-            runBlocking(context) {
+            runBlocking {
                 when (connectionType) {
                     "subscriber" -> subscriber?.sessionId = sessionId
                     "publisher" -> publisher?.sessionId = sessionId
@@ -156,10 +167,15 @@ internal class RoomJanusSession(
         }
     }
 
-    private inner class TrackObserverImpl : TrackObserver {
-        override fun onRemoteTrack(streamId: String?, track: MediaStreamTrack) {
-            trackObserversByStreamId[streamId]?.onRemoteTrack(streamId, track)
-            trackObserversByStreamId[null]?.onRemoteTrack(streamId, track)
+    private inner class RemoteStreamObserverImpl : RemoteStreamObserver {
+        override fun onTrack(streamId: String?, track: MediaStreamTrack) {
+            remoteStreamObserversByStreamId[streamId]?.onTrack(streamId, track)
+            remoteStreamObserversByStreamId[null]?.onTrack(streamId, track)
+        }
+
+        override fun onMessage(streamId: String, message: ByteArray) {
+            remoteStreamObserversByStreamId[streamId]?.onMessage(streamId, message)
+            remoteStreamObserversByStreamId[null]?.onMessage(streamId, message)
         }
     }
 }
