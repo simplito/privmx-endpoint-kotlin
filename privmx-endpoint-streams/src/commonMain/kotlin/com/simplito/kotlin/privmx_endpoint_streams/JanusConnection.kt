@@ -10,8 +10,8 @@ import com.simplito.kotlin.privmx_endpoint_streams.webrtc.PmxFrameCryptorOptions
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.applyIceServers
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.createPeerConnection
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.disposeConnection
+import com.simplito.kotlin.privmx_endpoint_streams.webrtc.getStats
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.peerConnectionState
-import com.simplito.kotlin.privmx_endpoint_streams.webrtc.toJson
 import kotlinx.coroutines.sync.Mutex
 
 internal open class JanusConnection(
@@ -23,7 +23,6 @@ internal open class JanusConnection(
 ) : AutoCloseable {
 
     var sessionId: Long = -1L
-
     protected val pcObserver: PcObserver = PcObserver(
         peerConnectionFactory = peerConnectionFactory,
         keyStore = keyStore,
@@ -60,6 +59,8 @@ internal open class JanusConnection(
     }
 
     open fun onRenegotiationNeeded() {}
+
+    suspend fun getStats() = peerConnection.getStats()
 
     override fun close() {
         if (connectionState != PeerConnectionState.CLOSED) {

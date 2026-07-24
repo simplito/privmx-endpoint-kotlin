@@ -15,3 +15,4 @@ internal expect suspend fun PeerConnection.createOffer(): SessionDescription
 internal expect suspend fun PeerConnection.createAnswer(): SessionDescription
 internal expect suspend fun PeerConnection.setLocalDescription(sdp: SessionDescription)
 internal expect suspend fun PeerConnection.setRemoteDescription(sdp: SessionDescription)
+internal expect suspend fun PeerConnection.getStats(): StatisticsReport
