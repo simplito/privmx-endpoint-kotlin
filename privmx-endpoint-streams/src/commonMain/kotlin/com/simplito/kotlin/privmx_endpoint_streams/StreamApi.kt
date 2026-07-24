@@ -21,6 +21,7 @@ import com.simplito.kotlin.privmx_endpoint_streams.webrtc.IceServer
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.MediaStreamTrack
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.PeerConnectionFactory
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.PmxFrameCryptorOptions
+import com.simplito.kotlin.privmx_endpoint_streams.webrtc.StatisticsReport
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.VideoTrack
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.kind
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.trackId
@@ -321,6 +322,9 @@ class StreamApi(
         api.leaveStreamRoom(streamRoomId)
     }
 
+    suspend fun getSubscriberStats(streamRoomId: String): StatisticsReport? = pcManager.getSession(streamRoomId)?.subscriber?.getStats()
+
+    suspend fun getPublisherStats(streamRoomId: String): StatisticsReport? = pcManager.getSession(streamRoomId)?.publisher?.getStats()
     /**
      * Removes a media track from a stream.
      *

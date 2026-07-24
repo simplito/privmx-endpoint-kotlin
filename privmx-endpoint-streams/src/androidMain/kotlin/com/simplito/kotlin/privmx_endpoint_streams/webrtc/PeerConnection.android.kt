@@ -9,13 +9,13 @@ import kotlin.coroutines.resumeWithException
 
 actual typealias PeerConnection = org.webrtc.PeerConnection
 
-actual enum class PeerConnectionState(internal val platform:  org.webrtc.PeerConnection.PeerConnectionState) {
-    NEW( org.webrtc.PeerConnection.PeerConnectionState.NEW),
-    CONNECTING( org.webrtc.PeerConnection.PeerConnectionState.CONNECTING),
-    CONNECTED( org.webrtc.PeerConnection.PeerConnectionState.CONNECTED),
-    DISCONNECTED( org.webrtc.PeerConnection.PeerConnectionState.DISCONNECTED),
-    FAILED( org.webrtc.PeerConnection.PeerConnectionState.FAILED),
-    CLOSED( org.webrtc.PeerConnection.PeerConnectionState.CLOSED)
+actual enum class PeerConnectionState(internal val platform: org.webrtc.PeerConnection.PeerConnectionState) {
+    NEW(org.webrtc.PeerConnection.PeerConnectionState.NEW),
+    CONNECTING(org.webrtc.PeerConnection.PeerConnectionState.CONNECTING),
+    CONNECTED(org.webrtc.PeerConnection.PeerConnectionState.CONNECTED),
+    DISCONNECTED(org.webrtc.PeerConnection.PeerConnectionState.DISCONNECTED),
+    FAILED(org.webrtc.PeerConnection.PeerConnectionState.FAILED),
+    CLOSED(org.webrtc.PeerConnection.PeerConnectionState.CLOSED)
 }
 
 internal fun org.webrtc.PeerConnection.PeerConnectionState.toCommon(): PeerConnectionState =
@@ -67,4 +67,11 @@ private class SdpObserver(
     override fun onSetSuccess() = cont.resume(null)
     override fun onCreateFailure(s: String?) = cont.resumeWithException(RuntimeException(s))
     override fun onSetFailure(s: String?) = cont.resumeWithException(RuntimeException(s))
+}
+
+internal actual suspend fun PeerConnection.getStats(): StatisticsReport = suspendCancellableCoroutine { continuation ->
+    getStats{
+        if (it == null) continuation.resumeWithException(RuntimeException("Unknown exception during getting stats"))
+        else continuation.resume(it)
+    }
 }

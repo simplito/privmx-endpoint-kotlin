@@ -5,6 +5,7 @@ package com.simplito.kotlin.privmx_endpoint_streams.webrtc
 import WebRTCFramework.RTCConfiguration
 import WebRTCFramework.RTCPeerConnection
 import WebRTCFramework.RTCPeerConnectionState
+import WebRTCFramework.statisticsWithCompletionHandler
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -84,5 +85,12 @@ internal actual suspend fun PeerConnection.setRemoteDescription(sdp: SessionDesc
                 )
             )
         }
+    }
+}
+
+internal actual suspend fun PeerConnection.getStats(): StatisticsReport = suspendCancellableCoroutine { continuation ->
+    statisticsWithCompletionHandler {
+        if (it == null) continuation.resumeWithException(RuntimeException("Unknown exception during getting stats"))
+        else continuation.resume(it)
     }
 }
