@@ -65,6 +65,7 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscriber
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackInfo
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackModificationPair
 import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
 import com.simplito.kotlin.privmx_endpoint.model.stream.PublishedStreamData
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
@@ -522,6 +523,11 @@ internal fun PsonObject.toDecryptedDataChannelMessage(): DecryptedDataChannelMes
 internal fun PsonObject.toDataChannelMessage(): DataChannelMessage = DataChannelMessage(
     this["data"]!!.typedValue(),
     this["seq"]!!.typedValue()
+)
+
+internal fun PsonObject.toStreamTrackModificationPair(): StreamTrackModificationPair = StreamTrackModificationPair(
+    (this["before"] as PsonObject).toStreamTrackInfo(),
+    (this["after"] as PsonObject).toStreamTrackInfo(),
 )
 
 internal fun PsonObject.toStreamSubscription(): StreamSubscription = StreamSubscription(
