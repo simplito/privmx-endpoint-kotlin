@@ -597,14 +597,6 @@ internal fun PsonObject.toPublishedStream(): PublishedStreamData = PublishedStre
     this["userId"]!!.typedValue()
 )
 
-//internal fun PsonObject.toStreamInfo(): StreamInfo = StreamInfo(
-//    this["id"]!!.typedValue(),
-//    this["userId"]!!.typedValue(),
-//    this["metadata"]!!.typedValue(),
-//    this["dummy"]!!.typedValue(),
-//    this["userId"]!!.typedValue(),
-//    this["userId"]!!.typedValue(),
-//)
 
 internal fun PsonObject.toStreamPublishResult(): StreamPublishResult = StreamPublishResult(
     this["published"]!!.typedValue(),
