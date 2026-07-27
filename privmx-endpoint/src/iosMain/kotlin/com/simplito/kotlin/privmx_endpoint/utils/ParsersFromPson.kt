@@ -59,6 +59,7 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.DataChannelMessage
 import com.simplito.kotlin.privmx_endpoint.model.stream.DecryptedDataChannelMessage
 import com.simplito.kotlin.privmx_endpoint.model.stream.PublishedStreamData
 import com.simplito.kotlin.privmx_endpoint.model.stream.RecordingEncKey
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
@@ -66,6 +67,7 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscriber
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackModificationPair
+import com.simplito.kotlin.privmx_endpoint.model.stream.SubscriberStreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamPublishedEventData
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamRoomDeletedEventData
@@ -589,7 +591,8 @@ internal fun PsonObject.toStreamSubscriber(): StreamSubscriber = StreamSubscribe
 )
 
 
-internal fun PsonValue.PsonLong.toHandle(): Handle = this.typedValue()
+internal fun PsonValue.PsonLong.toStreamHandle(): StreamHandle = this.typedValue()
+internal fun PsonValue.PsonLong.toSubscriberStreamHandle(): SubscriberStreamHandle = this.typedValue()
 
 internal fun PsonObject.toPublishedStream(): PublishedStreamData = PublishedStreamData(
     this["streamRoomId"]!!.typedValue(),

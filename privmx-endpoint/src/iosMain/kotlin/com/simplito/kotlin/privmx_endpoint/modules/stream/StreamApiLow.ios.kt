@@ -28,10 +28,12 @@ import com.simplito.kotlin.privmx_endpoint.utils.mapOfWithNulls
 import com.simplito.kotlin.privmx_endpoint.utils.pson
 import com.simplito.kotlin.privmx_endpoint.utils.toHandle
 import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
+import com.simplito.kotlin.privmx_endpoint.utils.toStreamHandle
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamInfo
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamPublishResult
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamRoom
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamSubscriber
+import com.simplito.kotlin.privmx_endpoint.utils.toSubscriberStreamHandle
 import com.simplito.kotlin.privmx_endpoint.utils.typedList
 import com.simplito.kotlin.privmx_endpoint.utils.typedValue
 import kotlinx.cinterop.*
@@ -383,7 +385,7 @@ actual constructor(
         val args = makeArgs(streamRoomId.pson)
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 13, args, pson_result.ptr)
-            (pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonLong).toHandle()
+            (pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonLong).toStreamHandle()
         } finally {
             pson_free_result(pson_result.value)
             pson_free_value(args)
@@ -481,7 +483,7 @@ actual constructor(
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 16, args, pson_result.ptr)
             val psonObject = pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonLong
-            psonObject.toHandle()
+            psonObject.toSubscriberStreamHandle()
         } finally {
             pson_free_result(pson_result.value)
             pson_free_value(args)
