@@ -26,7 +26,7 @@ import com.simplito.kotlin.privmx_endpoint.utils.asResponse
 import com.simplito.kotlin.privmx_endpoint.utils.makeArgs
 import com.simplito.kotlin.privmx_endpoint.utils.mapOfWithNulls
 import com.simplito.kotlin.privmx_endpoint.utils.pson
-import com.simplito.kotlin.privmx_endpoint.utils.toHandle
+import com.simplito.kotlin.privmx_endpoint.utils.toDecryptedDataChannelMessage
 import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamHandle
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamInfo
@@ -709,7 +709,8 @@ actual constructor(
         val args = makeArgs(streamRoomId.pson, remoteStreamId.pson, encryptedData.pson)
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 29, args, pson_result.ptr)
-            pson_result.value?.asResponse?.getResultOrThrow()?.typedValue()!!
+            val psonObject = pson_result.value?.asResponse?.getResultOrThrow() as? PsonValue.PsonObject
+            psonObject?.toDecryptedDataChannelMessage()!!
         } finally {
             pson_free_result(pson_result.value)
             pson_free_value(args)
