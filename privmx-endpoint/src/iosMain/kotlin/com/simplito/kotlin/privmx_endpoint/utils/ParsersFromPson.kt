@@ -57,7 +57,7 @@ import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEven
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
 import com.simplito.kotlin.privmx_endpoint.model.stream.DataChannelMessage
 import com.simplito.kotlin.privmx_endpoint.model.stream.DecryptedDataChannelMessage
-import com.simplito.kotlin.privmx_endpoint.model.stream.Handle
+import com.simplito.kotlin.privmx_endpoint.model.stream.PublishedStreamData
 import com.simplito.kotlin.privmx_endpoint.model.stream.RecordingEncKey
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
@@ -67,7 +67,12 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackModificationPair
 import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
-import com.simplito.kotlin.privmx_endpoint.model.stream.PublishedStreamData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamPublishedEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamRoomDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamRoomParticipantEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamSubscriptionEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamUnpublishedEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamUpdatedEventData
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue.PsonObject
 
@@ -364,6 +369,41 @@ internal fun PsonObject.toKvdbDeletedEntryEventData() = KvdbDeletedEntryEventDat
 
 )
 
+internal fun PsonObject.toStreamRoomDeletedEventData() = StreamRoomDeletedEventData(
+    this["streamRoomId"]!!.typedValue()
+)
+
+internal fun PsonObject.toStreamPublishedEventData() = StreamPublishedEventData(
+    this["streamRoomId"]!!.typedValue(),
+    (this["stream"] as PsonObject).toStreamInfo(),
+    this["userId"]!!.typedValue()
+)
+
+internal fun PsonObject.toStreamUpdatedEventData() = StreamUpdatedEventData(
+    this["streamRoomId"]!!.typedValue(),
+    this["streamId"]!!.typedValue(),
+    this["userId"]!!.typedValue(),
+    this["tracksAdded"]!!.typedList().map { (it as PsonObject).toStreamTrackInfo() },
+    this["tracksRemoved"]!!.typedList().map { (it as PsonObject).toStreamTrackInfo() },
+    this["tracksModified"]!!.typedList().map { (it as PsonObject).toStreamTrackModificationPair() }
+)
+
+internal fun PsonObject.toStreamRoomParticipantEventData() = StreamRoomParticipantEventData(
+    this["streamRoomId"]!!.typedValue(),
+    this["userId"]!!.typedValue()
+)
+
+internal fun PsonObject.toStreamUnpublishedEventData() = StreamUnpublishedEventData(
+    this["streamRoomId"]!!.typedValue(),
+    this["streamId"]!!.typedValue()
+)
+
+internal fun PsonObject.toStreamSubscriptionEventData() = StreamSubscriptionEventData(
+    this["streamRoomId"]!!.typedValue(),
+    this["userId"]!!.typedValue(),
+    this["subscriptions"]!!.typedList().map { (it as PsonObject).toStreamSubscription() }
+)
+
 private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "thread\$Thread" to PsonObject::toThread,
     "thread\$Thread" to PsonObject::toThread,
@@ -394,6 +434,13 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "kvdb\$KvdbStatsEventData" to PsonObject::toKvdbStatsEventData,
     "kvdb\$KvdbEntry" to PsonObject::toKvdbEntry,
     "kvdb\$KvdbDeletedEntryEventData" to PsonObject::toKvdbDeletedEntryEventData,
+    "stream\$StreamRoom" to PsonObject::toStreamRoom,
+    "stream\$StreamRoomDeletedEventData" to PsonObject::toStreamRoomDeletedEventData,
+    "stream\$StreamPublishedEventData" to PsonObject::toStreamPublishedEventData,
+    "stream\$StreamUpdatedEventData" to PsonObject::toStreamUpdatedEventData,
+    "stream\$StreamRoomParticipantEventData" to PsonObject::toStreamRoomParticipantEventData,
+    "stream\$StreamUnpublishedEventData" to PsonObject::toStreamUnpublishedEventData,
+    "stream\$StreamSubscriptionEventData" to PsonObject::toStreamSubscriptionEventData,
 )
 
 
