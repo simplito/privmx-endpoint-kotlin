@@ -811,17 +811,6 @@ privmx::endpoint::core::PagingQuery parsePagingQuery(
 
 
 // streams
-
-privmx::endpoint::stream::StreamHandle parseStreamHandle(
-        JniContextUtils &ctx,
-        jobject streamHandle
-) {
-    jclass streamHandleCls = ctx->GetObjectClass(streamHandle);
-    jfieldID valueFID = ctx->GetFieldID(streamHandleCls, "value", "J");
-
-    return ctx->GetLongField(streamHandle, valueFID);
-}
-
 privmx::endpoint::stream::StreamSubscription parseStreamSubscription(JniContextUtils &ctx, jobject streamSubscription) {
     privmx::endpoint::stream::StreamSubscription result;
     jclass cls = ctx->GetObjectClass(streamSubscription);

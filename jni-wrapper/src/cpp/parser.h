@@ -38,10 +38,6 @@ privmx::endpoint::core::ItemPolicy parseItemPolicy(JniContextUtils &ctx, jobject
 privmx::endpoint::inbox::FilesConfig parseFilesConfig(JniContextUtils &ctx, jobject filesConfig);
 
 // streams
-privmx::endpoint::stream::StreamHandle parseStreamHandle(JniContextUtils &ctx, jobject streamHandle);
-
-privmx::endpoint::stream::Settings parseSettings(JniContextUtils &ctx, jobject settings);
-
 privmx::endpoint::stream::StreamSubscription parseStreamSubscription(JniContextUtils &ctx, jobject streamSubscription);
 
 privmx::endpoint::stream::SdpWithTypeModel parseSdpWithTypeModel(JniContextUtils &ctx, jobject sdpWithTypeModel);
