@@ -354,7 +354,7 @@ class StreamApi(
         val session = resolveSession(streamRoomId)
 
         runCatching { session.createPublisher() }
-            .onFailure { throw IllegalStateException("Publisher is now active, try use updateStream") }  // Stream has already been created for this StreamRoom, try use updateStream
+            .onFailure { throw IllegalStateException("Stream has already been created for this StreamRoom, try use updateStream.")}
 
         val handle = api.createStream(streamRoomId)
         pcManager.createHandleToRoom(handle, streamRoomId)
@@ -414,11 +414,13 @@ class StreamApi(
     fun removeSubscriberStream(
         subscriptionHandle: SubscriberStreamHandle
     ) {
-        val session = this.resolveSession(subscriptionHandle)
-        session.subscriber?.setRTCConfiguration(getRTCConfiguration())
-            ?: throw IllegalStateException("No active subscription to unsubscribe from. Call createSubscriberStream first.")
+        val session = resolveSession(subscriptionHandle)
+        if (session.subscriber == null)
+            throw IllegalStateException("No active subscriber stream to remove.")
 
+        session.subscriber?.setRTCConfiguration(getRTCConfiguration())
         api.removeSubscriberStream(subscriptionHandle)
+        session.unsubscribe()
         pcManager.closeHandleToRoom(subscriptionHandle)
     }
 
@@ -457,7 +459,7 @@ class StreamApi(
     fun removeStream(streamHandle: StreamHandle) {
         val session = resolveSession(streamHandle)
         if (session.publisher == null)
-            throw IllegalStateException("No stream to unpublish. Call createStream and publishStream first.")
+            throw IllegalStateException("No active stream to remove.")
 
         api.removeStream(streamHandle)
         session.unpublish()
@@ -601,11 +603,12 @@ class StreamApi(
 
     private fun resolveSession(roomId: String): RoomJanusSession =
         pcManager.getSession(roomId)
-            ?: throw IllegalStateException("Session to this room does not exist. Call joinStreamRoom first.")
+            ?: throw IllegalStateException("No active session for this room. Call joinStreamRoom first.")
 
     private fun resolveSession(handle: StreamHandle): RoomJanusSession =
         pcManager.getSession(handle)
-            ?: throw IllegalStateException("Session to this room does not exist. Call joinStreamRoom first.")
+            ?: throw IllegalStateException("This handle isn't registered to any session yet. Call createStream first.")
+
     private fun resolveSession(handle: SubscriberStreamHandle): RoomJanusSession =
         pcManager.getSession(handle)
             ?: throw IllegalStateException("This handle isn't registered to any session yet. Call createSubscriberStream first.")
