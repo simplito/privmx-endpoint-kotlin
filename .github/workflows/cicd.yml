@@ -87,7 +87,7 @@ jobs:
 
 
   build-jni-darwin:
-    timeout-minutes: 15
+    timeout-minutes: 30
     runs-on: macos-latest
 
     steps:
