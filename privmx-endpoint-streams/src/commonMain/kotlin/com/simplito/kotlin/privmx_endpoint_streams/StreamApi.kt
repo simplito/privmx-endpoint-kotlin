@@ -401,8 +401,7 @@ class StreamApi(
     /**
      * Unsubscribes from selected remote streams in a StreamRoom.
      *
-     * @param streamRoomId          ID of the StreamRoom
-     * @param subscriptionsToRemove list of [StreamSubscription] to remove
+     * @param subscriptionHandle     // todo
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when there is no active subscription to unsubscribe from
