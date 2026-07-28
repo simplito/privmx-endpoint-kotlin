@@ -506,8 +506,9 @@ class StreamApi(
     fun createSubscriberStream(streamRoomId: String, subscriptions: List<StreamSubscription>):SubscriberStreamHandle {
         val session = resolveSession(streamRoomId)
         runCatching { session.createSubscriber() }
+            .onFailure { throw IllegalStateException("Subscriber stream has already been created for this StreamRoom, try use updateSubscriberStream.") }
+
         session.subscriber?.setRTCConfiguration(getRTCConfiguration())
-            ?: throw IllegalStateException("No active subscription to modify. Call createSubscriberStream first.")
 
         val handle =  api.createSubscriberStream(streamRoomId, subscriptions)
         pcManager.createHandleToRoom(handle, streamRoomId)
