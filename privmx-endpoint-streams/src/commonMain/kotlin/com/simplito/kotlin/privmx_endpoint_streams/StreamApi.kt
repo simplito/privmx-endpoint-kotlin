@@ -419,6 +419,7 @@ class StreamApi(
             ?: throw IllegalStateException("No active subscription to unsubscribe from. Call createSubscriberStream first.")
 
         api.removeSubscriberStream(subscriptionHandle)
+        pcManager.closeHandleToRoom(subscriptionHandle)
     }
 
     /**
@@ -506,7 +507,9 @@ class StreamApi(
         session.subscriber?.setRTCConfiguration(getRTCConfiguration())
             ?: throw IllegalStateException("No active subscription to modify. Call createSubscriberStream first.")
 
-       return api.createSubscriberStream(streamRoomId, subscriptions)
+        val handle =  api.createSubscriberStream(streamRoomId, subscriptions)
+        pcManager.createHandleToRoom(handle, streamRoomId)
+        return handle
     }
 
 
@@ -603,6 +606,9 @@ class StreamApi(
     private fun resolveSession(handle: StreamHandle): RoomJanusSession =
         pcManager.getSession(handle)
             ?: throw IllegalStateException("Session to this room does not exist. Call joinStreamRoom first.")
+    private fun resolveSession(handle: SubscriberStreamHandle): RoomJanusSession =
+        pcManager.getSession(handle)
+            ?: throw IllegalStateException("This handle isn't registered to any session yet. Call createSubscriberStream first.")
 
     private fun resolvePublisher(streamHandle: StreamHandle): JanusPublisher {
         val session = pcManager.getSession(streamHandle)
