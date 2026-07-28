@@ -418,7 +418,6 @@ class StreamApi(
         if (session.subscriber == null)
             throw IllegalStateException("No active subscriber stream to remove.")
 
-        session.subscriber?.setRTCConfiguration(getRTCConfiguration())
         api.removeSubscriberStream(subscriptionHandle)
         session.unsubscribe()
         pcManager.closeHandleToRoom(subscriptionHandle)
