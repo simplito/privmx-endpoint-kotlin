@@ -355,7 +355,7 @@ class StreamApi(
             ?: throw IllegalStateException("Session to this room does not exist. Call joinStreamRoom first.")
 
         runCatching { session.createPublisher() }
-            .onFailure { throw IllegalStateException("Publisher is now active, try use modifyRemoteStreamsSubscriptions") }  // Stream has already been created for this StreamRoom, try use modifyRemoteStreamsSubscriptions
+            .onFailure { throw IllegalStateException("Publisher is now active, try use updateStream") }  // Stream has already been created for this StreamRoom, try use updateStream
 
         val handle = api.createStream(streamRoomId)
         pcManager.createHandleToRoom(handle, streamRoomId)
@@ -418,7 +418,7 @@ class StreamApi(
     ) {
         val session = this.resolveSession(subscriptionHandle)
         session.subscriber?.setRTCConfiguration(getRTCConfiguration())
-            ?: throw IllegalStateException("No active subscription to unsubscribe from. Call subscribeToRemoteStreams first.")
+            ?: throw IllegalStateException("No active subscription to unsubscribe from. Call createSubscriberStream first.")
 
         api.removeSubscriberStream(subscriptionHandle)
     }
@@ -506,7 +506,7 @@ class StreamApi(
         val session = resolveSession(streamRoomId)
         runCatching { session.createSubscriber() }
         session.subscriber?.setRTCConfiguration(getRTCConfiguration())
-            ?: throw IllegalStateException("No active subscription to modify. Call subscribeToRemoteStreams first.")
+            ?: throw IllegalStateException("No active subscription to modify. Call createSubscriberStream first.")
 
        return api.createSubscriberStream(streamRoomId, subscriptions)
     }
@@ -534,7 +534,7 @@ class StreamApi(
     ) {
         val session = resolveSession(subscriberStreamHandle)
         session.subscriber?.setRTCConfiguration(getRTCConfiguration())
-            ?: throw IllegalStateException("No active subscription to modify. Call subscribeToRemoteStreams first.")
+            ?: throw IllegalStateException("No active subscription to modify. Call createSubscriberStream first.")
 
         api.updateSubscriberStream(
             subscriberStreamHandle,
