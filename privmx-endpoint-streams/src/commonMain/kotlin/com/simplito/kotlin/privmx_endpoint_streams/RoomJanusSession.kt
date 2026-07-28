@@ -78,6 +78,15 @@ internal class RoomJanusSession(
         }
     }
 
+    fun unsubscribe() = runBlocking(context) {
+        subscriber?.let {
+            if (!it.isEnded) {
+                it.close()
+                subscriber = null
+            }
+        }
+    }
+
     private fun onConnectionChange(state: IceConnectionState) = onConnectionChangeCallback(state)
 
     private inner class WebRTCImpl : WebRTCInterface {
