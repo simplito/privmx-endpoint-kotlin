@@ -351,8 +351,7 @@ class StreamApi(
         IllegalStateException::class
     )
     fun createStream(streamRoomId: String): StreamHandle {
-        val session = pcManager.getSession(streamRoomId)
-            ?: throw IllegalStateException("Session to this room does not exist. Call joinStreamRoom first.")
+        val session = resolveSession(streamRoomId)
 
         runCatching { session.createPublisher() }
             .onFailure { throw IllegalStateException("Publisher is now active, try use updateStream") }  // Stream has already been created for this StreamRoom, try use updateStream
@@ -582,7 +581,7 @@ class StreamApi(
         IllegalStateException::class
     )
     fun dropBrokenFrames(streamRoomId: String, enable: Boolean) {
-        pcManager.getSession(streamRoomId)?.setFrameCryptorOptions(
+        resolveSession(streamRoomId).setFrameCryptorOptions(
             PmxFrameCryptorOptions(enable)
         )
     }
