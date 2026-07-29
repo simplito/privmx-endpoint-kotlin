@@ -194,10 +194,6 @@ namespace privmx {
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::Stream stream_c
         );
-        jobject streamHandle2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::StreamHandle streamHandle_c
-        );
 
         jobject streamTrackInfo2Java(
                 JniContextUtils &ctx,
@@ -233,11 +229,6 @@ namespace privmx {
                 privmx::endpoint::stream::Key key_c
         );
 
-        jobject streamRoom2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::StreamRoom streamRoom_c
-        );
-
         jobject turnCredentials2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::TurnCredentials turnCredentials_c
@@ -253,19 +244,19 @@ namespace privmx {
                 endpoint::stream::StreamTrackModificationPair streamTrackModificationPair
         );
 
-        jobject streamTrackModification2Java(
+        jobject streamSubscription2Java(
                 JniContextUtils &ctx,
-                endpoint::stream::StreamTrackModification streamTrackModification
+                privmx::endpoint::stream::StreamSubscription streamSubscription
+        );
+
+        jobject streamSubscriber2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::stream::StreamSubscriber streamSubscriber
         );
 
         jobject streamUpdatedEventData2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::StreamUpdatedEventData data
-        );
-
-        jobject updatedStreamData2Java(
-                JniContextUtils &ctx,
-                endpoint::stream::UpdatedStreamData updatedStreamData
         );
 
         jobject streamRoomDeletedEventData2Java(
@@ -278,30 +269,19 @@ namespace privmx {
                 privmx::endpoint::stream::StreamPublishedEventData data
         );
 
-        jobject streamEventData2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::StreamEventData data
-        );
-
-        jobject
-        streamLeftEventData2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::StreamLeftEventData data
-        );
-
         jobject streamUnpublishedEventData2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::StreamUnpublishedEventData data
         );
 
-        jobject newStreams2Java(
+        jobject streamRoomParticipantEventData2Java(
                 JniContextUtils &ctx,
-                privmx::endpoint::stream::NewStreams data
+                privmx::endpoint::stream::StreamRoomParticipantEventData data
         );
 
-        jobject streamsUpdated2Java(
+        jobject streamSubscriptionEventData2Java(
                 JniContextUtils &ctx,
-                privmx::endpoint::stream::StreamsUpdatedData data
+                privmx::endpoint::stream::StreamSubscriptionEventData data
         );
 
         jobject

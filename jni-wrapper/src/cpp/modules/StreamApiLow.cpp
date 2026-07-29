@@ -309,7 +309,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_deleteStre
 }
 
 extern "C"
-JNIEXPORT jobject JNICALL
+JNIEXPORT jlong JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStream(
         JNIEnv *env,
         jobject thiz,
@@ -319,18 +319,14 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
     if (ctx.nullCheck(stream_room_id, "Stream room ID"))
         return {};
 
-    jobject result;
-    ctx.callResultEndpointApi<jobject>(&result, [&ctx, &thiz, &stream_room_id] {
-
-        return ctx.long2jLong(
-                getStreamApi(ctx, thiz)->createStream(
-                        ctx.jString2string(stream_room_id)
-                )
+    jlong result;
+    ctx.callResultEndpointApi<jlong>(&result, [&ctx, &thiz, &stream_room_id] {
+        return (jlong) getStreamApi(ctx, thiz)->createStream(
+                ctx.jString2string(stream_room_id)
         );
-
     });
     if (ctx->ExceptionCheck()) {
-        return nullptr;
+        return {};
     }
     return result;
 }
@@ -340,18 +336,16 @@ JNIEXPORT jobject JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_publishStream(
         JNIEnv *env,
         jobject thiz,
-        jobject stream_handle
+        jlong stream_handle
 ) {
     JniContextUtils ctx(env);
-    if (ctx.nullCheck(stream_handle, "Stream Handle"))
-        return {};
 
     jobject result;
     ctx.callResultEndpointApi<jobject>(&result, [&ctx, &thiz, &stream_handle] {
-
         auto result = getStreamApi(ctx, thiz)->publishStream(
-                ctx.getObject(stream_handle).getLongValue()
+                stream_handle
         );
+
         return privmx::wrapper::streamPublishResult2Java(
                 ctx,
                 result
@@ -421,20 +415,50 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_listStream
 }
 
 extern "C"
-JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_unpublishStream(
+JNIEXPORT jobject JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_listStreamRoomParticipants(
         JNIEnv *env,
         jobject thiz,
-        jobject stream_handle
+        jstring stream_room_id
 ) {
     JniContextUtils ctx(env);
-    if (ctx.nullCheck(stream_handle, "Stream Handle")) {
-        return;
+    if (ctx.nullCheck(stream_room_id, "Stream room ID")) {
+        return nullptr;
     }
 
+    jobject result;
+    ctx.callResultEndpointApi<jobject>(&result, [&ctx, &thiz, &stream_room_id] {
+        auto stream_infos_c = getStreamApi(ctx, thiz)->listStreamRoomParticipants(
+                ctx.jString2string(stream_room_id)
+        );
+
+        jobject array = vectorTojArray(
+                ctx,
+                stream_infos_c,
+                privmx::wrapper::streamSubscriber2Java
+        );
+
+        return array;
+    });
+
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
+    }
+    return result;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_removeStream(
+        JNIEnv *env,
+        jobject thiz,
+        jlong stream_handle
+) {
+    JniContextUtils ctx(env);
+
     ctx.callVoidEndpointApi([&ctx, &thiz, &stream_handle]() {
-        getStreamApi(ctx, thiz)->unpublishStream(
-                ctx.getObject(stream_handle).getLongValue()
+        getStreamApi(ctx, thiz)->removeStream(
+                stream_handle
         );
     });
 }
@@ -600,53 +624,38 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_trickle(
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_unsubscribeFromRemoteStreams(
+Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_removeSubscriberStream(
         JNIEnv *env,
         jobject thiz,
-        jstring stream_room_id,
-        jobject subscriptions_to_remove
+        jlong subscription_handle
 ) {
     JniContextUtils ctx(env);
-    if (ctx.nullCheck(stream_room_id, "Stream Room ID") ||
-        ctx.nullCheck(subscriptions_to_remove, "Subscriptions to remove")) {
-        return;
-    }
 
-    ctx.callVoidEndpointApi([&ctx, &thiz, &stream_room_id, &subscriptions_to_remove]() {
-        auto subscriptions_to_remove_arr = ctx.jObject2jArray(subscriptions_to_remove);
-        auto subscriptions_to_remove_c = jArrayToVector<StreamSubscription>(
-                ctx,
-                subscriptions_to_remove_arr,
-                parseStreamSubscription,
-                false
-        );
-
-        getStreamApi(ctx, thiz)->unsubscribeFromRemoteStreams(
-                ctx.jString2string(stream_room_id),
-                subscriptions_to_remove_c
+    ctx.callVoidEndpointApi([&ctx, &thiz, &subscription_handle]() {
+        getStreamApi(ctx, thiz)->removeSubscriberStream(
+                subscription_handle
         );
     });
 }
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_modifyRemoteStreamsSubscriptions(
+Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_updateSubscriberStream(
         JNIEnv *env,
         jobject thiz,
-        jstring stream_room_id,
+        jlong subscription_handle,
         jobject subscriptions_to_add,
         jobject subscriptions_to_remove
 ) {
     JniContextUtils ctx(env);
-    if (ctx.nullCheck(stream_room_id, "Stream Room ID") ||
-        ctx.nullCheck(subscriptions_to_add, "Subscriptions to add") ||
-        ctx.nullCheck(subscriptions_to_add, "Subscriptions to remove")) {
+    if (ctx.nullCheck(subscriptions_to_add, "Subscriptions to add") ||
+            ctx.nullCheck(subscriptions_to_remove, "Subscriptions to remove")) {
         return;
     }
 
     ctx.callVoidEndpointApi(
-            [&ctx, &thiz, &stream_room_id, &subscriptions_to_add, &subscriptions_to_remove]() {
-                auto subscriptions_to_add_arr = ctx.jObject2jArray(subscriptions_to_remove);
+            [&ctx, &thiz, &subscription_handle, &subscriptions_to_add, &subscriptions_to_remove]() {
+                auto subscriptions_to_add_arr = ctx.jObject2jArray(subscriptions_to_add);
                 auto subscriptions_to_remove_arr = ctx.jObject2jArray(subscriptions_to_remove);
 
                 auto subscriptions_to_add_c = jArrayToVector<StreamSubscription>(
@@ -662,8 +671,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_modifyRemo
                         false
                 );
 
-                getStreamApi(ctx, thiz)->modifyRemoteStreamsSubscriptions(
-                        ctx.jString2string(stream_room_id),
+                getStreamApi(ctx, thiz)->updateSubscriberStream(
+                        subscription_handle,
                         subscriptions_to_add_c,
                         subscriptions_to_remove_c
                 );
@@ -671,58 +680,61 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_modifyRemo
 }
 
 extern "C"
-JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_subscribeToRemoteStreams(
+JNIEXPORT jlong JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createSubscriberStream(
         JNIEnv *env,
         jobject thiz,
         jstring stream_room_id,
         jobject subscriptions
-        ) {
+) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(stream_room_id, "Stream Room ID") ||
-        ctx.nullCheck(subscriptions, "Subscriptions")) {
-        return;
+            ctx.nullCheck(subscriptions, "Subscriptions")) {
+        return {};
     }
-    ctx.callVoidEndpointApi([&ctx, &thiz, &stream_room_id, &subscriptions]() {
-        auto subscriptions_arr = ctx.jObject2jArray(subscriptions);
-        auto subscriptions_c = jArrayToVector<StreamSubscription>(
-                ctx,
-                subscriptions_arr,
-                parseStreamSubscription,
-                false
-        );
 
-        getStreamApi(ctx, thiz)->subscribeToRemoteStreams(
-                ctx.jString2string(stream_room_id),
-                subscriptions_c
-        );
-    });
+    jlong result;
+
+    ctx.callResultEndpointApi<jlong>(
+            &result, [&ctx, &thiz, &stream_room_id, &subscriptions]() {
+                auto subscriptions_arr = ctx.jObject2jArray(subscriptions);
+                auto subscriptions_c = jArrayToVector<StreamSubscription>(
+                        ctx,
+                        subscriptions_arr,
+                        parseStreamSubscription,
+                        false
+                );
+
+                return getStreamApi(ctx, thiz)->createSubscriberStream(
+                        ctx.jString2string(stream_room_id),
+                        subscriptions_c
+                );
+            });
+    if (ctx->ExceptionCheck()) {
+        return {};
+    }
+    return result;
 }
+
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_updateStream(
         JNIEnv *env,
         jobject thiz,
-        jobject stream_handle
+        jlong stream_handle
 ) {
     JniContextUtils ctx(env);
-    if (ctx.nullCheck(stream_handle, "Stream Handle")) {
-        return nullptr;
-    }
 
     jobject result;
 
     ctx.callResultEndpointApi<jobject>(
             &result, [
                     &ctx,
-                    &env,
                     &thiz,
                     &stream_handle
             ] {
-
-                auto stream_handle_c = parseStreamHandle(ctx, stream_handle);
                 auto stream_result = getStreamApi(ctx, thiz)->updateStream(
-                        stream_handle_c
+                        stream_handle
                 );
 
                 return privmx::wrapper::streamPublishResult2Java(

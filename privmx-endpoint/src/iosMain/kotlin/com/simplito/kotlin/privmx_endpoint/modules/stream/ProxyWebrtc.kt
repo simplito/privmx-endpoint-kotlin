@@ -43,17 +43,30 @@ private fun WebRTCInterface.toCWebRtcPointer(): CValue<libprivmxendpoint.privmx_
 //    memScoped {
     cValue {
         ctx = StableRef.create(this@toCWebRtcPointer).asCPointer()
-        closeCallback = staticCFunction { ctx, streamRoomId ->
+
+        closeCallback = staticCFunction { ctx, streamRoomId, connectionType ->
             val webRtcInterfaceRef = ctx.webrtc
             val webRtcInterface = webRtcInterfaceRef.get()
-            webRtcInterface.close(streamRoomId!!.toKStringFromUtf8())
+            webRtcInterface.close(
+                streamRoomId!!.toKStringFromUtf8(),
+                connectionType!!.toKStringFromUtf8()
+            )
             webRtcInterfaceRef.dispose()
         }
-        createOfferAndSetLocalDescriptionCallback = staticCFunction { ctx, streamRoomId ->
+
+        closeAllCallback = staticCFunction { ctx, streamRoomId ->
+            val webRtcInterfaceRef = ctx.webrtc
+            val webRtcInterface = webRtcInterfaceRef.get()
+            webRtcInterface.closeAll(streamRoomId!!.toKStringFromUtf8())
+            webRtcInterfaceRef.dispose()
+        }
+
+        createOfferAndSetLocalDescriptionCallback = staticCFunction { ctx, streamRoomId, connectionType ->
             val webRtcInterface = ctx.webrtc.get()
             return@staticCFunction try {
                 webRtcInterface.createOfferAndSetLocalDescription(
-                    streamRoomId!!.toKStringFromUtf8()
+                    streamRoomId!!.toKStringFromUtf8(),
+                    connectionType!!.toKStringFromUtf8()
                 ).encodeToByteArray().usePinned { pinned ->
                     //TODO: This memory should be clean, but waiting for refactor in cinterface endpoint
                     nativeHeap.allocArray<ByteVar>(pinned.get().size).apply {
@@ -65,13 +78,14 @@ private fun WebRTCInterface.toCWebRtcPointer(): CValue<libprivmxendpoint.privmx_
                 memScoped { "".cstr.ptr }
             }
         }
-        createAnswerAndSetDescriptionsCallback = staticCFunction { ctx, streamRoomId, sdp, type ->
+        createAnswerAndSetDescriptionsCallback = staticCFunction { ctx, streamRoomId, sdp, type, connectionType ->
             val webRtcInterface = ctx.webrtc.get()
             return@staticCFunction try {
                 webRtcInterface.createAnswerAndSetDescriptions(
                     streamRoomId!!.toKStringFromUtf8(),
                     sdp!!.toKStringFromUtf8(),
-                    type!!.toKStringFromUtf8()
+                    type!!.toKStringFromUtf8(),
+                    connectionType!!.toKStringFromUtf8()
                 ).encodeToByteArray().usePinned { pinned ->
                     //TODO: This memory should be clean, but waiting for refactor in cinterface endpoint
                     nativeHeap.allocArray<ByteVar>(pinned.get().size).apply {
@@ -83,12 +97,13 @@ private fun WebRTCInterface.toCWebRtcPointer(): CValue<libprivmxendpoint.privmx_
                 memScoped { "".cstr.ptr }
             }
         }
-        setAnswerAndSetRemoteDescriptionCallback = staticCFunction { ctx, streamRoomId, sdp, type ->
+        setAnswerAndSetRemoteDescriptionCallback = staticCFunction { ctx, streamRoomId, sdp, type , connectionType->
             val webRtcInterface = ctx.webrtc.get()
             webRtcInterface.setAnswerAndSetRemoteDescription(
                 streamRoomId!!.toKStringFromUtf8(),
                 sdp!!.toKStringFromUtf8(),
-                type!!.toKStringFromUtf8()
+                type!!.toKStringFromUtf8(),
+                connectionType!!.toKStringFromUtf8()
             )
         }
 

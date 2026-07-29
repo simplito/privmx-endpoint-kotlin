@@ -59,9 +59,10 @@ internal class RoomJanusSession(
         trackObserversByStreamId[streamId] = observer
     }
 
-    fun setOnConnectionChange(onConnectionChange: (IceConnectionState) -> Unit) = runBlocking(context) {
-        onConnectionChangeCallback = onConnectionChange
-    }
+    fun setOnConnectionChange(onConnectionChange: (IceConnectionState) -> Unit) =
+        runBlocking(context) {
+            onConnectionChangeCallback = onConnectionChange
+        }
 
     fun setFrameCryptorOptions(options: PmxFrameCryptorOptions) {
         subscriber?.setFrameCryptorOptions(options)
@@ -77,29 +78,54 @@ internal class RoomJanusSession(
         }
     }
 
+    fun unsubscribe() = runBlocking(context) {
+        subscriber?.let {
+            if (!it.isEnded) {
+                it.close()
+                subscriber = null
+            }
+        }
+    }
+
     private fun onConnectionChange(state: IceConnectionState) = onConnectionChangeCallback(state)
 
     private inner class WebRTCImpl : WebRTCInterface {
-        override fun createOfferAndSetLocalDescription(streamRoomId: String): String =
+        override fun createOfferAndSetLocalDescription(
+            streamRoomId: String,
+            connectionType: String
+        ): String =
             runBlocking(context) {
                 (publisher ?: throw RuntimeException("Create publisher first")).createOffer()
             }
 
         override fun createAnswerAndSetDescriptions(
-            streamRoomId: String, sdp: String, type: String
+            streamRoomId: String,
+            sdp: String,
+            type: String,
+            connectionType: String
         ): String = runBlocking(context) {
-            (subscriber ?: throw RuntimeException("Create subscriber first")).createAnswer(sdp, type)
+            (subscriber ?: throw RuntimeException("Create subscriber first")).createAnswer(
+                sdp,
+                type
+            )
         }
 
         override fun setAnswerAndSetRemoteDescription(
-            streamRoomId: String, sdp: String, type: String
+            streamRoomId: String,
+            sdp: String,
+            type: String,
+            connectionType: String
         ) {
             runBlocking(context) {
                 (publisher ?: throw RuntimeException("Create publisher first")).setAnswer(sdp, type)
             }
         }
 
-        override fun updateSessionId(streamRoomId: String, sessionId: Long?, connectionType: String) {
+        override fun updateSessionId(
+            streamRoomId: String,
+            sessionId: Long?,
+            connectionType: String
+        ) {
             if (sessionId == null) return
             runBlocking(context) {
                 when (connectionType) {
@@ -109,10 +135,19 @@ internal class RoomJanusSession(
             }
         }
 
-        override fun close(streamRoomId: String) {
+        override fun closeAll(streamRoomId: String) {
             runBlocking(context) {
                 publisher?.close()
                 subscriber?.close()
+            }
+        }
+
+        override fun close(streamRoomId: String, connectionType: String) {
+            runBlocking(context) {
+                when(connectionType){
+                    "publisher" -> publisher?.close()
+                    "subscriber" -> subscriber?.close()
+                }
             }
         }
 

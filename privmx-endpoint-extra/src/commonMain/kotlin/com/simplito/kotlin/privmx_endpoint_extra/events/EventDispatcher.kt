@@ -18,6 +18,7 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.InboxEventTyp
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.StoreEventType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.ThreadEventType
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -148,6 +149,8 @@ class EventDispatcher(
             module = SubscriptionModule.KVDB
         } else if (key.eventType.libEventType is CoreEventType) {
             module = SubscriptionModule.CORE
+        }else if (key.eventType.libEventType is StreamEventType) {
+            module = SubscriptionModule.STREAM
         }
         return module
     }
@@ -240,7 +243,12 @@ class EventDispatcher(
         /**
          * CoreModules
          */
-        CORE
+        CORE,
+
+        /**
+         * Stream module case.
+         */
+        STREAM
     }
 
     private data class Pair(val context: Any, val callback: EventCallback<out Any>)

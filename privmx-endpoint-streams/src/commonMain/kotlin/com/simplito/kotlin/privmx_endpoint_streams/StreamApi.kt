@@ -9,7 +9,9 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscriber
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
+import com.simplito.kotlin.privmx_endpoint.model.stream.SubscriberStreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.modules.stream.StreamApiLow
@@ -233,6 +235,10 @@ class StreamApi(
         return api.listStreams(streamRoomId)
     }
 
+    fun listStreamRoomParticipants(streamRoomId: String): List<StreamSubscriber> {
+        return api.listStreamRoomParticipants(streamRoomId);
+    }
+
     /**
      * Subscribes for events for StreamRooms and their individual streams on the given subscription queries.
      *
@@ -345,11 +351,10 @@ class StreamApi(
         IllegalStateException::class
     )
     fun createStream(streamRoomId: String): StreamHandle {
-        val session = pcManager.getSession(streamRoomId)
-            ?: throw IllegalStateException("Session to this room does not exist. Call joinStreamRoom first.")
+        val session = resolveSession(streamRoomId)
 
         runCatching { session.createPublisher() }
-            .onFailure { throw IllegalStateException("Publisher is now active, try use modifyRemoteStreamsSubscriptions") }  // Stream has already been created for this StreamRoom, try use modifyRemoteStreamsSubscriptions
+            .onFailure { throw IllegalStateException("Stream has already been created for this StreamRoom, try use updateStream.")}
 
         val handle = api.createStream(streamRoomId)
         pcManager.createHandleToRoom(handle, streamRoomId)
@@ -396,8 +401,7 @@ class StreamApi(
     /**
      * Unsubscribes from selected remote streams in a StreamRoom.
      *
-     * @param streamRoomId          ID of the StreamRoom
-     * @param subscriptionsToRemove list of [StreamSubscription] to remove
+     * @param subscriptionHandle     // todo
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when there is no active subscription to unsubscribe from
@@ -407,15 +411,16 @@ class StreamApi(
         NativeException::class,
         IllegalStateException::class
     )
-    fun unsubscribeFromRemoteStreams(
-        streamRoomId: String,
-        subscriptionsToRemove: List<StreamSubscription>
+    fun removeSubscriberStream(
+        subscriptionHandle: SubscriberStreamHandle
     ) {
-        val session = this.resolveSession(streamRoomId)
-        session.subscriber?.setRTCConfiguration(getRTCConfiguration())
-            ?: throw IllegalStateException("No active subscription to unsubscribe from. Call subscribeToRemoteStreams first.")
+        val session = resolveSession(subscriptionHandle)
+        if (session.subscriber == null)
+            throw IllegalStateException("No active subscriber stream to remove.")
 
-        api.unsubscribeFromRemoteStreams(streamRoomId, subscriptionsToRemove)
+        api.removeSubscriberStream(subscriptionHandle)
+        session.unsubscribe()
+        pcManager.closeHandleToRoom(subscriptionHandle)
     }
 
     /**
@@ -450,12 +455,12 @@ class StreamApi(
         NativeException::class,
         IllegalStateException::class
     )
-    fun unpublishStream(streamHandle: StreamHandle) {
+    fun removeStream(streamHandle: StreamHandle) {
         val session = resolveSession(streamHandle)
         if (session.publisher == null)
-            throw IllegalStateException("No stream to unpublish. Call createStream and publishStream first.")
+            throw IllegalStateException("No active stream to remove.")
 
-        api.unpublishStream(streamHandle)
+        api.removeStream(streamHandle)
         session.unpublish()
         pcManager.closeHandleToRoom(streamHandle)
     }
@@ -497,13 +502,16 @@ class StreamApi(
         NativeException::class,
         IllegalStateException::class
     )
-    fun subscribeToRemoteStreams(streamRoomId: String, subscriptions: List<StreamSubscription>) {
+    fun createSubscriberStream(streamRoomId: String, subscriptions: List<StreamSubscription>):SubscriberStreamHandle {
         val session = resolveSession(streamRoomId)
         runCatching { session.createSubscriber() }
-        session.subscriber?.setRTCConfiguration(getRTCConfiguration())
-            ?: throw IllegalStateException("No active subscription to modify. Call subscribeToRemoteStreams first.")
+            .onFailure { throw IllegalStateException("Subscriber stream has already been created for this StreamRoom, try use updateSubscriberStream.") }
 
-        api.subscribeToRemoteStreams(streamRoomId, subscriptions)
+        session.subscriber?.setRTCConfiguration(getRTCConfiguration())
+
+        val handle =  api.createSubscriberStream(streamRoomId, subscriptions)
+        pcManager.createHandleToRoom(handle, streamRoomId)
+        return handle
     }
 
 
@@ -522,17 +530,17 @@ class StreamApi(
         NativeException::class,
         IllegalStateException::class
     )
-    fun modifyRemoteStreamsSubscriptions(
-        streamRoomId: String,
+    fun updateSubscriberStream(
+        subscriberStreamHandle: SubscriberStreamHandle,
         subscriptionsToAdd: List<StreamSubscription>,
         subscriptionsToRemove: List<StreamSubscription>
     ) {
-        val session = resolveSession(streamRoomId)
+        val session = resolveSession(subscriberStreamHandle)
         session.subscriber?.setRTCConfiguration(getRTCConfiguration())
-            ?: throw IllegalStateException("No active subscription to modify. Call subscribeToRemoteStreams first.")
+            ?: throw IllegalStateException("No active subscription to modify. Call createSubscriberStream first.")
 
-        api.modifyRemoteStreamsSubscriptions(
-            streamRoomId,
+        api.updateSubscriberStream(
+            subscriberStreamHandle,
             subscriptionsToAdd,
             subscriptionsToRemove
         )
@@ -577,7 +585,7 @@ class StreamApi(
         IllegalStateException::class
     )
     fun dropBrokenFrames(streamRoomId: String, enable: Boolean) {
-        pcManager.getSession(streamRoomId)?.setFrameCryptorOptions(
+        resolveSession(streamRoomId).setFrameCryptorOptions(
             PmxFrameCryptorOptions(enable)
         )
     }
@@ -595,11 +603,15 @@ class StreamApi(
 
     private fun resolveSession(roomId: String): RoomJanusSession =
         pcManager.getSession(roomId)
-            ?: throw IllegalStateException("Session to this room does not exist. Call joinStreamRoom first.")
+            ?: throw IllegalStateException("No active session for this room. Call joinStreamRoom first.")
 
     private fun resolveSession(handle: StreamHandle): RoomJanusSession =
         pcManager.getSession(handle)
-            ?: throw IllegalStateException("Session to this room does not exist. Call joinStreamRoom first.")
+            ?: throw IllegalStateException("This handle isn't registered to any session yet. Call createStream first.")
+
+    private fun resolveSession(handle: SubscriberStreamHandle): RoomJanusSession =
+        pcManager.getSession(handle)
+            ?: throw IllegalStateException("This handle isn't registered to any session yet. Call createSubscriberStream first.")
 
     private fun resolvePublisher(streamHandle: StreamHandle): JanusPublisher {
         val session = pcManager.getSession(streamHandle)

@@ -695,9 +695,9 @@ parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core::Event> 
                     event_cast.timestamp,
                     privmx::wrapper::streamUpdatedEventData2Java(ctx, event_cast.data)
             );
-        } else if (stream::Events::isStreamJoinedEvent(event)) {
-            privmx::endpoint::stream::StreamJoinedEvent event_cast =
-                    stream::Events::extractStreamJoinedEvent(event);
+        }else if (stream::Events::isStreamRoomJoinedEvent(event)) {
+            privmx::endpoint::stream::StreamRoomJoinedEvent event_cast =
+                    stream::Events::extractStreamRoomJoinedEvent(event);
 
             return initEvent(
                     ctx,
@@ -706,7 +706,7 @@ parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core::Event> 
                     event_cast.connectionId,
                     event_cast.subscriptions,
                     event_cast.timestamp,
-                    privmx::wrapper::streamEventData2Java(ctx, event_cast.data)
+                    privmx::wrapper::streamRoomParticipantEventData2Java(ctx, event_cast.data)
             );
         } else if (stream::Events::isStreamUnpublishedEvent(event)) {
             privmx::endpoint::stream::StreamUnpublishedEvent event_cast =
@@ -721,9 +721,9 @@ parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core::Event> 
                     event_cast.timestamp,
                     privmx::wrapper::streamUnpublishedEventData2Java(ctx, event_cast.data)
             );
-        } else if (stream::Events::isStreamLeftEvent(event)) {
-            privmx::endpoint::stream::StreamLeftEvent event_cast =
-                    stream::Events::extractStreamLeftEvent(event);
+        } else if (stream::Events::isStreamRoomLeftEvent(event)) {
+            privmx::endpoint::stream::StreamRoomLeftEvent event_cast =
+                    stream::Events::extractStreamRoomLeftEvent(event);
             return initEvent(
                     ctx,
                     event_cast.type,
@@ -731,12 +731,12 @@ parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core::Event> 
                     event_cast.connectionId,
                     event_cast.subscriptions,
                     event_cast.timestamp,
-                    privmx::wrapper::streamLeftEventData2Java(ctx, event_cast.data)
+                    privmx::wrapper::streamRoomParticipantEventData2Java(ctx, event_cast.data)
             );
         }
-        else if (stream::Events::isRemoteStreamsChangedEvent(event)) {
-            privmx::endpoint::stream::RemoteStreamsChangedEvent event_cast =
-                    stream::Events::extractRemoteStreamsChangedEvent(event);
+        else if (stream::Events::isStreamSubscribedEvent(event)) {
+            privmx::endpoint::stream::StreamSubscribedEvent event_cast =
+                    stream::Events::extractStreamSubscribedEvent(event);
 
             return initEvent(
                     ctx,
@@ -745,11 +745,11 @@ parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core::Event> 
                     event_cast.connectionId,
                     event_cast.subscriptions,
                     event_cast.timestamp,
-                    privmx::wrapper::newStreams2Java(ctx, event_cast.data)
+                    privmx::wrapper::streamSubscriptionEventData2Java(ctx, event_cast.data)
             );
-        } else if (stream::Events::isStreamsUpdatedEvent(event)) {
-            privmx::endpoint::stream::StreamsUpdatedEvent event_cast =
-                    stream::Events::extractStreamsUpdatedEvent(event);
+        } else if (stream::Events::isStreamUnsubscribedEvent(event)) {
+            privmx::endpoint::stream::StreamUnsubscribedEvent event_cast =
+                    stream::Events::extractStreamUnsubscribedEvent(event);
 
             return initEvent(
                     ctx,
@@ -758,7 +758,7 @@ parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core::Event> 
                     event_cast.connectionId,
                     event_cast.subscriptions,
                     event_cast.timestamp,
-                    privmx::wrapper::streamsUpdated2Java(ctx, event_cast.data)
+                    privmx::wrapper::streamSubscriptionEventData2Java(ctx, event_cast.data)
             );
         } else {
             return initEvent(
@@ -811,17 +811,6 @@ privmx::endpoint::core::PagingQuery parsePagingQuery(
 
 
 // streams
-
-privmx::endpoint::stream::StreamHandle parseStreamHandle(
-        JniContextUtils &ctx,
-        jobject streamHandle
-) {
-    jclass streamHandleCls = ctx->GetObjectClass(streamHandle);
-    jfieldID valueFID = ctx->GetFieldID(streamHandleCls, "value", "J");
-
-    return ctx->GetLongField(streamHandle, valueFID);
-}
-
 privmx::endpoint::stream::StreamSubscription parseStreamSubscription(JniContextUtils &ctx, jobject streamSubscription) {
     privmx::endpoint::stream::StreamSubscription result;
     jclass cls = ctx->GetObjectClass(streamSubscription);

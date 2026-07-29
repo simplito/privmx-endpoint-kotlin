@@ -1613,7 +1613,7 @@ namespace privmx {
                     "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicyWithoutItem;" // policy
                     "Ljava/lang/Long;"      // statusCode
                     "Ljava/lang/Long;"      // schemaVersion
-                    "Ljava/lang/Boolean;"   // closed
+                    "Ljava/lang/String;"    // state
                     ")V"
             );
 
@@ -1645,31 +1645,10 @@ namespace privmx {
                     privmx::wrapper::containerPolicyWithoutItem2Java(ctx, streamRoom_c.policy),
                     ctx.long2jLong(streamRoom_c.statusCode),
                     ctx.long2jLong(streamRoom_c.schemaVersion),
-                    ctx.bool2jBoolean(streamRoom_c.closed)
+                    ctx->NewStringUTF(streamRoom_c.state.c_str())
             );
         }
 
-        jobject streamHandle2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::StreamHandle streamHandle_c
-        ) {
-            jclass itemCls = ctx->FindClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/stream/StreamHandle");
-
-            jmethodID initItemMID = ctx->GetMethodID(
-                    itemCls,
-                    "<init>",
-                    "("
-                    "Ljava/lang/Long;"      // value
-                    ")V"
-            );
-
-            return ctx->NewObject(
-                    itemCls,
-                    initItemMID,
-                    ctx.long2jLong(streamHandle_c)
-            );
-        }
 
         jobject streamTrackInfo2Java(
                 JniContextUtils &ctx,
@@ -1683,25 +1662,18 @@ namespace privmx {
                     "<init>",
                     "("
                     "Ljava/lang/String;"        // type
-                    "Ljava/lang/Long;"          // mindex
+                    "J"                         // mindex
                     "Ljava/lang/String;"        // mid
-                    "Ljava/lang/Boolean;"       // disabled         [optional]
+                    "Z"                         // disabled
                     "Ljava/lang/String;"        // codec            [optional]
                     "Ljava/lang/String;"        // description      [optional]
-                    "Ljava/lang/Boolean;"       // moderated        [optional]
-                    "Ljava/lang/Boolean;"       // simulcast        [optional]
+                    "Z"                         // moderated
+                    "Z"                         // simulcast
                     ")V"
             );
 
-            jobject disabled = nullptr;
             jobject codec = nullptr;
             jobject description = nullptr;
-            jobject moderated = nullptr;
-            jobject simulcast = nullptr;
-
-            if (streamTrackInfo_c.disabled.has_value()) {
-                disabled = ctx.bool2jBoolean(streamTrackInfo_c.disabled.value());
-            }
 
             if (streamTrackInfo_c.codec.has_value()) {
                 codec = ctx->NewStringUTF(streamTrackInfo_c.codec.value().c_str());
@@ -1711,25 +1683,17 @@ namespace privmx {
                 description = ctx->NewStringUTF(streamTrackInfo_c.description.value().c_str());
             }
 
-            if (streamTrackInfo_c.moderated.has_value()) {
-                moderated = ctx.bool2jBoolean(streamTrackInfo_c.moderated.value());
-            }
-
-            if (streamTrackInfo_c.simulcast.has_value()) {
-                simulcast = ctx.bool2jBoolean(streamTrackInfo_c.simulcast.value());
-            }
-
             return ctx->NewObject(
                     itemCls,
                     initItemMID,
                     ctx->NewStringUTF(streamTrackInfo_c.type.c_str()),
                     ctx.long2jLong(streamTrackInfo_c.mindex),
                     ctx->NewStringUTF(streamTrackInfo_c.mid.c_str()),
-                    disabled,
+                    (jboolean) streamTrackInfo_c.disabled,
                     codec,
                     description,
-                    moderated,
-                    simulcast
+                    (jboolean) streamTrackInfo_c.moderated,
+                    (jboolean) streamTrackInfo_c.simulcast
             );
         }
 
@@ -1756,22 +1720,16 @@ namespace privmx {
                     "Ljava/lang/Long;"          // id
                     "Ljava/lang/String;"        // userId
                     "Ljava/lang/String;"        // metadata
-                    "Ljava/lang/Boolean;"       // dummy
+                    "Z"       // dummy
                     "Ljava/util/List;"          // tracks
                     ")V"
             );
 
             jobject metadata = nullptr;
-            jobject dummy = nullptr;
 
             if (streamInfo_c.metadata.has_value()) {
                 metadata = ctx->NewStringUTF(streamInfo_c.metadata.value().c_str());
             }
-
-            if (streamInfo_c.dummy.has_value()) {
-                dummy = ctx.bool2jBoolean(streamInfo_c.dummy.value());
-            }
-
 
             jobject tracks = ctx->NewObject(arrayCls, initArrayMID);
             for (auto &track: streamInfo_c.tracks) {
@@ -1790,7 +1748,7 @@ namespace privmx {
                     ctx.long2jLong(streamInfo_c.id),
                     ctx->NewStringUTF(streamInfo_c.userId.c_str()),
                     metadata,
-                    dummy,
+                    (jboolean) streamInfo_c.dummy,
                     tracks
             );
 
@@ -1903,87 +1861,67 @@ namespace privmx {
             );
         }
 
-        jobject
-        streamTrackModification2Java(
+        jobject streamSubscription2Java(
                 JniContextUtils &ctx,
-                endpoint::stream::StreamTrackModification streamTrackModification
+                privmx::endpoint::stream::StreamSubscription streamSubscription
         ) {
             jclass cls = ctx->FindClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/stream/StreamTrackModification");
+                    "com/simplito/kotlin/privmx_endpoint/model/stream/StreamSubscription");
             jmethodID initItemMID = ctx->GetMethodID(
                     cls,
                     "<init>",
                     "("
-                    "Ljava/lang/Long;"
-                    "Ljava/util/List;"
+                    "J"                     // streamId
+                    "Ljava/lang/String;"    //streamTrackId
                     ")V"
             );
 
-            jobject tracksList = vectorTojArray(
-                    ctx,
-                    streamTrackModification.tracks,
-                    streamTrackModificationPair2Java
-            );
+            jstring streamTrackId = nullptr;
+
+            if (streamSubscription.streamTrackId.has_value()) {
+                streamTrackId = ctx->NewStringUTF(streamSubscription.streamTrackId->c_str());
+            }
 
             return ctx->NewObject(
                     cls,
                     initItemMID,
-                    ctx.long2jLong(streamTrackModification.streamId),
-                    tracksList
+                    (jlong) streamSubscription.streamId,
+                    streamTrackId
             );
         }
 
-        jobject
-        updatedStreamData2Java(
+        jobject streamSubscriber2Java(
                 JniContextUtils &ctx,
-                endpoint::stream::UpdatedStreamData data
-        ) {
+                privmx::endpoint::stream::StreamSubscriber streamSubscriber
+        ){
             jclass cls = ctx->FindClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/stream/events/UpdatedStreamData");
+                    "com/simplito/kotlin/privmx_endpoint/model/stream/StreamSubscriber");
             jmethodID initItemMID = ctx->GetMethodID(
                     cls,
                     "<init>",
                     "("
-                    "Ljava/lang/String;"
-                    "Ljava/lang/Long;"
-                    "Ljava/lang/String;"
-                    "Ljava/lang/Boolean;"
-                    "Ljava/lang/Boolean;"
-                    "Ljava/lang/String;"
-                    "Ljava/lang/Long;"
-                    "Ljava/lang/String;"
-                    "Ljava/lang/String;"
+                    "Ljava/lang/String;"   // userId
+                    "Ljava/util/List;"     // subscriptions
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/stream/StreamInfo;"  // publishedStream
                     ")V"
             );
 
-            jobject jCodec = data.codec
-                    ? ctx->NewStringUTF(data.codec->c_str())
-                    : nullptr;
+            jobject subscriptionsList = vectorTojArray(
+                    ctx,
+                    streamSubscriber.subscriptions,
+                    streamSubscription2Java
+            );
 
-            jobject jStreamId = data.streamId
-                    ? ctx.long2jLong(data.streamId.value())
-                    : nullptr;
-
-            jobject jStreamMid = data.streamMid
-                    ? ctx->NewStringUTF(data.streamMid->c_str())
-                    : nullptr;
-
-            jobject jStreamDisplay = data.stream_display
-                    ? ctx->NewStringUTF(data.stream_display->c_str())
-                    : nullptr;
+            jobject publishedStream = nullptr;
+            if (streamSubscriber.publishedStream.has_value())
+                publishedStream = streamInfo2Java(ctx, streamSubscriber.publishedStream.value());
 
             return ctx->NewObject(
                     cls,
                     initItemMID,
-                    ctx->NewStringUTF(data.type.c_str()),
-                    ctx.long2jLong(data.mindex),
-                    ctx->NewStringUTF(data.mid.c_str()),
-                    ctx.bool2jBoolean(data.send),
-                    ctx.bool2jBoolean(data.ready),
-                    jCodec,
-                    jStreamId,
-                    jStreamMid,
-                    jStreamDisplay
+                    ctx->NewStringUTF(streamSubscriber.userId.c_str()),
+                    subscriptionsList,
+                    publishedStream
             );
         }
 
@@ -2044,87 +1982,30 @@ namespace privmx {
                     "<init>",
                     "("
                     "Ljava/lang/String;"
+                    "J"
+                    "Ljava/lang/String;"
                     "Ljava/util/List;"
                     "Ljava/util/List;"
                     "Ljava/util/List;"
                     ")V"
             );
 
-            jobject addedList = vectorTojArray(
+            jobject tracksAddedList = vectorTojArray(
                     ctx,
-                    data.streamsAdded,
-                    streamInfo2Java
+                    data.tracksAdded,
+                    streamTrackInfo2Java
             );
 
-            jobject removedList = vectorTojArray(
+            jobject tracksRemovedList = vectorTojArray(
                     ctx,
-                    data.streamsRemoved,
-                    streamInfo2Java
+                    data.tracksRemoved,
+                    streamTrackInfo2Java
             );
 
-            jobject modifiedList = vectorTojArray(
+            jobject tracksModifiedList = vectorTojArray(
                     ctx,
-                    data.streamsModified,
-                    streamTrackModification2Java
-            );
-
-            return ctx->NewObject(
-                    cls,
-                    initItemMID,
-                    ctx->NewStringUTF(data.streamRoomId.c_str()),
-                    addedList,
-                    removedList,
-                    modifiedList
-            );
-        }
-
-        jobject
-        streamEventData2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::StreamEventData data
-        ) {
-            jclass cls = ctx->FindClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/stream/events/StreamEventData");
-            jmethodID initItemMID = ctx->GetMethodID(
-                    cls,
-                    "<init>",
-                    "("
-                    "Ljava/lang/String;"
-                    "Ljava/util/List;"
-                    "Ljava/lang/String;"
-                    ")V"
-            );
-
-            jobject streamIds = vectorTojArray(
-                    ctx,
-                    data.streamIds,
-                    long2jobject
-            );
-
-            return ctx->NewObject(
-                    cls,
-                    initItemMID,
-                    ctx->NewStringUTF(data.streamRoomId.c_str()),
-                    streamIds,
-                    ctx->NewStringUTF(data.userId.c_str())
-            );
-        }
-
-        jobject
-        streamLeftEventData2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::StreamLeftEventData data
-        ) {
-            jclass cls = ctx->FindClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/stream/events/StreamLeftEventData");
-            jmethodID initItemMID = ctx->GetMethodID(
-                    cls,
-                    "<init>",
-                    "("
-                    "Ljava/lang/String;"
-                    "Ljava/lang/Long;"
-                    "Ljava/lang/String;"
-                    ")V"
+                    data.tracksModified,
+                    streamTrackModificationPair2Java
             );
 
             return ctx->NewObject(
@@ -2132,7 +2013,10 @@ namespace privmx {
                     initItemMID,
                     ctx->NewStringUTF(data.streamRoomId.c_str()),
                     ctx.long2jLong(data.streamId),
-                    ctx->NewStringUTF(data.userId.c_str())
+                    ctx->NewStringUTF(data.userId.c_str()),
+                    tracksAddedList,
+                    tracksRemovedList,
+                    tracksModifiedList
             );
         }
 
@@ -2160,62 +2044,58 @@ namespace privmx {
             );
         }
 
-        jobject
-        newStreams2Java(
+        jobject streamRoomParticipantEventData2Java(
                 JniContextUtils &ctx,
-                privmx::endpoint::stream::NewStreams data
+                privmx::endpoint::stream::StreamRoomParticipantEventData data
+
         ) {
             jclass cls = ctx->FindClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/stream/events/NewStreams");
+                    "com/simplito/kotlin/privmx_endpoint/model/stream/events/StreamRoomParticipantEventData");
             jmethodID initItemMID = ctx->GetMethodID(
                     cls,
                     "<init>",
                     "("
                     "Ljava/lang/String;"
-                    "Ljava/util/List;"
+                    "Ljava/lang/String;"
                     ")V"
-            );
-
-            jobject streamsList = vectorTojArray(
-                    ctx,
-                    data.streams,
-                    streamInfo2Java
             );
 
             return ctx->NewObject(
                     cls,
                     initItemMID,
-                    ctx->NewStringUTF(data.room.c_str()),
-                    streamsList
+                    ctx->NewStringUTF(data.streamRoomId.c_str()),
+                    ctx->NewStringUTF(data.userId.c_str())
             );
         }
 
-        jobject
-        streamsUpdated2Java(
+        jobject streamSubscriptionEventData2Java(
                 JniContextUtils &ctx,
-                privmx::endpoint::stream::StreamsUpdatedData data
+                privmx::endpoint::stream::StreamSubscriptionEventData data
         ) {
-            jclass cls = ctx->FindClass("com/simplito/kotlin/privmx_endpoint/model/stream/events/StreamsUpdatedData");
+            jclass cls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/stream/events/StreamSubscriptionEventData");
             jmethodID initItemMID = ctx->GetMethodID(
                     cls,
                     "<init>",
                     "("
                     "Ljava/lang/String;"
+                    "Ljava/lang/String;"
                     "Ljava/util/List;"
                     ")V"
             );
 
-            jobject streamsList = vectorTojArray(
+            jobject streamIds = vectorTojArray(
                     ctx,
-                    data.streams,
-                    updatedStreamData2Java
+                    data.subscriptions,
+                    streamSubscription2Java
             );
 
             return ctx->NewObject(
                     cls,
                     initItemMID,
-                    ctx->NewStringUTF(data.room.c_str()),
-                    streamsList
+                    ctx->NewStringUTF(data.streamRoomId.c_str()),
+                    ctx->NewStringUTF(data.userId.c_str()),
+                    streamIds
             );
         }
 

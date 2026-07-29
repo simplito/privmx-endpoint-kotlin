@@ -16,7 +16,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build-jni-android:
@@ -87,7 +87,7 @@ jobs:
 
 
   build-jni-darwin:
-    timeout-minutes: 15
+    timeout-minutes: 30
     runs-on: macos-latest
 
     steps:
