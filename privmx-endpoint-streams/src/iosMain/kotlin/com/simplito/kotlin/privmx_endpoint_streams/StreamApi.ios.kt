@@ -49,3 +49,9 @@ actual fun StreamApi.createDefaultPeerConnectionFactory(
         RTCPeerConnectionFactoryOptions(),
     )
 }
+
+internal actual fun StreamApi.initPeerConnectionFactory(
+    init: StreamApiInit
+) {
+    PeerConnectionFactory.initialize()
+}

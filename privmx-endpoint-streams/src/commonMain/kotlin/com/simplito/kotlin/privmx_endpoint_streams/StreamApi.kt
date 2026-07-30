@@ -43,6 +43,7 @@ class StreamApi(
     val apiInit: StreamApiInit
 ) : AutoCloseable {
     internal var pcManager: PeerConnectionManager
+    internal var initialized: Boolean = false
 
     /**
      * Factory providing helpers for creating WebRTC media sources and tracks.
@@ -51,6 +52,11 @@ class StreamApi(
         private set
 
     init {
+        if (!initialized) {
+            initPeerConnectionFactory(apiInit)
+            initialized = true
+        }
+
         val factory = createDefaultPeerConnectionFactory(apiInit)
         pcManager = PeerConnectionManager(
             factory,
@@ -641,3 +647,4 @@ expect fun StreamApi.joinStreamRoom(
 
 internal expect fun StreamApi.createDefaultPeerConnectionFactory(init: StreamApiInit): PeerConnectionFactory
 internal expect fun StreamApi.getRTCConfiguration(): List<IceServer>
+internal expect fun StreamApi.initPeerConnectionFactory(init: StreamApiInit)
