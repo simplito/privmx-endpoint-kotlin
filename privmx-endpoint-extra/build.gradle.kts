@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import java.util.Properties
 
 plugins {
@@ -17,8 +18,18 @@ kotlin {
         }
     }
 
-    iosSimulatorArm64()
-    iosArm64()
+    val combinedFramework = XCFramework("privmx-endpoint-extra-objc")
+    listOf(
+        iosSimulatorArm64(),
+        iosArm64()
+    ).onEach{
+        it.binaries {
+            framework {
+                baseName = "privmx-endpoint-extra-objc"
+                combinedFramework.add(this)
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
