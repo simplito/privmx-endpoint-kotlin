@@ -3,6 +3,7 @@
 import com.android.build.api.dsl.androidLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import java.util.Properties
 
 plugins {
@@ -18,7 +19,7 @@ group = "com.simplito.kotlin"
 version = libs.versions.publishPrivmxEndpoint.get()
 
 kotlin {
-
+    val combinedFramework = XCFramework("privmx-endpoint-streams-objc")
     iosSimulatorArm64().let {
         it.compilations.getByName("main") {
             val webrtcInterop by cinterops.creating {
@@ -39,13 +40,19 @@ kotlin {
                 )
             }
         }
-        it.binaries.all {
-            linkerOpts(
-                "-all_load",
-                "-framework",
-                "WebRTC",
-                "-F${project.projectDir.absolutePath}/src/iosMain/cinterop/webrtc/WebRTC.xcframework/ios-arm64-simulator"
-            )
+        it.binaries {
+            all {
+                linkerOpts(
+                    "-all_load",
+                    "-framework",
+                    "WebRTC",
+                    "-F${project.projectDir.absolutePath}/src/iosMain/cinterop/webrtc/WebRTC.xcframework/ios-arm64-simulator"
+                )
+            }
+            framework {
+                baseName = "privmx-endpoint-streams-objc"
+                combinedFramework.add(this)
+            }
         }
     }
     iosArm64().let {
@@ -67,12 +74,19 @@ kotlin {
                 )
             }
         }
-        it.binaries.all {
-            linkerOpts(
-                "-framework",
-                "WebRTC",
-                "-F${project.projectDir.absolutePath.also { println("abPath $it") }}/src/iosMain/cinterop/webrtc/WebRTC.xcframework/ios-arm64/"
-            )
+        it.binaries {
+            all {
+                linkerOpts(
+                    "-framework",
+                    "WebRTC",
+                    "-F${project.projectDir.absolutePath.also { println("abPath $it") }}/src/iosMain/cinterop/webrtc/WebRTC.xcframework/ios-arm64/"
+                )
+            }
+
+            framework {
+                baseName = "privmx-endpoint-streams-objc"
+                combinedFramework.add(this)
+            }
         }
     }
 

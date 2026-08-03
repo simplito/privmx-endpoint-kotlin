@@ -16,6 +16,7 @@ import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.HttpClients
 import org.bson.Document
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest
 import java.io.IOException
@@ -58,6 +59,9 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_1_8)
         }
     }
+
+    val combinedFramework = XCFramework("privmx-endpoint-objc")
+
     listOf(
         iosSimulatorArm64(),
         iosArm64(),
@@ -83,6 +87,12 @@ kotlin {
                     }.files
                     headers(endpointHeaders + psonHeaders)
                 }
+            }
+        }
+        it.binaries {
+            framework {
+                baseName = "privmx-endpoint-objc"
+                combinedFramework.add(this)
             }
         }
     }
