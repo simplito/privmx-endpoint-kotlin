@@ -511,7 +511,7 @@ tasks.register("buildIOSSimulatorStaticFromSources") {
             "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/ios-iphonesimulator-armv8/${buildType.name}/generators/conan_toolchain.cmake",
             false
         )
-        copyFilesFromDeploy(INSTALL_DIR,".a")
+        copyFilesFromDeploy(INSTALL_DIR, ".a", true)
         exec {
             workingDir = INSTALL_DIR
             commandLine("sh", "-c", "/usr/bin/libtool -static -o libpmxend.a ./lib/*.a")
@@ -545,7 +545,7 @@ tasks.register("buildIOSStaticFromSources") {
             "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/ios-iphoneos-armv8/${buildType.name}/generators/conan_toolchain.cmake",
             false
         )
-        copyFilesFromDeploy(INSTALL_DIR,".a")
+        copyFilesFromDeploy(INSTALL_DIR, ".a",true)
         exec {
             workingDir = INSTALL_DIR
             commandLine("sh", "-c", "/usr/bin/libtool -static -o ./libpmxend.a ./lib/*.a")
@@ -714,12 +714,23 @@ private fun Project.conanInstall(
 private fun Project.copyFilesFromDeploy(
     workingDir: File,
     extension: String,
-){
+    includeAll: Boolean = false
+) {
 
     val deployDir = File(workingDir,"full_deploy").also { println(it.absolutePath) }
     copy {
         from(deployDir.absolutePath)
-        include("**/libPoco*$extension","**/libcrypto*$extension","**/libPson*$extension","**/libssl*$extension","**/libprivmx*$extension")
+        if (includeAll) {
+            include("**/lib*$extension*")
+        } else {
+            include(
+                "**/libPoco*$extension",
+                "**/libcrypto*$extension",
+                "**/libPson*$extension",
+                "**/libssl*$extension",
+                "**/libprivmx*$extension"
+            )
+        }
         this.includeEmptyDirs = false
         eachFile { path=name }
         into(File(workingDir,"lib"))
