@@ -542,6 +542,7 @@ internal fun PsonObject.toStreamRoom(): StreamRoom = StreamRoom(
     this["statusCode"]!!.typedValue(),
     this["schemaVersion"]!!.typedValue(),
     this["state"]!!.typedValue(),       // "created" | "open" | "closed"
+    this["emptyRoomTtl"]?.typedValue(),
 )
 
 internal fun PsonObject.toStreamInfo(): StreamInfo = StreamInfo(

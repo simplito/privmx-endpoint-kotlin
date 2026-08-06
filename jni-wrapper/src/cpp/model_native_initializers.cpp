@@ -1614,6 +1614,7 @@ namespace privmx {
                     "Ljava/lang/Long;"      // statusCode
                     "Ljava/lang/Long;"      // schemaVersion
                     "Ljava/lang/String;"    // state
+                    "Ljava/lang/Long;"      // emptyRoomTtl
                     ")V"
             );
 
@@ -1645,7 +1646,8 @@ namespace privmx {
                     privmx::wrapper::containerPolicyWithoutItem2Java(ctx, streamRoom_c.policy),
                     ctx.long2jLong(streamRoom_c.statusCode),
                     ctx.long2jLong(streamRoom_c.schemaVersion),
-                    ctx->NewStringUTF(streamRoom_c.state.c_str())
+                    ctx->NewStringUTF(streamRoom_c.state.c_str()),
+                    ctx.long2jLong(streamRoom_c.emptyRoomTtl)
             );
         }
 
