@@ -31,6 +31,8 @@ import kotlin.jvm.JvmOverloads
  */
 expect class StreamApiInit
 
+internal var initialized: Boolean = false
+
 /**
  * Manages PrivMX StreamRooms and WebRTC media sessions.
  * High-level wrapper over [StreamApiLow] and WebRTC, providing a simplified interface for audio and video communication
@@ -51,6 +53,11 @@ class StreamApi(
         private set
 
     init {
+        if (!initialized) {
+            initPeerConnectionFactory(apiInit)
+            initialized = true
+        }
+
         val factory = createDefaultPeerConnectionFactory(apiInit)
         pcManager = PeerConnectionManager(
             factory,
@@ -641,3 +648,4 @@ expect fun StreamApi.joinStreamRoom(
 
 internal expect fun StreamApi.createDefaultPeerConnectionFactory(init: StreamApiInit): PeerConnectionFactory
 internal expect fun StreamApi.getRTCConfiguration(): List<IceServer>
+internal expect fun StreamApi.initPeerConnectionFactory(init: StreamApiInit)

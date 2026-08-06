@@ -10,7 +10,6 @@ import org.webrtc.DefaultVideoEncoderFactory
 import org.webrtc.EglBase
 import org.webrtc.PeerConnection
 import org.webrtc.audio.JavaAudioDeviceModule
-import kotlin.Throws
 
 actual data class StreamApiInit(
     val appContext: Context,
@@ -64,3 +63,13 @@ actual fun StreamApi.createDefaultPeerConnectionFactory(
     init.appContext,
     init.rootEglBase
 )
+
+internal actual fun StreamApi.initPeerConnectionFactory(
+    init: StreamApiInit
+) {
+    PeerConnectionFactory.initialize(
+        org.webrtc.PeerConnectionFactory.InitializationOptions
+            .builder(init.appContext)
+            .createInitializationOptions()
+    )
+}
