@@ -1787,7 +1787,7 @@ namespace privmx {
                     itemCls,
                     "<init>",
                     "("
-                    "Ljava/lang/Boolean;"      // published
+                    "Z"      // published
                     "Lcom/simplito/kotlin/privmx_endpoint/model/stream/PublishedStreamData;"      // data
                     ")V"
             );
@@ -1795,19 +1795,14 @@ namespace privmx {
             jobject data = nullptr;
             if (streamPublishResult_c.data.has_value()) {
                 data = publishedStreamData2Java(ctx, streamPublishResult_c.data.value());
-                return ctx->NewObject(
-                        itemCls,
-                        initItemMID,
-                        ctx.bool2jBoolean(streamPublishResult_c.published),
-                        data
-                );
-            } else {
-                return ctx->NewObject(
-                        itemCls,
-                        initItemMID,
-                        ctx.bool2jBoolean(streamPublishResult_c.published)
-                );
             }
+
+            return ctx->NewObject(
+                    itemCls,
+                    initItemMID,
+                    (jboolean)(streamPublishResult_c.published ? JNI_TRUE : JNI_FALSE),
+                    data
+            );
         }
 
         jobject remoteStreamId2Java(JniContextUtils &ctx,
