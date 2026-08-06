@@ -406,8 +406,7 @@ actual constructor(
     ): DecryptedDataChannelMessage
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) {
-    }
+    actual external fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel)
 
     @Throws(IllegalStateException::class)
     private external fun init(
