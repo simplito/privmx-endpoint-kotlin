@@ -31,6 +31,8 @@ import kotlin.jvm.JvmOverloads
  */
 expect class StreamApiInit
 
+internal var initialized: Boolean = false
+
 /**
  * Manages PrivMX StreamRooms and WebRTC media sessions.
  * High-level wrapper over [StreamApiLow] and WebRTC, providing a simplified interface for audio and video communication
@@ -43,7 +45,6 @@ class StreamApi(
     val apiInit: StreamApiInit
 ) : AutoCloseable {
     internal var pcManager: PeerConnectionManager
-    internal var initialized: Boolean = false
 
     /**
      * Factory providing helpers for creating WebRTC media sources and tracks.
