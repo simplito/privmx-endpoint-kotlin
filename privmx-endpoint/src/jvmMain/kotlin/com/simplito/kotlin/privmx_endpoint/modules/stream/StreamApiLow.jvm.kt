@@ -244,6 +244,7 @@ actual constructor(
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
+    @JvmName("updateStream")
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun updateStream(streamHandle: StreamHandle): StreamPublishResult
 
@@ -255,6 +256,7 @@ actual constructor(
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
+    @JvmName("removeStream")
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun removeStream(streamHandle: StreamHandle)
 
@@ -267,6 +269,7 @@ actual constructor(
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
+    @JvmName("createSubscriberStream")
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun createSubscriberStream(
         streamRoomId: String,
@@ -283,6 +286,7 @@ actual constructor(
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
+    @JvmName("updateSubscriberStream")
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun updateSubscriberStream(
         subscriptionHandle: SubscriberStreamHandle,
@@ -299,6 +303,7 @@ actual constructor(
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
+    @JvmName("removeSubscriberStream")
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun removeSubscriberStream(
         subscriptionHandle: SubscriberStreamHandle
