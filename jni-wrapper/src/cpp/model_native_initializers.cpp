@@ -1614,6 +1614,7 @@ namespace privmx {
                     "Ljava/lang/Long;"      // statusCode
                     "Ljava/lang/Long;"      // schemaVersion
                     "Ljava/lang/String;"    // state
+                    "Ljava/lang/Long;"      // emptyRoomTtl
                     ")V"
             );
 
@@ -1645,7 +1646,8 @@ namespace privmx {
                     privmx::wrapper::containerPolicyWithoutItem2Java(ctx, streamRoom_c.policy),
                     ctx.long2jLong(streamRoom_c.statusCode),
                     ctx.long2jLong(streamRoom_c.schemaVersion),
-                    ctx->NewStringUTF(streamRoom_c.state.c_str())
+                    ctx->NewStringUTF(streamRoom_c.state.c_str()),
+                    ctx.long2jLong(streamRoom_c.emptyRoomTtl)
             );
         }
 
@@ -1785,7 +1787,7 @@ namespace privmx {
                     itemCls,
                     "<init>",
                     "("
-                    "Ljava/lang/Boolean;"      // published
+                    "Z"      // published
                     "Lcom/simplito/kotlin/privmx_endpoint/model/stream/PublishedStreamData;"      // data
                     ")V"
             );
@@ -1793,19 +1795,14 @@ namespace privmx {
             jobject data = nullptr;
             if (streamPublishResult_c.data.has_value()) {
                 data = publishedStreamData2Java(ctx, streamPublishResult_c.data.value());
-                return ctx->NewObject(
-                        itemCls,
-                        initItemMID,
-                        ctx.bool2jBoolean(streamPublishResult_c.published),
-                        data
-                );
-            } else {
-                return ctx->NewObject(
-                        itemCls,
-                        initItemMID,
-                        ctx.bool2jBoolean(streamPublishResult_c.published)
-                );
             }
+
+            return ctx->NewObject(
+                    itemCls,
+                    initItemMID,
+                    (jboolean)(streamPublishResult_c.published ? JNI_TRUE : JNI_FALSE),
+                    data
+            );
         }
 
         jobject remoteStreamId2Java(JniContextUtils &ctx,

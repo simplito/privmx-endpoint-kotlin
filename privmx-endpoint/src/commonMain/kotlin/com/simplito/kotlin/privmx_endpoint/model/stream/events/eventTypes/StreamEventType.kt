@@ -24,10 +24,6 @@ enum class StreamEventType : EventType {
     STREAMROOM_DELETE,
 
     /**
-     * Do not use.
-     */
-    EMPTY,
-    /**
      * Type of event triggered when a user joins a StreamRoom.
      */
     STREAMROOM_JOIN,

@@ -139,9 +139,9 @@ class StreamApi(
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         version: Long,
-        force: Boolean,
-        forceGenerateNewKey: Boolean,
-        policies: ContainerPolicyWithoutItem?
+        force: Boolean = false,
+        forceGenerateNewKey: Boolean = false,
+        policies: ContainerPolicyWithoutItem? = null
     ) {
         api.updateStreamRoom(
             streamRoomId,

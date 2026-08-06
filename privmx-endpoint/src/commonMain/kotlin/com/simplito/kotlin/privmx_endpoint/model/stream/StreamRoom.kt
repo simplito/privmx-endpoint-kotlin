@@ -19,7 +19,8 @@ import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
  * @property policy               StreamRoom's policies
  * @property statusCode           Status code of retrieval and decryption of the [StreamRoom]
  * @property schemaVersion        Version of the StreamRoom data structure and how it is encoded/encrypted
- * @property closed               Whether the stream room is closed
+ * @property state
+ * @property emptyRoomTtl
  */
 data class StreamRoom(
     val contextId: String,
@@ -36,7 +37,8 @@ data class StreamRoom(
     val policy: ContainerPolicyWithoutItem,
     val statusCode: Long?,
     val schemaVersion: Long?,
-    val state: String,   // "created" | "open" | "closed"
+    val state: String,   // "created" | "open" | "closed",
+    val emptyRoomTtl: Long?
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -49,6 +51,7 @@ data class StreamRoom(
         if (version != other.version) return false
         if (statusCode != other.statusCode) return false
         if (schemaVersion != other.schemaVersion) return false
+        if (emptyRoomTtl != other.emptyRoomTtl) return false
         if (contextId != other.contextId) return false
         if (streamRoomId != other.streamRoomId) return false
         if (creator != other.creator) return false
@@ -64,11 +67,12 @@ data class StreamRoom(
     }
 
     override fun hashCode(): Int {
-        var result = createDate.hashCode()
-        result = 31 * result + lastModificationDate.hashCode()
-        result = 31 * result + version.hashCode()
-        result = 31 * result + statusCode.hashCode()
-        result = 31 * result + schemaVersion.hashCode()
+        var result = createDate?.hashCode() ?: 0
+        result = 31 * result + (lastModificationDate?.hashCode() ?: 0)
+        result = 31 * result + (version?.hashCode() ?: 0)
+        result = 31 * result + (statusCode?.hashCode() ?: 0)
+        result = 31 * result + (schemaVersion?.hashCode() ?: 0)
+        result = 31 * result + (emptyRoomTtl?.hashCode() ?: 0)
         result = 31 * result + contextId.hashCode()
         result = 31 * result + streamRoomId.hashCode()
         result = 31 * result + creator.hashCode()
