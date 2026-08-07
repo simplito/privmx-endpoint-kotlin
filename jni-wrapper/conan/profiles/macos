@@ -4,3 +4,6 @@ compiler.cppstd=gnu17
 compiler.libcxx=libc++
 compiler.version=16
 os=Macos
+[conf]
+tools.build:sharedlinkflags+=["-Wl,-headerpad_max_install_names"]
+tools.build:exelinkflags+=["-Wl,-headerpad_max_install_names"]
