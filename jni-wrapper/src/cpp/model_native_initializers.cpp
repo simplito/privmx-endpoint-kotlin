@@ -1868,7 +1868,7 @@ namespace privmx {
                     cls,
                     "<init>",
                     "("
-                    "J"                     // streamId
+                    "Ljava/lang/Long;"      // streamId
                     "Ljava/lang/String;"    //streamTrackId
                     ")V"
             );
@@ -1882,7 +1882,7 @@ namespace privmx {
             return ctx->NewObject(
                     cls,
                     initItemMID,
-                    (jlong) streamSubscription.streamId,
+                    ctx.long2jLong( streamSubscription.streamId),
                     streamTrackId
             );
         }
