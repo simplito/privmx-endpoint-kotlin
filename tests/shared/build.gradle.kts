@@ -1,11 +1,12 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
+import com.android.build.api.dsl.androidLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.androidKMPLibrary)
 }
 
 group = "com.simplito.kotlin"
@@ -17,9 +18,15 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_1_8)
         }
     }
-    androidTarget {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+    androidLibrary {
+        namespace = "com.simplito.kotlin.tests.shared"
+        compileSdk = 36
+        minSdk = 24
+
+        compilations.configureEach {
+            compilerOptions.configure {
+                jvmTarget.set(JvmTarget.JVM_11)
+            }
         }
     }
     iosSimulatorArm64()
@@ -42,13 +49,5 @@ kotlin {
         }
         iosMain {
         }
-    }
-}
-
-android {
-    namespace = "com.simplito.kotlin.tests.shared"
-    compileSdk = 36
-    defaultConfig {
-        minSdk = 24
     }
 }
