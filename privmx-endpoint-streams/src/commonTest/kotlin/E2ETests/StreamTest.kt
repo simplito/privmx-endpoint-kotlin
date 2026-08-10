@@ -585,8 +585,6 @@ class StreamTest : BaseTest() {
         streamApi.publishStream(handle)
         runBlocking { delay(1500) }
 
-        // TODO (PROBLEM) - the stream does not get published
-
         streamApi.removeStream(handle)
         runBlocking { delay(1500) }
         assertFailsWith<IllegalStateException> { streamApi.removeStream(handle) }
@@ -1199,7 +1197,6 @@ class StreamTest : BaseTest() {
     /** update: add track then update - track count should grow in list */
     @Test
     fun updateStreamAddTrackReflectedInList() {
-        // todo - zawiesza sie
         val roomId = createStreamRoom()
         streamApi.joinStreamRoom(roomId)
         val handle = streamApi.createStream(roomId)
@@ -1260,7 +1257,6 @@ class StreamTest : BaseTest() {
     /** update after leave  */
     @Test
     fun updateAfterLeave() {
-        // todo - dziala
         val roomId = createStreamRoom()
         streamApi.joinStreamRoom(roomId)
         val handle = streamApi.createStream(roomId)
@@ -1624,7 +1620,6 @@ class StreamTest : BaseTest() {
     /** forced-out member disappears from participants */
     @Test
     fun participantsRemovedMemberDisappears() {
-        // todo - nie dziala
         val roomId = createStreamRoom()
         streamApi.joinStreamRoom(roomId)
         streamApi2.joinStreamRoom(roomId)
