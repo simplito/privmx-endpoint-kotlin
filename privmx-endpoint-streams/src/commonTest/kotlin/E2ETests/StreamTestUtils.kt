@@ -74,21 +74,6 @@ fun deleteAllRooms(streamApi: StreamApi, contextId: String) {
     }
 }
 
-fun addVideoTrackToStream(
-    streamApi: StreamApi,
-    streamHandle: StreamHandle,
-    videoTrackId: String = "video1",
-    isScreenShare: Boolean = false,
-): VideoTrack = streamApi.trackFactory.createVideoTrack(videoTrackId, isScreenShare)
-    .also { streamApi.addTrack(streamHandle, it) }
-
-fun addAudioTrackToStream(
-    streamApi: StreamApi,
-    streamHandle: StreamHandle,
-    audioTrackId: String = "audio1",
-): AudioTrack = streamApi.trackFactory.createAudioTrack(audioTrackId)
-    .also { streamApi.addTrack(streamHandle, it) }
-
 /** user1 publishes, user2 joins*/
 fun StreamTest.publishedStreamWithSecondMemberJoined(): Pair<String, Long> {
     val roomId = createStreamRoom()
