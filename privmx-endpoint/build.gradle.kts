@@ -125,7 +125,6 @@ kotlin {
 
         commonTest {
             dependencies {
-                implementation(project(":tests:shared"))
                 implementation(libs.kotlinx.io.core)
                 implementation(libs.kotlin.test)
             }
