@@ -804,21 +804,6 @@ class StreamTest : BaseTest() {
         assertEquals(true, result.data!!.stream.tracks[0].disabled)
     }
 
-
-    /** user1 publishes, user2 joins*/ // todo - helper function
-    private fun publishedStreamWithSecondMemberJoined(): Pair<String, Long> {
-        val roomId = createStreamRoom()
-        streamApi.joinStreamRoom(roomId)
-
-        val handle = streamApi.createStream(roomId)
-        addFakeAudioTrackToStream(streamApi, handle)
-        val result = streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
-
-        streamApi2.joinStreamRoom(roomId)
-        return roomId to result.data?.stream?.id!!
-    }
-
     /** subscribe without join */
     @Test
     fun subscribeWithoutJoin() {

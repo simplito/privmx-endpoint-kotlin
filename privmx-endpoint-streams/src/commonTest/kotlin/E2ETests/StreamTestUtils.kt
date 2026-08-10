@@ -9,8 +9,11 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
 import com.simplito.kotlin.privmx_endpoint.modules.stream.StreamApiLow
 import com.simplito.kotlin.privmx_endpoint_streams.StreamApi
 import com.simplito.kotlin.privmx_endpoint_streams.StreamApiInit
+import com.simplito.kotlin.privmx_endpoint_streams.joinStreamRoom
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.AudioTrack
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.VideoTrack
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 expect fun createStreamApiInit(): StreamApiInit
 
@@ -85,6 +88,21 @@ fun addAudioTrackToStream(
     audioTrackId: String = "audio1",
 ): AudioTrack = streamApi.trackFactory.createAudioTrack(audioTrackId)
     .also { streamApi.addTrack(streamHandle, it) }
+
+/** user1 publishes, user2 joins*/
+fun StreamTest.publishedStreamWithSecondMemberJoined(): Pair<String, Long> {
+    val roomId = createStreamRoom()
+    streamApi.joinStreamRoom(roomId)
+
+    val handle = streamApi.createStream(roomId)
+    addFakeAudioTrackToStream(streamApi, handle)
+    val result = streamApi.publishStream(handle)
+    runBlocking { delay(1500) }
+
+    streamApi2.joinStreamRoom(roomId)
+
+    return roomId to result.data?.stream?.id!!
+}
 
 fun getStreamsToSubscribe(
     streamApi: StreamApi,
