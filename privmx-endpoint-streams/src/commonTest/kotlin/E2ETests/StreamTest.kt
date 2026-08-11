@@ -1531,6 +1531,8 @@ class StreamTest : BaseTest() {
         val second = all.drop(1).take(1)
 
         val subscriberHandle = streamApi2.createSubscriberStream(roomId, first)
+        runBlocking { delay(1500) }
+
         assertDoesNotFail {
             streamApi2.updateSubscriberStream(subscriberHandle, second, emptyList())
         }
