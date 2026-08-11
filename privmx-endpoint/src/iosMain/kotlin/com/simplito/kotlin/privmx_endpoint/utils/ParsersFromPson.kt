@@ -188,7 +188,7 @@ internal fun PsonObject.toContainerPolicyWithoutItem(): ContainerPolicyWithoutIt
     ContainerPolicyWithoutItem(
         this["get"]?.typedValue(),
         this["update"]?.typedValue(),
-        this["delete_"]?.typedValue(),
+        this["delete"]?.typedValue(),
         this["updatePolicy"]?.typedValue(),
         this["updaterCanBeRemovedFromManagers"]?.typedValue(),
         this["ownerCanBeRemovedFromManagers"]?.typedValue()
