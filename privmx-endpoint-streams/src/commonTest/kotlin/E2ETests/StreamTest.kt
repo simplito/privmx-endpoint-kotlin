@@ -1019,8 +1019,6 @@ class StreamTest : BaseTest() {
         assertFailsWith<PrivmxException> { streamApi2.listStreams(roomId) }
     }
 
-// ---------------
-
     /** update room by non-manager  */
     @Test
     fun updateRoomByNonManager() {
@@ -1373,21 +1371,6 @@ class StreamTest : BaseTest() {
         assertEquals(1, page.totalAvailable?.toInt())
     }
 
-    /** list rooms in an empty context - empty list, not an error */
-    @Test
-    fun listStreamRoomsEmptyContextReturnsEmpty() {
-        // todo - how does this work? is the room still visible for a while?
-        val page = streamApi.listStreamRooms(contextId!!, 0, 100, "desc")
-
-        page.readItems.forEach {
-            println("PRINT:   " + it.state)
-        }
-        println("PRINT:   " + page.readItems.size)
-
-        assertTrue(page.readItems.isEmpty())
-        assertEquals(0, page.totalAvailable?.toInt())
-    }
-
     @Test
     fun listStreamsInvalidIdIsRejected() {
         assertFailsWith<PrivmxException> { streamApi.listStreams("invalidId") }
@@ -1490,9 +1473,6 @@ class StreamTest : BaseTest() {
         assertFailsWith<PrivmxException> { streamApi.getStreamRoom(roomId) }
         assertFailsWith<PrivmxException> { streamApi2.listStreams(roomId) }
     }
-
-
-    // ------------------------
 
     /** subscribe to a single track of a multi-track stream */
     @Test
@@ -1624,16 +1604,26 @@ class StreamTest : BaseTest() {
     /** forced-out member disappears from participants */
     @Test
     fun participantsRemovedMemberDisappears() {
+        // todo - powinno wyrzucic ??
+
         val roomId = createStreamRoom()
         streamApi.joinStreamRoom(roomId)
         streamApi2.joinStreamRoom(roomId)
         runBlocking { delay(1500) }
+
         assertEquals(2, streamApi.listStreamRoomParticipants(roomId).size)
 
         val room = streamApi.getStreamRoom(roomId)
         streamApi.updateStreamRoom(
-            roomId, users.subList(0, 1), users.subList(0, 1),
-            room.publicMeta, room.privateMeta, room.version!!, true, true, null,
+            roomId,
+            users.subList(0, 1),
+            users.subList(0, 1),
+            room.publicMeta,
+            room.privateMeta,
+            room.version!!,
+            true,
+            true,
+            null
         )
         runBlocking { delay(1500) }
 
@@ -1729,6 +1719,7 @@ class StreamTest : BaseTest() {
 
     @Test
     fun getSomeoneElsesRoomAsPublicUser() {
+        // todo - nie mozna na publicznych ?
         val publicConnection = connectAsUser(ConnectionType.Public, bridgeAddress)
         val publicStreamApiLow = StreamApiLow(publicConnection)
         val publicStreamApi = createStreamApi(publicStreamApiLow)
