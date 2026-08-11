@@ -592,8 +592,9 @@ internal fun PsonObject.toStreamSubscriber(): StreamSubscriber = StreamSubscribe
 )
 
 
-internal fun PsonValue.PsonLong.toStreamHandle(): StreamHandle = this.typedValue()
-internal fun PsonValue.PsonLong.toSubscriberStreamHandle(): SubscriberStreamHandle = this.typedValue()
+internal fun PsonValue.PsonLong.toStreamHandle(): StreamHandle = StreamHandle(this.typedValue<Long>())
+
+internal fun PsonValue.PsonLong.toSubscriberStreamHandle(): SubscriberStreamHandle = SubscriberStreamHandle(this.typedValue<Long>())
 
 internal fun PsonObject.toPublishedStream(): PublishedStreamData = PublishedStreamData(
     this["streamRoomId"]!!.typedValue(),
