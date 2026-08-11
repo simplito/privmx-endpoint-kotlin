@@ -1596,18 +1596,20 @@ class StreamTest : BaseTest() {
     @Test
     fun participantsNoDuplicateAfterRejoin() {
         val roomId = createStreamRoom()
+
+        // user1 and user2 join room
         streamApi.joinStreamRoom(roomId)
         streamApi2.joinStreamRoom(roomId)
 
+        // user1 leaves room
         streamApi.leaveStreamRoom(roomId)
-
         runBlocking { delay(1500) }
 
+        // user 1 joins room again
         streamApi.joinStreamRoom(roomId)
-
         runBlocking { delay(1500) }
 
-        assertEquals(1, streamApi.listStreamRoomParticipants(roomId).size)
+        assertEquals(2, streamApi.listStreamRoomParticipants(roomId).size)
     }
 
     /** non-member cannot list participants */
