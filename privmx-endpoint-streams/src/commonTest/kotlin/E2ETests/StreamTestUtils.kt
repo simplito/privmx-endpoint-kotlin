@@ -101,11 +101,6 @@ fun getStreamsToSubscribe(
         }
 }
 
-expect fun addtrackvideo(
-    streamApi: StreamApi,
-    streamHandle: StreamHandle
-)
-
 expect fun addFakeVideoTrackToStream(
     streamApi: StreamApi,
     streamHandle: StreamHandle,
