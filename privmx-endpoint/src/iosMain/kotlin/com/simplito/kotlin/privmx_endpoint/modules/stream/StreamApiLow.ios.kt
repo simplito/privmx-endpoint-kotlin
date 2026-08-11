@@ -572,7 +572,7 @@ actual constructor(
     }
 
     /**
-     * Accepts offer on reconfigure.
+     * Sets new offer on reconfigure.
      *
      * @param sessionId session ID
      * @param sdp SDP with type
@@ -581,11 +581,11 @@ actual constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun acceptOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) = memScoped {
+    actual fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(sessionId.pson, sdp.pson)
         try {
-            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 20, args, pson_result.ptr)
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, null , args, pson_result.ptr)    // todo - there is no method code/number
             pson_result.value?.asResponse?.getResultOrThrow()
             Unit
         } finally {
@@ -726,10 +726,7 @@ actual constructor(
         proxyWebrtcList.close()
     }
 
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) {
-        TODO("Not yet implemented") // there is no method code/number
-    }
+
 }
 
 private class ProxyWebrtcList : AutoCloseable {

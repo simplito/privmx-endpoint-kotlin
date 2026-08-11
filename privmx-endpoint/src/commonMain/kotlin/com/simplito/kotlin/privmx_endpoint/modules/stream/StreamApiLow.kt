@@ -306,7 +306,7 @@ constructor(
     fun trickle(sessionId: Long, candidateAsJson: String)
 
     /**
-     * Accepts offer on reconfigure.
+     * Sets new offer on reconfigure.
      *
      * @param sessionId session ID
      * @param sdp SDP with type
@@ -314,9 +314,6 @@ constructor(
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun acceptOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel)
-
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel)
 
