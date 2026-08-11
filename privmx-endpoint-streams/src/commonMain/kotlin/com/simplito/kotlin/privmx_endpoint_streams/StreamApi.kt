@@ -64,8 +64,8 @@ class StreamApi(
             onTrickle = { sessionId, rtcConfiguration ->
                 this.api.trickle(sessionId, rtcConfiguration)
             },
-            acceptOfferOnReconfigure = { sessionId, sdp ->
-                this.api.acceptOfferOnReconfigure(sessionId, sdp)
+            setNewOfferOnReconfigure = { sessionId, sdp ->
+                this.api.setNewOfferOnReconfigure(sessionId, sdp)
             }
         )
         trackFactory = TrackFactory(pcManager)

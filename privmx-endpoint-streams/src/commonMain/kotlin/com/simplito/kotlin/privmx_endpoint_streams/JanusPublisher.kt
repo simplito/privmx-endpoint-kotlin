@@ -31,7 +31,7 @@ internal class JanusPublisher(
     keyStore: KeyStore,
     trackObserver: TrackObserver?,
     onTrickle: (Long, String) -> Unit,
-    private val acceptOfferOnReconfigure: (Long, SdpWithTypeModel) -> Unit = { _, _ -> },
+    private val setNewOfferOnReconfigure: (Long, SdpWithTypeModel) -> Unit = { _, _ -> },
     onConnectionChange: (IceConnectionState) -> Unit = {}
 ) : JanusConnection(peerConnectionFactory, keyStore, trackObserver, onTrickle, onConnectionChange) {
 
@@ -81,7 +81,7 @@ internal class JanusPublisher(
     override fun onRenegotiationNeeded() {
         if (sessionId > -1) {
             val offer = runBlocking(EmptyCoroutineContext) { createOffer() }
-            acceptOfferOnReconfigure(sessionId, SdpWithTypeModel(offer, "offer"))
+            setNewOfferOnReconfigure(sessionId, SdpWithTypeModel(offer, "offer"))
 
 
         }

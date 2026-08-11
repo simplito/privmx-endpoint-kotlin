@@ -322,7 +322,7 @@ actual constructor(
     actual external fun trickle(sessionId: Long, candidateAsJson: String)
 
     /**
-     * Accepts offer on reconfigure.
+     * Sets new offer on reconfigure.
      *
      * @param sessionId session ID
      * @param sdp SDP with type
@@ -331,7 +331,7 @@ actual constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun acceptOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel)
+    actual external fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel)
 
     /**
      * Subscribes for stream events.
@@ -404,9 +404,6 @@ actual constructor(
         remoteStreamId: String,
         encryptedData: ByteArray
     ): DecryptedDataChannelMessage
-
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel)
 
     @Throws(IllegalStateException::class)
     private external fun init(

@@ -21,7 +21,7 @@ internal class RoomJanusSession(
     val roomId: String,
     private val pcFactory: PeerConnectionFactory,
     private val onTrickle: (Long, String) -> Unit,
-    private val acceptOfferOnReconfigure: (Long, SdpWithTypeModel) -> Unit = { _, _ -> }
+    private val setNewOfferOnReconfigure: (Long, SdpWithTypeModel) -> Unit = { _, _ -> }
 ) {
     internal val keyStore: KeyStore = createKeyStore()
 
@@ -48,8 +48,12 @@ internal class RoomJanusSession(
         check(publisher?.isEnded ?: true) { "Publisher is currently active." }
         publisher?.close()
         publisher = JanusPublisher(
-            pcFactory, keyStore, observer, onTrickle,
-            acceptOfferOnReconfigure, ::onConnectionChange
+            pcFactory,
+            keyStore,
+            observer,
+            onTrickle,
+            setNewOfferOnReconfigure,
+            ::onConnectionChange
         )
     }
 

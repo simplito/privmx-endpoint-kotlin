@@ -9,7 +9,7 @@ import com.simplito.kotlin.privmx_endpoint_streams.webrtc.disposeFactory
 internal class PeerConnectionManager(
     val pcFactory: PeerConnectionFactory,
     private val onTrickle: (Long, String) -> Unit,
-    private val acceptOfferOnReconfigure: (Long, SdpWithTypeModel) -> Unit = { _, _ -> }
+    private val setNewOfferOnReconfigure: (Long, SdpWithTypeModel) -> Unit = { _, _ -> }
 ) : AutoCloseable {
     // roomId -> session
     private val sessions = mutableMapOf<String, RoomJanusSession>()
@@ -19,7 +19,7 @@ internal class PeerConnectionManager(
 
     fun createSession(streamRoomId: String): RoomJanusSession =
         sessions.getOrPut(streamRoomId) {
-            RoomJanusSession(streamRoomId, pcFactory, onTrickle, acceptOfferOnReconfigure)
+            RoomJanusSession(streamRoomId, pcFactory, onTrickle, setNewOfferOnReconfigure)
         }
 
     fun getSession(streamRoomId: String): RoomJanusSession? = sessions[streamRoomId]
