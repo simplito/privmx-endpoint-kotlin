@@ -203,8 +203,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_listStream
         jlong limit,
         jstring sort_order,
         jstring last_id,
-        jstring sort_by,
         jstring query_as_json
+        jstring sort_by
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(context_id, "Context ID") ||
@@ -224,8 +224,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_listStream
                     &limit,
                     &sort_order,
                     &last_id,
-                    &sort_by,
                     &query_as_json
+                    &sort_by
             ]() {
                 auto query = core::PagingQuery();
                 query.skip = skip;

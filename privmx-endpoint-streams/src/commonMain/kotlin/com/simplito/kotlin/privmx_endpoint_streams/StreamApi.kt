@@ -183,9 +183,10 @@ class StreamApi(
         limit: Long,
         sortOrder: String = "desc",
         lastId: String? = null,
+        queryAsJson: String? = null,
         sortBy: String? = null
     ): PagingList<StreamRoom> {
-        return api.listStreamRooms(contextId, skip, limit, sortOrder, lastId, sortBy)
+        return api.listStreamRooms(contextId, skip, limit, sortOrder, lastId, queryAsJson, sortBy)
     }
 
 
