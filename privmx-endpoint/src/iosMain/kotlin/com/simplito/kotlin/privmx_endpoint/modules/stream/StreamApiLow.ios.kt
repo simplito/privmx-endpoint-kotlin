@@ -34,6 +34,7 @@ import com.simplito.kotlin.privmx_endpoint.utils.toStreamPublishResult
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamRoom
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamSubscriber
 import com.simplito.kotlin.privmx_endpoint.utils.toSubscriberStreamHandle
+import com.simplito.kotlin.privmx_endpoint.utils.toTurnCredentials
 import com.simplito.kotlin.privmx_endpoint.utils.typedList
 import com.simplito.kotlin.privmx_endpoint.utils.typedValue
 import kotlinx.cinterop.*
@@ -92,7 +93,10 @@ actual constructor(
         val args = pson_new_array()
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 1, args, pson_result.ptr)
-            pson_result.value?.asResponse?.getResultOrThrow()?.typedValue()!!
+            val psonObject =
+                pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonArray<*>
+            psonObject.getValue().map { (it as PsonValue.PsonObject).toTurnCredentials() }
+
         } finally {
             pson_free_result(pson_result.value)
             pson_free_value(args)
