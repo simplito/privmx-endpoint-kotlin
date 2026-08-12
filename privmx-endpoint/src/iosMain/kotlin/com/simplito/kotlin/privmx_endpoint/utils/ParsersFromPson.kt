@@ -278,6 +278,7 @@ internal fun PsonObject.toEvent(): Event<*> = Event(
     this["connectionId"]?.typedValue(),
     this["subscriptions"]!!.typedList().map { it.typedValue() },
     this["timestamp"]!!.typedValue(),
+    this["timestamp"]?.typedValue(),
     (this["data"] as PsonObject?)?.let {
         EventDataMappers[it.type]?.invoke(it)
     } ?: Unit
@@ -523,24 +524,24 @@ internal fun PsonObject.toTurnCredentials(): TurnCredentials = TurnCredentials(
     this["urls"]!!.typedValue(),
     this["username"]!!.typedValue(),
     this["password"]!!.typedValue(),
-    this["expirationTime"]!!.typedValue()
+    this["expirationTime"]?.typedValue()
 )
 
 internal fun PsonObject.toStreamRoom(): StreamRoom = StreamRoom(
     this["contextId"]!!.typedValue(),
     this["streamRoomId"]!!.typedValue(),
-    this["createDate"]!!.typedValue(),
+    this["createDate"]?.typedValue(),
     this["creator"]!!.typedValue(),
-    this["lastModificationDate"]!!.typedValue(),
+    this["lastModificationDate"]?.typedValue(),
     this["lastModifier"]!!.typedValue(),
     this["users"]!!.typedList().map { it.typedValue() },
     this["managers"]!!.typedList().map { it.typedValue() },
-    this["version"]!!.typedValue(),
+    this["version"]?.typedValue(),
     this["publicMeta"]!!.typedValue(),
     this["privateMeta"]!!.typedValue(),
     (this["policy"] as PsonObject).toContainerPolicyWithoutItem(),
-    this["statusCode"]!!.typedValue(),
-    this["schemaVersion"]!!.typedValue(),
+    this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue(),
     this["state"]!!.typedValue(),       // "created" | "open" | "closed"
     this["emptyRoomTtl"]?.typedValue(),
 )
@@ -575,20 +576,21 @@ internal fun PsonObject.toDataChannelMessage(): DataChannelMessage = DataChannel
     this["seq"]!!.typedValue()
 )
 
-internal fun PsonObject.toStreamTrackModificationPair(): StreamTrackModificationPair = StreamTrackModificationPair(
-    (this["before"] as PsonObject).toStreamTrackInfo(),
-    (this["after"] as PsonObject).toStreamTrackInfo(),
-)
+internal fun PsonObject.toStreamTrackModificationPair(): StreamTrackModificationPair =
+    StreamTrackModificationPair(
+        (this["before"] as? PsonObject)?.toStreamTrackInfo(),
+        (this["after"] as? PsonObject)?.toStreamTrackInfo(),
+    )
 
 internal fun PsonObject.toStreamSubscription(): StreamSubscription = StreamSubscription(
-    this["streamId"]!!.typedValue(),
+    this["streamId"]?.typedValue(),
     this["streamTrackId"]?.typedValue()
 )
 
 internal fun PsonObject.toStreamSubscriber(): StreamSubscriber = StreamSubscriber(
     this["userId"]!!.typedValue(),
     this["subscriptions"]!!.typedList().map { (it as PsonObject).toStreamSubscription() },
-    (this["publishedStream"] as PsonObject).toStreamInfo(),
+    (this["publishedStream"] as? PsonObject)?.toStreamInfo(),
 )
 
 
