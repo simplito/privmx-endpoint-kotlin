@@ -77,7 +77,8 @@ constructor(
         managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        policies: ContainerPolicyWithoutItem? = null
+        policies: ContainerPolicyWithoutItem? = null,
+        emptyRoomTtl: Long? = null
     ): String
 
     /**
