@@ -21,6 +21,7 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.*
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.utils.KPSON_NULL
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
 import com.simplito.kotlin.privmx_endpoint.utils.asResponse
 import com.simplito.kotlin.privmx_endpoint.utils.makeArgs
@@ -124,7 +125,8 @@ actual constructor(
         managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        policies: ContainerPolicyWithoutItem?
+        policies: ContainerPolicyWithoutItem?,
+        emptyRoomTtl: Long?
     ): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -133,7 +135,8 @@ actual constructor(
             managers.map { it.pson }.pson,
             publicMeta.pson,
             privateMeta.pson,
-            policies?.pson
+            policies?.pson ?: KPSON_NULL,
+            emptyRoomTtl?.pson ?: KPSON_NULL
         )
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 2, args, pson_result.ptr)

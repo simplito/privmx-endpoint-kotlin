@@ -85,7 +85,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
         jobject managers,
         jbyteArray public_meta,
         jbyteArray private_meta,
-        jobject policies
+        jobject policies,
+        jobject emptyRoomTtl
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(context_id, "Context ID") ||
@@ -107,7 +108,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
                     &managers,
                     &public_meta,
                     &private_meta,
-                    &policies
+                    &policies,
+                    &emptyRoomTtl
             ]() {
                 std::vector<core::UserWithPubKey> users_c = usersToVector(
                         ctx,
@@ -117,6 +119,12 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
                         ctx.jObject2jArray(managers));
                 auto container_policies_c = std::optional<core::ContainerPolicyWithoutItem>(
                         parseContainerPolicyWithoutItem(ctx, policies));
+
+                std::optional<int64_t> emptyRoomTtl_c = std::nullopt;
+                if (emptyRoomTtl != nullptr) {
+                    emptyRoomTtl_c = ctx.getObject(emptyRoomTtl).getLongValue();
+                }
+
                 return ctx->NewStringUTF(
                         getStreamApi(ctx, thiz)->createStreamRoom(
                                 ctx.jString2string(context_id),
@@ -124,7 +132,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
                                 managers_c,
                                 core::Buffer::from(ctx.jByteArray2String(public_meta)),
                                 core::Buffer::from(ctx.jByteArray2String(private_meta)),
-                                container_policies_c
+                                container_policies_c,
+                                emptyRoomTtl_c
                         ).c_str());
             });
     if (ctx->ExceptionCheck()) {
@@ -203,7 +212,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_listStream
         jlong limit,
         jstring sort_order,
         jstring last_id,
-        jstring query_as_json
+        jstring query_as_json,
         jstring sort_by
 ) {
     JniContextUtils ctx(env);
@@ -224,7 +233,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_listStream
                     &limit,
                     &sort_order,
                     &last_id,
-                    &query_as_json
+                    &query_as_json,
                     &sort_by
             ]() {
                 auto query = core::PagingQuery();
