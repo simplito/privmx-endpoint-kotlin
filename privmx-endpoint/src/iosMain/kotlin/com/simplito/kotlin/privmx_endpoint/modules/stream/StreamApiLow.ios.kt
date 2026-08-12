@@ -185,7 +185,7 @@ actual constructor(
             version.pson,
             force.pson,
             forceGenerateNewKey.pson,
-            policies?.pson
+            policies?.pson ?: KPSON_NULL
         )
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 3, args, pson_result.ptr)
