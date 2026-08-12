@@ -522,7 +522,7 @@ internal inline fun <reified T : Any> PsonValue<Any>.typedValue(): T {
 internal fun PsonValue<Any>.typedList() = getValue() as List<PsonValue<Any>>
 
 internal fun PsonObject.toTurnCredentials(): TurnCredentials = TurnCredentials(
-    this["urls"]!!.typedValue(),
+    this["url"]!!.typedValue(),
     this["username"]!!.typedValue(),
     this["password"]!!.typedValue(),
     this["expirationTime"]?.typedValue()
