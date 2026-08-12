@@ -306,19 +306,25 @@ actual constructor(
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun listStreamRoomParticipants(streamRoomId: String): List<StreamSubscriber> = memScoped{
-        val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(streamRoomId.pson)
-        try {
-            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 26, args, pson_result.ptr)
-            val psonObject =
-                pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonArray<*>
-            psonObject.getValue().map { (it as PsonValue.PsonObject).toStreamSubscriber() }
-        } finally {
-            pson_free_result(pson_result.value)
-            pson_free_value(args)
+    actual fun listStreamRoomParticipants(streamRoomId: String): List<StreamSubscriber> =
+        memScoped {
+            val pson_result = allocPointerTo<pson_value>()
+            val args = makeArgs(streamRoomId.pson)
+            try {
+                privmx_endpoint_execStreamApiLow(
+                    nativeStreamApiLow.value,
+                    24,
+                    args,
+                    pson_result.ptr
+                )
+                val psonObject =
+                    pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonArray<*>
+                psonObject.getValue().map { (it as PsonValue.PsonObject).toStreamSubscriber() }
+            } finally {
+                pson_free_result(pson_result.value)
+                pson_free_value(args)
+            }
         }
-    }
 
     /**
      * Joins a stream room.
@@ -339,7 +345,7 @@ actual constructor(
             proxyWebrtcList.new(webRtcInterface).proxy.toLong().pson
         )
         try {
-            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 25, args, pson_result.ptr)
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 23, args, pson_result.ptr)
             pson_result.value?.asResponse?.getResultOrThrow()
             Unit
         } finally {
@@ -674,7 +680,7 @@ actual constructor(
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(streamRoomId.pson, plainMessage.pson)
         try {
-            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 28, args, pson_result.ptr)
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 26, args, pson_result.ptr)
             pson_result.value?.asResponse?.getResultOrThrow()?.typedValue()!!
         } finally {
             pson_free_result(pson_result.value)
@@ -690,7 +696,7 @@ actual constructor(
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(streamRoomId.pson, remoteStreamId.pson)
         try {
-            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 27, args, pson_result.ptr)
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 25, args, pson_result.ptr)
             pson_result.value?.asResponse?.getResultOrThrow()
             Unit
         } finally {
@@ -708,8 +714,9 @@ actual constructor(
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(streamRoomId.pson, remoteStreamId.pson, encryptedData.pson)
         try {
-            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 29, args, pson_result.ptr)
-            val psonObject = pson_result.value?.asResponse?.getResultOrThrow() as? PsonValue.PsonObject
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 27, args, pson_result.ptr)
+            val psonObject =
+                pson_result.value?.asResponse?.getResultOrThrow() as? PsonValue.PsonObject
             psonObject?.toDecryptedDataChannelMessage()!!
         } finally {
             pson_free_result(pson_result.value)
