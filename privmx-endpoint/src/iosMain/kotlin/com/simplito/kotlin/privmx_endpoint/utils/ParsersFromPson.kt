@@ -438,6 +438,7 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "kvdb\$KvdbEntry" to PsonObject::toKvdbEntry,
     "kvdb\$KvdbDeletedEntryEventData" to PsonObject::toKvdbDeletedEntryEventData,
     "stream\$StreamRoom" to PsonObject::toStreamRoom,
+    "stream\$StreamRoomCreatedEvent" to PsonObject::toStreamRoom,
     "stream\$StreamRoomDeletedEventData" to PsonObject::toStreamRoomDeletedEventData,
     "stream\$StreamPublishedEventData" to PsonObject::toStreamPublishedEventData,
     "stream\$StreamUpdatedEventData" to PsonObject::toStreamUpdatedEventData,
