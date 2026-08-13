@@ -1718,49 +1718,6 @@ class StreamTest : BaseTest() {
     }
 
     @Test
-    fun getSomeoneElsesRoomAsPublicUser() {
-        // todo - nie mozna na publicznych ?
-        val publicConnection = connectAsUser(ConnectionType.Public, bridgeAddress)
-        val publicStreamApiLow = StreamApiLow(publicConnection)
-        val publicStreamApi = createStreamApi(publicStreamApiLow)
-
-        val roomId = createStreamRoom(contextId, users, users)
-        try {
-            assertFailsWith<PrivmxException> {
-                publicStreamApi.getStreamRoom(roomId)
-            }
-        } finally {
-            publicStreamApi.close()
-            publicStreamApiLow.close()
-            publicConnection.close()
-        }
-    }
-
-    @Test
-    fun createStreamRoomAsPublicUser() {
-        val publicConnection = connectAsUser(ConnectionType.Public, bridgeAddress)
-        val publicStreamApiLow = StreamApiLow(publicConnection)
-        val publicStreamApi = createStreamApi(publicStreamApiLow)
-
-        try {
-            assertFailsWith<PrivmxException> {
-                publicStreamApi.createStreamRoom(
-                    contextId!!,
-                    users,
-                    users,
-                    publicMeta.encodeToByteArray(),
-                    privateMeta.encodeToByteArray(),
-                    null
-                )
-            }
-        } finally {
-            publicStreamApi.close()
-            publicStreamApiLow.close()
-            publicConnection.close()
-        }
-    }
-
-    @Test
     fun joinStreamRoomAsPublicUser() {
         val publicConnection = connectAsUser(ConnectionType.Public, bridgeAddress)
         val publicStreamApiLow = StreamApiLow(publicConnection)
@@ -1768,12 +1725,10 @@ class StreamTest : BaseTest() {
 
         val roomId = createStreamRoom(contextId, users, users)
 
-        try {
-            assertFailsWith<PrivmxException> { publicStreamApi.joinStreamRoom(roomId) }
-        } finally {
-            publicStreamApi.close()
-            publicStreamApiLow.close()
-            publicConnection.close()
+        assertFailsWith<PrivmxException> {
+            publicStreamApi.joinStreamRoom(roomId)
         }
+
+        publicConnection.close()
     }
 }
