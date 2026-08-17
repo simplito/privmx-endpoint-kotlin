@@ -139,6 +139,63 @@ class StreamTest : BaseTest() {
         assertFailsWith<PrivmxException> { streamApi2.getStreamRoom(roomId) }
     }
 
+    /** create room with an explicit emptyRoomTtl - the full join/publish/subscribe flow still works */
+    @Test
+    fun createRoomWithEmptyRoomTtlPublishFlowWorks() {
+        val roomId = createStreamRoom(
+            streamApi,
+            contextId,
+            users,
+            users,
+            publicMeta.encodeToByteArray(),
+            privateMeta.encodeToByteArray(),
+            null,
+            5_000L
+        )
+
+        streamApi.joinStreamRoom(roomId)
+        streamApi2.joinStreamRoom(roomId)
+
+        val handle = streamApi.createStream(roomId)
+        addFakeAudioTrackToStream(streamApi, handle)
+        streamApi.publishStream(handle)
+        waitForServerSync()
+
+        assertEquals(1, streamApi2.listStreams(roomId).size)
+    }
+
+    /** Try to join a room after its emptyRoomTtl has expired */
+    @Test
+    fun rejoinWithinEmptyRoomTtlKeepsRoomUsable() {
+        val roomId = createStreamRoom(
+            streamApi,
+            contextId,
+            users,
+            users,
+            publicMeta.encodeToByteArray(),
+            privateMeta.encodeToByteArray(),
+            null,
+            1000
+        )
+        waitForServerSync()
+
+        // first join
+        streamApi.joinStreamRoom(roomId)
+        waitForServerSync()
+        streamApi.leaveStreamRoom(roomId)
+        waitForServerSync()
+
+        // rejoin before ttl ends
+        streamApi.joinStreamRoom(roomId)
+        waitForServerSync()
+        streamApi.leaveStreamRoom(roomId)
+        waitForServerSync()
+
+        // try join after ttl ends
+        waitForServerSync(2500)
+        streamApi.joinStreamRoom(roomId)
+    }
+
     /** add user2 - should get read access */
     @Test
     fun addedMemberGainsReadAccess() {
