@@ -239,9 +239,12 @@ signing {
 
 tasks.register("testsPreConfig") {
     doFirst {
+        val hostIp = System.getenv("HOST_IP") ?: "127.0.0.1"
+        println("Using HOST_IP=$hostIp")
+
         val COMPOSE_NETWORK = "endpoint_e2e_testing_network";
         val COMPOSE_PROJECT = "tests";
-        val DOCKER_IMAGE = "simplito/privmx-bridge:latest"
+        val DOCKER_IMAGE = "hub.simplito.com/privmx/privmx-bridge:dev"
         val id = UUID.randomUUID().toString();
         val hostPort = 3001;
         val containerName = "privmx_e2e_tests_$id"
@@ -261,7 +264,7 @@ tasks.register("testsPreConfig") {
             // Internal Domains (must match service names in docker-compose)
             "PMX_MEDIA_SERVER_ALLOW_SELF_SIGNED_CERTS=true",
             "PMX_STREAMS_MEDIA_SERVER=janus",
-            "PMX_STREAMS_TURN_SERVER=turn:127.0.0.1:3478",
+            "PMX_STREAMS_TURN_SERVER=turn:$hostIp:3478",
             "PMX_STREAMS_TURN_SERVER_SECRET=my-secret-key",
         ).flatMap { it -> listOf("-e", it) };
 
@@ -278,6 +281,19 @@ tasks.register("testsPreConfig") {
                 println("docker rm failed")
             }
         }
+
+        // Jawny pull, aby zawsze pobrać najnowszy obraz spod taga :dev
+        ProcessBuilder("docker", "pull", DOCKER_IMAGE).apply {
+            redirectError()
+            redirectInput()
+            redirectOutput()
+        }.start().apply {
+            waitFor(180, TimeUnit.SECONDS)
+            if (this.exitValue() != 0) {
+                println("docker pull failed for $DOCKER_IMAGE")
+            }
+        }
+
         val datasetDir = rootProject.layout.projectDirectory.dir("tests/$dataSet")
         runBlocking {
             project.loadDataSet(db, datasetDir)
@@ -331,7 +347,7 @@ tasks.register("testsPreConfig") {
         cliContext.callCli("context/addUserToContext","""{"contextId": "$contextId", "userId": "$user2Id", "userPubKey": "$publicKey2"}""")
         cliContext.callCli("context/addUserToContext","""{"contextId": "$context2Id", "userId": "$userId", "userPubKey": "$publicKey"}""")
         cliContext.callCli("context/addUserToContext","""{"contextId": "$context2Id", "userId": "$user2Id", "userPubKey": "$publicKey2"}""")
-        IniData(privateKey,publicKey,userId,privateKey2,publicKey2,user2Id,solutionId,contextId,context2Id,"http://localhost:3001").apply {
+        IniData(privateKey,publicKey,userId,privateKey2,publicKey2,user2Id,solutionId,contextId,context2Id, "http://$hostIp:3001").apply {
             val file = project.layout.projectDirectory.dir("src/commonTest/resources").file("TestData.ini").asFile
             saveAsIniFile(file)
         }
