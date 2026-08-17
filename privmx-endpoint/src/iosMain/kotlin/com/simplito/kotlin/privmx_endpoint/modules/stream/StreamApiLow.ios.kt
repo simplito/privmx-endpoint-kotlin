@@ -594,7 +594,7 @@ actual constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) {
+    actual fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(sessionId.pson, sdp.pson)
         try {
