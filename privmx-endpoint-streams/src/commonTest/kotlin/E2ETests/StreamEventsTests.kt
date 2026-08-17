@@ -4,6 +4,7 @@ import E2ETests.addFakeVideoTrackToStream
 import E2ETests.createStreamApi
 import E2ETests.deleteAllRooms
 import E2ETests.getStreamsToSubscribe
+import E2ETests.waitForServerSync
 
 import com.simplito.kotlin.privmx_endpoint.model.Event
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
@@ -133,7 +134,7 @@ class StreamEventsTests : BaseTest() {
     }
 
     fun expectNoEventOccurs() {
-        runBlocking { delay(1500) }
+        waitForServerSync()
         assertNull(EventQueue.getEvent())
     }
 
@@ -409,7 +410,7 @@ class StreamEventsTests : BaseTest() {
             )
         )
 
-        runBlocking { delay(1500) }
+        waitForServerSync()
         assertDoesNotFail {
             streamApi.leaveStreamRoom(id)
         }
@@ -460,7 +461,7 @@ class StreamEventsTests : BaseTest() {
         assertNotNull(data.userId)
 
         streamApi.removeStream(handle) // unpublish
-        runBlocking { delay(1000) }
+        waitForServerSync(1000) 
         streamApi.unsubscribeFrom(subscriptionIds)
     }
 
@@ -498,7 +499,7 @@ class StreamEventsTests : BaseTest() {
         assertNotNull(data.userId)
 
         streamApi.removeStream(handle) // unpublish
-        runBlocking { delay(1000) }
+        waitForServerSync(1000) 
         streamApi.unsubscribeFrom(subscriptionIds)
     }
 
@@ -512,7 +513,7 @@ class StreamEventsTests : BaseTest() {
         addFakeAudioTrackToStream(streamApi, handle)
 
         val pub = streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         val subscriptionIds = streamApi.subscribeFor(
             listOf(
@@ -547,7 +548,7 @@ class StreamEventsTests : BaseTest() {
         val handle = streamApi.createStream(id)
         addFakeAudioTrackToStream(streamApi, handle)
         val pub = streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         val subscriptionIds = streamApi.subscribeFor(
             listOf(
@@ -640,7 +641,7 @@ class StreamEventsTests : BaseTest() {
         expectNoEventOccurs()
 
         streamApi.removeStream(handle)
-        runBlocking { delay(1000) }
+        waitForServerSync(1000)
         streamApi2!!.unsubscribeFrom(subscriptionIds)
     }
 
@@ -655,7 +656,7 @@ class StreamEventsTests : BaseTest() {
 
         addFakeAudioTrackToStream(streamApi, handle)
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         // user2 joins and subscribes to STREAM_SUBSCRIBE events
         streamApi2!!.joinStreamRoom(id)
@@ -700,12 +701,12 @@ class StreamEventsTests : BaseTest() {
         val handle = streamApi.createStream(id)
         addFakeVideoTrackToStream(streamApi, handle)
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         // user2 - (stream) subscriber
         val subs = getStreamsToSubscribe(streamApi2!!, id)
         val subscriberHandle = streamApi2!!.createSubscriberStream(id, subs)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         val subscriptionIds = streamApi.subscribeFor(
             listOf(
@@ -745,7 +746,7 @@ class StreamEventsTests : BaseTest() {
         val handle = streamApi.createStream(id)
         addFakeVideoTrackToStream(streamApi, handle)
         streamApi.publishStream(handle)
-        runBlocking { delay(5000) }
+        waitForServerSync(5000)
 
         val subscriptionIds = streamApi.subscribeFor(
             listOf(
@@ -775,7 +776,7 @@ class StreamEventsTests : BaseTest() {
         assertTrue(data.tracksRemoved.isEmpty())
 
         streamApi.removeStream(handle)
-        runBlocking { delay(1000) }
+        waitForServerSync(1000)
         streamApi.unsubscribeFrom(subscriptionIds)
     }
 
@@ -786,11 +787,10 @@ class StreamEventsTests : BaseTest() {
         streamApi.joinStreamRoom(id)
         val handle = streamApi.createStream(id)
         addFakeAudioTrackToStream(streamApi, handle)
-        runBlocking { delay(5000) }
-
+        waitForServerSync(5000)
 
         streamApi.publishStream(handle)
-        runBlocking { delay(5000) }
+        waitForServerSync(5000)
 
         val subscriptionIds = streamApi.subscribeFor(
             listOf(
@@ -820,7 +820,7 @@ class StreamEventsTests : BaseTest() {
 
 
         streamApi.removeStream(handle)
-        runBlocking { delay(1000) }
+        waitForServerSync(1000)
         streamApi.unsubscribeFrom(subscriptionIds)
     }
 }
