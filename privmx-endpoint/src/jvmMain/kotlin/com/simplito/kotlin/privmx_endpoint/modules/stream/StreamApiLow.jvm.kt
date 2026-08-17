@@ -394,12 +394,6 @@ actual constructor(
     ): ByteArray
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun registerRemoteDataChannel(
-        streamRoomId: String,
-        remoteStreamId: String
-    )
-
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun decryptDataChannelMessage(
         streamRoomId: String,
         remoteStreamId: String,
