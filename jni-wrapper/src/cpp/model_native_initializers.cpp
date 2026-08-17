@@ -1515,28 +1515,6 @@ namespace privmx {
             );
         }
 
-        jobject stream2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::Stream stream_c
-        ) {
-            jclass streamCls = ctx.findClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/stream/Stream");
-            jmethodID initStreamMID = ctx->GetMethodID(
-                    streamCls,
-                    "<init>",
-                    "("
-                    "Ljava/lang/Long;"  //streamId
-                    "Ljava/lang/String;"  //userId
-                    ")V"
-            );
-            return ctx->NewObject(
-                    streamCls,
-                    initStreamMID,
-                    ctx.long2jLong(stream_c.streamId),
-                    ctx->NewStringUTF(stream_c.userId.c_str())
-            );
-        }
-
         jobject
         turnCredentials2Java(
                 JniContextUtils &ctx,
@@ -1804,27 +1782,6 @@ namespace privmx {
                     data
             );
         }
-
-        jobject remoteStreamId2Java(JniContextUtils &ctx,
-                privmx::endpoint::stream::RemoteStreamId remoteStreamId_c) {
-            jclass itemCls = ctx->FindClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/RemoteStreamId");
-
-            jmethodID initItemMID = ctx->GetMethodID(
-                    itemCls,
-                    "<init>",
-                    "("
-                    "Ljava/lang/Long;"      // value
-                    ")V"
-            );
-
-            return ctx->NewObject(
-                    itemCls,
-                    initItemMID,
-                    ctx.long2jLong(remoteStreamId_c)
-            );
-        }
-
 
         jobject
         streamTrackModificationPair2Java(
