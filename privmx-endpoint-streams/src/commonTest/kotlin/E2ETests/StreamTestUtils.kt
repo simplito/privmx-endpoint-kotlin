@@ -34,13 +34,15 @@ fun createStreamRoom(
     publicMeta: ByteArray,
     privateMeta: ByteArray,
     policies: ContainerPolicy?,
+    emptyRoomTtl: Long?
 ): String = streamApi.createStreamRoom(
     contextId!!,
     users,
     managers,
     publicMeta,
     privateMeta,
-    policies
+    policies,
+    emptyRoomTtl
 )
 
 fun StreamTest.createStreamRoom(
@@ -54,6 +56,7 @@ fun StreamTest.createStreamRoom(
     managers,
     publicMeta.encodeToByteArray(),
     privateMeta.encodeToByteArray(),
+    null,
     null
 )
 
@@ -65,6 +68,7 @@ fun StreamTest.createStreamRoom(): String =
         users,
         publicMeta.encodeToByteArray(),
         privateMeta.encodeToByteArray(),
+        null,
         null
     )
 
