@@ -245,6 +245,7 @@ class StreamTest : BaseTest() {
                 users,
                 publicMeta.encodeToByteArray(),
                 privateMeta.encodeToByteArray(),
+                null,
                 null
             )
         }
@@ -257,6 +258,7 @@ class StreamTest : BaseTest() {
                 users,
                 publicMeta.encodeToByteArray(),
                 privateMeta.encodeToByteArray(),
+                null,
                 null
             )
         }
@@ -268,6 +270,7 @@ class StreamTest : BaseTest() {
                 incorrectUsers,
                 publicMeta.encodeToByteArray(),
                 privateMeta.encodeToByteArray(),
+                null,
                 null
             )
         }
@@ -280,6 +283,7 @@ class StreamTest : BaseTest() {
                 emptyUsers,
                 publicMeta.encodeToByteArray(),
                 privateMeta.encodeToByteArray(),
+                null,
                 null
             )
         }
@@ -292,6 +296,7 @@ class StreamTest : BaseTest() {
                 users.subList(1, 2),
                 publicMeta.encodeToByteArray(),
                 privateMeta.encodeToByteArray(),
+                null,
                 null
             )
         }
@@ -304,13 +309,14 @@ class StreamTest : BaseTest() {
                 users,
                 publicMeta.encodeToByteArray(),
                 privateMeta.encodeToByteArray(),
+                null,
                 null
             )
         }
         // metadata over the limit (max 4096)
         val tooLarge = ByteArray(10 * 1024) { 'x'.code.toByte() }
         assertFailsWith<PrivmxException> {
-            createStreamRoom(streamApi, contextId, users, users, tooLarge, tooLarge, null)
+            createStreamRoom(streamApi, contextId, users, users, tooLarge, tooLarge, null, null)
         }
     }
 
