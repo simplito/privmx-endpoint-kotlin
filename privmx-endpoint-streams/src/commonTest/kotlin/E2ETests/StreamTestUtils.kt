@@ -101,6 +101,9 @@ fun getStreamsToSubscribe(
         }
 }
 
+// helper time to connect to the server
+fun waitForServerSync(ms: Long = 1500) = runBlocking { delay(ms) }
+
 expect fun addFakeVideoTrackToStream(
     streamApi: StreamApi,
     streamHandle: StreamHandle,

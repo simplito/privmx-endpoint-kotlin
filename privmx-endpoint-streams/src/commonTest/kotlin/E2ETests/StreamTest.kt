@@ -161,7 +161,7 @@ class StreamTest : BaseTest() {
         )
 
         // user2 can now see the room
-        runBlocking { delay(1500) }
+        waitForServerSync()
         assertEquals(roomId, streamApi2.getStreamRoom(roomId).streamRoomId)
     }
 
@@ -186,7 +186,7 @@ class StreamTest : BaseTest() {
             null
         )
 
-        runBlocking { delay(1500) }
+        waitForServerSync()
         assertFailsWith<PrivmxException> { streamApi2.getStreamRoom(roomId) }
     }
 
@@ -228,7 +228,7 @@ class StreamTest : BaseTest() {
         val roomId = createStreamRoom(contextId, users, users)
         streamApi.deleteStreamRoom(roomId)
 
-        runBlocking { delay(1500) }
+        waitForServerSync()
         assertFailsWith<PrivmxException> { streamApi.getStreamRoom(roomId) }
         assertFailsWith<PrivmxException> { streamApi2.getStreamRoom(roomId) }
     }
@@ -337,7 +337,7 @@ class StreamTest : BaseTest() {
             true,
             null
         )
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         // both members received the new key and can still read the re-encrypted metadata
         val fromUser2 = streamApi2.getStreamRoom(roomId)
@@ -363,7 +363,7 @@ class StreamTest : BaseTest() {
             true,
             null,
         )
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertFailsWith<PrivmxException> { streamApi2.getStreamRoom(roomId) }
     }
@@ -467,7 +467,7 @@ class StreamTest : BaseTest() {
             room.publicMeta, room.privateMeta, room.version!!, true, true, null,
         )
 
-        runBlocking { delay(1500) }
+        waitForServerSync()
         assertFailsWith<PrivmxException> { streamApi2.joinStreamRoom(roomId) }
     }
 
@@ -491,7 +491,7 @@ class StreamTest : BaseTest() {
             null
         )
 
-        runBlocking { delay(1500) }
+        waitForServerSync()
         val updated = streamApi.getStreamRoom(roomId)
         assertEquals(1, updated.users.size)
         assertEquals(1, updated.managers.size)
@@ -521,7 +521,7 @@ class StreamTest : BaseTest() {
             null
         )
 
-        runBlocking { delay(1500) }
+        waitForServerSync()
         val updated = streamApi.getStreamRoom(roomId)
         assertEquals(1, updated.users.size)
         assertEquals(1, updated.managers.size)
@@ -550,13 +550,13 @@ class StreamTest : BaseTest() {
         streamApi.publishStream(handle)
 
         // user2 sees one stream
-        runBlocking { delay(1500) }
+        waitForServerSync()
         assertEquals(1, streamApi2.listStreams(roomId).size)
 
         // the publisher leaves the room
         streamApi.leaveStreamRoom(roomId)
 
-        runBlocking { delay(1500) }
+        waitForServerSync()
         assertTrue(streamApi2.listStreams(roomId).isEmpty())
     }
 
@@ -589,10 +589,10 @@ class StreamTest : BaseTest() {
         addFakeAudioTrackToStream(streamApi, handle)
 
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         streamApi.removeStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
         assertFailsWith<IllegalStateException> { streamApi.removeStream(handle) }
     }
 
@@ -616,7 +616,7 @@ class StreamTest : BaseTest() {
 
         val result = streamApi.publishStream(handle)
 
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertEquals(1, result.data!!.stream.tracks.size)
         val streams: List<StreamInfo> = streamApi.listStreams(roomId)
@@ -635,7 +635,7 @@ class StreamTest : BaseTest() {
         val handle = streamApi.createStream(roomId)
         addFakeAudioTrackToStream(streamApi, handle)
         val result = streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         val seenByUser2 = streamApi2.listStreams(roomId)
         assertEquals(1, seenByUser2.size)
@@ -653,10 +653,10 @@ class StreamTest : BaseTest() {
         addFakeAudioTrackToStream(streamApi, handle)
 
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         streamApi.removeStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertTrue(streamApi.listStreams(roomId).isEmpty())
     }
@@ -709,7 +709,7 @@ class StreamTest : BaseTest() {
         val handle = streamApi.createStream(roomId)
         addFakeVideoTrackToStream(streamApi, handle)
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         // a track created but never added to this stream
         val neverAdded = streamApi.trackFactory.createAudioTrack("audioNeverAdded")
@@ -729,17 +729,17 @@ class StreamTest : BaseTest() {
         val track = addFakeAudioTrackToStream(streamApi, handle)
 
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         // remove + update
         streamApi.removeTrack(handle, track)
         streamApi.updateStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         // add back + update
         streamApi.addTrack(handle, track)
         streamApi.updateStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         val streams = streamApi.listStreams(roomId)
         assertEquals(1, streams.size)
@@ -754,10 +754,10 @@ class StreamTest : BaseTest() {
         val handle = streamApi.createStream(roomId)
         addFakeAudioTrackToStream(streamApi, handle)
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         streamApi.leaveStreamRoom(roomId)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertFailsWith<IllegalStateException> { addFakeVideoTrackToStream(streamApi, handle) }
     }
@@ -771,7 +771,7 @@ class StreamTest : BaseTest() {
         val handle = streamApi2.createStream(roomId)
 
         addFakeAudioTrackToStream(streamApi2, handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertTrue(streamApi.listStreams(roomId).isEmpty())
     }
@@ -785,10 +785,10 @@ class StreamTest : BaseTest() {
         val handle = streamApi.createStream(roomId)
         val track = addFakeAudioTrackToStream(streamApi, handle)
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         streamApi.leaveStreamRoom(roomId)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertFailsWith<IllegalStateException> { streamApi.removeTrack(handle, track) }
     }
@@ -871,13 +871,13 @@ class StreamTest : BaseTest() {
         val handle = streamApi.createStream(roomId)
         addFakeAudioTrackToStream(streamApi, handle)
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         // get stream before unsubscribing
         val subs = getStreamsToSubscribe(streamApi, roomId)
 
         streamApi.removeStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertFailsWith<PrivmxException> {
             streamApi2.createSubscriberStream(roomId, subs)
@@ -1016,10 +1016,10 @@ class StreamTest : BaseTest() {
         val handle = streamApi.createStream(roomId)
         addFakeAudioTrackToStream(streamApi, handle)
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertDoesNotFail { streamApi.deleteStreamRoom(roomId) }
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertFailsWith<PrivmxException> { streamApi.getStreamRoom(roomId) }
         assertFailsWith<PrivmxException> { streamApi2.listStreams(roomId) }
@@ -1061,7 +1061,7 @@ class StreamTest : BaseTest() {
         val handle = streamApi.createStream(roomId)
         addFakeAudioTrackToStream(streamApi, handle)
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertFailsWith<IllegalStateException> { streamApi2.removeStream(handle) }
     }
@@ -1075,7 +1075,7 @@ class StreamTest : BaseTest() {
         val handle = streamApi.createStream(roomId)
         addFakeAudioTrackToStream(streamApi, handle)
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         streamApi2.joinStreamRoom(roomId)
         assertFailsWith<IllegalStateException> { streamApi2.updateStream(handle) }
@@ -1154,7 +1154,7 @@ class StreamTest : BaseTest() {
         addFakeAudioTrackToStream(streamApi, handle)
 
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertFails { streamApi.publishStream(handle) }
     }
@@ -1168,7 +1168,7 @@ class StreamTest : BaseTest() {
 
         val handle = streamApi2.createStream(roomId)
         addFakeAudioTrackToStream(streamApi2, handle)
-        runBlocking { delay(500) }
+        waitForServerSync(500)
 
         // user1 removes user2 from the room
         val room = streamApi.getStreamRoom(roomId)
@@ -1176,7 +1176,7 @@ class StreamTest : BaseTest() {
             roomId, users.subList(0, 1), users.subList(0, 1),
             room.publicMeta, room.privateMeta, room.version!!, true, true, null,
         )
-        runBlocking { delay(1000) }
+        waitForServerSync(1000)
 
         assertFailsWith<PrivmxException> { streamApi2.publishStream(handle) }
     }
@@ -1190,10 +1190,10 @@ class StreamTest : BaseTest() {
         addFakeAudioTrackToStream(streamApi, handle)
 
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         streamApi.removeStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertFailsWith<IllegalStateException> { streamApi.publishStream(handle) }
     }
@@ -1208,11 +1208,11 @@ class StreamTest : BaseTest() {
 
         val result = streamApi.publishStream(handle)
         assertEquals(1, result.data!!.stream.tracks.size)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         addFakeVideoTrackToStream(streamApi, handle)
         streamApi.updateStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         val streams = streamApi.listStreams(roomId)
         assertEquals(1, streams.size)
@@ -1229,12 +1229,12 @@ class StreamTest : BaseTest() {
         val audio = addFakeAudioTrackToStream(streamApi, handle)
         val video = addFakeVideoTrackToStream(streamApi, handle)
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         streamApi.removeTrack(handle, audio)
         streamApi.removeTrack(handle, video)
         streamApi.updateStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         val streams = streamApi.listStreams(roomId)
         assertEquals(1, streams.size)
@@ -1251,9 +1251,9 @@ class StreamTest : BaseTest() {
         addFakeVideoTrackToStream(streamApi, handle)
 
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
         streamApi.removeStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertFailsWith<IllegalStateException> { streamApi.updateStream(handle) }
     }
@@ -1266,10 +1266,10 @@ class StreamTest : BaseTest() {
         val handle = streamApi.createStream(roomId)
         addFakeAudioTrackToStream(streamApi, handle)
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         streamApi.leaveStreamRoom(roomId)
-        runBlocking { delay(1000) }
+        waitForServerSync(1000)
 
         assertFailsWith<IllegalStateException> { streamApi.updateStream(handle) }
     }
@@ -1283,12 +1283,12 @@ class StreamTest : BaseTest() {
         val handle = streamApi.createStream(roomId)
         addFakeAudioTrackToStream(streamApi, handle)
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
         assertEquals(1, streamApi2.listStreams(roomId).first().tracks.size)
 
         addFakeVideoTrackToStream(streamApi, handle)
         streamApi.updateStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
         assertEquals(2, streamApi2.listStreams(roomId).first().tracks.size)
     }
 
@@ -1368,7 +1368,7 @@ class StreamTest : BaseTest() {
         val id1 = createStreamRoom()
         val id2 = createStreamRoom()
         streamApi.deleteStreamRoom(id1)
-        runBlocking { delay(1000) }
+        waitForServerSync(1000)
 
         val page = streamApi.listStreamRooms(contextId!!, 0, 100, "desc")
         val ids = page.readItems.map { it.streamRoomId }
@@ -1392,11 +1392,11 @@ class StreamTest : BaseTest() {
 
         addFakeVideoTrackToStream(streamApi, handle)
 
-        runBlocking { delay(1500) }
+        waitForServerSync()
         assertTrue(streamApi.listStreams(roomId).isEmpty())
 
         streamApi.publishStream(handle)
-        runBlocking { delay(3000) }
+        waitForServerSync(3000)
 
         assertEquals(1, streamApi.listStreams(roomId).size)
     }
@@ -1415,7 +1415,7 @@ class StreamTest : BaseTest() {
 
         streamApi.publishStream(handle1)
         streamApi2.publishStream(handle2)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertEquals(2, streamApi.listStreams(roomId).size)
         assertEquals(2, streamApi2.listStreams(roomId).size)
@@ -1430,7 +1430,7 @@ class StreamTest : BaseTest() {
         val handle = streamApi.createStream(roomId)
         addFakeAudioTrackToStream(streamApi, handle)
         val result = streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         // user2 joins after publish
         streamApi2.joinStreamRoom(roomId)
@@ -1452,12 +1452,12 @@ class StreamTest : BaseTest() {
         addFakeAudioTrackToStream(streamApi2, handle2)
         streamApi.publishStream(handle1)
         streamApi2.publishStream(handle2)
-        runBlocking { delay(1500) }
+        waitForServerSync()
         assertEquals(2, streamApi2.listStreams(roomId).size)
 
         // user1 unpublishes -> user2 sees only one (their own)
         streamApi.removeStream(handle1)
-        runBlocking { delay(1500) }
+        waitForServerSync()
         assertEquals(1, streamApi2.listStreams(roomId).size)
     }
 
@@ -1471,10 +1471,10 @@ class StreamTest : BaseTest() {
         val handle = streamApi.createStream(roomId)
         addFakeAudioTrackToStream(streamApi, handle)
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         streamApi.deleteStreamRoom(roomId)
-        runBlocking { delay(1000) }
+        waitForServerSync(1000)
 
         assertFailsWith<PrivmxException> { streamApi.getStreamRoom(roomId) }
         assertFailsWith<PrivmxException> { streamApi2.listStreams(roomId) }
@@ -1489,7 +1489,7 @@ class StreamTest : BaseTest() {
         addFakeAudioTrackToStream(streamApi, handle)
         addFakeVideoTrackToStream(streamApi, handle)
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         streamApi2.joinStreamRoom(roomId)
         val singleTrack = getStreamsToSubscribe(streamApi, roomId).take(1)
@@ -1509,7 +1509,7 @@ class StreamTest : BaseTest() {
         addFakeVideoTrackToStream(streamApi, handle)
 
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         streamApi2.joinStreamRoom(roomId)
         val all = getStreamsToSubscribe(streamApi, roomId)
@@ -1517,7 +1517,7 @@ class StreamTest : BaseTest() {
         val second = all.drop(1).take(1)
 
         val subscriberHandle = streamApi2.createSubscriberStream(roomId, first)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertDoesNotFail {
             streamApi2.updateSubscriberStream(subscriberHandle, second, emptyList())
@@ -1537,7 +1537,7 @@ class StreamTest : BaseTest() {
     fun participantsOneAfterSingleJoin() {
         val roomId = createStreamRoom()
         streamApi.joinStreamRoom(roomId)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertEquals(1, streamApi.listStreamRoomParticipants(roomId).size)
     }
@@ -1548,7 +1548,7 @@ class StreamTest : BaseTest() {
         val roomId = createStreamRoom()
         streamApi.joinStreamRoom(roomId)
         streamApi2.joinStreamRoom(roomId)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertEquals(2, streamApi.listStreamRoomParticipants(roomId).size)
         assertEquals(2, streamApi2.listStreamRoomParticipants(roomId).size)
@@ -1560,11 +1560,11 @@ class StreamTest : BaseTest() {
         val roomId = createStreamRoom()
         streamApi.joinStreamRoom(roomId)
         streamApi2.joinStreamRoom(roomId)
-        runBlocking { delay(1500) }
+        waitForServerSync()
         assertEquals(2, streamApi.listStreamRoomParticipants(roomId).size)
 
         streamApi2.leaveStreamRoom(roomId)
-        runBlocking { delay(1500) }
+        waitForServerSync()
         assertEquals(1, streamApi.listStreamRoomParticipants(roomId).size)
     }
 
@@ -1574,7 +1574,7 @@ class StreamTest : BaseTest() {
         val (roomId, _) = publishedStreamWithSecondMemberJoined() // user1 publishes, user2 joined
         val subs = getStreamsToSubscribe(streamApi, roomId)
         streamApi2.createSubscriberStream(roomId, subs)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         // both the publisher and the subscriber are present
         assertEquals(2, streamApi.listStreamRoomParticipants(roomId).size)
@@ -1591,11 +1591,11 @@ class StreamTest : BaseTest() {
 
         // user1 leaves room
         streamApi.leaveStreamRoom(roomId)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         // user 1 joins room again
         streamApi.joinStreamRoom(roomId)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertEquals(2, streamApi.listStreamRoomParticipants(roomId).size)
     }
@@ -1615,7 +1615,7 @@ class StreamTest : BaseTest() {
         val roomId = createStreamRoom()
         streamApi.joinStreamRoom(roomId)
         streamApi2.joinStreamRoom(roomId)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertEquals(2, streamApi.listStreamRoomParticipants(roomId).size)
 
@@ -1631,7 +1631,7 @@ class StreamTest : BaseTest() {
             true,
             null
         )
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         assertEquals(1, streamApi.listStreamRoomParticipants(roomId).size)
     }
@@ -1692,7 +1692,7 @@ class StreamTest : BaseTest() {
             privateMeta.encodeToByteArray(),
             policy
         )
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         // user1 (manager) 
         assertEquals(roomId, streamApi.getStreamRoom(roomId).streamRoomId)
@@ -1744,6 +1744,7 @@ class StreamTest : BaseTest() {
         streamApi.joinStreamRoom(roomId)
 
         val handle = streamApi.createStream(roomId)
+
         runBlocking {
             streamApi.createDataChannel(handle)
             delay(1500)
@@ -1782,7 +1783,7 @@ class StreamTest : BaseTest() {
         addFakeAudioTrackToStream(streamApi, handle)
 
         streamApi.publishStream(handle)
-        runBlocking { delay(1500) }
+        waitForServerSync()
 
         runBlocking {
             streamApi.createDataChannel(handle)
