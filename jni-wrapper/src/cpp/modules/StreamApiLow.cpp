@@ -714,7 +714,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createSubs
                         false
                 );
 
-                return getStreamApi(ctx, thiz)->createSubscriberStream(
+                return (jlong)  getStreamApi(ctx, thiz)->createSubscriberStream(
                         ctx.jString2string(stream_room_id),
                         subscriptions_c
                 );
