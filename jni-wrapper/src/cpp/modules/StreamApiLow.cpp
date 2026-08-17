@@ -760,27 +760,6 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_updateStre
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_acceptOfferOnReconfigure(
-        JNIEnv *env,
-        jobject thiz,
-        jlong session_id,
-        jobject sdp
-) {
-    JniContextUtils ctx(env);
-    if (ctx.nullCheck(sdp, "SDP")) {
-        return;
-    }
-
-    ctx.callVoidEndpointApi([&ctx, &thiz, &session_id, &sdp]() {
-        getStreamApi(ctx, thiz)->acceptOfferOnReconfigure(
-                session_id,
-                parseSdpWithTypeModel(ctx, sdp)
-        );
-    });
-}
-
-extern "C"
-JNIEXPORT void JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_setNewOfferOnReconfigure(
         JNIEnv *env,
         jobject thiz,
@@ -842,28 +821,6 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_encryptDat
         return nullptr;
     }
     return result;
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_registerRemoteDataChannel(
-        JNIEnv *env,
-        jobject thiz,
-        jstring stream_room_id,
-        jstring remote_stream_id
-) {
-    JniContextUtils ctx(env);
-    if (ctx.nullCheck(stream_room_id, "Stream room ID") ||
-            ctx.nullCheck(remote_stream_id, "Remote stream ID")) {
-        return;
-    }
-
-    ctx.callVoidEndpointApi([&ctx, &thiz, &stream_room_id, &remote_stream_id]() {
-        getStreamApi(ctx, thiz)->registerRemoteDataChannel(
-                ctx.jString2string(stream_room_id),
-                ctx.jString2string(remote_stream_id)
-        );
-    });
 }
 
 extern "C"
