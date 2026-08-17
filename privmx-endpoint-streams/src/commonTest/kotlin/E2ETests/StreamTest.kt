@@ -6,12 +6,17 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.modules.stream.StreamApiLow
+import com.simplito.kotlin.privmx_endpoint_streams.RemoteStreamObserver
 import com.simplito.kotlin.privmx_endpoint_streams.StreamApi
 import com.simplito.kotlin.privmx_endpoint_streams.joinStreamRoom
+import com.simplito.kotlin.privmx_endpoint_streams.webrtc.MediaStreamTrack
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -22,6 +27,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
 
 class StreamTest : BaseTest() {
     lateinit var streamApiLow: StreamApiLow
@@ -933,7 +939,7 @@ class StreamTest : BaseTest() {
         val subs = getStreamsToSubscribe(streamApi, roomId).filter { it.streamId == streamId }
         val subscriberHandle = streamApi2.createSubscriberStream(roomId, subs)
 
-        assertDoesNotFail{
+        assertDoesNotFail {
             streamApi2.updateSubscriberStream(subscriberHandle, subs, emptyList())
         }
     }
@@ -1730,5 +1736,146 @@ class StreamTest : BaseTest() {
         }
 
         publicConnection.close()
+    }
+
+    @Test
+    fun createDataChannelWithoutMediaTracks() {
+        val roomId = createStreamRoom()
+        streamApi.joinStreamRoom(roomId)
+
+        val handle = streamApi.createStream(roomId)
+        runBlocking {
+            streamApi.createDataChannel(handle)
+            delay(1500)
+        }
+
+        streamApi.publishStream(handle)
+    }
+
+    /** sendMessage before createDataChannel */
+    @Test
+    fun sendMessageWithoutDataChannel() {
+        runBlocking {
+            val roomId = createStreamRoom()
+            streamApi.joinStreamRoom(roomId)
+
+            val handle = streamApi.createStream(roomId)
+            addFakeAudioTrackToStream(streamApi, handle)
+
+            streamApi.publishStream(handle)
+            delay(1500)
+
+            // data channel never created
+            assertFailsWith<IllegalStateException> {
+                streamApi.sendMessage(handle, "hello".encodeToByteArray())
+            }
+        }
+    }
+
+    /** create data channel twice */
+    @Test
+    fun createDataChannelTwice() {
+        val roomId = createStreamRoom()
+        streamApi.joinStreamRoom(roomId)
+
+        val handle = streamApi.createStream(roomId)
+        addFakeAudioTrackToStream(streamApi, handle)
+
+        streamApi.publishStream(handle)
+        runBlocking { delay(1500) }
+
+        runBlocking {
+            streamApi.createDataChannel(handle)
+            delay(100)
+
+            assertFailsWith<IllegalStateException> {
+                streamApi.createDataChannel(handle)
+            }
+        }
+    }
+
+    /** send message after leaving the room - IllegalStateException */
+    @Test
+    fun sendMessageAfterLeave() {
+        val roomId = createStreamRoom()
+        streamApi.joinStreamRoom(roomId)
+        val handle = streamApi.createStream(roomId)
+        runBlocking {
+            streamApi.createDataChannel(handle)
+            delay(500)
+
+            streamApi.publishStream(handle)
+            delay(500)
+
+            streamApi.leaveStreamRoom(roomId)
+            delay(500)
+
+            // session gone -> resolvePublisher throws
+            assertFailsWith<IllegalStateException> {
+                streamApi.sendMessage(handle, "hello".encodeToByteArray())
+            }
+        }
+    }
+
+    /** send message after removing the stream - IllegalStateException */
+    @Test
+    fun sendMessageAfterRemoveStream() {
+        val roomId = createStreamRoom()
+        streamApi.joinStreamRoom(roomId)
+        val handle = streamApi.createStream(roomId)
+
+        runBlocking {
+            streamApi.createDataChannel(handle)
+            delay(500)
+
+            streamApi.publishStream(handle)
+            delay(500)
+
+            streamApi.removeStream(handle)
+            delay(500)
+
+            assertFailsWith<IllegalStateException> {
+                streamApi.sendMessage(handle, "hello".encodeToByteArray())
+            }
+        }
+    }
+
+    /** send message and receive this message as second user */
+    @Test
+    fun dataChannelMessageIsDeliveredToOtherParticipant() {
+        runBlocking {
+            val message = "Hello universe!"
+            val received = CompletableDeferred<String>()
+
+            val roomId = createStreamRoom()
+            streamApi.joinStreamRoom(roomId)
+            streamApi2.joinStreamRoom(roomId)
+
+            val handle = streamApi.createStream(roomId)
+
+            streamApi.createDataChannel(handle)
+            delay(1000)
+
+            streamApi.publishStream(handle)
+            delay(1000)
+
+            val subscription = streamApi.listStreams(roomId)
+                .firstOrNull { it.tracks.any { t -> t.type == "data" } }
+                ?.let { StreamSubscription(it.id, it.tracks.first { t -> t.type == "data" }.mid) }
+                ?: error("No stream with a data track found")
+
+            streamApi2.setRemoteStreamObserver(roomId, object : RemoteStreamObserver {
+                override fun onTrack(streamId: String?, track: MediaStreamTrack) {}
+                override fun onMessage(streamId: String, message: ByteArray) {
+                    received.complete(message.decodeToString())
+                }
+            })
+            streamApi2.createSubscriberStream(roomId, listOf(subscription))
+            delay(1000)
+
+            streamApi.sendMessage(handle, message.encodeToByteArray())
+
+            assertEquals(message, withTimeout(10.seconds) { received.await() })
+        }
     }
 }
