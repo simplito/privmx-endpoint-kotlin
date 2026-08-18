@@ -1,5 +1,12 @@
 package com.simplito.kotlin.privmx_endpoint.model.stream
 
+/**
+ * Holds an encryption key of a Stream Room.
+ *
+ * @property keyId  ID of the key
+ * @property key    key bytes
+ * @property type   determines whether the key is used to encrypt or to decrypt data
+ */
 data class Key(
     var keyId: String,
     var key: ByteArray,
