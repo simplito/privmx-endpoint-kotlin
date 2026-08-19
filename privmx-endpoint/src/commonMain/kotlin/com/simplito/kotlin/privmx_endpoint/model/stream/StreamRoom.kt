@@ -3,24 +3,29 @@ package com.simplito.kotlin.privmx_endpoint.model.stream
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 
 /**
- * Represents a stream room within a PrivMX context.
+ * Holds all available information about a Stream Room.
  *
- * @property contextId            ID of the Context
- * @property streamRoomId         ID of the stream room
- * @property createDate           Timestamp of when the stream room was created
- * @property creator              ID of the user who created the stream room
- * @property lastModificationDate Stream room last modification timestamp
- * @property lastModifier         ID of the user who last modified the stream room
- * @property users                List of users (their IDs) with access to the stream room
- * @property managers             List of users (their IDs) with management rights
- * @property version              Version number (changes on updates)
- * @property publicMeta           StreamRoom's public metadata
- * @property privateMeta          StreamRoom's private metadata
- * @property policy               StreamRoom's policies
- * @property statusCode           Status code of retrieval and decryption of the [StreamRoom]
- * @property schemaVersion        Version of the StreamRoom data structure and how it is encoded/encrypted
- * @property state
- * @property emptyRoomTtl
+ * @property contextId              ID of the Context the Stream Room was created in
+ * @property streamRoomId           ID of the Stream Room
+ * @property createDate             Stream Room creation timestamp
+ * @property creator                ID of the user who created the Stream Room
+ * @property lastModificationDate   Stream Room last modification timestamp
+ * @property lastModifier           ID of the user who last modified the Stream Room
+ * @property users                  List of users (their IDs) with access to the Stream Room
+ * @property managers               List of users (their IDs) with management rights
+ * @property version                version number (changes on updates)
+ * @property publicMeta             Stream Room's public metadata
+ * @property privateMeta            Stream Room's private metadata
+ * @property policy                 Stream Room's policies
+ * @property statusCode             Status code of retrieval and decryption of the [StreamRoom]
+ * @property schemaVersion          version of the Stream Room data structure and how it is encoded/encrypted
+ * @property state                  current state of the Stream Room:
+ *                                  - "created" - created for a future meeting, not used yet
+ *                                  - "open" - the meeting has started (the first user has joined)
+ *                                  - "closed" - the meeting has ended; the room closes itself once all users
+ *                                     have left and the emptyRoomTtl grace period has passed. A user joining
+ *                                     within that period restarts it
+ * @property emptyRoomTtl           grace period (ms) the Stream Room stays open after the last participant leaves
  */
 data class StreamRoom(
     val contextId: String,
