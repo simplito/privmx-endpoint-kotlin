@@ -365,9 +365,28 @@ class StreamApi(
         api.leaveStreamRoom(streamRoomId)
     }
 
-    suspend fun getSubscriberStats(streamRoomId: String): StatisticsReport? = pcManager.getSession(streamRoomId)?.subscriber?.getStats()
+    /**
+     * Gets the WebRTC statistics of the subscriber connection in given StreamRoom.
+     *
+     * @param streamRoomId ID of the StreamRoom
+     *
+     * @return statistics report of the subscriber connection, or `null` when there is no active session
+     * or no Subscriber Stream for the room
+     */
+    suspend fun getSubscriberStats(streamRoomId: String): StatisticsReport? =
+        pcManager.getSession(streamRoomId)?.subscriber?.getStats()
 
-    suspend fun getPublisherStats(streamRoomId: String): StatisticsReport? = pcManager.getSession(streamRoomId)?.publisher?.getStats()
+    /**
+     * Gets the WebRTC statistics of the publisher connection in given StreamRoom.
+     *
+     * @param streamRoomId ID of the StreamRoom
+     *
+     * @return statistics report of the publisher connection, or `null` when there is no active session
+     * or no published stream for the room
+     */
+    suspend fun getPublisherStats(streamRoomId: String): StatisticsReport? =
+        pcManager.getSession(streamRoomId)?.publisher?.getStats()
+
     /**
      * Removes a media track from a stream.
      *
