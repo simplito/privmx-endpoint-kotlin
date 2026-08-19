@@ -27,19 +27,34 @@ enum class StreamEventType : EventType {
      * Type of event triggered when a user joins a StreamRoom.
      */
     STREAMROOM_JOIN,
+
     /**
      * Type of event triggered when a user leaves a StreamRoom.
      */
     STREAMROOM_LEAVE,
+
     /**
-     * Type of event triggered when a user starts publishing a stream.
+     * Type of event triggered when a user starts publishing a Stream.
      */
     STREAM_PUBLISH,
+
     /**
-     * Type of event triggered when a user stops publishing a stream.
+     * Type of event triggered when a user stops publishing a Stream.
      */
     STREAM_UNPUBLISH,
+
+    /**
+     * Type of event triggered when a user subscribes to a Stream.
+     */
     STREAM_SUBSCRIBE,
+
+    /**
+     * Type of event triggered when a user unsubscribes from a Stream.
+     */
     STREAM_UNSUBSCRIBE,
+
+    /**
+     * Type of event triggered when a published stream is updated (its tracks changed)
+     */
     STREAM_UPDATE,
 }
