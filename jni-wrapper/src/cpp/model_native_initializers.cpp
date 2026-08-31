@@ -1579,20 +1579,20 @@ namespace privmx {
                     "("
                     "Ljava/lang/String;"    // contextId
                     "Ljava/lang/String;"    // streamRoomId
-                    "Ljava/lang/Long;"      // createDate
+                    "J"                     // createDate
                     "Ljava/lang/String;"    // creator
-                    "Ljava/lang/Long;"      // lastModificationDate
+                    "J"                     // lastModificationDate
                     "Ljava/lang/String;"    // lastModifier
                     "Ljava/util/List;"      // users
                     "Ljava/util/List;"      // managers
-                    "Ljava/lang/Long;"      // version
+                    "J"                     // version
                     "[B"                    // publicMeta
                     "[B"                    // privateMeta
                     "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicyWithoutItem;" // policy
-                    "Ljava/lang/Long;"      // statusCode
-                    "Ljava/lang/Long;"      // schemaVersion
+                    "J"                     // statusCode
+                    "J"                     // schemaVersion
                     "Ljava/lang/String;"    // state
-                    "Ljava/lang/Long;"      // emptyRoomTtl
+                    "J"                     // emptyRoomTtl
                     ")V"
             );
 
