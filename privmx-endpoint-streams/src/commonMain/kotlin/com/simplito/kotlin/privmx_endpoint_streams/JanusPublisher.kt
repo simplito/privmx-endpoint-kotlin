@@ -80,10 +80,10 @@ internal class JanusPublisher(
 
     override fun onRenegotiationNeeded() {
         if (sessionId > -1) {
-            val offer = runBlocking(EmptyCoroutineContext) { createOffer() }
-            setNewOfferOnReconfigure(sessionId, SdpWithTypeModel(offer, "offer"))
+        // todo - commented out because it froze the app
 
-
+        // val offer = runBlocking(EmptyCoroutineContext) { createOffer() }
+        // setNewOfferOnReconfigure(sessionId, SdpWithTypeModel(offer, "offer"))
         }
     }
 
