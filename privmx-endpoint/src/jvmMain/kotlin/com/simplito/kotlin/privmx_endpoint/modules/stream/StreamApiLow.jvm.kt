@@ -199,11 +199,16 @@ actual constructor(
     actual external fun listStreams(streamRoomId: String): List<StreamInfo>
 
     /**
-     * Joins a stream room.
+     * Gets a list of participants of given StreamRoom.
      *
-     * @param streamRoomId ID of the room to join
-     * @throws PrivmxException thrown when method encounters an exception
-     * @throws NativeException thrown when method encounters an unknown exception
+     * Each participant is described by their current subscriptions and by the stream they publish, if any.
+     * A user is a participant from the moment they call [joinStreamRoom] until they call [leaveStreamRoom].
+     *
+     * @param streamRoomId ID of the StreamRoom
+     *
+     * @return list of [StreamSubscriber] describing current participants
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
