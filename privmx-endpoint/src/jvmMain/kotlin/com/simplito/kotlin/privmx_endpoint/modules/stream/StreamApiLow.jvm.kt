@@ -214,6 +214,20 @@ actual constructor(
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun listStreamRoomParticipants(streamRoomId: String): List<StreamSubscriber>
 
+    /**
+     * Joins a Stream Room using the given WebRTC layer implementation.
+     *
+     * This is required to work with the Streams, the Stream events and the data channels inside a Stream Room.
+     * Joining passes the Stream Room's current encryption keys to the given WebRTC layer and keeps them up to date
+     * for as long as the Stream Room is joined, so the same instance has to stay alive until leaveStreamRoom.
+     * A Stream Room can be joined only once at a time.
+     *
+     * @param streamRoomId ID of the room to join
+     *
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun joinStreamRoom(streamRoomId: String, webRtcInterface: WebRTCInterface)
 
