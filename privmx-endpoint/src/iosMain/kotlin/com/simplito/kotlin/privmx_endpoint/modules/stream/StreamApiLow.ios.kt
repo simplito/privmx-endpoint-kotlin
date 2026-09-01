@@ -639,16 +639,20 @@ actual constructor(
     }
 
     /**
-     * Accepts offer on reconfigure.
+     * Sends a new offer to the media server to reconfigure an existing Stream.
      *
-     * @param sessionId session ID
-     * @param sdp SDP with type
+     * This method can be used to start the renegotiation process when the WebRTC layer signals that renegotiation
+     * is needed on the PeerConnection observer.
+     *
+     * @param sessionId ID of the media server session to reconfigure
+     * @param sdp offer created by the WebRTC layer
+     *
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun acceptOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) = memScoped {
+    actual fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(sessionId.pson, sdp.pson)
         try {
