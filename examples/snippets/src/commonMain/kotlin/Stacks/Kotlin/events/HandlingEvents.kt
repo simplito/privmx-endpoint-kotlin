@@ -499,6 +499,7 @@ suspend fun handleStreamRoomEvents() {
             )
         ) { leftData: StreamRoomParticipantEventData ->
             // some actions when a participant leaves the stream room
+            // e.g. update subscriptions list
         }
     )
 }
@@ -555,7 +556,8 @@ suspend fun handleStreamEvents() {
                 contextId
             )
         ) { updatedStreamData: StreamUpdatedEventData ->
-            // some actions when stream data is updated
+            // some actions when a stream is updated
+            // e.g. update subscriptions list
         }
     )
 }
