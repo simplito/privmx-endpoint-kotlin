@@ -546,11 +546,15 @@ actual constructor(
     }
 
     /**
-     * Modifies remote streams subscriptions.
+     * Modifies the subscriptions of an existing Subscriber Stream.
      *
-     * @param subscriptionHandle // todo
+     * The resulting set of subscriptions is the current one without 'subscriptionsToRemove' plus
+     * 'subscriptionsToAdd'. As in createSubscriberStream, the negotiation which may follow is completed internally.
+     *
+     * @param subscriptionHandle  handle to the stream to update
      * @param subscriptionsToAdd list of subscriptions to add
      * @param subscriptionsToRemove list of subscriptions to remove
+     *
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
