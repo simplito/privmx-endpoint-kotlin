@@ -269,7 +269,7 @@ constructor(
     fun publishStream(streamHandle: StreamHandle): StreamPublishResult
 
     /**
-     * Updates a published stream.
+     * Updates an already published Stream after its feeds have changed (added or removed).
      *
      * @param streamHandle handle to the stream to update
      * @return publish result
