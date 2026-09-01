@@ -112,6 +112,7 @@ actual constructor(
      * @param force force update
      * @param forceGenerateNewKey force to regenerate a key for the room
      * @param policies additional container access policies
+     *
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
