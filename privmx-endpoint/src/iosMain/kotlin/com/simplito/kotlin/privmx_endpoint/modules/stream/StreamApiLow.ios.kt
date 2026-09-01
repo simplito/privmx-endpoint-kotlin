@@ -295,10 +295,12 @@ actual constructor(
     }
 
     /**
-     * Lists streams in a room.
+     * Gets a list of currently published Streams in given Stream Room.
+     * The returned Streams and their feeds are what can be passed to createSubscriberStream.
      *
      * @param streamRoomId ID of the room to list streams from
-     * @return list of streams
+     *
+     * @return list of currently published streams
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
