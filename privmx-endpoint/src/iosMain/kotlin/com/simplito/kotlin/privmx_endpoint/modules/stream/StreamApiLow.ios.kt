@@ -409,9 +409,15 @@ actual constructor(
     }
 
     /**
-     * Creates a stream in a room.
+     * Creates a Publisher Stream in given Stream Room.
+     *
+     * The Stream is only created locally - nothing is sent to the server and the Stream becomes visible to other
+     * participants after calling [publishStream].
+     * A Stream Room can hold one Publisher Stream at a time - creating a second one throws
+     * 'StreamAlreadyPublishedException' until the current one is removed by removeStream.
      *
      * @param streamRoomId ID of the room to create stream in
+     *
      * @return handle to the created stream
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
