@@ -145,9 +145,10 @@ constructor(
     ): PagingList<StreamRoom>
 
     /**
-     * Gets a stream room.
+     * Gets a single Stream Room by given Stream Room ID.
      *
      * @param streamRoomId ID of the room to get
+     *
      * @return stream room information
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
