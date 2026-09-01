@@ -57,9 +57,14 @@ actual constructor(
     }
 
     /**
-     * Gets TURN credentials.
+     * Gets credentials of the TURN servers.
      *
-     * @return list of TURN credentials
+     * A TURN server relays the Streams when the network configuration blocks direct traffic, e.g. because of
+     * a firewall or a double NAT.
+     * The credentials expire, so they should be fetched again when a new connection is being configured rather
+     * than stored for the lifetime of the application.
+     *
+     * @return list of TURN servers credentials
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
