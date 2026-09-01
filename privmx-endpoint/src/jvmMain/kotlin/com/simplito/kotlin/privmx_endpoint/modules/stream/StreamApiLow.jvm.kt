@@ -373,10 +373,14 @@ actual constructor(
     )
 
     /**
-     * Trickles a candidate.
+     * Sends a locally gathered ICE candidate to the media server.
      *
-     * @param sessionId session ID
+     * This is meant to be called by the WebRTC layer for every candidate it gathers, with the session ID which
+     * this API has assigned to that Stream by calling [WebRTCInterface.updateSessionId].
+     *
+     * @param sessionId ID of the media server session the candidate belongs to
      * @param candidateAsJson candidate as JSON string
+     *
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
