@@ -133,7 +133,7 @@ actual constructor(
     )
 
     /**
-     * Lists stream rooms.
+     * Gets a list of Stream Rooms in given Context.
      *
      * @param contextId ID of the context to list rooms from
      * @param skip number of elements to skip
@@ -142,6 +142,7 @@ actual constructor(
      * @param lastId ID of the element from which query results should start
      * @param queryAsJson custom query
      * @param sortBy field name to sort by
+     *
      * @return paging list of stream rooms
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
