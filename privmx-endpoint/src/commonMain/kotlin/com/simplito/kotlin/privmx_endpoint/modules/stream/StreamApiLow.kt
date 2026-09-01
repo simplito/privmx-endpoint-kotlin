@@ -447,12 +447,22 @@ constructor(
         plainMessage: DataChannelMessage
     ): ByteArray
 
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    fun registerRemoteDataChannel(
-        streamRoomId: String,
-        remoteStreamId: String,
-    )
-
+    /**
+     * Decrypts a message received over the Stream Room's data channel.
+     *
+     * A message which cannot be decrypted is reported by the 'statusCode' of the returned struct rather than by an
+     * exception, so that a single broken message does not break the whole data channel. A message with an invalid
+     * sequence number throws 'InvalidDataChannelSeqException', so the same message cannot be decrypted twice.
+     *
+     * @param streamRoomId ID of the Stream Room the message was received in
+     * @param remoteStreamId ID of the remote Stream which sent the message
+     * @param encryptedData received encrypted message
+     *
+     * @return decrypted message
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun decryptDataChannelMessage(
         streamRoomId: String,
