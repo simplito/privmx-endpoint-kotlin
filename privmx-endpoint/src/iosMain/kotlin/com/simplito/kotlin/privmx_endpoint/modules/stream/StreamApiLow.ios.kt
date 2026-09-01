@@ -382,9 +382,14 @@ actual constructor(
     }
 
     /**
-     * Leaves a stream room.
+     * Leaves a Stream Room and closes all opened Publisher/Subscriber Streams.
+     *
+     * The handles of the Stream Room's publisher and subscriber Streams are invalidated by this call and the
+     * Stream Room has to be joined again to publish or receive anything in it.
+     * It also closes all the connections, so the user disappears from the list of participants.
      *
      * @param streamRoomId ID of the room to leave
+     *
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
