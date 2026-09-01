@@ -511,11 +511,16 @@ actual constructor(
     }
 
     /**
-     * Subscribes to remote streams.
+     * Creates a Subscriber Stream receiving the selected streams or tracks published in given Stream Room.
      *
-     * @param streamRoomId ID of the room where streams are
-     * @param subscriptions list of subscriptions
-     * @return // todo
+     * A Stream Room can hold one subscriber Stream at a time.
+     * The 'subscriptions' list has to contain at least one feed to create a subscriber Stream successfully.
+     * A StreamSubscription without `streamTrackId` subscribes to all the tracks available in that Stream.
+     *
+     * @param streamRoomId ID of the Stream Room to create the Stream in
+     * @param subscriptions list of Streams and tracks to subscribe to
+     *
+     * @return handle to the created Stream
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
