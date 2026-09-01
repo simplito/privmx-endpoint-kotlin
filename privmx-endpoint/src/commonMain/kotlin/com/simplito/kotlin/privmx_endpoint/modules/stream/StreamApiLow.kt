@@ -426,6 +426,21 @@ constructor(
         selectorId: String
     ): String
 
+    /**
+     * Encrypts a message to be sent over the Stream Room's data channel.
+     *
+     * The Stream Room has to be joined, as the message is encrypted with its current key.
+     * The message's 'seq' is assigned by the caller and has to grow strictly with every message sent over the same
+     * Stream - the receiving side rejects a message whose 'seq' is not greater than the last accepted one.
+     *
+     * @param streamRoomId ID of the Stream Room to send the message in
+     * @param plainMessage message to encrypt
+     *
+     * @return encrypted message
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     fun encryptDataChannelMessage(
         streamRoomId: String,
