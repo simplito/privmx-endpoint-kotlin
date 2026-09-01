@@ -10,7 +10,17 @@ import org.webrtc.DefaultVideoEncoderFactory
 import org.webrtc.EglBase
 import org.webrtc.PeerConnection
 import org.webrtc.audio.JavaAudioDeviceModule
+import kotlin.Throws
 
+/**
+ * Android-specific data required to initialize [StreamApi].
+ *
+ * @property appContext the application [Context]. Prefer the application context over an
+ *                       Activity to avoid leaking the Activity for the lifetime of the stream.
+ * @property rootEglBase the root [EglBase] whose EGL context is shared across the WebRTC
+ *                       video pipeline (encoding, decoding, and rendering). Pass the same
+ *                       instance to any renderers so they share this context.
+ */
 actual data class StreamApiInit(
     val appContext: Context,
     val rootEglBase: EglBase,
@@ -47,6 +57,17 @@ internal actual fun StreamApi.getRTCConfiguration(): List<IceServer> {
     }
 }
 
+/**
+ * Joins a StreamRoom and prepares the session for WebRTC communication.
+ *
+ * Required before working with streams and stream events in the room.
+ *
+ * @param streamRoomId ID of the StreamRoom to join
+ *
+ * @throws PrivmxException       thrown when method encounters an exception
+ * @throws NativeException       thrown when method encounters an unknown exception
+ * @throws IllegalStateException thrown when instance is closed
+ */
 @Throws(
     PrivmxException::class,
     NativeException::class,

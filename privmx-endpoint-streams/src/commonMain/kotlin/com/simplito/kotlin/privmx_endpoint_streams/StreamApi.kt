@@ -68,8 +68,8 @@ class StreamApi(
             onTrickle = { sessionId, rtcConfiguration ->
                 this.api.trickle(sessionId, rtcConfiguration)
             },
-            acceptOfferOnReconfigure = { sessionId, sdp ->
-                this.api.acceptOfferOnReconfigure(sessionId, sdp)
+            setNewOfferOnReconfigure = { sessionId, sdp ->
+                this.api.setNewOfferOnReconfigure(sessionId, sdp)
             }
         )
         trackFactory = TrackFactory(pcManager)
@@ -85,8 +85,10 @@ class StreamApi(
      * @param publicMeta  public (unencrypted) metadata
      * @param privateMeta private (encrypted) metadata
      * @param policies    additional container access policies, or `null` to use default settings
+     * @param emptyRoomTtl grace period (in milliseconds) the StreamRoom stays open after the last participant leaves;
+     * `0` closes it immediately; `null` uses the server default (closes it immediately)
      *
-     * @return Created StreamRoom ID
+     * @return created StreamRoom ID
      * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -102,7 +104,8 @@ class StreamApi(
         managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        policies: ContainerPolicyWithoutItem?
+        policies: ContainerPolicyWithoutItem? = null,
+        emptyRoomTtl: Long? = null
     ): String {
         return api.createStreamRoom(
             contextId,
@@ -110,7 +113,8 @@ class StreamApi(
             managers,
             publicMeta,
             privateMeta,
-            policies
+            policies,
+            emptyRoomTtl
         )
     }
 
@@ -119,14 +123,14 @@ class StreamApi(
      *
      * @param streamRoomId        ID of the StreamRoom to update
      * @param users               list of [UserWithPubKey] which indicates who will have access to the updated StreamRoom
-     * @param managers            list of [UserWithPubKey] which indicates who will have access (and management rights) to the
-     * updated StreamRoom
+     * @param managers            list of [UserWithPubKey] which indicates who will have access (and management rights) to the updated StreamRoom
      * @param publicMeta          public (unencrypted) metadata
      * @param privateMeta         private (encrypted) metadata
      * @param version             current version of the updated StreamRoom
      * @param force               force update (without checking version)
      * @param forceGenerateNewKey force to regenerate the encryption key for the StreamRoom
      * @param policies            additional container access policies, or `null` to restore defaults
+     *
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
@@ -170,6 +174,7 @@ class StreamApi(
      * @param sortOrder order of elements in result ("asc" for ascending, "desc" for descending)
      * @param lastId    ID of the element from which query results should start
      * @param sortBy    field name to sort elements by
+     *
      * @return list of StreamRooms
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -187,9 +192,10 @@ class StreamApi(
         limit: Long,
         sortOrder: String = "desc",
         lastId: String? = null,
+        queryAsJson: String? = null,
         sortBy: String? = null
     ): PagingList<StreamRoom> {
-        return api.listStreamRooms(contextId, skip, limit, sortOrder, lastId, sortBy)
+        return api.listStreamRooms(contextId, skip, limit, sortOrder, lastId, queryAsJson, sortBy)
     }
 
 
@@ -197,7 +203,8 @@ class StreamApi(
      * Gets a single StreamRoom by given StreamRoom ID.
      *
      * @param streamRoomId ID of the StreamRoom to get
-     * @return Information about the StreamRoom
+     *
+     * @return information about the StreamRoom
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
@@ -215,6 +222,7 @@ class StreamApi(
      * Deletes a StreamRoom by given StreamRoom ID.
      *
      * @param streamRoomId ID of the StreamRoom to delete
+     *
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
@@ -232,6 +240,7 @@ class StreamApi(
      * Gets a list of currently published streams in given StreamRoom.
      *
      * @param streamRoomId ID of the StreamRoom to list streams from
+     *
      * @return list of [StreamInfo] describing currently published streams
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -246,6 +255,24 @@ class StreamApi(
         return api.listStreams(streamRoomId)
     }
 
+    /**
+     * Gets a list of participants of given StreamRoom.
+     *
+     * Each participant is described by their current subscriptions and by the stream they publish, if any.
+     * A user is a participant from the moment they call [joinStreamRoom] until they call [leaveStreamRoom].
+     *
+     * @param streamRoomId ID of the StreamRoom
+     *
+     * @return list of [StreamSubscriber] describing current participants
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
+    @Throws(
+        PrivmxException::class,
+        NativeException::class,
+        IllegalStateException::class
+    )
     fun listStreamRoomParticipants(streamRoomId: String): List<StreamSubscriber> {
         return api.listStreamRoomParticipants(streamRoomId);
     }
@@ -253,8 +280,11 @@ class StreamApi(
     /**
      * Subscribes for events for StreamRooms and their individual streams on the given subscription queries.
      *
-     * @param subscriptionQueries list of queries built with [buildSubscriptionQuery]
-     * @return list of subscriptionIds in matching order to subscriptionQueries
+     * The returned IDs are the only way to stop receiving those events, so keep them for the matching [unsubscribeFrom] call.
+     *
+     * @param subscriptionQueries list of queries built with [buildSubscriptionQuery].
+     *
+     * @return list of subscription Ids in matching order to subscriptionQueries.
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
@@ -269,9 +299,10 @@ class StreamApi(
     }
 
     /**
-     * Unsubscribes from events with the given subscriptionIds.
+     * Unsubscribes from events with the given subscription Ids.
      *
-     * @param subscriptionIds list of subscriptionId
+     * @param subscriptionIds list of subscription IDs returned by [subscribeFor]
+     *
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
@@ -288,10 +319,15 @@ class StreamApi(
     /**
      * Generates a subscription query for events for a StreamRoom and its individual streams.
      *
+     * The selector narrows the query down to a single scope, so [selectorId] has to be an ID of the kind named
+     * by [selectorType] — a Context ID, a StreamRoom ID or a Stream ID. The returned query is passed to
+     * [subscribeFor] to start receiving the requested events.
+     *
      * @param eventType    type of event you listen for
      * @param selectorType scope on which you listen for events
      * @param selectorId   ID of the selector
-     * @return Query for subscribing event
+     *
+     * @return query string used for event subscription
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
@@ -316,7 +352,11 @@ class StreamApi(
     /**
      * Leaves a StreamRoom and releases the associated WebRTC session.
      *
+     * Closes all opened publisher/Subscriber Streams of the room and invalidates their handles.
+     * After leaving, the user disappears from the list of participants.
+     *
      * @param streamRoomId ID of the StreamRoom to leave
+     *
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      */
@@ -325,9 +365,28 @@ class StreamApi(
         api.leaveStreamRoom(streamRoomId)
     }
 
-    suspend fun getSubscriberStats(streamRoomId: String): StatisticsReport? = pcManager.getSession(streamRoomId)?.subscriber?.getStats()
+    /**
+     * Gets the WebRTC statistics of the subscriber connection in given StreamRoom.
+     *
+     * @param streamRoomId ID of the StreamRoom
+     *
+     * @return statistics report of the subscriber connection, or `null` when there is no active session
+     * or no Subscriber Stream for the room
+     */
+    suspend fun getSubscriberStats(streamRoomId: String): StatisticsReport? =
+        pcManager.getSession(streamRoomId)?.subscriber?.getStats()
 
-    suspend fun getPublisherStats(streamRoomId: String): StatisticsReport? = pcManager.getSession(streamRoomId)?.publisher?.getStats()
+    /**
+     * Gets the WebRTC statistics of the publisher connection in given StreamRoom.
+     *
+     * @param streamRoomId ID of the StreamRoom
+     *
+     * @return statistics report of the publisher connection, or `null` when there is no active session
+     * or no published stream for the room
+     */
+    suspend fun getPublisherStats(streamRoomId: String): StatisticsReport? =
+        pcManager.getSession(streamRoomId)?.publisher?.getStats()
+
     /**
      * Removes a media track from a stream.
      *
@@ -335,6 +394,7 @@ class StreamApi(
      *
      * @param streamHandle handle returned by [createStream]
      * @param track        [VideoTrack] or [AudioTrack] to remove
+     *
      * @throws IllegalStateException thrown when there is no stream for the given handle
      */
     fun removeTrack(
@@ -349,15 +409,19 @@ class StreamApi(
     }
 
     /**
-     * Creates a local stream handle for publishing media in given StreamRoom.
+     * Creates a new Publisher Stream in the given StreamRoom.
+     *
+     * The stream is created locally and becomes visible to other participants only after [publishStream].
+     * A StreamRoom can hold one Publisher Stream at a time.
      *
      * [joinStreamRoom] must be called for the room before this method.
      *
      * @param streamRoomId ID of the StreamRoom to create the stream in
+     *
      * @return Handle to the local stream instance
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when the room has not been joined
+     * @throws IllegalStateException thrown when the instance is closed, the room has not been joined, or a stream already exists for it
      */
     @Throws(
         PrivmxException::class,
@@ -382,6 +446,7 @@ class StreamApi(
      *
      * @param streamHandle handle returned by [createStream]
      * @param track        [VideoTrack] or [AudioTrack] to add
+     *
      * @throws IllegalStateException thrown when there is no stream for the given handle
      */
     fun addTrack(
@@ -401,6 +466,7 @@ class StreamApi(
      * @param roomId   ID of the StreamRoom
      * @param observer observer implementation receiving track callbacks
      * @param streamId ID of a specific remote stream to observe, or `null` for all streams in the given StreamRoom
+     *
      * @throws IllegalStateException thrown when there is no active session for the given room
      */
     @JvmOverloads
@@ -413,12 +479,16 @@ class StreamApi(
     }
 
     /**
-     * Unsubscribes from selected remote streams in a StreamRoom.
+     * Unsubscribes from all remote streams received by the given Subscriber Stream and closes it.
      *
-     * @param subscriptionHandle     // todo
+     * The handle is closed after this call and cannot be used anymore,
+     * but a new Subscriber Stream can be created with [createSubscriberStream].
+     *
+     * @param  subscriptionHandle handle returned by [createSubscriberStream]
+     *
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when there is no active subscription to unsubscribe from
+     * @throws IllegalStateException thrown when the instance is closed or there is no active Subscriber Stream to remove
      */
     @Throws(
         PrivmxException::class,
@@ -430,7 +500,7 @@ class StreamApi(
     ) {
         val session = resolveSession(subscriptionHandle)
         if (session.subscriber == null)
-            throw IllegalStateException("No active subscriber stream to remove.")
+            throw IllegalStateException("No active Subscriber Stream to remove.")
 
         api.removeSubscriberStream(subscriptionHandle)
         session.unsubscribe()
@@ -438,13 +508,16 @@ class StreamApi(
     }
 
     /**
-     * Publishes the stream (with currently added tracks) to the server, making it visible to other participants.
+     * Publishes the Stream with its current feeds, making it visible to other participants.
+     *
+     * A publisher Stream has to have at least one feed added (with [addTrack] or [createDataChannel]) to be published successfully.
      *
      * @param streamHandle handle returned by [createStream]
-     * @return Result of the publish operation containing stream information
+     *
+     * @return result of the publish operation containing stream information
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when there is no stream for the given handle
+     * @throws IllegalStateException thrown when the instance is closed or there is no stream for the given handle
      */
     @Throws(
         PrivmxException::class,
@@ -457,12 +530,16 @@ class StreamApi(
     }
 
     /**
-     * Stops publishing the stream
+     * Stops publishing and closes the Publisher Stream.
+     *
+     * The handle is invalidated after this call and cannot be used anymore, but a new Publisher Stream can be
+     * created in the same StreamRoom with [createStream].
      *
      * @param streamHandle handle returned by [createStream]
+     *
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when there is no stream to unpublish
+     * @throws IllegalStateException thrown when the instance is closed or there is no stream to remove
      */
     @Throws(
         PrivmxException::class,
@@ -480,15 +557,16 @@ class StreamApi(
     }
 
     /**
-     * Updates a published stream after track changes.
+     * Updates an already published stream after its feeds have changed (added or removed).
      *
-     * Call this after [addTrack] or [removeTrack] on an already published stream to propagate the changes to other participants.
+     * Call this after adding or removing feeds on a published stream to make the changes visible to other participants.
      *
      * @param streamHandle handle returned by [createStream]
-     * @return Result of the update operation containing updated stream information
+     *
+     * @return result of the update operation containing updated stream information
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when there is no stream for the given handle
+     * @throws IllegalStateException thrown when the instance is closed or there is no stream for the given handle
      */
     @Throws(
         PrivmxException::class,
@@ -501,42 +579,52 @@ class StreamApi(
     }
 
     /**
-     * Subscribes to selected remote streams or tracks in a StreamRoom.
+     * Creates a Subscriber Stream receiving the selected remote streams or tracks in a StreamRoom.     // todo - feeds?
      *
-     * [joinStreamRoom] must be called for the room before this method.
+     * A StreamRoom can hold one Subscriber Stream at a time.
+     * The [subscriptions] list has to contain at least one entry.
+     * A [StreamSubscription] without a track ID subscribes to all tracks available in that stream.
      *
      * @param streamRoomId  ID of the StreamRoom
      * @param subscriptions list of [StreamSubscription] describing the remote streams to subscribe to
+     *
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when the room has not been joined
+     * @throws IllegalStateException thrown when the instance is closed, the room has not been joined, or a Subscriber Stream already exists for it
      */
     @Throws(
         PrivmxException::class,
         NativeException::class,
         IllegalStateException::class
     )
-    fun createSubscriberStream(streamRoomId: String, subscriptions: List<StreamSubscription>):SubscriberStreamHandle {
+    fun createSubscriberStream(
+        streamRoomId: String,
+        subscriptions: List<StreamSubscription>
+    ): SubscriberStreamHandle {
         val session = resolveSession(streamRoomId)
         runCatching { session.createSubscriber(dataChannelCryptoProvider) }
             .onFailure { throw IllegalStateException("Subscriber stream has already been created for this StreamRoom, try use updateSubscriberStream.") }
         session.subscriber?.setRTCConfiguration(getRTCConfiguration())
 
-        val handle =  api.createSubscriberStream(streamRoomId, subscriptions)
+        val handle = api.createSubscriberStream(streamRoomId, subscriptions)
         pcManager.createHandleToRoom(handle, streamRoomId)
         return handle
     }
 
 
     /**
-     * Modifies the current list of remote stream subscriptions in a StreamRoom.
+     * Modifies the subscriptions of an existing Subscriber Stream.
      *
-     * @param streamRoomId          ID of the StreamRoom
-     * @param subscriptionsToAdd    list of [StreamSubscription] to add
-     * @param subscriptionsToRemove list of [StreamSubscription] to remove
+     * This method allows atomically adds and removes subscriptions in a single call, avoiding
+     * the need to fully remove and recreate the Subscriber Stream.
+     *
+     * @param subscriberStreamHandle handle returned by [createSubscriberStream]
+     * @param subscriptionsToAdd     list of [StreamSubscription] to add
+     * @param subscriptionsToRemove  list of [StreamSubscription] to remove
+     *
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
-     * @throws IllegalStateException thrown when there's no active subscription
+     * @throws IllegalStateException thrown when the instance is closed or there is no active Subscriber Stream to modify
      */
     @Throws(
         PrivmxException::class,
@@ -562,6 +650,12 @@ class StreamApi(
     /**
      * Creates a new data channel for sending messages.
      * Before you start using the data channel, you have to call [publishStream] or [updateStream] to start opening process.
+     *
+     * A single stream can have one data channel.
+     *
+     * @param streamHandle handle returned by [createStream]
+     *
+     * @throws IllegalStateException thrown when a data channel has already been created for this stream
      */
     @Throws(IllegalStateException::class)
     suspend fun createDataChannel(streamHandle: StreamHandle){
@@ -573,18 +667,18 @@ class StreamApi(
     }
 
     /**
-     * This method sends the message using an opened data channel for the streamHandle.
+     * This method sends the message using an opened data channel for the given streamHandle.
      *
      * When dataChanel:
      * - Is not created, then this method throws [IllegalStateException]
      * - Is not opened, then a message will be queued until the data channel is not opened.
      * - Is closed, then this method throws [DataChannelClosedException]
      *
-     * @param streamHandle streamHandle returned by [createStream] for which [createDataChannel] method was called
+     * @param streamHandle handle returned by [createStream] for which [createDataChannel] was called
      * @param byteArray message to send
      *
-     * @throws IllegalStateException when a data channel is not created yet for the [streamHandle].
-     * @throws DataChannelClosedException when a data channel is closed for the [streamHandle].
+     * @throws IllegalStateException thrown when no data channel has been created yet for the [streamHandle]
+     * @throws DataChannelClosedException thrown when a data channel is closed for the [streamHandle].
      */
     @Throws(
         DataChannelClosedException::class,
@@ -605,13 +699,10 @@ class StreamApi(
      *
      * @param roomId   ID of the StreamRoom
      * @param observer callback receiving [IceConnectionState] values
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
+     *
      * @throws IllegalStateException thrown when there is no active subscription for the given room
      */
     @Throws(
-        PrivmxException::class,
-        NativeException::class,
         IllegalStateException::class
     )
     fun setConnectionStateObserver(
@@ -629,13 +720,9 @@ class StreamApi(
      * @param streamRoomId ID of the StreamRoom
      * @param enable       if `true`, frames that fail decryption are dropped
      *
-     * @throws PrivmxException       thrown when method encounters an exception
-     * @throws NativeException       thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(
-        PrivmxException::class,
-        NativeException::class,
         IllegalStateException::class
     )
     fun dropBrokenFrames(streamRoomId: String, enable: Boolean) {
@@ -679,7 +766,10 @@ class StreamApi(
 /**
  * Joins a StreamRoom and prepares the session for WebRTC communication.
  *
+ * Required before working with streams and stream events in the room.
+ *
  * @param streamRoomId ID of the StreamRoom to join
+ *
  * @throws PrivmxException       thrown when method encounters an exception
  * @throws NativeException       thrown when method encounters an unknown exception
  * @throws IllegalStateException thrown when instance is closed
