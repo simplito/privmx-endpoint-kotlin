@@ -280,9 +280,13 @@ constructor(
     fun updateStream(streamHandle: StreamHandle): StreamPublishResult
 
     /**
-     * Unpublishes a stream.
+     * Stops publishing and closes the Publisher Stream.
+     *
+     * The handle is closed after this call and cannot be used anymore, but a new Publisher Stream can be created
+     * in the same Stream Room with [createStream].
      *
      * @param streamHandle handle to the stream to unpublish
+     *
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
