@@ -337,9 +337,13 @@ constructor(
     )
 
     /**
-     * Unsubscribes from remote streams.
+     * Unsubscribes from all the Streams received by the given Subscriber Stream and closes it.
      *
-     * @param subscriptionHandle // todo
+     * The handle is closed after this call and cannot be used anymore, but a new Subscriber Stream can be created
+     * in the same Stream Room with [createSubscriberStream].
+     *
+     * @param subscriptionHandle  handle to the stream to remove
+     *
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
