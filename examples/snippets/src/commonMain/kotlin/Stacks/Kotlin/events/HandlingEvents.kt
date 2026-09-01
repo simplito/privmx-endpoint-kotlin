@@ -1,7 +1,12 @@
 package Stacks.Kotlin.events
 
-import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
+import Stacks.Kotlin.contextId
 import Stacks.Kotlin.endpointSession
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.*
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
+import com.simplito.kotlin.privmx_endpoint_extra.events.CallbackRegistration
+import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
 
 // START: Connection events snippets
 suspend fun handlingConnectionEvents(){
@@ -245,3 +250,117 @@ suspend fun handlingKvdbEntriesEvents() {
     }
 }
 // END: KVDBs events snippets
+
+// START: Stream events snippets
+
+suspend fun handleStreamRoomEvents() {
+    val callbacksGroup = "CALLBACKS_GROUP"
+
+    endpointSession.registerManyCallbacks(
+        CallbackRegistration(
+            callbacksGroup,
+            EventType.StreamRoomCreatedEvent(contextId)
+        ) { newStreamRoom: StreamRoom ->
+            // some actions when a new stream room is created
+        },
+
+        CallbackRegistration(
+            callbacksGroup,
+            EventType.StreamRoomUpdatedEvent(
+                StreamEventSelectorType.CONTEXT_ID,
+                contextId
+            )
+        ) { updatedStreamRoom: StreamRoom ->
+            // some actions when a stream room is updated
+        },
+
+        CallbackRegistration(
+            callbacksGroup,
+            EventType.StreamRoomDeletedEvent(
+                StreamEventSelectorType.CONTEXT_ID,
+                contextId
+            )
+        ) { deletedStreamRoomData: StreamRoomDeletedEventData ->
+            // some actions when a stream room is deleted
+        },
+
+        CallbackRegistration(
+            callbacksGroup,
+            EventType.StreamRoomJoinedEvent(
+                StreamEventSelectorType.CONTEXT_ID,
+                contextId
+            )
+        ) { joinedData: StreamRoomParticipantEventData ->
+            // some actions when a participant joins the stream room
+        },
+
+        CallbackRegistration(
+            callbacksGroup,
+            EventType.StreamRoomLeftEvent(
+                StreamEventSelectorType.CONTEXT_ID,
+                contextId
+            )
+        ) { leftData: StreamRoomParticipantEventData ->
+            // some actions when a participant leaves the stream room
+        }
+    )
+}
+
+suspend fun handleStreamEvents() {
+    val callbacksGroup = "CALLBACKS_GROUP"
+    val streamRoomId = "STREAM_ROOM_ID"
+
+    endpointSession.registerManyCallbacks(
+        CallbackRegistration(
+            callbacksGroup,
+            EventType.StreamPublishedEvent(
+                StreamEventSelectorType.STREAMROOM_ID,
+                streamRoomId
+            )
+        ) { publishedStreamData: StreamPublishedEventData ->
+            // some actions when a stream is published in the specified room
+        },
+
+        CallbackRegistration(
+            callbacksGroup,
+            EventType.StreamUnpublishedEvent(
+                StreamEventSelectorType.STREAMROOM_ID,
+                streamRoomId
+            )
+        ) { unpublishedStreamData: StreamUnpublishedEventData ->
+            // some actions when a stream is unpublished from the specified room
+        },
+
+        CallbackRegistration(
+            callbacksGroup,
+            EventType.StreamSubscribedEvent(
+                StreamEventSelectorType.STREAMROOM_ID,
+                streamRoomId
+            )
+        ) { subscribedData: StreamSubscriptionEventData ->
+            // some actions when a stream is subscribed
+        },
+
+        CallbackRegistration(
+            callbacksGroup,
+            EventType.StreamUnsubscribedEvent(
+                StreamEventSelectorType.STREAMROOM_ID,
+                streamRoomId
+            )
+        ) { unsubscribedData: StreamSubscriptionEventData ->
+            // some actions when a stream is unsubscribed
+        },
+
+        CallbackRegistration(
+            callbacksGroup,
+            EventType.StreamUpdatedEvent(
+                StreamEventSelectorType.CONTEXT_ID,
+                contextId
+            )
+        ) { updatedStreamData: StreamUpdatedEventData ->
+            // some actions when stream data is updated
+        }
+    )
+}
+
+// END: Stream events snippets
