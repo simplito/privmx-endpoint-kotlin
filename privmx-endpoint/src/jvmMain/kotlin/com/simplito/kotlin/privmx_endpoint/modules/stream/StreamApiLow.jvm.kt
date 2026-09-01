@@ -176,6 +176,7 @@ actual constructor(
      * Deletes a stream room.
      *
      * @param streamRoomId ID of the room to delete
+     *
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
