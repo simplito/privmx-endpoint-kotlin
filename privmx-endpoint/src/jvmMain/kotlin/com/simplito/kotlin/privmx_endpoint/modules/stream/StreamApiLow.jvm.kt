@@ -267,9 +267,11 @@ actual constructor(
     actual external fun createStream(streamRoomId: String): StreamHandle
 
     /**
-     * Publishes a stream.
+     * Publishes the Stream with the feeds currently added to it by the WebRTC layer.
+     * A Publisher Stream has to have at least one feed added to be published successfully.
      *
      * @param streamHandle handle to the stream to publish
+     *
      * @return publish result
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
