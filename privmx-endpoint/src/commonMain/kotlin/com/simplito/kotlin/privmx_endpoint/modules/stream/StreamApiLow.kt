@@ -69,13 +69,15 @@ constructor(
      * @param publicMeta public metadata
      * @param privateMeta private metadata
      * @param policies additional container access policies
+     * @param emptyRoomTtl grace period (ms) the Stream Room stays open after the last participant leaves;
+     * 0 closes it immediately; null use the server default (closes it immediately)
+     *
      * @return ID of the created room
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    @JvmOverloads
     fun createStreamRoom(
         contextId: String,
         users: List<UserWithPubKey>,
