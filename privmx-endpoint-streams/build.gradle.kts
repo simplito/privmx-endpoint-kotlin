@@ -205,3 +205,45 @@ tasks.register<de.undercouch.gradle.tasks.download.Download>("downloadWebrtcFram
         }
     }
 }
+
+tasks.register("syncTestData") {
+    group = "verification"
+    val source = project(":privmx-endpoint")
+        .layout.projectDirectory.file("src/commonTest/resources/TestData.ini").asFile
+    val targets = listOf(
+        layout.projectDirectory.file("src/commonTest/resources/TestData.ini").asFile,
+        layout.projectDirectory.file("src/androidDeviceTest/resources/assets/TestData.ini").asFile,
+        layout.projectDirectory.file("src/iosTest/resources/TestData.ini").asFile,
+    )
+    doFirst {
+        if (!source.exists()) {
+            throw GradleException(
+                "${source.absolutePath} not found - run :privmx-endpoint:testsPreConfig first."
+            )
+        }
+        targets.forEach { target ->
+            target.parentFile.mkdirs()
+            source.copyTo(target, overwrite = true)
+        }
+    }
+}
+
+val jniWrapperAndroidInstallDir = project(":jni-wrapper").layout.buildDirectory
+    .dir("native/install/Android/${project(":privmx-endpoint").version}")
+
+tasks.register<Copy>("syncAndroidJniLibs") {
+    group = "build"
+    from(jniWrapperAndroidInstallDir)
+    include("*/*.so")
+    into(layout.projectDirectory.dir("src/androidMain/jniLibs"))
+    doFirst {
+        val installDir = jniWrapperAndroidInstallDir.get().asFile
+        if (!installDir.exists()) {
+            throw GradleException(
+                "${installDir.absolutePath} not found - run " +
+                        "`:jni-wrapper:compileAndroid` (optionally with -PandroidAbis=<abi>) first, " +
+                        "or use the `buildAndroidJniLibs` task."
+            )
+        }
+    }
+}
