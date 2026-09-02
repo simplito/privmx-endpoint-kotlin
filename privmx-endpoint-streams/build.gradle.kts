@@ -247,3 +247,15 @@ tasks.register<Copy>("syncAndroidJniLibs") {
         }
     }
 }
+
+tasks.withType<KotlinNativeSimulatorTest> {
+    workingDir =
+        layout.buildDirectory.dir("bin/$targetName/debugTest/resources").get().asFile.absolutePath
+    val taskName = "copyCommonTestResourcesTo$targetName"
+    dependsOn(taskName)
+    tasks.register<Copy>(taskName) {
+        dependsOn("syncTestData")
+        from(layout.projectDirectory.dir("src/commonTest/resources"))
+        into(layout.buildDirectory.dir("bin/$targetName/debugTest/resources"))
+    }
+}
