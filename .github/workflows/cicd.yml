@@ -384,6 +384,12 @@ jobs:
           distribution: 'oracle'
           cache: "gradle"
 
+      - name: Detect host IP
+        run: |
+          HOST_IP=$(ip route get 1.1.1.1 | grep -oP 'src \K\S+')
+          echo "HOST_IP=$HOST_IP" >> "$GITHUB_ENV"
+          echo "Detected HOST_IP=$HOST_IP"
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
 

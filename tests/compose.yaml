@@ -12,7 +12,7 @@ services:
       - "8089:8089"  # HTTPS
       - "8188:8188"  # WS
       - "8989:8989"  # WSS
-      - "10000-10200:10000-10200/udp" # RTP Media Ports
+      - "51000-51500:51000-51500/udp" # RTP Media Ports
     volumes:
       - ./volumes/janus-conf:/janus-custom
       - ./volumes/certs:/usr/local/share/janus/certs
@@ -26,7 +26,7 @@ services:
       - |
         set -e
         # --- PATHS & VARIABLES ---
-        IP="127.0.0.1"
+        IP="${HOST_IP:-127.0.0.1}"
         # Shared secret must match the one in Coturn service below
         TURN_SECRET="my-secret-key"
         
@@ -101,7 +101,6 @@ services:
       - "3478:3478/udp"
       - "5349:5349"
       - "5349:5349/udp"
-      - "20000-20200:20000-20200/udp"
     command:
       - -n
       - --log-file=stdout
@@ -110,7 +109,7 @@ services:
       - --realm=janus
       - --use-auth-secret
       - --static-auth-secret=my-secret-key
-      - --external-ip=127.0.0.1
+      - --external-ip=${HOST_IP:-127.0.0.1}
       - --listening-port=3478
     restart: unless-stopped
     networks:
