@@ -99,6 +99,14 @@ kotlin {
         // This improves build times when Java compilation is not needed
         withJava()
 
+
+        withDeviceTestBuilder {
+            sourceSetTreeName = "test"
+        }.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            animationsDisabled = true
+        }
+
         compilations.configureEach {
             compilerOptions.configure {
                 jvmTarget.set(
@@ -116,13 +124,33 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
             }
         }
-        val commonTest by getting {
+        val androidMain by getting {
             dependencies {
-                implementation(libs.kotlin.test)
+                implementation(libs.privmx.endpoint.webrtc.android)
             }
         }
-        val androidMain by getting{
+
+        listOf(
+            iosSimulatorArm64Test.get(),
+            iosArm64Test.get()
+        ).forEach {
+            it.languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
+        }
+
+        val commonTest by getting {
             dependencies {
+                implementation(project(":tests:shared"))
+                implementation(libs.kotlinx.io.core)
+                implementation(libs.kotlin.test)
+                implementation(libs.kotlinx.coroutines)
+            }
+        }
+
+        val androidDeviceTest by getting {
+            dependencies {
+                implementation(libs.androidx.test.core)
+                implementation(libs.androidx.test.runner)
+                implementation(libs.androidx.test.rules)
                 implementation(libs.privmx.endpoint.webrtc.android)
             }
         }
@@ -175,5 +203,59 @@ tasks.register<de.undercouch.gradle.tasks.download.Download>("downloadWebrtcFram
             from(zipTree(zipFile))
             into(xcframeworkDir.parentFile)
         }
+    }
+}
+
+tasks.register("syncTestData") {
+    group = "verification"
+    val source = project(":privmx-endpoint")
+        .layout.projectDirectory.file("src/commonTest/resources/TestData.ini").asFile
+    val targets = listOf(
+        layout.projectDirectory.file("src/commonTest/resources/TestData.ini").asFile,
+        layout.projectDirectory.file("src/androidDeviceTest/resources/assets/TestData.ini").asFile,
+        layout.projectDirectory.file("src/iosTest/resources/TestData.ini").asFile,
+    )
+    doFirst {
+        if (!source.exists()) {
+            throw GradleException(
+                "${source.absolutePath} not found - run :privmx-endpoint:testsPreConfig first."
+            )
+        }
+        targets.forEach { target ->
+            target.parentFile.mkdirs()
+            source.copyTo(target, overwrite = true)
+        }
+    }
+}
+
+val jniWrapperAndroidInstallDir = project(":jni-wrapper").layout.buildDirectory
+    .dir("native/install/Android/${project(":privmx-endpoint").version}")
+
+tasks.register<Copy>("syncAndroidJniLibs") {
+    group = "build"
+    from(jniWrapperAndroidInstallDir)
+    include("*/*.so")
+    into(layout.projectDirectory.dir("src/androidMain/jniLibs"))
+    doFirst {
+        val installDir = jniWrapperAndroidInstallDir.get().asFile
+        if (!installDir.exists()) {
+            throw GradleException(
+                "${installDir.absolutePath} not found - run " +
+                        "`:jni-wrapper:compileAndroid` (optionally with -PandroidAbis=<abi>) first, " +
+                        "or use the `buildAndroidJniLibs` task."
+            )
+        }
+    }
+}
+
+tasks.withType<KotlinNativeSimulatorTest> {
+    workingDir =
+        layout.buildDirectory.dir("bin/$targetName/debugTest/resources").get().asFile.absolutePath
+    val taskName = "copyCommonTestResourcesTo$targetName"
+    dependsOn(taskName)
+    tasks.register<Copy>(taskName) {
+        dependsOn("syncTestData")
+        from(layout.projectDirectory.dir("src/commonTest/resources"))
+        into(layout.buildDirectory.dir("bin/$targetName/debugTest/resources"))
     }
 }

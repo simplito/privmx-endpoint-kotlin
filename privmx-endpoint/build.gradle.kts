@@ -130,6 +130,7 @@ kotlin {
         iosTest {
             dependsOn(commonTest.get())
         }
+
         jvmTest {}
     }
 }
