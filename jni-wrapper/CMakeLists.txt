@@ -10,6 +10,11 @@ cmake_minimum_required(VERSION 3.22.1)
 # with ${CMAKE_PROJECT_NAME} (both CMake variables are in-sync within the top level
 # build script scope).
 project("privmx-endpoint-kotlin")
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 message("module path ${CMAKE_MODULE_PATH}")
 message("toolchain path ${CMAKE_TOOLCHAIN_FILE}")
 
@@ -25,6 +30,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/parser.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/utils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/jniUtils.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/rawTls.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/model_native_initializers.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/modules/Connection.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/modules/CryptoApi.cpp
@@ -42,6 +48,8 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/modules/StreamApiLow.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cpp/modules/WebRTCInterfaceJNI.cpp
 )
+
+target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC Threads::Threads)
 
 include_directories(${JAVA_HOME}/include)
 if(CMAKE_HOST_APPLE)
