@@ -1,5 +1,7 @@
 import org.gradle.internal.jvm.Jvm
 import org.gradle.kotlin.dsl.support.zipTo
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.util.Properties
 import kotlin.text.replace
 
@@ -324,6 +326,7 @@ tasks.register("buildAndroidWithConan") {
 
 tasks.register("buildAndroidFromSources") {
     dependsOn("clonePrivmxSources")
+    finalizedBy("removeAndroidLibVersionSuffix")
     val conanArchsMap = mapOf(
         "armeabi-v7a" to "armv7",
         "arm64-v8a" to "armv8",
@@ -353,6 +356,9 @@ tasks.register("buildAndroidFromSources") {
                         " -c \"tools.android:ndk_path=$ndkPath\""
                     )
                 )
+                removeLibVersionSuffix(
+                    layout.buildDirectory.dir("native/install/Android/$privmxEndpointJavaVersion/$arch").get().asFile
+                )
                 buildFromSources(
                     INSTALL_DIR,
                     COMPILED_DIR,
@@ -360,6 +366,21 @@ tasks.register("buildAndroidFromSources") {
                 )
                 copyFilesFromDeploy(INSTALL_DIR,".so")
             }
+        }
+    }
+}
+
+tasks.register("removeAndroidLibVersionSuffix") {
+    group = "privmx native"
+    description = "Strips the *.<version> suffix from lib* files produced by the Android from-sources build."
+    doFirst {
+        androidArchs.forEach { arch ->
+            project.removeLibVersionSuffix(
+                layout.buildDirectory.dir("endpoint-prebuild/install/Android/$privmxEndpointJavaVersion/$arch").get().asFile
+            )
+            project.removeLibVersionSuffix(
+                layout.buildDirectory.dir("native/install/Android/$privmxEndpointJavaVersion/$arch").get().asFile
+            )
         }
     }
 }
@@ -708,6 +729,48 @@ private fun Project.conanInstall(
                     " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os'${if (additionalSdkFolderVar) ", 'settings.os.sdk'" else ""}, 'settings.arch']\"" +
                     additionalParams.joinToString(" ")
         )
+    }
+}
+
+private val versionedLibNameRegex = Regex("""^(lib.+\.so)(?:\.\d+)+$""")
+
+/**
+ * Android's linker and the APK packager accept `lib*.so` names only, so shared libraries carrying an ELF
+ * version suffix (`libcrypto.so.3`) have to be renamed. Their `SONAME` and the `NEEDED` entries of every
+ * library in [root] that references them are rewritten as well, otherwise the linker keeps looking for the
+ * versioned name at load time.
+ */
+private fun Project.removeLibVersionSuffix(root: File) {
+    if (!root.exists()) return
+    val versionedLibs = root.walkTopDown()
+        .filter { it.isFile && !Files.isSymbolicLink(it.toPath()) && versionedLibNameRegex.matches(it.name) }
+        .toList()
+    if (versionedLibs.isEmpty()) return
+
+    val unversionedNames = versionedLibs.associate { it.name to versionedLibNameRegex.replace(it.name, "$1") }
+    versionedLibs.forEach { lib ->
+        val unversionedLib = File(lib.parentFile, unversionedNames.getValue(lib.name))
+        // drops the `lib*.so -> lib*.so.<version>` symlink conan deploys next to the real file
+        Files.deleteIfExists(unversionedLib.toPath())
+        Files.move(lib.toPath(), unversionedLib.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        logger.lifecycle("Removed version suffix: ${lib.name} -> ${unversionedLib.name}")
+    }
+
+    fileTree(root) { include("**/lib*.so") }.forEach { lib ->
+        exec {
+            commandLine(
+                buildList {
+                    add("patchelf")
+                    unversionedNames.forEach { (versionedName, unversionedName) ->
+                        addAll(listOf("--replace-needed", versionedName, unversionedName))
+                    }
+                    if (lib.name in unversionedNames.values) {
+                        addAll(listOf("--set-soname", lib.name))
+                    }
+                    add(lib.absolutePath)
+                }
+            )
+        }
     }
 }
 
