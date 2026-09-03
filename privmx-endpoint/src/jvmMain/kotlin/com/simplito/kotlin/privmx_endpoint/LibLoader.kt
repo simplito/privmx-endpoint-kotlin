@@ -21,6 +21,11 @@ internal typealias ResourcePaths = List<String>
 internal object LibLoader {
     var libsDir: File? = null
 
+    private val nativeLibrariesLoaded: Unit by lazy {
+        System.loadLibrary("privmx-endpoint-kotlin")
+        registerShutdownHook()
+    }
+
     init {
         try {
             //Check if it's android
@@ -31,7 +36,28 @@ internal object LibLoader {
     }
 
     fun loadPrivmxLibraries() {
-        System.loadLibrary("privmx-endpoint-kotlin")
+        nativeLibrariesLoaded
+    }
+
+    /**
+     * Tells the native layer that the JVM is going down.
+     *
+     * Endpoint stops its threads during static destruction, which may happen while (or after)
+     * the JVM is being destroyed. Without this signal such a thread could call
+     * DetachCurrentThread() on a dying VM and hang the shutdown.
+     */
+    private external fun notifyVmShutdown()
+
+    private fun registerShutdownHook() {
+        try {
+            Runtime.getRuntime().addShutdownHook(
+                Thread { notifyVmShutdown() }.apply {
+                    name = "privmx-endpoint-shutdown"
+                }
+            )
+        } catch (_: Throwable) {
+            //shutdown already in progress or hooks not permitted - nothing to do
+        }
     }
 
     @Throws(UnsatisfiedLinkError::class)

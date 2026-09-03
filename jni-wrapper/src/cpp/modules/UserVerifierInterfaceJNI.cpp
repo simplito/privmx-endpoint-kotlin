@@ -43,6 +43,8 @@ privmx::wrapper::UserVerifierInterfaceJNI::verify(
     JNIEnv *env = privmx::wrapper::jni::AttachCurrentThreadIfNeeded(
             javaVM,
             jni::getPrivmxCallbackThreadName());
+    //VM is shutting down - nothing can be verified anymore, fail closed
+    if (env == nullptr) return std::vector<bool>(request.size(), false);
     JniContextUtils ctx(env);
     ctx.setClassLoaderFromObject(juserVerifierInterface);
     jclass juserVerifierInterfaceClass = env->GetObjectClass(juserVerifierInterface);
