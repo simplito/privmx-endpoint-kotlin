@@ -17,20 +17,25 @@ import com.simplito.kotlin.privmx_endpoint.model.CollectionItemChange
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.Context
+import com.simplito.kotlin.privmx_endpoint.model.Document
 import com.simplito.kotlin.privmx_endpoint.model.Event
 import com.simplito.kotlin.privmx_endpoint.model.File
 import com.simplito.kotlin.privmx_endpoint.model.FileChange
 import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
 import com.simplito.kotlin.privmx_endpoint.model.Inbox
+import com.simplito.kotlin.privmx_endpoint.model.IndexMode
 import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
 import com.simplito.kotlin.privmx_endpoint.model.InboxPublicView
 import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
 import com.simplito.kotlin.privmx_endpoint.model.Kvdb
 import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
+import com.simplito.kotlin.privmx_endpoint.model.LockLevel
+import com.simplito.kotlin.privmx_endpoint.model.LockOperationResult
 import com.simplito.kotlin.privmx_endpoint.model.Message
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.ServerFileInfo
 import com.simplito.kotlin.privmx_endpoint.model.ServerKvdbEntryInfo
+import com.simplito.kotlin.privmx_endpoint.model.SearchIndex
 import com.simplito.kotlin.privmx_endpoint.model.ServerMessageInfo
 import com.simplito.kotlin.privmx_endpoint.model.Store
 import com.simplito.kotlin.privmx_endpoint.model.Thread
@@ -503,6 +508,39 @@ internal fun PsonObject.toServerKvdbEntryInfo(): ServerKvdbEntryInfo = ServerKvd
     this["createDate"]?.typedValue(),
     this["author"]!!.typedValue()
 )
+
+internal fun PsonObject.toSearchIndex(): SearchIndex = SearchIndex(
+    this["contextId"]!!.typedValue(),
+    this["indexId"]!!.typedValue(),
+    this["createDate"]?.typedValue(),
+    this["creator"]!!.typedValue(),
+    this["lastModificationDate"]?.typedValue(),
+    this["lastModifier"]!!.typedValue(),
+    this["users"]!!.typedList().map { it.typedValue() },
+    this["managers"]!!.typedList().map { it.typedValue() },
+    this["version"]?.typedValue(),
+    this["publicMeta"]!!.typedValue(),
+    this["privateMeta"]!!.typedValue(),
+    (this["policy"] as PsonObject?)?.toContainerPolicy(),
+    this["mode"]?.typedValue<Long>()?.toIndexMode(),
+    this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue(),
+)
+
+internal fun PsonObject.toDocument(): Document = Document(
+    this["documentId"]!!.typedValue(),
+    this["name"]!!.typedValue(),
+    this["content"]!!.typedValue(),
+)
+
+internal fun PsonObject.toLockOperationResult(): LockOperationResult = LockOperationResult(
+    this["success"]!!.typedValue(),
+    this["currentLevel"]?.typedValue<Long>()?.toLockLevel(),
+)
+
+private fun Long.toIndexMode(): IndexMode? = IndexMode.entries.getOrNull(toInt())
+
+private fun Long.toLockLevel(): LockLevel? = LockLevel.entries.getOrNull(toInt())
 
 @Throws(ClassCastException::class)
 internal inline fun <reified T : Any> PsonObject.toMap(): Map<String,T> {
