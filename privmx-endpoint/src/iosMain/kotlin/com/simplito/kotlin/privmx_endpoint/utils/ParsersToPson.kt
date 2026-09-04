@@ -13,8 +13,11 @@ package com.simplito.kotlin.privmx_endpoint.utils
 
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
+import com.simplito.kotlin.privmx_endpoint.model.Document
 import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
+import com.simplito.kotlin.privmx_endpoint.model.IndexMode
 import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
+import com.simplito.kotlin.privmx_endpoint.model.LockLevel
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.stream.DataChannelMessage
@@ -66,6 +69,19 @@ internal val FilesConfig.pson: PsonValue.PsonObject
         "maxFileSize" to maxFileSize.nullablePson,
         "maxWholeUploadSize" to maxWholeUploadSize.nullablePson,
     ).pson
+
+internal val Document.pson: PsonValue.PsonObject
+    get() = mapOfWithNulls(
+        "documentId" to documentId.pson,
+        "name" to name.pson,
+        "content" to content.pson,
+    ).pson
+
+internal val IndexMode.pson: PsonValue.PsonLong
+    get() = PsonValue.PsonLong(ordinal.toLong())
+
+internal val LockLevel.pson: PsonValue.PsonLong
+    get() = PsonValue.PsonLong(ordinal.toLong())
 
 internal val PKIVerificationOptions.pson: PsonValue.PsonObject
     get() = mapOfWithNulls(

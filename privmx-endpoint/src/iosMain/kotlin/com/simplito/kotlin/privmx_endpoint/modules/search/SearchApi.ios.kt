@@ -11,6 +11,7 @@
 
 package com.simplito.kotlin.privmx_endpoint.modules.search
 
+import cnames.structs.pson_value
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.Document
 import com.simplito.kotlin.privmx_endpoint.model.IndexMode
@@ -23,10 +24,33 @@ import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.modules.kvdb.KvdbApi
 import com.simplito.kotlin.privmx_endpoint.modules.lock.LockApi
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
+import com.simplito.kotlin.privmx_endpoint.utils.KPSON_NULL
+import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
+import com.simplito.kotlin.privmx_endpoint.utils.asResponse
+import com.simplito.kotlin.privmx_endpoint.utils.makeArgs
+import com.simplito.kotlin.privmx_endpoint.utils.mapOfWithNulls
+import com.simplito.kotlin.privmx_endpoint.utils.pson
+import com.simplito.kotlin.privmx_endpoint.utils.toDocument
+import com.simplito.kotlin.privmx_endpoint.utils.toPagingList
+import com.simplito.kotlin.privmx_endpoint.utils.toSearchIndex
+import com.simplito.kotlin.privmx_endpoint.utils.typedValue
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.allocPointerTo
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.nativeHeap
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.value
+import libprivmxendpoint.privmx_endpoint_execSearchApi
+import libprivmxendpoint.privmx_endpoint_freeSearchApi
+import libprivmxendpoint.privmx_endpoint_newSearchApi
+import libprivmxendpoint.pson_free_result
+import libprivmxendpoint.pson_free_value
+import libprivmxendpoint.pson_new_array
 
 /**
  * Manages PrivMX Bridge Search Indexes and their Documents.
  */
+@OptIn(ExperimentalForeignApi::class)
 actual class SearchApi
 @Throws(IllegalStateException::class)
 actual constructor(
@@ -35,18 +59,48 @@ actual constructor(
     kvdbApi: KvdbApi,
     lockApi: LockApi
 ) : AutoCloseable {
-    /**
-     * Creates an instance of `SearchApi`.
-     *
-     * @param connection instance of 'Connection'
-     * @param storeApi   instance of 'StoreApi', holds the Search Index's documents
-     * @param kvdbApi    instance of 'KvdbApi', holds the Search Index's metadata
-     * @param lockApi    instance of 'LockApi', serializes concurrent writes to the Search Index
-     * @throws IllegalStateException when one of the passed parameters is closed
-     */
+    private val _nativeSearchApi = nativeHeap.allocPointerTo<cnames.structs.SearchApi>()
+    private val nativeSearchApi
+        get() = _nativeSearchApi.value?.let { _nativeSearchApi }
+            ?: throw IllegalStateException("SearchApi has been closed.")
+
+
     init {
-        // TODO(Not implemented yet)
+        privmx_endpoint_newSearchApi(
+            connection.getConnectionPtr(),
+            storeApi.getStorePtr(),
+            kvdbApi.getKvdbPtr(),
+            lockApi.getLockPtr(),
+            _nativeSearchApi.ptr
+        )
+        memScoped {
+            val args = pson_new_array()
+            val pson_result = allocPointerTo<pson_value>()
+            try {
+                privmx_endpoint_execSearchApi(nativeSearchApi.value, 0, args, pson_result.ptr)
+                pson_result.value!!.asResponse?.getResultOrThrow()
+            } finally {
+                pson_free_value(args)
+                pson_free_result(pson_result.value)
+            }
+        }
     }
+
+    private fun pagingQuery(
+        skip: Long,
+        limit: Long,
+        sortOrder: String,
+        lastId: String?,
+        queryAsJson: String?,
+        sortBy: String?
+    ): PsonValue.PsonObject = mapOfWithNulls(
+        "skip" to skip.pson,
+        "limit" to limit.pson,
+        "sortOrder" to sortOrder.pson,
+        lastId?.let { "lastId" to it.pson },
+        queryAsJson?.let { "queryAsJson" to it.pson },
+        sortBy?.let { "sortBy" to it.pson }
+    ).pson
 
     /**
      * Creates a new Search Index in a given Context.
@@ -72,7 +126,25 @@ actual constructor(
         privateMeta: ByteArray,
         mode: IndexMode,
         policies: ContainerPolicy?
-    ): String = TODO("Not implemented yet")
+    ): String = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            contextId.pson,
+            users.map { it.pson }.pson,
+            managers.map { it.pson }.pson,
+            publicMeta.pson,
+            privateMeta.pson,
+            mode.pson,
+            policies?.pson ?: KPSON_NULL,
+        )
+        try {
+            privmx_endpoint_execSearchApi(nativeSearchApi.value, 1, args, pson_result.ptr)
+            pson_result.value?.asResponse?.getResultOrThrow()!!.typedValue()
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Updates an existing Search Index.
@@ -101,7 +173,28 @@ actual constructor(
         force: Boolean,
         forceGenerateNewKey: Boolean,
         policies: ContainerPolicy?
-    ): Unit = TODO("Not implemented yet")
+    ): Unit = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            indexId.pson,
+            users.map { it.pson }.pson,
+            managers.map { it.pson }.pson,
+            publicMeta.pson,
+            privateMeta.pson,
+            version.pson,
+            force.pson,
+            forceGenerateNewKey.pson,
+            policies?.pson ?: KPSON_NULL,
+        )
+        try {
+            privmx_endpoint_execSearchApi(nativeSearchApi.value, 2, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Deletes a Search Index by given Search Index ID.
@@ -112,7 +205,18 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun deleteSearchIndex(indexId: String): Unit = TODO("Not implemented yet")
+    actual fun deleteSearchIndex(indexId: String): Unit = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(indexId.pson)
+        try {
+            privmx_endpoint_execSearchApi(nativeSearchApi.value, 3, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Gets a Search Index by given Search Index ID.
@@ -124,12 +228,23 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun getSearchIndex(indexId: String): SearchIndex = TODO("Not implemented yet")
+    actual fun getSearchIndex(indexId: String): SearchIndex = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(indexId.pson)
+        try {
+            privmx_endpoint_execSearchApi(nativeSearchApi.value, 4, args, pson_result.ptr)
+            val result = pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+            result.toSearchIndex()
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Gets a list of Search Indexes in given Context.
      *
-     * @param contextId   ID of the Context to get the Indexes from
+     * @param contextId   ID of the Context to get the Search Indexes from
      * @param skip        skip number of elements to skip from result
      * @param limit       limit of elements to return for query
      * @param sortOrder   order of elements in result ("asc" for ascending, "desc" for descending)
@@ -150,7 +265,22 @@ actual constructor(
         lastId: String?,
         queryAsJson: String?,
         sortBy: String?
-    ): PagingList<SearchIndex> = TODO("Not implemented yet")
+    ): PagingList<SearchIndex> = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            contextId.pson,
+            pagingQuery(skip, limit, sortOrder, lastId, queryAsJson, sortBy)
+        )
+        try {
+            privmx_endpoint_execSearchApi(nativeSearchApi.value, 5, args, pson_result.ptr)
+            val pagingList =
+                pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+            pagingList.toPagingList(PsonValue.PsonObject::toSearchIndex)
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Opens a Search Index for use and returns a handle.
@@ -162,7 +292,17 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun openSearchIndex(indexId: String): Long = TODO("Not implemented yet")
+    actual fun openSearchIndex(indexId: String): Long = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(indexId.pson)
+        try {
+            privmx_endpoint_execSearchApi(nativeSearchApi.value, 6, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()!!.typedValue()
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Closes the Search Index associated with the given handle.
@@ -173,7 +313,18 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun closeSearchIndex(indexHandle: Long): Unit = TODO("Not implemented yet")
+    actual fun closeSearchIndex(indexHandle: Long): Unit = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(indexHandle.pson)
+        try {
+            privmx_endpoint_execSearchApi(nativeSearchApi.value, 7, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Begins a SQLite transaction on the Search Index.
@@ -184,7 +335,18 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun beginTransaction(indexHandle: Long): Unit = TODO("Not implemented yet")
+    actual fun beginTransaction(indexHandle: Long): Unit = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(indexHandle.pson)
+        try {
+            privmx_endpoint_execSearchApi(nativeSearchApi.value, 14, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Commits the active transaction on the Search Index.
@@ -195,7 +357,18 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun commit(indexHandle: Long): Unit = TODO("Not implemented yet")
+    actual fun commit(indexHandle: Long): Unit = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(indexHandle.pson)
+        try {
+            privmx_endpoint_execSearchApi(nativeSearchApi.value, 15, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Rolls back the active transaction on the Search Index.
@@ -206,7 +379,18 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun rollback(indexHandle: Long): Unit = TODO("Not implemented yet")
+    actual fun rollback(indexHandle: Long): Unit = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(indexHandle.pson)
+        try {
+            privmx_endpoint_execSearchApi(nativeSearchApi.value, 16, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Adds a new document to the Search Index.
@@ -224,7 +408,21 @@ actual constructor(
         indexHandle: Long,
         name: String,
         content: String
-    ): Long = TODO("Not implemented yet")
+    ): Long = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            indexHandle.pson,
+            name.pson,
+            content.pson
+        )
+        try {
+            privmx_endpoint_execSearchApi(nativeSearchApi.value, 8, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()!!.typedValue()
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Updates an existing document in the Search Index.
@@ -239,7 +437,21 @@ actual constructor(
     actual fun updateDocument(
         indexHandle: Long,
         document: Document
-    ): Unit = TODO("Not implemented yet")
+    ): Unit = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            indexHandle.pson,
+            document.pson
+        )
+        try {
+            privmx_endpoint_execSearchApi(nativeSearchApi.value, 9, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Deletes a document by given document ID from the Search Index.
@@ -254,7 +466,21 @@ actual constructor(
     actual fun deleteDocument(
         indexHandle: Long,
         documentId: Long
-    ): Unit = TODO("Not implemented yet")
+    ): Unit = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            indexHandle.pson,
+            documentId.pson
+        )
+        try {
+            privmx_endpoint_execSearchApi(nativeSearchApi.value, 10, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Gets a document by given document ID from the Search Index.
@@ -270,7 +496,21 @@ actual constructor(
     actual fun getDocument(
         indexHandle: Long,
         documentId: Long
-    ): Document = TODO("Not implemented yet")
+    ): Document = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            indexHandle.pson,
+            documentId.pson
+        )
+        try {
+            privmx_endpoint_execSearchApi(nativeSearchApi.value, 11, args, pson_result.ptr)
+            val result = pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+            result.toDocument()
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Gets a list of documents (e.g. messages, threads or custom documents) from a Search Index.
@@ -296,7 +536,22 @@ actual constructor(
         lastId: String?,
         queryAsJson: String?,
         sortBy: String?
-    ): PagingList<Document> = TODO("Not implemented yet")
+    ): PagingList<Document> = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            indexHandle.pson,
+            pagingQuery(skip, limit, sortOrder, lastId, queryAsJson, sortBy)
+        )
+        try {
+            privmx_endpoint_execSearchApi(nativeSearchApi.value, 12, args, pson_result.ptr)
+            val pagingList =
+                pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+            pagingList.toPagingList(PsonValue.PsonObject::toDocument)
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Searches for documents in the Search Index.
@@ -324,7 +579,23 @@ actual constructor(
         lastId: String?,
         queryAsJson: String?,
         sortBy: String?
-    ): PagingList<Document> = TODO("Not implemented yet")
+    ): PagingList<Document> = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            indexHandle.pson,
+            searchQuery.pson,
+            pagingQuery(skip, limit, sortOrder, lastId, queryAsJson, sortBy)
+        )
+        try {
+            privmx_endpoint_execSearchApi(nativeSearchApi.value, 13, args, pson_result.ptr)
+            val pagingList =
+                pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+            pagingList.toPagingList(PsonValue.PsonObject::toDocument)
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Frees memory.
@@ -332,6 +603,7 @@ actual constructor(
      * @throws Exception when instance is currently closed.
      */
     actual override fun close() {
-        // TODO(Not implemented yet)
+        privmx_endpoint_freeSearchApi(nativeSearchApi.value)
+        _nativeSearchApi.value = null
     }
 }

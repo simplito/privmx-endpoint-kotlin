@@ -11,26 +11,58 @@
 
 package com.simplito.kotlin.privmx_endpoint.modules.lock
 
+import cnames.structs.pson_value
 import com.simplito.kotlin.privmx_endpoint.model.LockLevel
 import com.simplito.kotlin.privmx_endpoint.model.LockOperationResult
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
+import com.simplito.kotlin.privmx_endpoint.utils.asResponse
+import com.simplito.kotlin.privmx_endpoint.utils.makeArgs
+import com.simplito.kotlin.privmx_endpoint.utils.pson
+import com.simplito.kotlin.privmx_endpoint.utils.toLockOperationResult
+import com.simplito.kotlin.privmx_endpoint.utils.typedValue
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.allocPointerTo
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.nativeHeap
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.value
+import libprivmxendpoint.privmx_endpoint_execLockApi
+import libprivmxendpoint.privmx_endpoint_freeLockApi
+import libprivmxendpoint.privmx_endpoint_newLockApi
+import libprivmxendpoint.pson_free_result
+import libprivmxendpoint.pson_free_value
+import libprivmxendpoint.pson_new_array
 
 /**
  * Provides distributed locking of arbitrary resources identified by a string ID.
  */
+@OptIn(ExperimentalForeignApi::class)
 actual class LockApi
 @Throws(IllegalStateException::class)
 actual constructor(connection: Connection) : AutoCloseable {
-    /**
-     * Creates an instance of `LockApi`.
-     *
-     * @param connection instance of 'Connection'
-     * @throws IllegalStateException when given [Connection] is not connected
-     */
+    private val _nativeLockApi = nativeHeap.allocPointerTo<cnames.structs.LockApi>()
+    private val nativeLockApi
+        get() = _nativeLockApi.value?.let { _nativeLockApi }
+            ?: throw IllegalStateException("LockApi has been closed.")
+
+    internal fun getLockPtr() = nativeLockApi.value
+
     init {
-        // TODO(Not implemented yet)
+        privmx_endpoint_newLockApi(connection.getConnectionPtr(), _nativeLockApi.ptr)
+        memScoped {
+            val args = pson_new_array()
+            val pson_result = allocPointerTo<pson_value>()
+            try {
+                privmx_endpoint_execLockApi(nativeLockApi.value, 0, args, pson_result.ptr)
+                pson_result.value!!.asResponse?.getResultOrThrow()
+            } finally {
+                pson_free_value(args)
+                pson_free_result(pson_result.value)
+            }
+        }
     }
 
     /**
@@ -49,7 +81,22 @@ actual constructor(connection: Connection) : AutoCloseable {
         resourceId: String,
         uuid: String,
         lockLevel: LockLevel
-    ): LockOperationResult = TODO("Not implemented yet")
+    ): LockOperationResult = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            resourceId.pson,
+            uuid.pson,
+            lockLevel.pson
+        )
+        try {
+            privmx_endpoint_execLockApi(nativeLockApi.value, 1, args, pson_result.ptr)
+            val result = pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+            result.toLockOperationResult()
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Releases or downgrades a lock held on a resource.
@@ -67,7 +114,22 @@ actual constructor(connection: Connection) : AutoCloseable {
         resourceId: String,
         uuid: String,
         lockLevel: LockLevel
-    ): LockOperationResult = TODO("Not implemented yet")
+    ): LockOperationResult = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            resourceId.pson,
+            uuid.pson,
+            lockLevel.pson
+        )
+        try {
+            privmx_endpoint_execLockApi(nativeLockApi.value, 2, args, pson_result.ptr)
+            val result = pson_result.value!!.asResponse?.getResultOrThrow() as PsonValue.PsonObject
+            result.toLockOperationResult()
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Checks whether any connection (including the caller) holds a [LockLevel.RESERVED] or higher lock on the resource.
@@ -83,7 +145,20 @@ actual constructor(connection: Connection) : AutoCloseable {
     actual fun checkReservedLock(
         resourceId: String,
         uuid: String
-    ): Boolean = TODO("Not implemented yet")
+    ): Boolean = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            resourceId.pson,
+            uuid.pson
+        )
+        try {
+            privmx_endpoint_execLockApi(nativeLockApi.value, 3, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()!!.typedValue()
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Frees memory.
@@ -91,6 +166,7 @@ actual constructor(connection: Connection) : AutoCloseable {
      * @throws Exception when instance is currently closed.
      */
     actual override fun close() {
-        // TODO(Not implemented yet)
+        privmx_endpoint_freeLockApi(nativeLockApi.value)
+        _nativeLockApi.value = null
     }
 }
