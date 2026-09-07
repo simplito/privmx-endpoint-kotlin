@@ -1,9 +1,7 @@
 package com.simplito.kotlin.privmx_endpoint_streams.webrtc
 
-import org.webrtc.AudioSource
 import org.webrtc.MediaConstraints
 import org.webrtc.PmxFrameCryptorFactory
-import org.webrtc.VideoSource
 
 actual typealias PeerConnectionFactory = org.webrtc.PeerConnectionFactory
 
@@ -14,15 +12,6 @@ internal actual fun PeerConnectionFactory.createPeerConnection(observer: Observe
     ) ?: throw IllegalStateException("Failed to create PeerConnection")
 
 internal actual fun PeerConnectionFactory.disposeFactory() = dispose()
-
-internal actual fun PeerConnectionFactory.makeVideoTrack(
-    id: String,
-    isScreenCast: Boolean,
-    alignTimestamps: Boolean
-): VideoTrack = createVideoTrack(id, makeVideoSource(isScreenCast, alignTimestamps))
-
-internal actual fun PeerConnectionFactory.makeAudioTrack(id: String): AudioTrack =
-    createAudioTrack(id, makeAudioSource())
 
 internal actual fun PeerConnectionFactory.createSenderFrameCryptor(
     sender: RtpSender,
@@ -35,21 +24,25 @@ internal actual fun PeerConnectionFactory.createSenderFrameCryptor(
         null
     )
 
-internal fun PeerConnectionFactory.makeAudioSource(
-): AudioSource = createAudioSource(MediaConstraints())
+// AUDIO
+internal actual fun PeerConnectionFactory.makeAudioSource(): AudioSource =
+    createAudioSource(MediaConstraints())
 
-internal fun PeerConnectionFactory.makeVideoSource(
+internal actual fun PeerConnectionFactory.makeAudioTrack(
+    id: String,
+    audioSource: AudioSource?
+): AudioTrack = if (audioSource == null) createAudioTrack(
+    id,
+    makeAudioSource()
+) else createAudioTrack(id, audioSource)
+
+// VIDEO
+actual fun PeerConnectionFactory.makeVideoTrack(
+    id: String,
+    source: VideoSource
+): VideoTrack = createVideoTrack(id, source)
+
+actual fun PeerConnectionFactory.makeVideoSource(
     isScreenCast: Boolean,
     alignTimestamps: Boolean
 ): VideoSource = createVideoSource(isScreenCast, alignTimestamps)
-
-internal fun PeerConnectionFactory.makeVideoTrack(
-    id: String,
-    videoSource: VideoSource
-): VideoTrack = createVideoTrack(id, videoSource)
-
-internal fun PeerConnectionFactory.makeAudioTrack(
-    id: String,
-    audioSource: AudioSource
-): AudioTrack =
-    createAudioTrack(id, audioSource)
