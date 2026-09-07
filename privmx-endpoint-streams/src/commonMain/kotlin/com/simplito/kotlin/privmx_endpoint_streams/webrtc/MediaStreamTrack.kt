@@ -11,3 +11,6 @@ expect val MediaStreamTrack.state: TrackState
 
 expect class AudioTrack : MediaStreamTrack
 expect class VideoTrack : MediaStreamTrack
+
+expect class AudioSource
+expect class VideoSource

@@ -2,9 +2,11 @@
 
 package com.simplito.kotlin.privmx_endpoint_streams.webrtc
 
+import WebRTCFramework.RTCAudioSource
 import WebRTCFramework.RTCAudioTrack
 import WebRTCFramework.RTCMediaStreamTrack
 import WebRTCFramework.RTCMediaStreamTrackState
+import WebRTCFramework.RTCVideoSource
 import WebRTCFramework.RTCVideoTrack
 import kotlinx.cinterop.ExperimentalForeignApi
 
@@ -25,3 +27,6 @@ actual val MediaStreamTrack.state: TrackState
         RTCMediaStreamTrackState.RTCMediaStreamTrackStateLive -> TrackState.LIVE
         else -> TrackState.ENDED
     }
+
+actual typealias VideoSource = RTCVideoSource
+actual typealias AudioSource = RTCAudioSource
