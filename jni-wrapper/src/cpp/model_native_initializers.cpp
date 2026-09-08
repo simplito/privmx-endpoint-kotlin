@@ -1518,10 +1518,9 @@ namespace privmx {
         jobject
         turnCredentials2Java(
                 JniContextUtils &ctx,
-
                 privmx::endpoint::stream::TurnCredentials turnCredentials_c
         ) {
-            jclass turnCredentialsCls = ctx.findClass(
+            jclass turnCredentialsCls = ctx->FindClass(
                     "com/simplito/kotlin/privmx_endpoint/model/stream/TurnCredentials");
             jmethodID initTurnCredentialsMID = ctx->GetMethodID(
                     turnCredentialsCls,
