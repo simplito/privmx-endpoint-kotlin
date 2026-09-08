@@ -639,7 +639,7 @@ tasks.register("clonePrivmxSources") {
             workingDir = buildDirFile
             commandLine(
                 "sh", "-c",
-                "git clone --depth 1 -b v$nativeEndpointVersion https://github.com/simplito/privmx-endpoint.git"
+                "git clone --depth 1 -b $nativeEndpointVersion https://github.com/simplito/privmx-endpoint.git"
             )
         }
         val conanfile = File(repoDir, "conanfile.txt")
