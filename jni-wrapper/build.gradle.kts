@@ -326,7 +326,6 @@ tasks.register("buildAndroidWithConan") {
 
 tasks.register("buildAndroidFromSources") {
     dependsOn("clonePrivmxSources")
-    finalizedBy("removeAndroidLibVersionSuffix")
     val conanArchsMap = mapOf(
         "armeabi-v7a" to "armv7",
         "arm64-v8a" to "armv8",
@@ -350,14 +349,11 @@ tasks.register("buildAndroidFromSources") {
                     clonedEndpointDir,
                     profile,
                     "../conan",
-                    "../native/install/Android/$privmxEndpointJavaVersion/$arch",
+                    INSTALL_DIR.absolutePath,
                     additionalParams = listOf(
                         " -s arch=${conanArch}",
                         " -c \"tools.android:ndk_path=$ndkPath\""
                     )
-                )
-                removeLibVersionSuffix(
-                    layout.buildDirectory.dir("native/install/Android/$privmxEndpointJavaVersion/$arch").get().asFile
                 )
                 buildFromSources(
                     INSTALL_DIR,
@@ -365,6 +361,7 @@ tasks.register("buildAndroidFromSources") {
                     "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/android-$conanArch/${buildType.name}/generators/conan_toolchain.cmake",
                 )
                 copyFilesFromDeploy(INSTALL_DIR,".so")
+                removeLibVersionSuffix(File(INSTALL_DIR,"lib"))
             }
         }
     }
