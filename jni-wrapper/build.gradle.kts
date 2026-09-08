@@ -788,9 +788,9 @@ private fun Project.copyFilesFromDeploy(
         } else {
             include(
                 "**/libPoco*$extension",
-                "**/libcrypto*$extension",
+                "**/libcrypto*$extension.*",
                 "**/libPson*$extension",
-                "**/libssl*$extension",
+                "**/libssl*$extension.*",
                 "**/libprivmx*$extension"
             )
         }
