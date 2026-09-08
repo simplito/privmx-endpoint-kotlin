@@ -38,6 +38,8 @@
 #include "privmx/endpoint/stream/Types.hpp"
 #include "privmx/endpoint/stream/WebRTCInterface.hpp"
 #include "privmx/endpoint/stream/Events.hpp"
+#include "privmx/endpoint/lock/Types.hpp"
+#include "privmx/endpoint/search/Types.hpp"
 
 namespace privmx {
     namespace wrapper {
@@ -293,6 +295,33 @@ namespace privmx {
         jobject decryptedDataChannelMessage2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::DecryptedDataChannelMessage message
+        );
+
+        //Lock
+        jobject lockLevel2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::lock::LockLevel lockLevel_c
+        );
+
+        jobject lockOperationResult2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::lock::LockOperationResult lockOperationResult_c
+        );
+
+        //Search
+        jobject indexMode2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::search::IndexMode indexMode_c
+        );
+
+        jobject searchIndex2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::search::SearchIndex searchIndex_c
+        );
+
+        jobject document2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::search::Document document_c
         );
     } // wrapper
 } // privmx

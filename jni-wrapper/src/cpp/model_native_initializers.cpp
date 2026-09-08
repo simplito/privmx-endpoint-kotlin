@@ -2157,5 +2157,172 @@ namespace privmx {
             );
         }
 
+
+        //Lock
+        jobject lockLevel2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::lock::LockLevel lockLevel_c
+        ) {
+            jclass lockLevelCls = ctx.findClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/LockLevel");
+            const char *caseName;
+            switch (lockLevel_c) {
+                case privmx::endpoint::lock::LockLevel::SHARED:
+                    caseName = "SHARED";
+                    break;
+                case privmx::endpoint::lock::LockLevel::RESERVED:
+                    caseName = "RESERVED";
+                    break;
+                case privmx::endpoint::lock::LockLevel::PENDING:
+                    caseName = "PENDING";
+                    break;
+                case privmx::endpoint::lock::LockLevel::EXCLUSIVE:
+                    caseName = "EXCLUSIVE";
+                    break;
+                default:
+                    caseName = "NONE";
+                    break;
+            }
+            jfieldID caseFieldId = ctx->GetStaticFieldID(
+                    lockLevelCls,
+                    caseName,
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/LockLevel;");
+            return ctx->GetStaticObjectField(lockLevelCls, caseFieldId);
+        }
+
+        jobject lockOperationResult2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::lock::LockOperationResult lockOperationResult_c
+        ) {
+            jclass itemCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/LockOperationResult");
+            jmethodID initItemMID = ctx->GetMethodID(
+                    itemCls,
+                    "<init>",
+                    "("
+                    "Z"                     // success
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/LockLevel;" // currentLevel
+                    ")V"
+            );
+
+            return ctx->NewObject(
+                    itemCls,
+                    initItemMID,
+                    (jboolean) (lockOperationResult_c.success ? JNI_TRUE : JNI_FALSE),
+                    lockLevel2Java(ctx, lockOperationResult_c.currentLevel)
+            );
+        }
+
+        //Search
+        jobject indexMode2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::search::IndexMode indexMode_c
+        ) {
+            jclass indexModeCls = ctx.findClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/IndexMode");
+            const char *caseName;
+            switch (indexMode_c) {
+                case privmx::endpoint::search::IndexMode::WITH_CONTENT:
+                    caseName = "WITH_CONTENT";
+                    break;
+                case privmx::endpoint::search::IndexMode::WITHOUT_CONTENT:
+                    caseName = "WITHOUT_CONTENT";
+                    break;
+                default:
+                    caseName = "UNKNOWN";
+                    break;
+            }
+            jfieldID caseFieldId = ctx->GetStaticFieldID(
+                    indexModeCls,
+                    caseName,
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/IndexMode;");
+            return ctx->GetStaticObjectField(indexModeCls, caseFieldId);
+        }
+
+        jobject searchIndex2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::search::SearchIndex searchIndex_c
+        ) {
+            jclass itemCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/SearchIndex");
+            jmethodID initItemMID = ctx->GetMethodID(
+                    itemCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"    // contextId
+                    "Ljava/lang/String;"    // indexId
+                    "Ljava/lang/Long;"      // createDate
+                    "Ljava/lang/String;"    // creator
+                    "Ljava/lang/Long;"      // lastModificationDate
+                    "Ljava/lang/String;"    // lastModifier
+                    "Ljava/util/List;"      // users
+                    "Ljava/util/List;"      // managers
+                    "Ljava/lang/Long;"      // version
+                    "[B"                    // publicMeta
+                    "[B"                    // privateMeta
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicy;" // policy
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/IndexMode;" // mode
+                    "Ljava/lang/Long;"      // statusCode
+                    "Ljava/lang/Long;"      // schemaVersion
+                    ")V"
+            );
+
+            jbyteArray publicMeta = ctx->NewByteArray(searchIndex_c.publicMeta.size());
+            jbyteArray privateMeta = ctx->NewByteArray(searchIndex_c.privateMeta.size());
+
+            ctx->SetByteArrayRegion(publicMeta, 0, searchIndex_c.publicMeta.size(),
+                    (jbyte *) searchIndex_c.publicMeta.data());
+            ctx->SetByteArrayRegion(privateMeta, 0, searchIndex_c.privateMeta.size(),
+                    (jbyte *) searchIndex_c.privateMeta.data());
+
+            jobject users = vectorTojArray(ctx, searchIndex_c.users, string2jobject);
+            jobject managers = vectorTojArray(ctx, searchIndex_c.managers, string2jobject);
+
+            return ctx->NewObject(
+                    itemCls,
+                    initItemMID,
+                    ctx->NewStringUTF(searchIndex_c.contextId.c_str()),
+                    ctx->NewStringUTF(searchIndex_c.indexId.c_str()),
+                    ctx.long2jLong(searchIndex_c.createDate),
+                    ctx->NewStringUTF(searchIndex_c.creator.c_str()),
+                    ctx.long2jLong(searchIndex_c.lastModificationDate),
+                    ctx->NewStringUTF(searchIndex_c.lastModifier.c_str()),
+                    users,
+                    managers,
+                    ctx.long2jLong(searchIndex_c.version),
+                    publicMeta,
+                    privateMeta,
+                    containerPolicy2Java(ctx, searchIndex_c.policy),
+                    indexMode2Java(ctx, searchIndex_c.mode),
+                    ctx.long2jLong(searchIndex_c.statusCode),
+                    ctx.long2jLong(searchIndex_c.schemaVersion)
+            );
+        }
+
+        jobject document2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::search::Document document_c
+        ) {
+            jclass itemCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/Document");
+            jmethodID initItemMID = ctx->GetMethodID(
+                    itemCls,
+                    "<init>",
+                    "("
+                    "J"                     // documentId
+                    "Ljava/lang/String;"    // name
+                    "Ljava/lang/String;"    // content
+                    ")V"
+            );
+
+            return ctx->NewObject(
+                    itemCls,
+                    initItemMID,
+                    (jlong) document_c.documentId,
+                    ctx->NewStringUTF(document_c.name.c_str()),
+                    ctx->NewStringUTF(document_c.content.c_str())
+            );
+        }
+
     } // wrapper
 } // privmx
