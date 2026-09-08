@@ -706,7 +706,6 @@ internal class InternalDataChannelMessageCryptoProvider(
     private val streamApiLow: StreamApiLow
 ){
     fun registerDataChannel(streamRoomId: String, remoteStreamId: String){
-        streamApiLow.registerRemoteDataChannel(streamRoomId,remoteStreamId)
     }
 
     fun encryptMessage(streamRoomId: String, message: DataChannelMessage): ByteArray{
