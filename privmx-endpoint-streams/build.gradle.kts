@@ -1,14 +1,10 @@
-@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
-
-import com.android.build.api.dsl.androidLibrary
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidKMPLibrary)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlinPluginSerialization)
     id("maven-publish")
     id("signing")
@@ -90,21 +86,13 @@ kotlin {
         }
     }
 
-    androidLibrary {
-        namespace = "com.simplito.kotlin.privmx_endpoint_streams_android"
-        compileSdk = 36
-        minSdk = 24
+    androidTarget {
+        publishLibraryVariants("release")
 
-        // Enables Java compilation support.
-        // This improves build times when Java compilation is not needed
-        withJava()
-
-        compilations.configureEach {
-            compilerOptions.configure {
-                jvmTarget.set(
-                    JvmTarget.JVM_11
-                )
-            }
+        compilerOptions {
+            jvmTarget.set(
+                JvmTarget.JVM_11
+            )
         }
     }
 
@@ -126,6 +114,23 @@ kotlin {
                 implementation(libs.privmx.endpoint.webrtc.android)
             }
         }
+    }
+}
+
+android {
+    namespace = "com.simplito.kotlin.privmx_endpoint_streams_android"
+    compileSdk = 36
+
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    sourceSets["main"].res.srcDirs("src/androidMain/res")
+
+    defaultConfig {
+        minSdk = 24
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 }
 

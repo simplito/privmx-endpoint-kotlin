@@ -56,6 +56,14 @@ if(PRIVMX_USE_PREBUILT)
         message(FATAL_ERROR
                 "PRIVMX_USE_PREBUILT=ON requires -DPRIVMX_PREBUILT_DIR=<install>/<OS>/<version>/<arch>")
     endif()
+    # Only CMake knows ANDROID_ABI, so callers may pass either the per-version base dir (AGP
+    # configures once per ABI) or a path that already ends in the ABI (compileAndroid). Append
+    # the ABI only when it is missing, so both forms resolve to the same install dir.
+    if(ANDROID_ABI AND NOT PRIVMX_PREBUILT_DIR MATCHES "/${ANDROID_ABI}$")
+        set(PRIVMX_PREBUILT_DIR "${PRIVMX_PREBUILT_DIR}/${ANDROID_ABI}")
+    endif()
+    message(STATUS "PrivMX prebuilt dir: ${PRIVMX_PREBUILT_DIR}")
+
     # endpoint public headers from the prebuilt install dir
     set(PRIVMX_PREBUILT_INCLUDE_DIR "${PRIVMX_PREBUILT_DIR}/include"
             CACHE PATH "privmx endpoint public headers")

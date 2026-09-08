@@ -7,7 +7,7 @@ import kotlin.text.replace
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidKMPLibrary)
+    alias(libs.plugins.android.library)
 }
 
 enum class BuildTypes {
@@ -16,45 +16,62 @@ enum class BuildTypes {
     MinSizeRel
 }
 
-kotlin {
-    android {
-        namespace = "com.simplito.privmx_endpoint_jni"
-        compileSdk = 36
-//        ndkVersion = "29.0.13599879"
-//        defaultConfig {
-//            minSdk = 24
-//            externalNativeBuild {
-//                cmake {
-//                    cppFlags("-std=c++17")
-//                    this.arguments.addAll(
-//                        listOf(
-//                            "-DBUILD_ENDPOINT=ON",
-//                            "-DBUILD_ANDROID_STREAM=ON",
-//                            "-DCMAKE_TOOLCHAIN_FILE=conan_android_toolchain.cmake"
-//                        )
-//                    )
-//                }
-//            }
-//        }
-//
-//        externalNativeBuild {
-//            cmake {
-//                path = file("CMakeLists.txt")
-//                version = "3.22.1"
-//            }
-//        }
-    }
-}
 val localProperties = Properties().apply {
     load(file(rootDir.absolutePath + "/local.properties").inputStream())
 }
+private val privmxEndpointJavaVersion get() = project(":privmx-endpoint").version
 
 val androidArchs = listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
 val darwinArchs = listOf("arm64")
 val nativeEndpointVersion = libs.versions.nativePrivmxEndpoint.get()
 val nativeAdditionalReleaseConanSuffix = ""
 val buildType = BuildTypes.Debug
-private val privmxEndpointJavaVersion get() = project(":privmx-endpoint").version
+
+kotlin {
+    androidTarget()
+}
+
+android {
+    namespace = "com.simplito.privmx_endpoint_jni"
+    compileSdk = 36
+    ndkVersion = "29.0.13599879"
+    defaultConfig {
+        minSdk = 24
+        externalNativeBuild {
+            val usePrebuild = !(buildType == BuildTypes.MinSizeRel || buildType == BuildTypes.Release)
+            val sdkDir = localProperties.getProperty("sdk.dir")
+            val ndkVersion = localProperties.getProperty("ndk.version")
+            val androidNdkPath = "$sdkDir/ndk/$ndkVersion"
+            val prebuildEndpointDir = layout.buildDirectory.dir("endpoint-prebuild/install").get()
+            cmake {
+                cppFlags("-std=c++17")
+                this.arguments.addAll(
+                    buildList {
+                        listOf(
+                            "-DBUILD_ENDPOINT=ON",
+                            "-DBUILD_ANDROID_STREAM=ON",
+                        )
+                        if(usePrebuild) {
+                            add("-DPRIVMX_USE_PREBUILT=ON")
+                            add("-DPREBUILD_VERSION=${libs.versions.publishPrivmxEndpoint.get()}")
+                            add("-DPRIVMX_PREBUILT_DIR=${prebuildEndpointDir.file("Android/${libs.versions.publishPrivmxEndpoint.get()}").asFile.absolutePath}")
+                            add("-DCMAKE_TOOLCHAIN_FILE=$androidNdkPath/build/cmake/android.toolchain.cmake")
+                        }else{
+                            add("-DCMAKE_TOOLCHAIN_FILE=conan_android_toolchain.cmake")
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
+}
 
 object AndroidProfileConfig {
     val Properties.sdkPath: String? get() = this["sdk.dir"] as? String
@@ -96,7 +113,7 @@ val compileAndroid = tasks.create("compileAndroid") {
             }
             val endpointArgs = if (usePrebuiltEndpoint) {
                 " -DPRIVMX_USE_PREBUILT=ON" +
-                        " -DPRIVMX_PREBUILT_DIR=\"${prebuildEndpointDir.file("$os/$privmxEndpointJavaVersion/$ARCH").asFile.absolutePath}\"" +
+                        " -DPRIVMX_PREBUILT_DIR=\"${prebuildEndpointDir.file("$os/$privmxEndpointJavaVersion").asFile.absolutePath}\"" +
                         " -DCMAKE_TOOLCHAIN_FILE=\"$androidNdkPath/build/cmake/android.toolchain.cmake\""
             } else {
                 " -DCMAKE_TOOLCHAIN_FILE=\"conan_android_toolchain.cmake\""
