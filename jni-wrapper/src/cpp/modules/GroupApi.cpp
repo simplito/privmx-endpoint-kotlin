@@ -177,32 +177,72 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_group_GroupApi_removeGroupMemb
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_group_GroupApi_updateGroup(
+Java_com_simplito_kotlin_privmx_1endpoint_modules_group_GroupApi_updateGroupPublicMeta(
         JNIEnv *env,
         jobject thiz,
         jstring group_id,
         jbyteArray public_meta,
-        jbyteArray private_meta,
-        jlong version,
-        jobject container_policies
+        jlong version
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(group_id, "Group ID") ||
-            ctx.nullCheck(public_meta, "Public meta") ||
+            ctx.nullCheck(public_meta, "Public meta")) {
+        return;
+    }
+    ctx.callVoidEndpointApi(
+            [&ctx, &thiz, &group_id, &public_meta, &version]() {
+                getGroupApi(ctx, thiz)->updateGroupPublicMeta(
+                        ctx.jString2string(group_id),
+                        core::Buffer::from(ctx.jByteArray2String(public_meta)),
+                        version
+                );
+            });
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_group_GroupApi_updateGroupPrivateMeta(
+        JNIEnv *env,
+        jobject thiz,
+        jstring group_id,
+        jbyteArray private_meta,
+        jlong version
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(group_id, "Group ID") ||
             ctx.nullCheck(private_meta, "Private meta")) {
         return;
     }
     ctx.callVoidEndpointApi(
-            [&ctx, &thiz, &group_id, &public_meta, &private_meta, &version, &container_policies]() {
-                auto container_policies_opt = std::optional<core::ContainerPolicy>(
-                        parseContainerPolicy(ctx, container_policies));
-
-                getGroupApi(ctx, thiz)->updateGroup(
+            [&ctx, &thiz, &group_id, &private_meta, &version]() {
+                getGroupApi(ctx, thiz)->updateGroupPrivateMeta(
                         ctx.jString2string(group_id),
-                        core::Buffer::from(ctx.jByteArray2String(public_meta)),
                         core::Buffer::from(ctx.jByteArray2String(private_meta)),
-                        version,
-                        container_policies_opt
+                        version
+                );
+            });
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_group_GroupApi_updateGroupPolicy(
+        JNIEnv *env,
+        jobject thiz,
+        jstring group_id,
+        jobject container_policies
+) {
+    JniContextUtils ctx(env);
+    // Required here, unlike on the old combined call: with nothing else to update, an absent policy
+    // would be a request that asks for nothing.
+    if (ctx.nullCheck(group_id, "Group ID") ||
+            ctx.nullCheck(container_policies, "Policies")) {
+        return;
+    }
+    ctx.callVoidEndpointApi(
+            [&ctx, &thiz, &group_id, &container_policies]() {
+                getGroupApi(ctx, thiz)->updateGroupPolicy(
+                        ctx.jString2string(group_id),
+                        parseContainerPolicy(ctx, container_policies)
                 );
             });
 }
@@ -722,6 +762,76 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_group_GroupApi_buildSubscripti
             [&ctx, &thiz, &event_type, &selector_type, &selector_id]() {
                 std::string query_result_c = getGroupApi(ctx, thiz)->buildSubscriptionQuery(
                         static_cast<group::EventType>(event_type),
+                        static_cast<group::EventSelectorType>(selector_type),
+                        ctx.jString2string(selector_id)
+                );
+                return ctx->NewStringUTF(query_result_c.c_str());
+            }
+    );
+    if (ctx->ExceptionCheck()) {
+        return nullptr;
+    }
+    return result;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_group_GroupApi_sendCustomEvent(
+        JNIEnv *env,
+        jobject thiz,
+        jstring group_id,
+        jstring channel_name,
+        jbyteArray event_data,
+        jobject users
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(group_id, "Group ID") ||
+            ctx.nullCheck(channel_name, "Channel name") ||
+            ctx.nullCheck(event_data, "Event data") ||
+            ctx.nullCheck(users, "Users list")) {
+        return;
+    }
+
+    ctx.callVoidEndpointApi(
+            [&ctx, &thiz, &group_id, &channel_name, &event_data, &users]() {
+                auto users_c = jArrayToVector<std::string>(
+                        ctx,
+                        ctx.jObject2jArray(users),
+                        jobject2string,
+                        true
+                );
+                if (ctx->ExceptionCheck()) return;
+
+                getGroupApi(ctx, thiz)->sendCustomEvent(
+                        ctx.jString2string(group_id),
+                        ctx.jString2string(channel_name),
+                        core::Buffer::from(ctx.jByteArray2String(event_data)),
+                        users_c
+                );
+            });
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_group_GroupApi_buildCustomEventSubscriptionQuery(
+        JNIEnv *env,
+        jobject thiz,
+        jstring channel_name,
+        jlong selector_type,
+        jstring selector_id
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(channel_name, "Channel name") ||
+            ctx.nullCheck(selector_id, "Selector ID")) {
+        return nullptr;
+    }
+
+    jstring result;
+    ctx.callResultEndpointApi<jstring>(
+            &result,
+            [&ctx, &thiz, &channel_name, &selector_type, &selector_id]() {
+                std::string query_result_c = getGroupApi(ctx, thiz)->buildCustomEventSubscriptionQuery(
+                        ctx.jString2string(channel_name),
                         static_cast<group::EventSelectorType>(selector_type),
                         ctx.jString2string(selector_id)
                 );

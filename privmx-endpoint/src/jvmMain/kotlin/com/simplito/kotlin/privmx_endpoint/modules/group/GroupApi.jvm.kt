@@ -101,29 +101,52 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
     actual external fun removeGroupMembers(groupId: String, userIds: List<String>)
 
     /**
-     * Updates an existing Group's metadata.
+     * Updates a Group's public (unencrypted) metadata, and nothing else.
      *
-     * The membership is deliberately not updatable here: it goes through
-     * [addGroupMembers]/[removeGroupMembers] instead.
+     * Cannot touch the private metadata or the policies. The version checked is [Group.publicMetaVersion]
+     * alone, so a concurrent private-metadata write cannot make this one lose.
      *
-     * @param groupId     ID of the Group to update
-     * @param publicMeta  public (unencrypted) metadata
-     * @param privateMeta private (encrypted) metadata
-     * @param version     current version of the updated Group
-     * @param policies    Group's policies
+     * @param groupId    ID of the Group to update
+     * @param publicMeta public (unencrypted) metadata
+     * @param version    current [Group.publicMetaVersion] of the updated Group
      * @throws IllegalStateException thrown when instance is closed.
      * @throws PrivmxException       thrown when method encounters an exception.
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    @JvmOverloads
-    actual external fun updateGroup(
-        groupId: String,
-        publicMeta: ByteArray,
-        privateMeta: ByteArray,
-        version: Long,
-        policies: ContainerPolicy?
-    )
+    actual external fun updateGroupPublicMeta(groupId: String, publicMeta: ByteArray, version: Long)
+
+    /**
+     * Updates a Group's private (encrypted) metadata, and nothing else.
+     *
+     * The counterpart of [updateGroupPublicMeta], with its own version counter: the version checked is
+     * [Group.privateMetaVersion] alone.
+     *
+     * @param groupId     ID of the Group to update
+     * @param privateMeta private (encrypted) metadata
+     * @param version     current [Group.privateMetaVersion] of the updated Group
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun updateGroupPrivateMeta(groupId: String, privateMeta: ByteArray, version: Long)
+
+    /**
+     * Sets a Group's policies, and nothing else.
+     *
+     * Takes no version and performs no version check, unlike the two metadata calls: the policies live
+     * outside the Group's encrypted, signed metadata, so there is no counter to know and nothing to
+     * re-verify. Two callers racing here means the later write wins.
+     *
+     * @param groupId  ID of the Group to update
+     * @param policies Group's policies
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual external fun updateGroupPolicy(groupId: String, policies: ContainerPolicy)
 
     /**
      * Deletes a Group by given Group ID.
@@ -362,6 +385,67 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
             selectorId
         )
     }
+
+    /**
+     * Sends an ephemeral notification to the Group's members — "I am typing", "I moved the cursor",
+     * "the call has started".
+     *
+     * The content is sealed with the Group's own key, exactly as [encrypt] would seal it, so one call sends
+     * one request no matter how large the Group is. Members receive it as a `GroupCustomEvent` with the
+     * payload already opened and the sender's signature already verified.
+     *
+     * A notification is not a record: whoever is not connected and subscribed at the time misses it.
+     *
+     * Requires membership. [eventData] is capped at about 11 KB after sealing and encoding.
+     *
+     * @param groupId     ID of the Group to notify
+     * @param channelName name of the channel, chosen by you; recipients subscribe to it with
+     *        [buildCustomEventSubscriptionQuery]. Must not contain '/', '|', ',' or '='.
+     * @param eventData   payload to send
+     * @param users       IDs of the members to reach; empty means every member
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
+    actual external fun sendCustomEvent(
+        groupId: String,
+        channelName: String,
+        eventData: ByteArray,
+        users: List<String>
+    )
+
+    /**
+     * Generate subscription Query for custom notifications sent with [sendCustomEvent].
+     *
+     * @param channelName  name of the channel to listen on — the same name the sender passed
+     * @param selectorType scope on which you listen for events
+     * @param selectorId   ID of the selector
+     * @return subscription query string
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun buildCustomEventSubscriptionQuery(
+        channelName: String,
+        selectorType: GroupEventSelectorType,
+        selectorId: String
+    ): String {
+        return buildCustomEventSubscriptionQuery(
+            channelName,
+            selectorType.ordinal.toLong(),
+            selectorId
+        )
+    }
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    private external fun buildCustomEventSubscriptionQuery(
+        channelName: String,
+        selectorType: Long,
+        selectorId: String
+    ): String
 
     /**
      * Generate subscription Query for the Group events.
