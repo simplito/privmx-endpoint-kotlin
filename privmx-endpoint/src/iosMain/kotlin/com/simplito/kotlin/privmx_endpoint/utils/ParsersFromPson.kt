@@ -48,6 +48,9 @@ import com.simplito.kotlin.privmx_endpoint.model.events.CollectionChangedEventDa
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextCustomEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextUserEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextUsersStatusChangedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.GroupChangedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.GroupCustomEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.GroupDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxEntryDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEntryEventData
@@ -360,6 +363,30 @@ internal fun PsonObject.toContextUsersStatusChangedEventData() = ContextUsersSta
     this["users"]!!.typedList().map { (it as PsonObject).toUserWithAction() }
 )
 
+internal fun PsonObject.toGroupChangedEventData() = GroupChangedEventData(
+    this["groupId"]!!.typedValue(),
+    this["contextId"]!!.typedValue(),
+    this["publicMetaVersion"]!!.typedValue(),
+    this["privateMetaVersion"]!!.typedValue(),
+    this["rosterVersion"]!!.typedValue(),
+    this["keyVersion"]!!.typedValue(),
+    this["changeKind"]!!.typedValue()
+)
+
+internal fun PsonObject.toGroupDeletedEventData() = GroupDeletedEventData(
+    this["groupId"]!!.typedValue(),
+    this["contextId"]!!.typedValue()
+)
+
+internal fun PsonObject.toGroupCustomEventData() = GroupCustomEventData(
+    this["groupId"]!!.typedValue(),
+    this["channelName"]!!.typedValue(),
+    this["userId"]!!.typedValue(),
+    this["authorPubKey"]!!.typedValue(),
+    this["payload"]!!.typedValue(),
+    this["statusCode"]!!.typedValue()
+)
+
 internal fun PsonObject.toKvdbDeletedEventData() = KvdbDeletedEventData(
     this["kvdbId"]!!.typedValue()
 )
@@ -441,6 +468,9 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "kvdb\$KvdbStatsEventData" to PsonObject::toKvdbStatsEventData,
     "kvdb\$KvdbEntry" to PsonObject::toKvdbEntry,
     "kvdb\$KvdbDeletedEntryEventData" to PsonObject::toKvdbDeletedEntryEventData,
+    "group\$GroupChangedEventData" to PsonObject::toGroupChangedEventData,
+    "group\$GroupDeletedEventData" to PsonObject::toGroupDeletedEventData,
+    "group\$GroupCustomEventData" to PsonObject::toGroupCustomEventData,
     "stream\$StreamRoom" to PsonObject::toStreamRoom,
     "stream\$StreamRoomDeletedEventData" to PsonObject::toStreamRoomDeletedEventData,
     "stream\$StreamPublishedEventData" to PsonObject::toStreamPublishedEventData,
