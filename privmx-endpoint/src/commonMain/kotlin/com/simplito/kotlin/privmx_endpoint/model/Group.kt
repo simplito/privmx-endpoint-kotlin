@@ -23,7 +23,8 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property lastModifier ID of the user who last modified the Group
  * @property users List of users (their IDs) with access to the Group
  * @property managers List of users (their IDs) with management rights
- * @property version Metadata version. Changes only on [com.simplito.kotlin.privmx_endpoint.modules.group.GroupApi.updateGroup] — a membership change does not touch it
+ * @property publicMetaVersion Public-metadata version
+ * @property privateMetaVersion Private-metadata version
  * @property rosterVersion Roster version. Changes only on a membership change
  * @property publicMeta Group's public metadata
  * @property privateMeta Group's private metadata
@@ -43,7 +44,8 @@ data class Group(
     val lastModifier: String,
     val users: List<String>,
     val managers: List<String>,
-    val version: Long,
+    val publicMetaVersion: Long,
+    val privateMetaVersion: Long,
     val rosterVersion: Long,
     val publicMeta: ByteArray,
     val privateMeta: ByteArray,
@@ -61,7 +63,8 @@ data class Group(
 
         if (createDate != other.createDate) return false
         if (lastModificationDate != other.lastModificationDate) return false
-        if (version != other.version) return false
+        if (publicMetaVersion != other.publicMetaVersion) return false
+        if (privateMetaVersion != other.privateMetaVersion) return false
         if (rosterVersion != other.rosterVersion) return false
         if (statusCode != other.statusCode) return false
         if (schemaVersion != other.schemaVersion) return false
@@ -84,7 +87,8 @@ data class Group(
     override fun hashCode(): Int {
         var result = createDate.hashCode()
         result = 31 * result + lastModificationDate.hashCode()
-        result = 31 * result + version.hashCode()
+        result = 31 * result + publicMetaVersion.hashCode()
+        result = 31 * result + privateMetaVersion.hashCode()
         result = 31 * result + rosterVersion.hashCode()
         result = 31 * result + statusCode.hashCode()
         result = 31 * result + schemaVersion.hashCode()
@@ -102,5 +106,4 @@ data class Group(
         result = 31 * result + (type?.hashCode() ?: 0)
         return result
     }
-
 }
