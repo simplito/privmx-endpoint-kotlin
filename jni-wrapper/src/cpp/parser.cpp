@@ -631,6 +631,42 @@ parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core::Event> 
                     event_cast.timestamp,
                     privmx::wrapper::kvdbDeletedEntryEventData2Java(ctx, event_cast.data)
             );
+        } else if (group::Events::isGroupCreatedEvent(event)) {
+            privmx::endpoint::group::GroupCreatedEvent event_cast = group::Events::extractGroupCreatedEvent(
+                    event);
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::groupChangedEventData2Java(ctx, event_cast.data)
+            );
+        } else if (group::Events::isGroupUpdatedEvent(event)) {
+            privmx::endpoint::group::GroupUpdatedEvent event_cast = group::Events::extractGroupUpdatedEvent(
+                    event);
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::groupChangedEventData2Java(ctx, event_cast.data)
+            );
+        } else if (group::Events::isGroupDeletedEvent(event)) {
+            privmx::endpoint::group::GroupDeletedEvent event_cast = group::Events::extractGroupDeletedEvent(
+                    event);
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::groupDeletedEventData2Java(ctx, event_cast.data)
+            );
         } else if (stream::Events::isStreamRoomCreatedEvent(event)) {
             privmx::endpoint::stream::StreamRoomCreatedEvent event_cast = stream::Events::extractStreamRoomCreatedEvent(
                     event);
