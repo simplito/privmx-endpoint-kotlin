@@ -208,6 +208,9 @@ namespace privmx {
         jobject groupDeletedEventData2Java(JniContextUtils &ctx,
                 privmx::endpoint::group::GroupDeletedEventData groupDeletedEventData_c);
 
+        jobject groupCustomEventData2Java(JniContextUtils &ctx,
+                privmx::endpoint::group::GroupCustomEventData groupCustomEventData_c);
+
         //Streams
         jobject streamRoom2Java(
                 JniContextUtils &ctx,
