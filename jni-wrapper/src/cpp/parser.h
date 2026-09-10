@@ -37,6 +37,10 @@ privmx::endpoint::core::ItemPolicy parseItemPolicy(JniContextUtils &ctx, jobject
 
 privmx::endpoint::inbox::FilesConfig parseFilesConfig(JniContextUtils &ctx, jobject filesConfig);
 
+// group
+std::vector<privmx::endpoint::group::GroupMemberToAdd>
+groupMembersToVector(JniContextUtils &ctx, jobjectArray newMembers);
+
 // streams
 privmx::endpoint::stream::StreamSubscription parseStreamSubscription(JniContextUtils &ctx, jobject streamSubscription);
 
