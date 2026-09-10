@@ -704,6 +704,18 @@ parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core::Event> 
                     event_cast.timestamp,
                     privmx::wrapper::groupDeletedEventData2Java(ctx, event_cast.data)
             );
+        } else if (group::Events::isGroupCustomEvent(event)) {
+            privmx::endpoint::group::GroupCustomEvent event_cast = group::Events::extractGroupCustomEvent(
+                    event);
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::groupCustomEventData2Java(ctx, event_cast.data)
+            );
         } else if (stream::Events::isStreamRoomCreatedEvent(event)) {
             privmx::endpoint::stream::StreamRoomCreatedEvent event_cast = stream::Events::extractStreamRoomCreatedEvent(
                     event);
