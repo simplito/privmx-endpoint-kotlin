@@ -1726,6 +1726,41 @@ namespace privmx {
             );
         }
 
+        jobject groupCustomEventData2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::group::GroupCustomEventData groupCustomEventData_c
+        ) {
+            jclass groupCustomEventDataCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/GroupCustomEventData");
+            jmethodID initGroupCustomEventDataMID = ctx->GetMethodID(
+                    groupCustomEventDataCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;" // groupId
+                    "Ljava/lang/String;" // channelName
+                    "Ljava/lang/String;" // userId
+                    "Ljava/lang/String;" // authorPubKey
+                    "[B"                 // payload
+                    "J"                  // statusCode
+                    ")V"
+            );
+
+            jbyteArray payload = ctx->NewByteArray(groupCustomEventData_c.payload.size());
+            ctx->SetByteArrayRegion(payload, 0, groupCustomEventData_c.payload.size(),
+                    (jbyte *) groupCustomEventData_c.payload.data());
+
+            return ctx->NewObject(
+                    groupCustomEventDataCls,
+                    initGroupCustomEventDataMID,
+                    ctx->NewStringUTF(groupCustomEventData_c.groupId.c_str()),
+                    ctx->NewStringUTF(groupCustomEventData_c.channelName.c_str()),
+                    ctx->NewStringUTF(groupCustomEventData_c.userId.c_str()),
+                    ctx->NewStringUTF(groupCustomEventData_c.authorPubKey.c_str()),
+                    payload,
+                    (jlong) groupCustomEventData_c.statusCode
+            );
+        }
+
         //Streams
         jobject keyType2Java(
                 JniContextUtils &ctx,
