@@ -1464,6 +1464,262 @@ namespace privmx {
             }
 
 
+        //Group
+        jobject group2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::group::Group group_c
+        ) {
+            jclass groupCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/Group");
+            jmethodID initGroupMID = ctx->GetMethodID(
+                    groupCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"    // contextId
+                    "Ljava/lang/String;"    // groupId
+                    "Ljava/lang/String;"    // groupPubKey
+                    "J"                     // createDate
+                    "Ljava/lang/String;"    // creator
+                    "J"                     // lastModificationDate
+                    "Ljava/lang/String;"    // lastModifier
+                    "Ljava/util/List;"      // users
+                    "Ljava/util/List;"      // managers
+                    "J"                     // version
+                    "J"                     // rosterVersion
+                    "[B"                    // publicMeta
+                    "[B"                    // privateMeta
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicy;" //policy
+                    "J"                     // statusCode
+                    "J"                     // schemaVersion
+                    "J"                     // keyVersion
+                    "Ljava/lang/String;"    // type
+                    ")V"
+            );
+            jobject users = vectorTojArray(ctx, group_c.users, string2jobject);
+            jobject managers = vectorTojArray(ctx, group_c.managers, string2jobject);
+
+            jbyteArray publicMeta = ctx->NewByteArray(group_c.publicMeta.size());
+            jbyteArray privateMeta = ctx->NewByteArray(group_c.privateMeta.size());
+            ctx->SetByteArrayRegion(publicMeta, 0, group_c.publicMeta.size(),
+                    (jbyte *) group_c.publicMeta.data());
+            ctx->SetByteArrayRegion(privateMeta, 0, group_c.privateMeta.size(),
+                    (jbyte *) group_c.privateMeta.data());
+            jstring type = nullptr;
+            if (group_c.type.has_value()) {
+                type = ctx->NewStringUTF(group_c.type->c_str());
+            }
+
+            return ctx->NewObject(
+                    groupCls,
+                    initGroupMID,
+                    ctx->NewStringUTF(group_c.contextId.c_str()),
+                    ctx->NewStringUTF(group_c.groupId.c_str()),
+                    ctx->NewStringUTF(group_c.groupPubKey.c_str()),
+                    (jlong) group_c.createDate,
+                    ctx->NewStringUTF(group_c.creator.c_str()),
+                    (jlong) group_c.lastModificationDate,
+                    ctx->NewStringUTF(group_c.lastModifier.c_str()),
+                    users,
+                    managers,
+                    (jlong) group_c.version,
+                    (jlong) group_c.rosterVersion,
+                    publicMeta,
+                    privateMeta,
+                    containerPolicy2Java(ctx, group_c.policy),
+                    (jlong) group_c.statusCode,
+                    (jlong) group_c.schemaVersion,
+                    type,
+                    (jlong) group_c.keyVersion
+            );
+        }
+
+        jobject groupSummary2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::group::GroupSummary groupSummary_c
+        ) {
+            jclass groupSummaryCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/GroupSummary");
+            jmethodID initGroupSummaryMID = ctx->GetMethodID(
+                    groupSummaryCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"    // contextId
+                    "Ljava/lang/String;"    // groupId
+                    "Ljava/lang/String;"    // groupPubKey
+                    "Ljava/lang/Long;"      // createDate
+                    "Ljava/lang/String;"    // creator
+                    "Ljava/lang/Long;"      // lastModificationDate
+                    "Ljava/lang/String;"    // lastModifier
+                    "Ljava/util/List;"      // users
+                    "Ljava/util/List;"      // managers
+                    "Ljava/lang/Long;"      // version
+                    "Ljava/lang/Long;"      // rosterVersion
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicy;" //policy
+                    "Ljava/lang/Long;"      // keyVersion
+                    "Ljava/lang/String;"    // type
+                    ")V"
+            );
+            jobject users = vectorTojArray(ctx, groupSummary_c.users, string2jobject);
+            jobject managers = vectorTojArray(ctx, groupSummary_c.managers, string2jobject);
+
+            jstring type = nullptr;
+            if (groupSummary_c.type.has_value()) {
+                type = ctx->NewStringUTF(groupSummary_c.type->c_str());
+            }
+
+            return ctx->NewObject(
+                    groupSummaryCls,
+                    initGroupSummaryMID,
+                    ctx->NewStringUTF(groupSummary_c.contextId.c_str()),
+                    ctx->NewStringUTF(groupSummary_c.groupId.c_str()),
+                    ctx->NewStringUTF(groupSummary_c.groupPubKey.c_str()),
+                    ctx.long2jLong(groupSummary_c.createDate),
+                    ctx->NewStringUTF(groupSummary_c.creator.c_str()),
+                    ctx.long2jLong(groupSummary_c.lastModificationDate),
+                    ctx->NewStringUTF(groupSummary_c.lastModifier.c_str()),
+                    users,
+                    managers,
+                    ctx.long2jLong(groupSummary_c.version),
+                    ctx.long2jLong(groupSummary_c.rosterVersion),
+                    containerPolicy2Java(ctx, groupSummary_c.policy),
+                    type,
+                    ctx.long2jLong(groupSummary_c.keyVersion)
+            );
+        }
+
+        jobject envelopeType2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::group::EnvelopeType envelopeType_c
+        ) {
+            jclass envelopeTypeCls = ctx.findClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/EnvelopeType");
+            const char *caseName;
+            switch (envelopeType_c) {
+                case privmx::endpoint::group::EnvelopeType::ENVELOPE_ANONYMOUS:
+                    caseName = "ENVELOPE_ANONYMOUS";
+                    break;
+                default:
+                    caseName = "ENVELOPE_FROM_MEMBER";
+                    break;
+            }
+            jfieldID caseFieldId = ctx->GetStaticFieldID(
+                    envelopeTypeCls,
+                    caseName,
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/EnvelopeType;");
+            return ctx->GetStaticObjectField(envelopeTypeCls, caseFieldId);
+        }
+
+        jobject decryptedEnvelope2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::group::DecryptedEnvelope decryptedEnvelope_c
+        ) {
+            jclass decryptedEnvelopeCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/DecryptedEnvelope");
+            jmethodID initDecryptedEnvelopeMID = ctx->GetMethodID(
+                    decryptedEnvelopeCls,
+                    "<init>",
+                    "("
+                    "[B"                    // data
+                    "Ljava/lang/String;"    // groupId
+                    "Ljava/lang/String;"    // authorPubKey
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/EnvelopeType;" //type
+                    ")V"
+            );
+            jbyteArray data = ctx->NewByteArray(decryptedEnvelope_c.data.size());
+            ctx->SetByteArrayRegion(data, 0, decryptedEnvelope_c.data.size(),
+                    (jbyte *) decryptedEnvelope_c.data.data());
+
+            return ctx->NewObject(
+                    decryptedEnvelopeCls,
+                    initDecryptedEnvelopeMID,
+                    data,
+                    ctx->NewStringUTF(decryptedEnvelope_c.groupId.c_str()),
+                    ctx->NewStringUTF(decryptedEnvelope_c.authorPubKey.c_str()),
+                    envelopeType2Java(ctx, decryptedEnvelope_c.type)
+            );
+        }
+
+        jobject decryptedFileInfo2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::group::DecryptedFileInfo decryptedFileInfo_c
+        ) {
+            jclass decryptedFileInfoCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/DecryptedFileInfo");
+            jmethodID initDecryptedFileInfoMID = ctx->GetMethodID(
+                    decryptedFileInfoCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"    // groupId
+                    "Ljava/lang/String;"    // authorPubKey
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/EnvelopeType;" //type
+                    "Ljava/lang/Boolean;"   // complete
+                    ")V"
+            );
+
+            return ctx->NewObject(
+                    decryptedFileInfoCls,
+                    initDecryptedFileInfoMID,
+                    ctx->NewStringUTF(decryptedFileInfo_c.groupId.c_str()),
+                    ctx->NewStringUTF(decryptedFileInfo_c.authorPubKey.c_str()),
+                    envelopeType2Java(ctx, decryptedFileInfo_c.type),
+                    ctx.bool2jBoolean(decryptedFileInfo_c.complete)
+            );
+        }
+
+        jobject groupChangedEventData2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::group::GroupChangedEventData groupChangedEventData_c
+        ) {
+            jclass groupChangedEventDataCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/GroupChangedEventData");
+            jmethodID initGroupChangedEventDataMID = ctx->GetMethodID(
+                    groupChangedEventDataCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"    // groupId
+                    "Ljava/lang/String;"    // contextId
+                    "J"                     // version
+                    "J"                     // rosterVersion
+                    "J"                     // keyVersion
+                    "Ljava/lang/String;"    // changeKind
+                    ")V"
+            );
+
+            return ctx->NewObject(
+                    groupChangedEventDataCls,
+                    initGroupChangedEventDataMID,
+                    ctx->NewStringUTF(groupChangedEventData_c.groupId.c_str()),
+                    ctx->NewStringUTF(groupChangedEventData_c.contextId.c_str()),
+                    (jlong) groupChangedEventData_c.version,
+                    (jlong) groupChangedEventData_c.rosterVersion,
+                    (jlong) groupChangedEventData_c.keyVersion,
+                    ctx->NewStringUTF(groupChangedEventData_c.changeKind.c_str())
+            );
+        }
+
+        jobject groupDeletedEventData2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::group::GroupDeletedEventData groupDeletedEventData_c
+        ) {
+            jclass groupDeletedEventDataCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/GroupDeletedEventData");
+            jmethodID initGroupDeletedEventDataMID = ctx->GetMethodID(
+                    groupDeletedEventDataCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;" //groupId
+                    "Ljava/lang/String;" //contextId
+                    ")V"
+            );
+
+            return ctx->NewObject(
+                    groupDeletedEventDataCls,
+                    initGroupDeletedEventDataMID,
+                    ctx->NewStringUTF(groupDeletedEventData_c.groupId.c_str()),
+                    ctx->NewStringUTF(groupDeletedEventData_c.contextId.c_str())
+            );
+        }
+
         //Streams
         jobject keyType2Java(
                 JniContextUtils &ctx,
