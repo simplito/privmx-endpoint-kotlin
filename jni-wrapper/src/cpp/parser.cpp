@@ -34,6 +34,43 @@ usersToVector(JniContextUtils &ctx, jobjectArray users) {
     return users_c;
 }
 
+std::vector<privmx::endpoint::group::GroupMemberToAdd>
+groupMembersToVector(JniContextUtils &ctx, jobjectArray newMembers) {
+    std::vector<privmx::endpoint::group::GroupMemberToAdd> newMembers_c;
+    for (int i = 0; i < ctx->GetArrayLength(newMembers); i++) {
+        jobject arrayElement = ctx->GetObjectArrayElement(newMembers, i);
+        if (ctx.nullCheck(arrayElement, "Group member")) {
+            return {};
+        }
+        jclass arrayElementCls = ctx->GetObjectClass(arrayElement);
+
+        jfieldID userFID = ctx->GetFieldID(
+                arrayElementCls,
+                "user",
+                "Lcom/simplito/kotlin/privmx_endpoint/model/UserWithPubKey;");
+        jfieldID roleFID = ctx->GetFieldID(arrayElementCls, "role", "Ljava/lang/String;");
+
+        jobject user = ctx->GetObjectField(arrayElement, userFID);
+        if (ctx.nullCheck(user, "Group member user")) {
+            return {};
+        }
+        jclass userCls = ctx->GetObjectClass(user);
+        jfieldID userIdFID = ctx->GetFieldID(userCls, "userId", "Ljava/lang/String;");
+        jfieldID pubKeyFID = ctx->GetFieldID(userCls, "pubKey", "Ljava/lang/String;");
+
+        privmx::endpoint::group::GroupMemberToAdd member_c = privmx::endpoint::group::GroupMemberToAdd();
+        member_c.user.userId = ctx.jString2string(
+                (jstring) ctx->GetObjectField(user, userIdFID));
+        member_c.user.pubKey = ctx.jString2string(
+                (jstring) ctx->GetObjectField(user, pubKeyFID));
+        member_c.role = ctx.jString2string(
+                (jstring) ctx->GetObjectField(arrayElement, roleFID));
+
+        newMembers_c.push_back(member_c);
+    }
+    return newMembers_c;
+}
+
 privmx::endpoint::core::PKIVerificationOptions
 parsePKIVerificationOptions(JniContextUtils &ctx, jobject pkiVerificationOptions) {
     auto result = privmx::endpoint::core::PKIVerificationOptions();
