@@ -27,7 +27,8 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property lastModifier ID of the user who last modified the Group
  * @property users List of users (their IDs) with access to the Group
  * @property managers List of users (their IDs) with management rights
- * @property version Metadata version. Changes only on an update — a membership change does not touch it
+ * @property publicMetaVersion Public-metadata version
+ * @property privateMetaVersion Private-metadata version
  * @property rosterVersion Roster version. Changes only on a membership change
  * @property policy Group's policies
  * @property type Optional type tag
@@ -43,7 +44,8 @@ data class GroupSummary(
     val lastModifier: String,
     val users: List<String>,
     val managers: List<String>,
-    val version: Long,
+    val publicMetaVersion: Long,
+    val privateMetaVersion: Long,
     val rosterVersion: Long,
     val policy: ContainerPolicy,
     val keyVersion: Long,
