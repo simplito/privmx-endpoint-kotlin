@@ -1610,7 +1610,8 @@ namespace privmx {
                     "Ljava/lang/String;"    // lastModifier
                     "Ljava/util/List;"      // users
                     "Ljava/util/List;"      // managers
-                    "J"                     // version
+                    "J"                     // publicMetaVersion
+                    "J"                     // privateMetaVersion
                     "J"                     // rosterVersion
                     "[B"                    // publicMeta
                     "[B"                    // privateMeta
@@ -1647,15 +1648,16 @@ namespace privmx {
                     ctx->NewStringUTF(group_c.lastModifier.c_str()),
                     users,
                     managers,
-                    (jlong) group_c.version,
+                    (jlong) group_c.publicMetaVersion,
+                    (jlong) group_c.privateMetaVersion,
                     (jlong) group_c.rosterVersion,
                     publicMeta,
                     privateMeta,
                     containerPolicy2Java(ctx, group_c.policy),
                     (jlong) group_c.statusCode,
                     (jlong) group_c.schemaVersion,
-                    type,
-                    (jlong) group_c.keyVersion
+                    (jlong) group_c.keyVersion,
+                    type
             );
         }
 
@@ -1672,16 +1674,17 @@ namespace privmx {
                     "Ljava/lang/String;"    // contextId
                     "Ljava/lang/String;"    // groupId
                     "Ljava/lang/String;"    // groupPubKey
-                    "Ljava/lang/Long;"      // createDate
+                    "J"                     // createDate
                     "Ljava/lang/String;"    // creator
-                    "Ljava/lang/Long;"      // lastModificationDate
+                    "J"                     // lastModificationDate
                     "Ljava/lang/String;"    // lastModifier
                     "Ljava/util/List;"      // users
                     "Ljava/util/List;"      // managers
-                    "Ljava/lang/Long;"      // version
-                    "Ljava/lang/Long;"      // rosterVersion
+                    "J"                     // publicMetaVersion
+                    "J"                     // privateMetaVersion
+                    "J"                     // rosterVersion
                     "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicy;" //policy
-                    "Ljava/lang/Long;"      // keyVersion
+                    "J"                     // keyVersion
                     "Ljava/lang/String;"    // type
                     ")V"
             );
@@ -1699,17 +1702,18 @@ namespace privmx {
                     ctx->NewStringUTF(groupSummary_c.contextId.c_str()),
                     ctx->NewStringUTF(groupSummary_c.groupId.c_str()),
                     ctx->NewStringUTF(groupSummary_c.groupPubKey.c_str()),
-                    ctx.long2jLong(groupSummary_c.createDate),
+                    (jlong) groupSummary_c.createDate,
                     ctx->NewStringUTF(groupSummary_c.creator.c_str()),
-                    ctx.long2jLong(groupSummary_c.lastModificationDate),
+                    (jlong) groupSummary_c.lastModificationDate,
                     ctx->NewStringUTF(groupSummary_c.lastModifier.c_str()),
                     users,
                     managers,
-                    ctx.long2jLong(groupSummary_c.version),
-                    ctx.long2jLong(groupSummary_c.rosterVersion),
+                    (jlong) groupSummary_c.publicMetaVersion,
+                    (jlong) groupSummary_c.privateMetaVersion,
+                    (jlong) groupSummary_c.rosterVersion,
                     containerPolicy2Java(ctx, groupSummary_c.policy),
-                    type,
-                    ctx.long2jLong(groupSummary_c.keyVersion)
+                    (jlong) groupSummary_c.keyVersion,
+                    type
             );
         }
 
@@ -1804,7 +1808,8 @@ namespace privmx {
                     "("
                     "Ljava/lang/String;"    // groupId
                     "Ljava/lang/String;"    // contextId
-                    "J"                     // version
+                    "J"                     // publicMetaVersion
+                    "J"                     // privateMetaVersion
                     "J"                     // rosterVersion
                     "J"                     // keyVersion
                     "Ljava/lang/String;"    // changeKind
@@ -1816,7 +1821,8 @@ namespace privmx {
                     initGroupChangedEventDataMID,
                     ctx->NewStringUTF(groupChangedEventData_c.groupId.c_str()),
                     ctx->NewStringUTF(groupChangedEventData_c.contextId.c_str()),
-                    (jlong) groupChangedEventData_c.version,
+                    (jlong) groupChangedEventData_c.publicMetaVersion,
+                    (jlong) groupChangedEventData_c.privateMetaVersion,
                     (jlong) groupChangedEventData_c.rosterVersion,
                     (jlong) groupChangedEventData_c.keyVersion,
                     ctx->NewStringUTF(groupChangedEventData_c.changeKind.c_str())
@@ -1833,8 +1839,8 @@ namespace privmx {
                     groupDeletedEventDataCls,
                     "<init>",
                     "("
-                    "Ljava/lang/String;" //groupId
-                    "Ljava/lang/String;" //contextId
+                    "Ljava/lang/String;" // groupId
+                    "Ljava/lang/String;" // contextId
                     ")V"
             );
 
