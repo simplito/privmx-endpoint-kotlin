@@ -22,6 +22,9 @@ import com.simplito.kotlin.privmx_endpoint.model.events.CollectionChangedEventDa
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextCustomEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextUserEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextUsersStatusChangedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.GroupChangedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.GroupCustomEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.GroupDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxEntryDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEntryEventData
@@ -37,11 +40,13 @@ import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.CoreEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.CustomEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.EventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.GroupEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.InboxEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.KvdbEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.StoreEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.ThreadEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.CoreEventType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.GroupEventType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.InboxEventType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.StoreEventType
@@ -811,5 +816,51 @@ sealed class EventType<T : Any>(
         selectorType,
         selectorId,
         StreamUpdatedEventData::class
+    )
+
+    data class GroupCreatedEvent(
+        val selectorType: GroupEventSelectorType,
+        val selectorId: String,
+    ) : EventType<GroupChangedEventData>(
+        "groupCreated",
+        GroupEventType.GROUP_CREATE,
+        selectorType,
+        selectorId,
+        GroupChangedEventData::class
+    )
+
+    data class GroupUpdatedEvent(
+        val selectorType: GroupEventSelectorType,
+        val selectorId: String,
+    ) : EventType<GroupChangedEventData>(
+        "groupUpdated",
+        GroupEventType.GROUP_UPDATE,
+        selectorType,
+        selectorId,
+        GroupChangedEventData::class
+    )
+
+    data class GroupDeletedEvent(
+        val selectorType: GroupEventSelectorType,
+        val selectorId: String,
+    ) : EventType<GroupDeletedEventData>(
+        "groupDeleted",
+        GroupEventType.GROUP_DELETE,
+        selectorType,
+        selectorId,
+        GroupDeletedEventData::class
+    )
+
+    data class GroupCustomEvent(
+        val channel: String,
+        val selectorType: GroupEventSelectorType,
+        val selectorId: String,
+    ) : EventType<GroupCustomEventData>(
+        "groupCustom",
+        channel,
+        null,
+        selectorType,
+        selectorId,
+        GroupCustomEventData::class
     )
 }

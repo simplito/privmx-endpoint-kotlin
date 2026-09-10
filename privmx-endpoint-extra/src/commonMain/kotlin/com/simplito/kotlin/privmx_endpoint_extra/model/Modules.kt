@@ -40,6 +40,11 @@ enum class Modules {
     KVDB,
 
     /**
+     * Group module case.
+     */
+    GROUP,
+
+    /**
      * Stream module case.
      */
     STREAM

@@ -248,6 +248,11 @@ class EventDispatcher(
         /**
          * Stream module case.
          */
+        GROUP,
+
+        /**
+         * Stream module case.
+         */
         STREAM
     }
 

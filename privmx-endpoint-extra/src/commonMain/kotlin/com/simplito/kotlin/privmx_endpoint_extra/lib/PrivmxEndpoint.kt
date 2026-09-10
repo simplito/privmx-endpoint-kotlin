@@ -14,11 +14,13 @@ import com.simplito.kotlin.privmx_endpoint.model.Event
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.CoreEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.CustomEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.GroupEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.InboxEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.KvdbEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.StoreEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.ThreadEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.CoreEventType
+import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.GroupEventType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.InboxEventType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.StoreEventType
@@ -164,6 +166,13 @@ constructor(
                         eventType.eventSelectorType as CustomEventSelectorType,
                         eventType.eventSelectorId!!
                     )
+                } else if (eventType.channelName != null && eventType.eventSelectorType is GroupEventSelectorType) {
+                    module = SubscriptionModule.GROUP
+                    query = groupApi?.buildCustomEventSubscriptionQuery(
+                        eventType.channelName!!,
+                        eventType.eventSelectorType as GroupEventSelectorType,
+                        eventType.eventSelectorId!!
+                    )
                 } else if (eventType.libEventType is ThreadEventType) {
                     module = SubscriptionModule.THREAD
                     query = threadApi?.buildSubscriptionQuery(
@@ -197,6 +206,13 @@ constructor(
                     query = connection.buildSubscriptionQuery(
                         eventType.libEventType as CoreEventType,
                         eventType.eventSelectorType as CoreEventSelectorType,
+                        eventType.eventSelectorId!!
+                    )
+                } else if (eventType.libEventType is GroupEventType) {
+                    module = SubscriptionModule.GROUP;
+                    query = groupApi?.buildSubscriptionQuery(
+                        eventType.libEventType as GroupEventType,
+                        eventType.eventSelectorType as GroupEventSelectorType,
                         eventType.eventSelectorId!!
                     )
                 } else if (eventType.libEventType is StreamEventType) {
@@ -244,6 +260,11 @@ constructor(
             SubscriptionModule.KVDB -> {
                 checkNotNull(kvdbApi) { "kvdbApi is not initialized" }
                 kvdbApi.unsubscribeFrom(subscriptionIds)
+            }
+
+            SubscriptionModule.GROUP -> {
+                checkNotNull(groupApi) { "groupApi is not initialized" }
+                groupApi.unsubscribeFrom(subscriptionIds)
             }
 
             SubscriptionModule.CORE -> {
@@ -310,6 +331,11 @@ constructor(
                     SubscriptionModule.KVDB -> {
                         checkNotNull(kvdbApi) { "kvdbApi is not initialized" }
                         subscribeFor(value.getQueriesMap(), kvdbApi::subscribeFor)
+                    }
+
+                    SubscriptionModule.GROUP -> {
+                        checkNotNull(groupApi) { "groupApi is not initialized" }
+                        subscribeFor(value.getQueriesMap(), groupApi::subscribeFor)
                     }
 
                     SubscriptionModule.CORE -> {

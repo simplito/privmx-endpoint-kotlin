@@ -16,6 +16,7 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
 import com.simplito.kotlin.privmx_endpoint.modules.event.EventApi
+import com.simplito.kotlin.privmx_endpoint.modules.group.GroupApi
 import com.simplito.kotlin.privmx_endpoint.modules.inbox.InboxApi
 import com.simplito.kotlin.privmx_endpoint.modules.kvdb.KvdbApi
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
@@ -91,6 +92,11 @@ constructor(
     val kvdbApi: KvdbApi? =
         if (enableModule.contains(Modules.KVDB)) KvdbApi(connection) else null
 
+    /**
+     * Reference to Group module.
+     */
+    val groupApi: GroupApi? =
+        if (enableModule.contains(Modules.GROUP)) GroupApi(connection) else null
 
     protected var streamApiLow: StreamApiLow? = null
 
@@ -107,6 +113,7 @@ constructor(
         inboxApi?.close()
         eventApi?.close()
         kvdbApi?.close()
+        groupApi?.close()
         connection.close()
         streamApiLow?.close()
     }
