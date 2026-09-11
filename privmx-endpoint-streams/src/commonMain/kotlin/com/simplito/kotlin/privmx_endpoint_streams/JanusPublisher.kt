@@ -38,8 +38,10 @@ import com.simplito.kotlin.privmx_endpoint_streams.webrtc.trackId
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.lastOrNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
@@ -54,7 +56,7 @@ internal class JanusPublisher(
     dataChannelCryptoProvider: InternalDataChannelMessageCryptoProvider,
     remoteStreamObserver: RemoteStreamObserver?,
     onTrickle: (Long, String) -> Unit,
-    private val acceptOfferOnReconfigure: (Long, SdpWithTypeModel) -> Unit = { _, _ -> },
+    private val setNewOfferOnReconfigure: (Long, SdpWithTypeModel) -> Unit = { _, _ -> },
     onConnectionChange: (IceConnectionState) -> Unit = {}
 ) : JanusConnection(
     peerConnectionFactory,
@@ -112,19 +114,19 @@ internal class JanusPublisher(
 
     override fun onRenegotiationNeeded() {
         if (sessionId > -1) {
-            val offer = runBlocking(EmptyCoroutineContext) { createOffer() }
-            acceptOfferOnReconfigure(sessionId, SdpWithTypeModel(offer, "offer"))
+        // todo - commented out because it froze the app
 
-
+        // val offer = runBlocking(EmptyCoroutineContext) { createOffer() }
+        // setNewOfferOnReconfigure(sessionId, SdpWithTypeModel(offer, "offer"))
         }
     }
 
-    @Throws(CancellationException::class, IllegalStateException::class)
-    suspend fun openDataChannel() {
-        val lastState = dataChannel?.dataChannelStateFlow?.lastOrNull()
-        if ((lastState
-                ?: DataChannelState.CLOSED) <= DataChannelState.OPEN
-        ) throw IllegalStateException("Data channel is currently open. You can have one open data channel per room.")
+    @Throws(IllegalStateException::class)
+    fun openDataChannel() {
+        val currentState = dataChannel?.dataChannelStateFlow?.value ?: DataChannelState.CLOSED
+        if (currentState <= DataChannelState.OPEN) {
+            throw IllegalStateException("Data channel is currently open. You can have one open data channel per room.")
+        }
         dataChannel = JanusDataChannel(peerConnection, roomId, dataChannelCryptoProvider)
     }
 
@@ -160,7 +162,7 @@ internal class JanusDataChannel(
     private val dataChannel = peerConnection.createDataChannel("JanusDataChannel", getDataChannelInit(false, true))
     private val observer = object : DataChannelObserver {
         override fun onStateChange() {
-            dataChannelStateFlow.tryEmit(dataChannel.state)
+            dataChannelStateFlow.update { dataChannel.state }
         }
 
         override fun onMessage(message: ByteArray) {
@@ -171,11 +173,7 @@ internal class JanusDataChannel(
 
     }
     private var seq = 0
-    val dataChannelStateFlow: Flow<DataChannelState> field = MutableSharedFlow<DataChannelState>().apply {
-        tryEmit(
-            dataChannel.state
-        )
-    }
+    val dataChannelStateFlow: StateFlow<DataChannelState> field = MutableStateFlow(dataChannel.state)
 
     init {
         dataChannel.registerObserver(observer)
@@ -194,18 +192,14 @@ internal class JanusDataChannel(
         when (dataChannel.state) {
             DataChannelState.OPEN -> return
             DataChannelState.CONNECTING -> {
-                if (timeout != null) {
+                val state = if (timeout != null) {
                     withTimeout(timeout) {
-                        dataChannelStateFlow.first {
-                            dataChannel.state >= DataChannelState.OPEN
-                        }
+                        dataChannelStateFlow.first { it >= DataChannelState.OPEN }
                     }
                 } else {
-                    dataChannelStateFlow.first {
-                        dataChannel.state >= DataChannelState.OPEN
-                    }
+                    dataChannelStateFlow.first { it >= DataChannelState.OPEN }
                 }
-                if (dataChannel.state != DataChannelState.OPEN) {
+                if (state != DataChannelState.OPEN) {
                     throw DataChannelClosedException()
                 }
             }

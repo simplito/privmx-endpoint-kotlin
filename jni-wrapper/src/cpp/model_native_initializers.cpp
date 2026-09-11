@@ -1515,35 +1515,12 @@ namespace privmx {
             );
         }
 
-        jobject stream2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::Stream stream_c
-        ) {
-            jclass streamCls = ctx.findClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/stream/Stream");
-            jmethodID initStreamMID = ctx->GetMethodID(
-                    streamCls,
-                    "<init>",
-                    "("
-                    "Ljava/lang/Long;"  //streamId
-                    "Ljava/lang/String;"  //userId
-                    ")V"
-            );
-            return ctx->NewObject(
-                    streamCls,
-                    initStreamMID,
-                    ctx.long2jLong(stream_c.streamId),
-                    ctx->NewStringUTF(stream_c.userId.c_str())
-            );
-        }
-
         jobject
         turnCredentials2Java(
                 JniContextUtils &ctx,
-
                 privmx::endpoint::stream::TurnCredentials turnCredentials_c
         ) {
-            jclass turnCredentialsCls = ctx.findClass(
+            jclass turnCredentialsCls = ctx->FindClass(
                     "com/simplito/kotlin/privmx_endpoint/model/stream/TurnCredentials");
             jmethodID initTurnCredentialsMID = ctx->GetMethodID(
                     turnCredentialsCls,
@@ -1601,20 +1578,20 @@ namespace privmx {
                     "("
                     "Ljava/lang/String;"    // contextId
                     "Ljava/lang/String;"    // streamRoomId
-                    "Ljava/lang/Long;"      // createDate
+                    "J"                     // createDate
                     "Ljava/lang/String;"    // creator
-                    "Ljava/lang/Long;"      // lastModificationDate
+                    "J"                     // lastModificationDate
                     "Ljava/lang/String;"    // lastModifier
                     "Ljava/util/List;"      // users
                     "Ljava/util/List;"      // managers
-                    "Ljava/lang/Long;"      // version
+                    "J"                     // version
                     "[B"                    // publicMeta
                     "[B"                    // privateMeta
                     "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicyWithoutItem;" // policy
-                    "Ljava/lang/Long;"      // statusCode
-                    "Ljava/lang/Long;"      // schemaVersion
+                    "J"                     // statusCode
+                    "J"                     // schemaVersion
                     "Ljava/lang/String;"    // state
-                    "Ljava/lang/Long;"      // emptyRoomTtl
+                    "J"                     // emptyRoomTtl
                     ")V"
             );
 
@@ -1805,27 +1782,6 @@ namespace privmx {
             );
         }
 
-        jobject remoteStreamId2Java(JniContextUtils &ctx,
-                privmx::endpoint::stream::RemoteStreamId remoteStreamId_c) {
-            jclass itemCls = ctx->FindClass(
-                    "com/simplito/kotlin/privmx_endpoint/model/RemoteStreamId");
-
-            jmethodID initItemMID = ctx->GetMethodID(
-                    itemCls,
-                    "<init>",
-                    "("
-                    "Ljava/lang/Long;"      // value
-                    ")V"
-            );
-
-            return ctx->NewObject(
-                    itemCls,
-                    initItemMID,
-                    ctx.long2jLong(remoteStreamId_c)
-            );
-        }
-
-
         jobject
         streamTrackModificationPair2Java(
                 JniContextUtils &ctx,
@@ -1868,7 +1824,7 @@ namespace privmx {
                     cls,
                     "<init>",
                     "("
-                    "J"                     // streamId
+                    "Ljava/lang/Long;"      // streamId
                     "Ljava/lang/String;"    //streamTrackId
                     ")V"
             );
@@ -1882,7 +1838,7 @@ namespace privmx {
             return ctx->NewObject(
                     cls,
                     initItemMID,
-                    (jlong) streamSubscription.streamId,
+                    ctx.long2jLong( streamSubscription.streamId),
                     streamTrackId
             );
         }
