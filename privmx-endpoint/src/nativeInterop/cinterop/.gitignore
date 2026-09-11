@@ -1,3 +1,2 @@
-privmx-endpoint/**/*
-!**/.gitkeep
-!**/.gitignore
+privmx-endpoint.xcframework
+Pson

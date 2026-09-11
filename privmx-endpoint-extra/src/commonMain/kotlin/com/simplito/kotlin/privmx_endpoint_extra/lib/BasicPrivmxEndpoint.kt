@@ -19,6 +19,7 @@ import com.simplito.kotlin.privmx_endpoint.modules.event.EventApi
 import com.simplito.kotlin.privmx_endpoint.modules.inbox.InboxApi
 import com.simplito.kotlin.privmx_endpoint.modules.kvdb.KvdbApi
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
+import com.simplito.kotlin.privmx_endpoint.modules.stream.StreamApiLow
 import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
 import com.simplito.kotlin.privmx_endpoint_extra.model.Modules
 import kotlin.jvm.JvmOverloads
@@ -90,6 +91,11 @@ constructor(
     val kvdbApi: KvdbApi? =
         if (enableModule.contains(Modules.KVDB)) KvdbApi(connection) else null
 
+
+    protected var streamApiLow: StreamApiLow? = null
+
+    fun initializeStreamApiLow(): StreamApiLow = streamApiLow ?: StreamApiLow(connection).also { streamApiLow = it }
+
     /**
      * Disconnects from PrivMX Bridge and frees memory.
      *
@@ -102,5 +108,6 @@ constructor(
         eventApi?.close()
         kvdbApi?.close()
         connection.close()
+        streamApiLow?.close()
     }
 }

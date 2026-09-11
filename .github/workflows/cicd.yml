@@ -1,0 +1,483 @@
+name: cicd.yml
+
+on:
+  pull_request:
+    branches: [ '**' ]
+  push:
+    branches: [ main, dev, 'release/*' ]
+    tags: [ '**' ]
+  workflow_dispatch:
+
+env:
+  ndk_version: 29.0.13599879
+
+permissions:
+  actions: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-jni-android:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          java-version: 21
+          distribution: 'oracle'
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+
+      - name: Cache NDK
+        id: ndk-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ env.ANDROID_SDK_ROOT }}/ndk/${{ env.ndk_version }}
+          key: ndk-${{ runner.os }}-${{ env.ndk_version }}
+
+      - name: Setup Android NDK
+        if: steps.ndk-cache.outputs.cache-hit != 'true'
+        run: sdkmanager --install "ndk;${{ env.ndk_version }}"
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential
+
+      - name: Install Conan
+        run: |
+          pipx install conan
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Cache Conan packages
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.conan2
+          key: conan-${{ runner.os }}-android-${{ hashFiles('**/conanfile.*', '**/conan.lock') }}
+          restore-keys: |
+            conan-${{ runner.os }}-android-
+
+      - name: Setup Conan
+        run: |
+          conan profile detect --force
+          conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx --force
+
+      - name: Prepare properties configuration
+        run: |
+          cat > local.properties <<EOF
+          sdk.dir=${{ env.ANDROID_SDK_ROOT }}
+          ndk.version=${{ env.ndk_version }}
+          EOF
+
+      - name: Compile Android JNI
+        run: ./gradlew :jni-wrapper:compileAndroid
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: android-jni-${{ github.sha }}
+          path: jni-wrapper/build/native/install/Android/*
+          if-no-files-found: error
+          retention-days: 14
+
+
+  build-jni-darwin:
+    timeout-minutes: 30
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: 'oracle'
+          cache: "gradle"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+
+      - name: Cache NDK
+        id: ndk-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ env.ANDROID_SDK_ROOT }}/ndk/${{ env.ndk_version }}
+          key: ndk-${{ runner.os }}-${{ env.ndk_version }}
+
+      - name: Setup Android NDK
+        if: steps.ndk-cache.outputs.cache-hit != 'true'
+        run: sdkmanager --install "ndk;${{ env.ndk_version }}"
+
+      - name: Configure PrivMX conan repository and build tools
+        run: |
+          brew install pipx
+          pipx install conan
+          echo "~/.local/bin" >> $GITHUB_PATH
+
+      - name: Cache Conan packages
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.conan2
+          key: conan-${{ runner.os }}-darwin-${{ hashFiles('**/conanfile.*', '**/conan.lock') }}
+          restore-keys: |
+            conan-${{ runner.os }}-darwin-
+
+      - name: Setup conan
+        run: |
+          conan profile detect --force
+          conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx --force
+
+      - name: Prepare properties configuration
+        run: |
+          cat > local.properties <<EOF
+          sdk.dir=${{ env.ANDROID_SDK_ROOT }}
+          ndk.version=${{ env.ndk_version }}
+          EOF
+
+      - name: Compile android jni with conan dependencies
+        run: ./gradlew :jni-wrapper:compileDarwin
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: 'darwin-jni-${{github.sha}}'
+          path: '${{github.workspace}}/jni-wrapper/build/native/install/Darwin/*'
+
+
+  build-jni-linux:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          java-version: 21
+          distribution: 'oracle'
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+
+      - name: Cache NDK
+        id: ndk-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ env.ANDROID_SDK_ROOT }}/ndk/${{ env.ndk_version }}
+          key: ndk-${{ runner.os }}-${{ env.ndk_version }}
+
+      - name: Setup Android NDK
+        if: steps.ndk-cache.outputs.cache-hit != 'true'
+        run: sdkmanager --install "ndk;${{ env.ndk_version }}"
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential patchelf
+
+      - name: Install Conan
+        run: |
+          pipx install conan
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Cache Conan packages
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.conan2
+          key: conan-${{ runner.os }}-linux-${{ hashFiles('**/conanfile.*', '**/conan.lock') }}
+          restore-keys: |
+            conan-${{ runner.os }}-linux-
+
+      - name: Setup Conan
+        run: |
+          conan profile detect --force
+          conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx --force
+
+      - name: Prepare properties configuration
+        run: |
+          cat > local.properties <<EOF
+          sdk.dir=${{ env.ANDROID_SDK_ROOT }}
+          ndk.version=${{ env.ndk_version }}
+          EOF
+
+      - name: Compile Linux JNI
+        run: ./gradlew :jni-wrapper:compileLinux
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: linux-jni-${{ github.sha }}
+          path: jni-wrapper/build/native/install/Linux/*
+          if-no-files-found: error
+          retention-days: 14
+
+
+  build-ios:
+    timeout-minutes: 30
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: 'oracle'
+          cache: "gradle"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+
+      - name: Cache NDK
+        id: ndk-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ env.ANDROID_SDK_ROOT }}/ndk/${{ env.ndk_version }}
+          key: ndk-${{ runner.os }}-${{ env.ndk_version }}
+
+      - name: Setup Android NDK
+        if: steps.ndk-cache.outputs.cache-hit != 'true'
+        run: sdkmanager --install "ndk;${{ env.ndk_version }}"
+
+      - name: Configure PrivMX conan repository and build tools
+        run: |
+          brew install pipx
+          pipx install conan
+          echo "~/.local/bin" >> $GITHUB_PATH
+
+      - name: Cache Conan packages
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.conan2
+          key: conan-${{ runner.os }}-ios-${{ hashFiles('**/conanfile.*', '**/conan.lock') }}
+          restore-keys: |
+            conan-${{ runner.os }}-ios-
+
+      - name: Setup conan
+        run: |
+          conan profile detect --force
+          conan remote add privmx https://libs.simplito.com/artifactory/api/conan/privmx --force
+
+      - name: Prepare properties configuration
+        run: |
+          cat > local.properties <<EOF
+          sdk.dir=${{ env.ANDROID_SDK_ROOT }}
+          ndk.version=${{ env.ndk_version }}
+          EOF
+
+      - name: Prepare iOS and iOSSimulator endpoint xcframework
+        run: ./gradlew :jni-wrapper:preparePmxEndpointXCFramework
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: 'privmx-endpoint-xcframework-${{github.sha}}'
+          path: '${{github.workspace}}/jni-wrapper/build/native/install/frameworks/*/privmx-endpoint.xcframework'
+
+# run-tests:
+#   timeout-minutes: 60
+#   runs-on: macos-26-intel
+#   needs: ["build-jni-android","build-jni-darwin","build-jni-linux","build-ios"]
+#
+#   steps:
+#     - uses: actions/checkout@v4
+#     - uses: actions/setup-java@v5
+#       with:
+#         java-version: 21
+#         distribution: 'oracle'
+#         cache: "gradle"
+#
+#     - name: Setup Android SDK
+#       uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+#
+#     - name: Cache NDK
+#       id: ndk-cache
+#       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+#       with:
+#         path: ${{ env.ANDROID_SDK_ROOT }}/ndk/${{ env.ndk_version }}
+#         key: ndk-${{ runner.os }}-${{ env.ndk_version }}
+#
+#     - name: Setup Android NDK
+#       if: steps.ndk-cache.outputs.cache-hit != 'true'
+#       run: sdkmanager --install "ndk;${{ env.ndk_version }}"
+#
+#     - name: Cache Homebrew packages
+#       id: brew-cache
+#       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+#       with:
+#         path: |
+#           ~/Library/Caches/Homebrew
+#           /usr/local/Cellar/colima
+#           /usr/local/Cellar/docker
+#           /usr/local/Cellar/docker-compose
+#           /usr/local/Cellar/qemu
+#         key: brew-${{ runner.os }}-colima-docker-docker-compose-qemu
+#
+#     - name: Install Colima + Docker
+#       run: |
+#         brew install colima docker docker-compose qemu
+#         colima start --vm-type=vz --cpu 4 --memory 8
+#
+#     - name: Cache Docker images
+#       id: docker-cache
+#       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+#       with:
+#         path: /tmp/docker-cache
+#         key: docker-${{ runner.os }}-${{ hashFiles('tests/compose.yaml') }}
+#
+#     - name: Load cached Docker images
+#       if: steps.docker-cache.outputs.cache-hit == 'true'
+#       run: docker load -i /tmp/docker-cache/images.tar
+#
+#     - name: Start backend services
+#       run: |
+#         cd tests
+#         docker compose up -d
+#         sleep 15
+#         cd ..
+#
+#     - name: Save Docker images to cache
+#       if: steps.docker-cache.outputs.cache-hit != 'true'
+#       run: |
+#         mkdir -p /tmp/docker-cache
+#         docker save simplito/janus-gateway-docker:v1.4.0 coturn/coturn mongo:7.0 -o /tmp/docker-cache/images.tar
+#
+#     - name: Prepare properties configuration
+#       run: |
+#         cat > local.properties <<EOF
+#         sdk.dir=${{ env.ANDROID_SDK_ROOT }}
+#         ndk.version=${{ env.ndk_version }}
+#         EOF
+#
+#     - name: Prepare env to tests
+#       run: ./gradlew :privmx-endpoint:testsPreConfig
+#
+#     - name: Prepare keys
+#       run: |
+#         ./gradlew :privmx-endpoint:GeneratePemKey
+#         ./gradlew :privmx-endpoint:GeneratePGPKey
+#
+#     - name: Download darwin JNI artifact
+#       uses: actions/download-artifact@v4
+#       with:
+#         name: darwin-jni-${{ github.sha }}
+#         path: privmx-endpoint/jniTestLibs/Darwin/
+#
+#     - name: Copy darwin libs to correct dir
+#       run: |
+#         cp -r privmx-endpoint/jniTestLibs/Darwin/*/* privmx-endpoint/jniTestLibs/Darwin/
+#
+#     - name: Run PrivMX Endpoint Java Tests
+#       run: ./gradlew :privmx-endpoint:jvmTest
+
+  run-jvm-tests:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    needs: ["build-jni-linux"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: 'oracle'
+          cache: "gradle"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+
+      - name: Cache NDK
+        id: ndk-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ env.ANDROID_SDK_ROOT }}/ndk/${{ env.ndk_version }}
+          key: ndk-${{ runner.os }}-${{ env.ndk_version }}
+
+      - name: Setup Android NDK
+        if: steps.ndk-cache.outputs.cache-hit != 'true'
+        run: sdkmanager --install "ndk;${{ env.ndk_version }}"
+
+      - name: Cache Docker images
+        id: docker-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: /tmp/docker-cache
+          key: docker-${{ runner.os }}-${{ hashFiles('tests/compose.yaml') }}
+
+      - name: Load cached Docker images
+        if: steps.docker-cache.outputs.cache-hit == 'true'
+        run: docker load -i /tmp/docker-cache/images.tar
+
+      - name: Start backend services
+        run: |
+          cd tests
+          docker compose up -d
+          sleep 15
+          cd ..
+
+      - name: Save Docker images to cache
+        if: steps.docker-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p /tmp/docker-cache
+          docker save simplito/janus-gateway-docker:v1.4.0 coturn/coturn mongo:7.0 -o /tmp/docker-cache/images.tar
+
+      - name: Prepare properties configuration
+        run: |
+          cat > local.properties <<EOF
+          sdk.dir=${{ env.ANDROID_SDK_ROOT }}
+          ndk.version=${{ env.ndk_version }}
+          EOF
+
+      - name: Prepare env to tests
+        run: ./gradlew :privmx-endpoint:testsPreConfig
+
+      - name: Prepare keys
+        run: |
+          ./gradlew :privmx-endpoint:GeneratePemKey
+          ./gradlew :privmx-endpoint:GeneratePGPKey
+
+      - name: Download linux JNI artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-jni-${{ github.sha }}
+          path: privmx-endpoint/jniTestLibs/Linux/
+
+      - name: Copy linux libs to correct dir
+        run: |
+          cp -r privmx-endpoint/jniTestLibs/Linux/*/* privmx-endpoint/jniTestLibs/Linux/
+
+      - name: Run PrivMX Endpoint Java Tests without Events
+        run: ./gradlew :privmx-endpoint:cleanJvmTest :privmx-endpoint:jvmTest -PexcludeTests="*EventsTest*"
+
+      - name: Upload JVM test results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: jvm-test-results-${{ github.sha }}
+          path: privmx-endpoint/build/reports/tests/jvmTest/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Run PrivMX Endpoint Java Events Tests
+        if: always()
+        run: ./gradlew :privmx-endpoint:cleanJvmTest :privmx-endpoint:jvmTest --tests "EventsTest"
+
+      - name: Upload JVM test results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: jvm-events-test-results-${{ github.sha }}
+          path: privmx-endpoint/build/reports/tests/jvmTest/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload JVM crash logs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: jvm-crash-logs-${{ github.sha }}
+          path: '**/hs_err_pid*.log'
+          if-no-files-found: ignore
+          retention-days: 14
+

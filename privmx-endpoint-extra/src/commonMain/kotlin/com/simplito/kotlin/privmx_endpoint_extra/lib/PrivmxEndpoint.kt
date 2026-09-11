@@ -25,6 +25,8 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.StoreEventTyp
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.ThreadEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
 import com.simplito.kotlin.privmx_endpoint_extra.events.CallbackRegistration
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventCallback
@@ -197,6 +199,15 @@ constructor(
                         eventType.eventSelectorType as CoreEventSelectorType,
                         eventType.eventSelectorId!!
                     )
+                } else if (eventType.libEventType is StreamEventType) {
+                    if (streamApiLow != null) {
+                        module = SubscriptionModule.STREAM;
+                        query = streamApiLow?.buildSubscriptionQuery(
+                            eventType.libEventType as StreamEventType,
+                            eventType.eventSelectorType as StreamEventSelectorType,
+                            eventType.eventSelectorId!!
+                        )
+                    } else throw IllegalStateException("StreamApiLow is not initialized. Try to initialize it first by calling the initializeStreamApiLow method.")
                 }
                 eventsToSubscribeByModule.getOrPut(module!!) {
                     EventsToSubscribe()
@@ -238,6 +249,11 @@ constructor(
             SubscriptionModule.CORE -> {
                 checkNotNull(connection) { "Connection is not initialized" }
                 connection.unsubscribeFrom(subscriptionIds)
+            }
+
+            SubscriptionModule.STREAM -> {
+                checkNotNull(streamApiLow) { "StreamApiLow is not initialized. Try to initialize it first by calling the initializeStreamApiLow method." }
+                    .unsubscribeFrom(subscriptionIds)
             }
         }
     }
@@ -299,6 +315,11 @@ constructor(
                     SubscriptionModule.CORE -> {
                         checkNotNull(connection) { "Connection is not initialized" }
                         subscribeFor(value.getQueriesMap(), connection::subscribeFor)
+                    }
+
+                    SubscriptionModule.STREAM -> {
+                        checkNotNull(streamApiLow) { "StreamApiLow is not initialized. Try to initialize it first by calling the initializeStreamApiLow method." }
+                            .also { subscribeFor(value.getQueriesMap(), it::subscribeFor) }
                     }
                 }
             } catch (e: RuntimeException) {

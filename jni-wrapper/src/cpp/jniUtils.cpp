@@ -11,9 +11,27 @@
 
 #include "jniUtils.h"
 
+#include <pthread.h>
+
 namespace privmx {
     namespace wrapper {
         namespace jni {
+            namespace {
+                pthread_key_t detachJniKey;
+                pthread_once_t detachJniKeyOnce = PTHREAD_ONCE_INIT;
+                bool detachJniKeyCreated = false;
+
+                //Called by pthread when a thread attached here exits
+                void detachJniOnThreadExit(void *javaVM) {
+                    if (javaVM != nullptr) static_cast<JavaVM *>(javaVM)->DetachCurrentThread();
+                }
+
+                void createDetachJniKey() {
+                    detachJniKeyCreated =
+                            pthread_key_create(&detachJniKey, detachJniOnThreadExit) == 0;
+                }
+            }
+
             JNIEnv *AttachCurrentThreadIfNeeded(
                     JavaVM *javaVM,
                     std::string shortThreadName,
@@ -41,18 +59,9 @@ namespace privmx {
 #endif
 
                 if (javaVM->AttachCurrentThread(&env, &args) == JNI_OK) {
-                    //Create tls object which detach thread from JVM when this thread exits
-                    thread_local struct DetachJniOnExit {
-                        JavaVM *javaVm;
-
-                        DetachJniOnExit(JavaVM *javaVm1) {
-                            javaVm = javaVm1;
-                        }
-
-                        ~DetachJniOnExit() {
-                            javaVm->DetachCurrentThread();
-                        }
-                    } detachJniOnExit(javaVM);
+                    //Register tls value which detach thread from JVM when this thread exits
+                    pthread_once(&detachJniKeyOnce, createDetachJniKey);
+                    if (detachJniKeyCreated) pthread_setspecific(detachJniKey, javaVM);
                     return reinterpret_cast<JNIEnv *>(env);
                 }
                 return nullptr;

@@ -46,6 +46,10 @@ internal object LibLoader {
             if (arch.equals("aarch64", ignoreCase = true)) return "/lib/Darwin/arm64"
         }
 
+        if (os.startsWith("linux", ignoreCase = true)) {
+            if (arch.equals("amd64", ignoreCase = true) || arch.equals("x86_64", ignoreCase = true)) return "/lib/Linux/x86_64"
+        }
+
         throw UnsatisfiedLinkError("os: $os, arch: $arch is not supported.")
     }
 
@@ -72,7 +76,8 @@ internal object LibLoader {
         )
         try {
             LibLoader::class.java.getResourceAsStream(resourcePath).use { iS ->
-                if (iS == null) throw UnsatisfiedLinkError("Cannot find binaries for $resourcePath")
+                if (iS == null) return@use
+
                 if (localLibFile.exists()) localLibFile.delete()
                 if (localLibFile.createNewFile()) {
                     val data = ByteArray(1024)
@@ -118,7 +123,11 @@ internal object LibLoader {
             getBinaryResourcePaths(
                 getPlatformLibsResourceDirPath()
             ).forEach { resourcePath ->
-                extractResource(resourcePath)
+                try {
+                    extractResource(resourcePath)
+                }catch (e: Exception){
+//                    e.printStackTrace()
+                }
             }
         } catch (e: Exception) {
             println(e.message)

@@ -46,6 +46,15 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.InboxEventTyp
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.StoreEventType
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.ThreadEventType
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamPublishedEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamRoomDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamRoomParticipantEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamSubscriptionEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamUnpublishedEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamUpdatedEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventType.DisconnectedEvent
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventType.LibBreakEvent
 import com.simplito.kotlin.privmx_endpoint_extra.lib.PrivmxEndpoint
@@ -693,5 +702,114 @@ sealed class EventType<T : Any>(
         CoreEventSelectorType.CONTEXT_ID,
         contextId,
         ContextUsersStatusChangedEventData::class
+    )
+
+    data class StreamRoomCreatedEvent(
+        val contextId: String,
+    ) : EventType<StreamRoom>(
+        "streamRoomCreated",
+        StreamEventType.STREAMROOM_CREATE,
+        StreamEventSelectorType.CONTEXT_ID,
+        contextId,
+        StreamRoom::class
+    )
+
+    data class StreamRoomUpdatedEvent(
+        val selectorType: StreamEventSelectorType,
+        val selectorId: String,
+    ) : EventType<StreamRoom>(
+        "streamRoomUpdated",
+        StreamEventType.STREAMROOM_UPDATE,
+        selectorType,
+        selectorId,
+        StreamRoom::class
+    )
+
+    data class StreamRoomDeletedEvent(
+        val selectorType: StreamEventSelectorType,
+        val selectorId: String,
+    ) : EventType<StreamRoomDeletedEventData>(
+        "streamRoomDeleted",
+        StreamEventType.STREAMROOM_DELETE,
+        selectorType,
+        selectorId,
+        StreamRoomDeletedEventData::class
+    )
+
+    data class StreamRoomJoinedEvent(
+        val selectorType: StreamEventSelectorType,
+        val selectorId: String,
+    ) : EventType<StreamRoomParticipantEventData>(
+        "streamRoomJoined",
+        StreamEventType.STREAMROOM_JOIN,
+        selectorType,
+        selectorId,
+        StreamRoomParticipantEventData::class
+    )
+
+    data class StreamRoomLeftEvent(
+        val selectorType: StreamEventSelectorType,
+        val selectorId: String,
+    ) : EventType<StreamRoomParticipantEventData>(
+        "streamRoomLeft",
+        StreamEventType.STREAMROOM_LEAVE,
+        selectorType,
+        selectorId,
+        StreamRoomParticipantEventData::class
+    )
+
+    data class StreamPublishedEvent(
+        val selectorType: StreamEventSelectorType,
+        val selectorId: String,
+    ) : EventType<StreamPublishedEventData>(
+        "streamPublished",
+        StreamEventType.STREAM_PUBLISH,
+        selectorType,
+        selectorId,
+        StreamPublishedEventData::class
+    )
+
+    data class StreamUnpublishedEvent(
+        val selectorType: StreamEventSelectorType,
+        val selectorId: String,
+    ) : EventType<StreamUnpublishedEventData>(
+        "streamUnpublished",
+        StreamEventType.STREAM_UNPUBLISH,
+        selectorType,
+        selectorId,
+        StreamUnpublishedEventData::class
+    )
+
+    data class StreamSubscribedEvent(
+        val selectorType: StreamEventSelectorType,
+        val selectorId: String,
+    ) : EventType<StreamSubscriptionEventData>(
+        "streamSubscribed",
+        StreamEventType.STREAM_SUBSCRIBE,
+        selectorType,
+        selectorId,
+        StreamSubscriptionEventData::class
+    )
+
+    data class StreamUnsubscribedEvent(
+        val selectorType: StreamEventSelectorType,
+        val selectorId: String,
+    ) : EventType<StreamSubscriptionEventData>(
+        "streamUnsubscribed",
+        StreamEventType.STREAM_UNSUBSCRIBE,
+        selectorType,
+        selectorId,
+        StreamSubscriptionEventData::class
+    )
+
+    data class StreamUpdatedEvent(
+        val selectorType: StreamEventSelectorType,
+        val selectorId: String,
+    ) : EventType<StreamUpdatedEventData>(
+        "streamUpdated",
+        StreamEventType.STREAM_UPDATE,
+        selectorType,
+        selectorId,
+        StreamUpdatedEventData::class
     )
 }

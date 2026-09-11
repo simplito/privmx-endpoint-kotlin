@@ -11,16 +11,11 @@
 
 package com.simplito.kotlin.privmx_endpoint.utils
 
-import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEntryEventData
-import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEventData
-import com.simplito.kotlin.privmx_endpoint.model.events.KvdbStatsEventData
-import com.simplito.kotlin.privmx_endpoint.model.Kvdb
-import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
-import com.simplito.kotlin.privmx_endpoint.model.ServerKvdbEntryInfo
 import com.simplito.kotlin.privmx_endpoint.model.BIP39
 import com.simplito.kotlin.privmx_endpoint.model.BridgeIdentity
 import com.simplito.kotlin.privmx_endpoint.model.CollectionItemChange
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
+import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.Context
 import com.simplito.kotlin.privmx_endpoint.model.Event
 import com.simplito.kotlin.privmx_endpoint.model.File
@@ -30,9 +25,12 @@ import com.simplito.kotlin.privmx_endpoint.model.Inbox
 import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
 import com.simplito.kotlin.privmx_endpoint.model.InboxPublicView
 import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
+import com.simplito.kotlin.privmx_endpoint.model.Kvdb
+import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
 import com.simplito.kotlin.privmx_endpoint.model.Message
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.ServerFileInfo
+import com.simplito.kotlin.privmx_endpoint.model.ServerKvdbEntryInfo
 import com.simplito.kotlin.privmx_endpoint.model.ServerMessageInfo
 import com.simplito.kotlin.privmx_endpoint.model.Store
 import com.simplito.kotlin.privmx_endpoint.model.Thread
@@ -47,6 +45,9 @@ import com.simplito.kotlin.privmx_endpoint.model.events.ContextUserEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextUsersStatusChangedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxEntryDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEntryEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.KvdbStatsEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreFileDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.StoreFileUpdatedEventData
@@ -54,6 +55,26 @@ import com.simplito.kotlin.privmx_endpoint.model.events.StoreStatsChangedEventDa
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadDeletedMessageEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ThreadStatsEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.DataChannelMessage
+import com.simplito.kotlin.privmx_endpoint.model.stream.DecryptedDataChannelMessage
+import com.simplito.kotlin.privmx_endpoint.model.stream.PublishedStreamData
+import com.simplito.kotlin.privmx_endpoint.model.stream.RecordingEncKey
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamInfo
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamPublishResult
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamRoom
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscriber
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackInfo
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamTrackModificationPair
+import com.simplito.kotlin.privmx_endpoint.model.stream.SubscriberStreamHandle
+import com.simplito.kotlin.privmx_endpoint.model.stream.TurnCredentials
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamPublishedEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamRoomDeletedEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamRoomParticipantEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamSubscriptionEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamUnpublishedEventData
+import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamUpdatedEventData
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue.PsonObject
 
@@ -129,7 +150,7 @@ internal fun PsonObject.toInbox(): Inbox = Inbox(
     this["publicMeta"]!!.typedValue(),
     this["privateMeta"]!!.typedValue(),
     (this["filesConfig"] as PsonObject?)?.toFilesConfig(),
-    (this["policy"] as PsonObject).toContainerPolicy(),
+    (this["policy"] as PsonObject).toContainerPolicyWithoutItem(),
     this["statusCode"]?.typedValue(),
     this["schemaVersion"]?.typedValue()
 )
@@ -161,6 +182,16 @@ internal fun PsonObject.toContainerPolicy(): ContainerPolicy =
         this["updaterCanBeRemovedFromManagers"]?.typedValue(),
         this["ownerCanBeRemovedFromManagers"]?.typedValue(),
         (this["item"] as PsonObject?)?.toItemPolicy()
+    )
+
+internal fun PsonObject.toContainerPolicyWithoutItem(): ContainerPolicyWithoutItem =
+    ContainerPolicyWithoutItem(
+        this["get"]?.typedValue(),
+        this["update"]?.typedValue(),
+        this["delete"]?.typedValue(),
+        this["updatePolicy"]?.typedValue(),
+        this["updaterCanBeRemovedFromManagers"]?.typedValue(),
+        this["ownerCanBeRemovedFromManagers"]?.typedValue()
     )
 
 internal fun PsonObject.toFilesConfig(): FilesConfig =
@@ -246,7 +277,7 @@ internal fun PsonObject.toEvent(): Event<*> = Event(
     this["channel"]!!.typedValue(),
     this["connectionId"]?.typedValue(),
     this["subscriptions"]!!.typedList().map { it.typedValue() },
-    this["timestamp"]!!.typedValue(),
+    this["timestamp"]?.typedValue(),
     (this["data"] as PsonObject?)?.let {
         EventDataMappers[it.type]?.invoke(it)
     } ?: Unit
@@ -340,6 +371,41 @@ internal fun PsonObject.toKvdbDeletedEntryEventData() = KvdbDeletedEntryEventDat
 
 )
 
+internal fun PsonObject.toStreamRoomDeletedEventData() = StreamRoomDeletedEventData(
+    this["streamRoomId"]!!.typedValue()
+)
+
+internal fun PsonObject.toStreamPublishedEventData() = StreamPublishedEventData(
+    this["streamRoomId"]!!.typedValue(),
+    (this["stream"] as PsonObject).toStreamInfo(),
+    this["userId"]!!.typedValue()
+)
+
+internal fun PsonObject.toStreamUpdatedEventData() = StreamUpdatedEventData(
+    this["streamRoomId"]!!.typedValue(),
+    this["streamId"]!!.typedValue(),
+    this["userId"]!!.typedValue(),
+    this["tracksAdded"]!!.typedList().map { (it as PsonObject).toStreamTrackInfo() },
+    this["tracksRemoved"]!!.typedList().map { (it as PsonObject).toStreamTrackInfo() },
+    this["tracksModified"]!!.typedList().map { (it as PsonObject).toStreamTrackModificationPair() }
+)
+
+internal fun PsonObject.toStreamRoomParticipantEventData() = StreamRoomParticipantEventData(
+    this["streamRoomId"]!!.typedValue(),
+    this["userId"]!!.typedValue()
+)
+
+internal fun PsonObject.toStreamUnpublishedEventData() = StreamUnpublishedEventData(
+    this["streamRoomId"]!!.typedValue(),
+    this["streamId"]!!.typedValue()
+)
+
+internal fun PsonObject.toStreamSubscriptionEventData() = StreamSubscriptionEventData(
+    this["streamRoomId"]!!.typedValue(),
+    this["userId"]!!.typedValue(),
+    this["subscriptions"]!!.typedList().map { (it as PsonObject).toStreamSubscription() }
+)
+
 private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "thread\$Thread" to PsonObject::toThread,
     "thread\$Thread" to PsonObject::toThread,
@@ -370,6 +436,14 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "kvdb\$KvdbStatsEventData" to PsonObject::toKvdbStatsEventData,
     "kvdb\$KvdbEntry" to PsonObject::toKvdbEntry,
     "kvdb\$KvdbDeletedEntryEventData" to PsonObject::toKvdbDeletedEntryEventData,
+    "stream\$StreamRoom" to PsonObject::toStreamRoom,
+    "stream\$StreamRoomCreatedEvent" to PsonObject::toStreamRoom,
+    "stream\$StreamRoomDeletedEventData" to PsonObject::toStreamRoomDeletedEventData,
+    "stream\$StreamPublishedEventData" to PsonObject::toStreamPublishedEventData,
+    "stream\$StreamUpdatedEventData" to PsonObject::toStreamUpdatedEventData,
+    "stream\$StreamRoomParticipantEventData" to PsonObject::toStreamRoomParticipantEventData,
+    "stream\$StreamUnpublishedEventData" to PsonObject::toStreamUnpublishedEventData,
+    "stream\$StreamSubscriptionEventData" to PsonObject::toStreamSubscriptionEventData,
 )
 
 
@@ -445,3 +519,98 @@ internal inline fun <reified T : Any> PsonValue<Any>.typedValue(): T {
 @Throws(ClassCastException::class)
 @Suppress("UNCHECKED_CAST")
 internal fun PsonValue<Any>.typedList() = getValue() as List<PsonValue<Any>>
+
+internal fun PsonObject.toTurnCredentials(): TurnCredentials = TurnCredentials(
+    this["url"]!!.typedValue(),
+    this["username"]!!.typedValue(),
+    this["password"]!!.typedValue(),
+    this["expirationTime"]?.typedValue()
+)
+
+internal fun PsonObject.toStreamRoom(): StreamRoom = StreamRoom(
+    this["contextId"]!!.typedValue(),
+    this["streamRoomId"]!!.typedValue(),
+    this["createDate"]?.typedValue(),
+    this["creator"]!!.typedValue(),
+    this["lastModificationDate"]?.typedValue(),
+    this["lastModifier"]!!.typedValue(),
+    this["users"]!!.typedList().map { it.typedValue() },
+    this["managers"]!!.typedList().map { it.typedValue() },
+    this["version"]?.typedValue(),
+    this["publicMeta"]!!.typedValue(),
+    this["privateMeta"]!!.typedValue(),
+    (this["policy"] as PsonObject).toContainerPolicyWithoutItem(),
+    this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue(),
+    this["state"]!!.typedValue(),       // "created" | "open" | "closed"
+    this["emptyRoomTtl"]?.typedValue(),
+)
+
+internal fun PsonObject.toStreamInfo(): StreamInfo = StreamInfo(
+    this["id"]!!.typedValue(),
+    this["userId"]!!.typedValue(),
+    this["metadata"]?.typedValue(),
+    this["dummy"]!!.typedValue(),
+    this["tracks"]!!.typedList().map { (it as PsonObject).toStreamTrackInfo() }
+)
+
+internal fun PsonObject.toStreamTrackInfo(): StreamTrackInfo = StreamTrackInfo(
+    this["type"]!!.typedValue(),
+    this["mindex"]!!.typedValue(),
+    this["mid"]!!.typedValue(),
+    this["disabled"]!!.typedValue(),
+    this["codec"]?.typedValue(),
+    this["description"]?.typedValue(),
+    this["moderated"]!!.typedValue(),
+    this["simulcast"]!!.typedValue()
+)
+
+internal fun PsonObject.toDecryptedDataChannelMessage(): DecryptedDataChannelMessage = DecryptedDataChannelMessage(
+    this["statusCode"]!!.typedValue(),
+    this["data"]!!.typedValue(),
+    this["seq"]!!.typedValue()
+)
+
+internal fun PsonObject.toDataChannelMessage(): DataChannelMessage = DataChannelMessage(
+    this["data"]!!.typedValue(),
+    this["seq"]!!.typedValue()
+)
+
+internal fun PsonObject.toStreamTrackModificationPair(): StreamTrackModificationPair =
+    StreamTrackModificationPair(
+        (this["before"] as? PsonObject)?.toStreamTrackInfo(),
+        (this["after"] as? PsonObject)?.toStreamTrackInfo(),
+    )
+
+internal fun PsonObject.toStreamSubscription(): StreamSubscription = StreamSubscription(
+    this["streamId"]?.typedValue(),
+    this["streamTrackId"]?.typedValue()
+)
+
+internal fun PsonObject.toStreamSubscriber(): StreamSubscriber = StreamSubscriber(
+    this["userId"]!!.typedValue(),
+    this["subscriptions"]!!.typedList().map { (it as PsonObject).toStreamSubscription() },
+    (this["publishedStream"] as? PsonObject)?.toStreamInfo(),
+)
+
+
+internal fun PsonValue.PsonLong.toStreamHandle(): StreamHandle = StreamHandle(this.typedValue<Long>())
+
+internal fun PsonValue.PsonLong.toSubscriberStreamHandle(): SubscriberStreamHandle = SubscriberStreamHandle(this.typedValue<Long>())
+
+internal fun PsonObject.toPublishedStream(): PublishedStreamData = PublishedStreamData(
+    this["streamRoomId"]!!.typedValue(),
+    (this["stream"]!! as PsonObject).toStreamInfo(),
+    this["userId"]!!.typedValue()
+)
+
+
+internal fun PsonObject.toStreamPublishResult(): StreamPublishResult = StreamPublishResult(
+    this["published"]!!.typedValue(),
+    (this["data"] as? PsonObject)?.toPublishedStream()
+)
+
+internal fun PsonObject.toRecordingEncKey(): RecordingEncKey = RecordingEncKey(
+    this["keyId"]!!.typedValue(),
+    this["key"]!!.typedValue()
+)

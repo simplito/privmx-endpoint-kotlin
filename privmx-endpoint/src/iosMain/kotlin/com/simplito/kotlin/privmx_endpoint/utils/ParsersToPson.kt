@@ -17,6 +17,9 @@ import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
 import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
+import com.simplito.kotlin.privmx_endpoint.model.stream.DataChannelMessage
+import com.simplito.kotlin.privmx_endpoint.model.stream.SdpWithTypeModel
+import com.simplito.kotlin.privmx_endpoint.model.stream.StreamSubscription
 
 internal val ItemPolicy.pson: PsonValue.PsonObject
     get() = mapOfWithNulls(
@@ -68,6 +71,12 @@ internal val PKIVerificationOptions.pson: PsonValue.PsonObject
     get() = mapOfWithNulls(
         "bridgePubKey" to bridgePubKey.nullablePson,
         "bridgeInstanceId" to bridgeInstanceId.nullablePson
+    ).pson
+
+internal val DataChannelMessage.pson: PsonValue.PsonObject
+    get() = mapOfWithNulls(
+        "data" to data.pson,
+        "seq" to seq.nullablePson,
     ).pson
 
 internal val String.pson: PsonValue.PsonString
@@ -124,3 +133,16 @@ internal val Map<String, PsonValue<Any>>.pson: PsonValue.PsonObject
 
 internal val Map<String, PsonValue<Any>>?.nullablePson: PsonValue<Any>
     get() = this?.let { PsonValue.PsonObject(this) } ?: KPSON_NULL
+
+
+internal val StreamSubscription.pson: PsonValue.PsonObject
+    get() = mapOfWithNulls(
+        "streamId" to streamId!!.pson,
+        "streamTrackId" to streamTrackId.nullablePson
+    ).pson
+
+internal val SdpWithTypeModel.pson: PsonValue.PsonObject
+    get() = mapOfWithNulls(
+        "sdp" to sdp.pson,
+        "type" to type.pson
+    ).pson
