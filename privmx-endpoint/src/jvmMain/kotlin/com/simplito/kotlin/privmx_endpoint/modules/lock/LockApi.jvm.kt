@@ -23,9 +23,9 @@ import kotlin.Throws
 /**
  * Provides distributed locking of arbitrary resources identified by a string ID.
  */
-actual class LockApi
+class LockApi
 @Throws(IllegalStateException::class)
-actual constructor(connection: Connection) : AutoCloseable {
+constructor(connection: Connection) : AutoCloseable {
     companion object {
         init {
             LibLoader.loadPrivmxLibraries()
@@ -62,7 +62,7 @@ actual constructor(connection: Connection) : AutoCloseable {
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun lock(
+    fun lock(
         resourceId: String,
         uuid: String,
         lockLevel: LockLevel
@@ -91,7 +91,7 @@ actual constructor(connection: Connection) : AutoCloseable {
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun unlock(
+    fun unlock(
         resourceId: String,
         uuid: String,
         lockLevel: LockLevel
@@ -119,7 +119,7 @@ actual constructor(connection: Connection) : AutoCloseable {
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun checkReservedLock(
+    external fun checkReservedLock(
         resourceId: String,
         uuid: String
     ): Boolean
@@ -129,7 +129,7 @@ actual constructor(connection: Connection) : AutoCloseable {
      *
      * @throws Exception when instance is currently closed.
      */
-    actual override fun close() {
+    override fun close() {
         deinit()
     }
 }

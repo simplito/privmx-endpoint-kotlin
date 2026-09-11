@@ -22,7 +22,6 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.modules.kvdb.KvdbApi
-import com.simplito.kotlin.privmx_endpoint.modules.lock.LockApi
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
 import com.simplito.kotlin.privmx_endpoint.utils.KPSON_NULL
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
@@ -40,8 +39,11 @@ import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.nativeHeap
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
+import libprivmxendpoint.privmx_endpoint_execLockApi
 import libprivmxendpoint.privmx_endpoint_execSearchApi
+import libprivmxendpoint.privmx_endpoint_freeLockApi
 import libprivmxendpoint.privmx_endpoint_freeSearchApi
+import libprivmxendpoint.privmx_endpoint_newLockApi
 import libprivmxendpoint.privmx_endpoint_newSearchApi
 import libprivmxendpoint.pson_free_result
 import libprivmxendpoint.pson_free_value
@@ -57,32 +59,60 @@ actual constructor(
     connection: Connection,
     storeApi: StoreApi,
     kvdbApi: KvdbApi,
-    lockApi: LockApi
 ) : AutoCloseable {
+    private val _nativeLockApi = nativeHeap.allocPointerTo<cnames.structs.LockApi>()
     private val _nativeSearchApi = nativeHeap.allocPointerTo<cnames.structs.SearchApi>()
     private val nativeSearchApi
         get() = _nativeSearchApi.value?.let { _nativeSearchApi }
             ?: throw IllegalStateException("SearchApi has been closed.")
 
-
     init {
-        privmx_endpoint_newSearchApi(
-            connection.getConnectionPtr(),
-            storeApi.getStorePtr(),
-            kvdbApi.getKvdbPtr(),
-            lockApi.getLockPtr(),
-            _nativeSearchApi.ptr
-        )
+        createLockApi(connection)
+
+        try {
+            privmx_endpoint_newSearchApi(
+                connection.getConnectionPtr(),
+                storeApi.getStorePtr(),
+                kvdbApi.getKvdbPtr(),
+                _nativeLockApi.value,
+                _nativeSearchApi.ptr
+            )
+            memScoped {
+                val args = pson_new_array()
+                val pson_result = allocPointerTo<pson_value>()
+                try {
+                    privmx_endpoint_execSearchApi(nativeSearchApi.value, 0, args, pson_result.ptr)
+                    pson_result.value!!.asResponse?.getResultOrThrow()
+                } finally {
+                    pson_free_value(args)
+                    pson_free_result(pson_result.value)
+                }
+            }
+        } catch (e: Throwable) {
+            freeLockApi()
+            throw e
+        }
+    }
+
+    private fun createLockApi(connection: Connection) {
+        privmx_endpoint_newLockApi(connection.getConnectionPtr(), _nativeLockApi.ptr)
         memScoped {
             val args = pson_new_array()
             val pson_result = allocPointerTo<pson_value>()
             try {
-                privmx_endpoint_execSearchApi(nativeSearchApi.value, 0, args, pson_result.ptr)
+                privmx_endpoint_execLockApi(_nativeLockApi.value, 0, args, pson_result.ptr)
                 pson_result.value!!.asResponse?.getResultOrThrow()
             } finally {
                 pson_free_value(args)
                 pson_free_result(pson_result.value)
             }
+        }
+    }
+
+    private fun freeLockApi() {
+        _nativeLockApi.value?.let {
+            privmx_endpoint_freeLockApi(it)
+            _nativeLockApi.value = null
         }
     }
 
@@ -605,5 +635,6 @@ actual constructor(
     actual override fun close() {
         privmx_endpoint_freeSearchApi(nativeSearchApi.value)
         _nativeSearchApi.value = null
+        freeLockApi()
     }
 }

@@ -14,7 +14,7 @@
 #include "Connection.h"
 #include "StoreApi.h"
 #include "KvdbApi.h"
-#include "LockApi.h"
+#include <privmx/endpoint/lock/LockApi.hpp>
 #include <jni.h>
 #include "../model_native_initializers.h"
 #include <privmx/endpoint/search/SearchApi.hpp>
@@ -31,34 +31,57 @@ search::SearchApi *getSearchApi(JniContextUtils &ctx, jobject searchApiInstance)
     return (search::SearchApi *) ctx.getObject(apiLong).getLongValue();
 }
 
+lock::LockApi *getOwnedLockApi(JniContextUtils &ctx, jobject searchApiInstance) {
+    jclass cls = ctx->GetObjectClass(searchApiInstance);
+    jfieldID lockApiFID = ctx->GetFieldID(cls, "lockApi", "Ljava/lang/Long;");
+    jobject lockApiLong = ctx->GetObjectField(searchApiInstance, lockApiFID);
+    if (lockApiLong == nullptr) {
+        throw IllegalStateException("SearchApi cannot be used");
+    }
+    return (lock::LockApi *) ctx.getObject(lockApiLong).getLongValue();
+}
+
+void setOwnedLockApi(JniContextUtils &ctx, jobject searchApiInstance, lock::LockApi *lockApi) {
+    jclass cls = ctx->GetObjectClass(searchApiInstance);
+    jfieldID lockApiFID = ctx->GetFieldID(cls, "lockApi", "Ljava/lang/Long;");
+    ctx->SetObjectField(searchApiInstance, lockApiFID, ctx.long2jLong((jlong) lockApi));
+}
+
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_search_SearchApi_init(
         JNIEnv *env,
         jobject thiz,
         jobject connection,
         jobject store_api,
-        jobject kvdb_api,
-        jobject lock_api
+        jobject kvdb_api
 ) {
     JniContextUtils ctx(env);
     jobject result;
     ctx.callResultEndpointApi<jobject>(
             &result,
-            [&ctx, &env, &connection, &store_api, &kvdb_api, &lock_api] {
+            [&ctx, &env, &thiz, &connection, &store_api, &kvdb_api] {
                 auto connection_c = getConnection(env, connection);
                 auto storeApi_c = getStoreApi(ctx, store_api);
                 auto kvdbApi_c = getKvdbApi(ctx, kvdb_api);
-                auto lockApi_c = getLockApi(ctx, lock_api);
-                auto searchApi = search::SearchApi::create(
-                        *connection_c,
-                        *storeApi_c,
-                        *kvdbApi_c,
-                        *lockApi_c
-                );
-                auto searchApi_ptr = new search::SearchApi();
-                *searchApi_ptr = searchApi;
 
-                return ctx.long2jLong((jlong) searchApi_ptr);
+                auto lockApi_ptr = new lock::LockApi();
+                try {
+                    *lockApi_ptr = lock::LockApi::create(*connection_c);
+                    auto searchApi = search::SearchApi::create(
+                            *connection_c,
+                            *storeApi_c,
+                            *kvdbApi_c,
+                            *lockApi_ptr
+                    );
+                    auto searchApi_ptr = new search::SearchApi();
+                    *searchApi_ptr = searchApi;
+
+                    setOwnedLockApi(ctx, thiz, lockApi_ptr);
+                    return ctx.long2jLong((jlong) searchApi_ptr);
+                } catch (...) {
+                    delete lockApi_ptr;
+                    throw;
+                }
             });
     if (ctx->ExceptionCheck()) {
         return nullptr;
@@ -74,10 +97,14 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_search_SearchApi_deinit(
     try {
         JniContextUtils ctx(env);
         auto api = getSearchApi(ctx, thiz);
+        auto lockApi = getOwnedLockApi(ctx, thiz);
         delete api;
+        delete lockApi;
         jclass cls = env->GetObjectClass(thiz);
         jfieldID apiFID = env->GetFieldID(cls, "api", "Ljava/lang/Long;");
         env->SetObjectField(thiz, apiFID, (jobject) nullptr);
+        jfieldID lockApiFID = env->GetFieldID(cls, "lockApi", "Ljava/lang/Long;");
+        env->SetObjectField(thiz, lockApiFID, (jobject) nullptr);
     } catch (const IllegalStateException &e) {
         env->ThrowNew(env->FindClass("java/lang/IllegalStateException"), e.what());
     }
