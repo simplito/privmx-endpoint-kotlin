@@ -1806,7 +1806,6 @@ class ThreadTest : BaseTest() {
     }
 
     @Test
-    @Ignore
     @Throws(Exception::class)
     fun setUserVerifierThread() {
         connection2 = connectAsUser(ConnectionType.User2, bridgeAddress)

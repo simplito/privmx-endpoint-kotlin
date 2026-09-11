@@ -1960,7 +1960,6 @@ class InboxTest : BaseTest() {
     }
 
     @Test
-    @Ignore
     @Throws(Exception::class)
     fun setUserVerifierInbox() {
         connection2 = connectAsUser(ConnectionType.User2, bridgeAddress)
