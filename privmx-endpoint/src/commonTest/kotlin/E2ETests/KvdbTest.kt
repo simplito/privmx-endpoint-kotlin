@@ -2410,7 +2410,6 @@ class KvdbTest : BaseTest() {
     }
 
     @Test
-    @Ignore
     @Throws(Exception::class)
     fun setUserVerifierKvdb() {
         connection2 = connectAsUser(ConnectionType.User2, bridgeAddress)

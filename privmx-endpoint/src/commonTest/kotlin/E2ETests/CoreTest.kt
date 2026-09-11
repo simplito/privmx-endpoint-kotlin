@@ -351,7 +351,6 @@ class CoreTest : BaseTest() {
     }
 
         @Test
-        @Ignore
         @Throws(Exception::class)
         fun setUserVerifier() {
             val threadApi: ThreadApi = ThreadApi(connection!!)

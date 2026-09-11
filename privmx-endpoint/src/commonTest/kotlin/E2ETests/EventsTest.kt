@@ -44,7 +44,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -4218,7 +4217,6 @@ class EventsTest : BaseTest() {
     }
 
     @Test
-    @Ignore
     fun contextCustomEventDataStatusCode() {
         var contextCustomEventData: ContextCustomEventData? = null
         connection2 =
