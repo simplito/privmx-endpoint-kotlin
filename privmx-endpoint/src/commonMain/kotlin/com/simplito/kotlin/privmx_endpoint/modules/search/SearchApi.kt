@@ -21,7 +21,6 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.modules.kvdb.KvdbApi
-import com.simplito.kotlin.privmx_endpoint.modules.lock.LockApi
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
 
 /**
@@ -30,7 +29,6 @@ import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
  * @param connection active connection to PrivMX Bridge
  * @param storeApi   instance of [StoreApi] created on passed Connection, holds the Search Index's documents
  * @param kvdbApi    instance of [KvdbApi] created on passed Connection, holds the Search Index's metadata
- * @param lockApi    instance of [LockApi] created on passed Connection, serializes concurrent writes to the Search Index
  * @throws IllegalStateException when one of the passed parameters is closed
  */
 expect class SearchApi
@@ -39,7 +37,6 @@ constructor(
     connection: Connection,
     storeApi: StoreApi,
     kvdbApi: KvdbApi,
-    lockApi: LockApi
 ) : AutoCloseable {
 
     /**

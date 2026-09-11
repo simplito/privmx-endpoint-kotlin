@@ -22,7 +22,6 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
 import com.simplito.kotlin.privmx_endpoint.modules.kvdb.KvdbApi
-import com.simplito.kotlin.privmx_endpoint.modules.lock.LockApi
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
 import kotlin.IllegalStateException
 import kotlin.Throws
@@ -36,7 +35,6 @@ actual constructor(
     connection: Connection,
     storeApi: StoreApi,
     kvdbApi: KvdbApi,
-    lockApi: LockApi
 ) : AutoCloseable {
     companion object {
         init {
@@ -44,6 +42,7 @@ actual constructor(
         }
     }
 
+    private var lockApi: Long? = null
     private val api: Long?
 
     /**
@@ -52,19 +51,17 @@ actual constructor(
      * @param connection instance of 'Connection'
      * @param storeApi   instance of 'StoreApi', holds the Search Index's documents
      * @param kvdbApi    instance of 'KvdbApi', holds the Search Index's metadata
-     * @param lockApi    instance of 'LockApi', serializes concurrent writes to the Search Index
      * @throws IllegalStateException when one of the passed parameters is closed
      */
     init {
-        this.api = init(connection, storeApi, kvdbApi, lockApi)
+        this.api = init(connection, storeApi, kvdbApi)
     }
 
     @Throws(IllegalStateException::class)
     private external fun init(
         connection: Connection,
         storeApi: StoreApi,
-        kvdbApi: KvdbApi,
-        lockApi: LockApi
+        kvdbApi: KvdbApi
     ): Long?
 
     @Throws(IllegalStateException::class)
