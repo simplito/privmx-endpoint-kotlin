@@ -1,5 +1,7 @@
 import org.gradle.internal.jvm.Jvm
 import org.gradle.kotlin.dsl.support.zipTo
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.util.Properties
 import kotlin.text.replace
 
@@ -347,7 +349,7 @@ tasks.register("buildAndroidFromSources") {
                     clonedEndpointDir,
                     profile,
                     "../conan",
-                    "../native/install/Android/$privmxEndpointJavaVersion/$arch",
+                    INSTALL_DIR.absolutePath,
                     additionalParams = listOf(
                         " -s arch=${conanArch}",
                         " -c \"tools.android:ndk_path=$ndkPath\""
@@ -359,7 +361,23 @@ tasks.register("buildAndroidFromSources") {
                     "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/android-$conanArch/${buildType.name}/generators/conan_toolchain.cmake",
                 )
                 copyFilesFromDeploy(INSTALL_DIR,".so")
+                removeLibVersionSuffix(File(INSTALL_DIR,"lib"))
             }
+        }
+    }
+}
+
+tasks.register("removeAndroidLibVersionSuffix") {
+    group = "privmx native"
+    description = "Strips the *.<version> suffix from lib* files produced by the Android from-sources build."
+    doFirst {
+        androidArchs.forEach { arch ->
+            project.removeLibVersionSuffix(
+                layout.buildDirectory.dir("endpoint-prebuild/install/Android/$privmxEndpointJavaVersion/$arch").get().asFile
+            )
+            project.removeLibVersionSuffix(
+                layout.buildDirectory.dir("native/install/Android/$privmxEndpointJavaVersion/$arch").get().asFile
+            )
         }
     }
 }
@@ -618,7 +636,7 @@ tasks.register("clonePrivmxSources") {
             workingDir = buildDirFile
             commandLine(
                 "sh", "-c",
-                "git clone --depth 1 -b v$nativeEndpointVersion https://github.com/simplito/privmx-endpoint.git"
+                "git clone --depth 1 -b $nativeEndpointVersion https://github.com/simplito/privmx-endpoint.git"
             )
         }
         val conanfile = File(repoDir, "conanfile.txt")
@@ -711,6 +729,48 @@ private fun Project.conanInstall(
     }
 }
 
+private val versionedLibNameRegex = Regex("""^(lib.+\.so)(?:\.\d+)+$""")
+
+/**
+ * Android's linker and the APK packager accept `lib*.so` names only, so shared libraries carrying an ELF
+ * version suffix (`libcrypto.so.3`) have to be renamed. Their `SONAME` and the `NEEDED` entries of every
+ * library in [root] that references them are rewritten as well, otherwise the linker keeps looking for the
+ * versioned name at load time.
+ */
+private fun Project.removeLibVersionSuffix(root: File) {
+    if (!root.exists()) return
+    val versionedLibs = root.walkTopDown()
+        .filter { it.isFile && !Files.isSymbolicLink(it.toPath()) && versionedLibNameRegex.matches(it.name) }
+        .toList()
+    if (versionedLibs.isEmpty()) return
+
+    val unversionedNames = versionedLibs.associate { it.name to versionedLibNameRegex.replace(it.name, "$1") }
+    versionedLibs.forEach { lib ->
+        val unversionedLib = File(lib.parentFile, unversionedNames.getValue(lib.name))
+        // drops the `lib*.so -> lib*.so.<version>` symlink conan deploys next to the real file
+        Files.deleteIfExists(unversionedLib.toPath())
+        Files.move(lib.toPath(), unversionedLib.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        logger.lifecycle("Removed version suffix: ${lib.name} -> ${unversionedLib.name}")
+    }
+
+    fileTree(root) { include("**/lib*.so") }.forEach { lib ->
+        exec {
+            commandLine(
+                buildList {
+                    add("patchelf")
+                    unversionedNames.forEach { (versionedName, unversionedName) ->
+                        addAll(listOf("--replace-needed", versionedName, unversionedName))
+                    }
+                    if (lib.name in unversionedNames.values) {
+                        addAll(listOf("--set-soname", lib.name))
+                    }
+                    add(lib.absolutePath)
+                }
+            )
+        }
+    }
+}
+
 private fun Project.copyFilesFromDeploy(
     workingDir: File,
     extension: String,
@@ -725,9 +785,9 @@ private fun Project.copyFilesFromDeploy(
         } else {
             include(
                 "**/libPoco*$extension",
-                "**/libcrypto*$extension",
+                "**/libcrypto*$extension.*",
                 "**/libPson*$extension",
-                "**/libssl*$extension",
+                "**/libssl*$extension.*",
                 "**/libprivmx*$extension"
             )
         }
