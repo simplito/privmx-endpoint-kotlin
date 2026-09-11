@@ -1,5 +1,6 @@
 package Stacks.Kotlin.events
 
+import Stacks.Kotlin.contextId
 import Stacks.Kotlin.endpointContainer
 import Stacks.Kotlin.endpointSession
 import com.simplito.kotlin.privmx_endpoint_extra.events.EventType
@@ -13,7 +14,7 @@ suspend fun quickStart(){
     val callbackID = "CALLBACK_ID"
     endpointSession.registerCallback(
         callbackID,
-        EventType.ThreadCreatedEvent
+        EventType.ThreadCreatedEvent(contextId)
     ){ newThreadData ->
         // some actions with newThreadData
     }
