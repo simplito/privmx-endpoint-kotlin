@@ -190,11 +190,6 @@ namespace privmx {
                 privmx::endpoint::stream::StreamRoom streamRoom_c
         );
 
-        jobject stream2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::Stream stream_c
-        );
-
         jobject streamTrackInfo2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::StreamTrackInfo streamTrackInfo_c
@@ -215,10 +210,6 @@ namespace privmx {
                 privmx::endpoint::stream::StreamPublishResult streamPublishResult_c
         );
 
-        jobject remoteStreamId2Java(
-                JniContextUtils &ctx,
-                privmx::endpoint::stream::RemoteStreamId remoteStreamId_c
-        );
         jobject keyType2Java(
                 JniContextUtils &ctx,
                 privmx::endpoint::stream::KeyType keyType_c
