@@ -34,6 +34,43 @@ usersToVector(JniContextUtils &ctx, jobjectArray users) {
     return users_c;
 }
 
+std::vector<privmx::endpoint::group::GroupMemberToAdd>
+groupMembersToVector(JniContextUtils &ctx, jobjectArray newMembers) {
+    std::vector<privmx::endpoint::group::GroupMemberToAdd> newMembers_c;
+    for (int i = 0; i < ctx->GetArrayLength(newMembers); i++) {
+        jobject arrayElement = ctx->GetObjectArrayElement(newMembers, i);
+        if (ctx.nullCheck(arrayElement, "Group member")) {
+            return {};
+        }
+        jclass arrayElementCls = ctx->GetObjectClass(arrayElement);
+
+        jfieldID userFID = ctx->GetFieldID(
+                arrayElementCls,
+                "user",
+                "Lcom/simplito/kotlin/privmx_endpoint/model/UserWithPubKey;");
+        jfieldID roleFID = ctx->GetFieldID(arrayElementCls, "role", "Ljava/lang/String;");
+
+        jobject user = ctx->GetObjectField(arrayElement, userFID);
+        if (ctx.nullCheck(user, "Group member user")) {
+            return {};
+        }
+        jclass userCls = ctx->GetObjectClass(user);
+        jfieldID userIdFID = ctx->GetFieldID(userCls, "userId", "Ljava/lang/String;");
+        jfieldID pubKeyFID = ctx->GetFieldID(userCls, "pubKey", "Ljava/lang/String;");
+
+        privmx::endpoint::group::GroupMemberToAdd member_c = privmx::endpoint::group::GroupMemberToAdd();
+        member_c.user.userId = ctx.jString2string(
+                (jstring) ctx->GetObjectField(user, userIdFID));
+        member_c.user.pubKey = ctx.jString2string(
+                (jstring) ctx->GetObjectField(user, pubKeyFID));
+        member_c.role = ctx.jString2string(
+                (jstring) ctx->GetObjectField(arrayElement, roleFID));
+
+        newMembers_c.push_back(member_c);
+    }
+    return newMembers_c;
+}
+
 privmx::endpoint::core::PKIVerificationOptions
 parsePKIVerificationOptions(JniContextUtils &ctx, jobject pkiVerificationOptions) {
     auto result = privmx::endpoint::core::PKIVerificationOptions();
@@ -630,6 +667,54 @@ parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core::Event> 
                     event_cast.subscriptions,
                     event_cast.timestamp,
                     privmx::wrapper::kvdbDeletedEntryEventData2Java(ctx, event_cast.data)
+            );
+        } else if (group::Events::isGroupCreatedEvent(event)) {
+            privmx::endpoint::group::GroupCreatedEvent event_cast = group::Events::extractGroupCreatedEvent(
+                    event);
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::groupChangedEventData2Java(ctx, event_cast.data)
+            );
+        } else if (group::Events::isGroupUpdatedEvent(event)) {
+            privmx::endpoint::group::GroupUpdatedEvent event_cast = group::Events::extractGroupUpdatedEvent(
+                    event);
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::groupChangedEventData2Java(ctx, event_cast.data)
+            );
+        } else if (group::Events::isGroupDeletedEvent(event)) {
+            privmx::endpoint::group::GroupDeletedEvent event_cast = group::Events::extractGroupDeletedEvent(
+                    event);
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::groupDeletedEventData2Java(ctx, event_cast.data)
+            );
+        } else if (group::Events::isGroupCustomEvent(event)) {
+            privmx::endpoint::group::GroupCustomEvent event_cast = group::Events::extractGroupCustomEvent(
+                    event);
+            return initEvent(
+                    ctx,
+                    event_cast.type,
+                    event_cast.channel,
+                    event_cast.connectionId,
+                    event_cast.subscriptions,
+                    event_cast.timestamp,
+                    privmx::wrapper::groupCustomEventData2Java(ctx, event_cast.data)
             );
         } else if (stream::Events::isStreamRoomCreatedEvent(event)) {
             privmx::endpoint::stream::StreamRoomCreatedEvent event_cast = stream::Events::extractStreamRoomCreatedEvent(
