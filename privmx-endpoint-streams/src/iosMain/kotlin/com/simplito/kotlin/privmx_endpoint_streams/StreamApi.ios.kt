@@ -13,6 +13,10 @@ import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.IceServer
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.PeerConnectionFactory
 
+/**
+ * iOS requires no platform-specific data to initialize [StreamApi];
+ * this type carries no parameters. Create it with `StreamApiInit()`.
+*/
 actual class StreamApiInit
 
 private fun DefaultPeerConnectionFactory(
@@ -22,6 +26,18 @@ private fun DefaultPeerConnectionFactory(
     RTCDefaultVideoDecoderFactory()
 )
 
+
+/**
+ * Joins a StreamRoom and prepares the session for WebRTC communication.
+ *
+ * Required before working with streams and stream events in the room.
+ *
+ * @param streamRoomId ID of the StreamRoom to join
+ *
+ * @throws PrivmxException       thrown when method encounters an exception
+ * @throws NativeException       thrown when method encounters an unknown exception
+ * @throws IllegalStateException thrown when instance is closed
+ */
 @Throws(
     PrivmxException::class,
     NativeException::class,
