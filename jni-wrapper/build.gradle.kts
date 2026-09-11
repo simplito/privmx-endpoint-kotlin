@@ -215,58 +215,56 @@ val compileLinux = tasks.register("compileLinux") {
     val prebuildEndpointDir = layout.buildDirectory.dir("endpoint-prebuild/install").get()
     doFirst {
         println(Jvm.current().javaHome.absolutePath)
-        darwinArchs.onEach { ARCH ->
-            val platformInstallDir = installDir.file("$os/$privmxEndpointJavaVersion/$arch").asFile
-            val platformCompileDir = compileDir.file("$os/$privmxEndpointJavaVersion/$arch").asFile
-            if (!platformCompileDir.exists()) {
-                platformCompileDir.mkdirs()
-            }
-            if (!platformInstallDir.exists()) {
-                platformInstallDir.mkdirs()
-            }
-            val endpointArgs = if (usePrebuiltEndpoint) {
-                " -DPRIVMX_USE_PREBUILT=ON" +
-                        " -DPRIVMX_PREBUILT_DIR=\"${prebuildEndpointDir.file("$os/$privmxEndpointJavaVersion/$ARCH").asFile.absolutePath}\""
-            } else {
-                " -DCMAKE_TOOLCHAIN_FILE=\"${layout.buildDirectory.asFile.get().absolutePath}/conan/build/linux-$conanArch/${buildType.name}/generators/conan_toolchain.cmake\""
-            }
-            exec {
-                workingDir = layout.projectDirectory.asFile
-                commandLine(
-                    "sh", "-c",
-                    "cmake" +
-                            " -B${platformCompileDir.absolutePath}" +
-                            " -DCMAKE_BUILD_TYPE=${buildType.name}" +
-                            " -DCMAKE_CXX_FLAGS=-std=c++17" +
-                            " -DJAVA_HOME=\"${Jvm.current().javaHome.absolutePath}\"" +
-                            " -DCMAKE_INSTALL_PREFIX=\"${platformInstallDir.absolutePath}\"" +
-                            endpointArgs
-                )
-            }
-            exec {
-                workingDir = platformCompileDir
-                commandLine("sh", "-c", "cmake --build .")
-            }
+        val platformInstallDir = installDir.file("$os/$privmxEndpointJavaVersion/$arch").asFile
+        val platformCompileDir = compileDir.file("$os/$privmxEndpointJavaVersion/$arch").asFile
+        if (!platformCompileDir.exists()) {
+            platformCompileDir.mkdirs()
+        }
+        if (!platformInstallDir.exists()) {
+            platformInstallDir.mkdirs()
+        }
+        val endpointArgs = if (usePrebuiltEndpoint) {
+            " -DPRIVMX_USE_PREBUILT=ON" +
+                    " -DPRIVMX_PREBUILT_DIR=\"${prebuildEndpointDir.file("$os/$privmxEndpointJavaVersion/$arch").asFile.absolutePath}\""
+        } else {
+            " -DCMAKE_TOOLCHAIN_FILE=\"${layout.buildDirectory.asFile.get().absolutePath}/conan/build/linux-$conanArch/${buildType.name}/generators/conan_toolchain.cmake\""
+        }
+        exec {
+            workingDir = layout.projectDirectory.asFile
+            commandLine(
+                "sh", "-c",
+                "cmake" +
+                        " -B${platformCompileDir.absolutePath}" +
+                        " -DCMAKE_BUILD_TYPE=${buildType.name}" +
+                        " -DCMAKE_CXX_FLAGS=-std=c++17" +
+                        " -DJAVA_HOME=\"${Jvm.current().javaHome.absolutePath}\"" +
+                        " -DCMAKE_INSTALL_PREFIX=\"${platformInstallDir.absolutePath}\"" +
+                        endpointArgs
+            )
+        }
+        exec {
+            workingDir = platformCompileDir
+            commandLine("sh", "-c", "cmake --build .")
+        }
 
-            exec {
-                workingDir = platformCompileDir
-                commandLine("sh", "-c", "make -s -j8")
-            }
-            exec {
-                workingDir = platformCompileDir
-                commandLine("sh", "-c", "make -s install")
-            }
+        exec {
+            workingDir = platformCompileDir
+            commandLine("sh", "-c", "make -s -j8")
+        }
+        exec {
+            workingDir = platformCompileDir
+            commandLine("sh", "-c", "make -s install")
+        }
 
-            fileTree(platformInstallDir) { include("**/*.so") }.forEach { soFile ->
-                exec {
-                    commandLine("patchelf", "--set-rpath", "\$ORIGIN", soFile.absolutePath)
-                }
+        fileTree(platformInstallDir) { include("**/*.so") }.forEach { soFile ->
+            exec {
+                commandLine("patchelf", "--set-rpath", "\$ORIGIN", soFile.absolutePath)
             }
         }
     }
 }
 
-val compileLinux = tasks.create("buildLinuxFromSources") {
+tasks.create("buildLinuxFromSources") {
     group = "privmx native"
     dependsOn("clonePrivmxSources")
 //    onlyIf { !layout.buildDirectory.get().dir("endpoint-prebuild/install/Darwin/$privmxEndpointJavaVersion/arm64").asFile.exists() }
