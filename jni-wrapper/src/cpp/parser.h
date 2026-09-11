@@ -20,6 +20,7 @@
 #include "privmx/endpoint/core/Events.hpp"
 #include "privmx/endpoint/inbox/Types.hpp"
 #include "privmx/endpoint/stream/Events.hpp"
+#include "privmx/endpoint/search/Types.hpp"
 
 std::vector<privmx::endpoint::core::UserWithPubKey>
 usersToVector(JniContextUtils &ctx, jobjectArray users);
@@ -48,6 +49,9 @@ jobject parseEvent(JniContextUtils &ctx, std::shared_ptr<privmx::endpoint::core:
 privmx::endpoint::core::PagingQuery parsePagingQuery(JniContextUtils &ctx, jobject pagingQuery);
 
 privmx::endpoint::stream::DataChannelMessage parseDataChannelMessage(JniContextUtils &ctx, jobject dataChannelMessage);
+
+// search
+privmx::endpoint::search::Document parseDocument(JniContextUtils &ctx, jobject document);
 
 // java -> c++
 

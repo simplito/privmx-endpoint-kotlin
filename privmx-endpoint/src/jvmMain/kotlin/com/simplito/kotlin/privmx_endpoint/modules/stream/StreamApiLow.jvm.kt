@@ -89,7 +89,8 @@ actual constructor(
         managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        policies: ContainerPolicyWithoutItem?
+        policies: ContainerPolicyWithoutItem?,
+        emptyRoomTtl: Long?
     ): String
 
     /**
@@ -322,7 +323,7 @@ actual constructor(
     actual external fun trickle(sessionId: Long, candidateAsJson: String)
 
     /**
-     * Accepts offer on reconfigure.
+     * Sets new offer on reconfigure.
      *
      * @param sessionId session ID
      * @param sdp SDP with type
@@ -331,7 +332,7 @@ actual constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun acceptOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel)
+    actual external fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel)
 
     /**
      * Subscribes for stream events.
@@ -393,20 +394,11 @@ actual constructor(
     ): ByteArray
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun registerRemoteDataChannel(
-        streamRoomId: String,
-        remoteStreamId: String
-    )
-
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual external fun decryptDataChannelMessage(
         streamRoomId: String,
         remoteStreamId: String,
         encryptedData: ByteArray
     ): DecryptedDataChannelMessage
-
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel)
 
     @Throws(IllegalStateException::class)
     private external fun init(

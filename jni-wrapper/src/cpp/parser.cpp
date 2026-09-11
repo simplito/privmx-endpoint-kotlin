@@ -874,6 +874,25 @@ privmx::endpoint::stream::DataChannelMessage parseDataChannelMessage(
     return result;
 }
 
+// search
+privmx::endpoint::search::Document parseDocument(JniContextUtils &ctx, jobject document) {
+    privmx::endpoint::search::Document result;
+    jclass cls = ctx->GetObjectClass(document);
+
+    jfieldID documentIdFID = ctx->GetFieldID(cls, "documentId", "J");
+    jfieldID nameFID = ctx->GetFieldID(cls, "name", "Ljava/lang/String;");
+    jfieldID contentFID = ctx->GetFieldID(cls, "content", "Ljava/lang/String;");
+
+    auto name = (jstring) ctx->GetObjectField(document, nameFID);
+    auto content = (jstring) ctx->GetObjectField(document, contentFID);
+
+    result.documentId = ctx->GetLongField(document, documentIdFID);
+    if (name != nullptr) result.name = ctx.jString2string(name);
+    if (content != nullptr) result.content = ctx.jString2string(content);
+
+    return result;
+}
+
 int64_t jobject2long(JniContextUtils &ctx, jobject jLong) {
     jclass longClass = ctx->FindClass("java/lang/Long");
     jmethodID longValueMethod = ctx->GetMethodID(longClass, "longValue", "()J");

@@ -198,15 +198,23 @@ val compileDarwin = tasks.create("compileDarwin") {
 }
 
 //TODO: Use cpp-library plugin compilation tasks
-val compileLinux = tasks.create("compileLinux") {
+val compileLinux = tasks.register("compileLinux") {
     group = "privmx native"
-    dependsOn("buildLinuxWithConan")
     val os = "Linux"
     val conanArch = "x86_64"
     val arch = "x86_64"
     val compileDir = layout.buildDirectory.dir("native/compile").get()
     val installDir = layout.buildDirectory.dir("native/install").get()
+    var usePrebuiltEndpoint: Boolean = false
+    if(buildType == BuildTypes.MinSizeRel || buildType == BuildTypes.Release) {
+        dependsOn("buildLinuxWithConan")
+    }else{
+        dependsOn("buildLinuxFromSources")
+        usePrebuiltEndpoint = true
+    }
+    val prebuildEndpointDir = layout.buildDirectory.dir("endpoint-prebuild/install").get()
     doFirst {
+        println(Jvm.current().javaHome.absolutePath)
         val platformInstallDir = installDir.file("$os/$privmxEndpointJavaVersion/$arch").asFile
         val platformCompileDir = compileDir.file("$os/$privmxEndpointJavaVersion/$arch").asFile
         if (!platformCompileDir.exists()) {
@@ -214,6 +222,12 @@ val compileLinux = tasks.create("compileLinux") {
         }
         if (!platformInstallDir.exists()) {
             platformInstallDir.mkdirs()
+        }
+        val endpointArgs = if (usePrebuiltEndpoint) {
+            " -DPRIVMX_USE_PREBUILT=ON" +
+                    " -DPRIVMX_PREBUILT_DIR=\"${prebuildEndpointDir.file("$os/$privmxEndpointJavaVersion/$arch").asFile.absolutePath}\""
+        } else {
+            " -DCMAKE_TOOLCHAIN_FILE=\"${layout.buildDirectory.asFile.get().absolutePath}/conan/build/linux-$conanArch/${buildType.name}/generators/conan_toolchain.cmake\""
         }
         exec {
             workingDir = layout.projectDirectory.asFile
@@ -225,10 +239,9 @@ val compileLinux = tasks.create("compileLinux") {
                         " -DCMAKE_CXX_FLAGS=-std=c++17" +
                         " -DJAVA_HOME=\"${Jvm.current().javaHome.absolutePath}\"" +
                         " -DCMAKE_INSTALL_PREFIX=\"${platformInstallDir.absolutePath}\"" +
-                        " -DCMAKE_TOOLCHAIN_FILE=\"${layout.buildDirectory.asFile.get().absolutePath}/conan/build/linux-$conanArch/${buildType.name}/generators/conan_toolchain.cmake\""
+                        endpointArgs
             )
         }
-
         exec {
             workingDir = platformCompileDir
             commandLine("sh", "-c", "cmake --build .")
@@ -244,6 +257,40 @@ val compileLinux = tasks.create("compileLinux") {
         }
 
         fileTree(platformInstallDir) { include("**/*.so") }.forEach { soFile ->
+            exec {
+                commandLine("patchelf", "--set-rpath", "\$ORIGIN", soFile.absolutePath)
+            }
+        }
+    }
+}
+
+tasks.create("buildLinuxFromSources") {
+    group = "privmx native"
+    dependsOn("clonePrivmxSources")
+//    onlyIf { !layout.buildDirectory.get().dir("endpoint-prebuild/install/Darwin/$privmxEndpointJavaVersion/arm64").asFile.exists() }
+    doFirst {
+        val conanArch = "x86_64"
+        val arch = "x86_64"
+        val clonedEndpointDir = layout.buildDirectory.dir("privmx-endpoint").get().asFile
+        val profile = layout.projectDirectory.file("conan/profiles/linux-x86_64").asFile
+        val INSTALL_DIR =
+            layout.buildDirectory.get().dir("endpoint-prebuild/install/Linux/$privmxEndpointJavaVersion/$arch").asFile
+        val COMPILED_DIR =
+            layout.buildDirectory.get().dir("endpoint-prebuild/compile/Linux/$privmxEndpointJavaVersion/$arch").asFile
+        conanInstall(
+            clonedEndpointDir,
+            profile,
+            "../conan",
+            "../endpoint-prebuild/install/Linux/$privmxEndpointJavaVersion/$arch",
+            additionalParams = listOf(" -s arch=${conanArch}"),
+        )
+        buildFromSources(
+            INSTALL_DIR,
+            COMPILED_DIR,
+            "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/linux-$conanArch/${buildType.name}/generators/conan_toolchain.cmake",
+        )
+        copyFilesFromDeploy(INSTALL_DIR,".so")
+        fileTree(INSTALL_DIR) { include("**/*.so") }.forEach { soFile ->
             exec {
                 commandLine("patchelf", "--set-rpath", "\$ORIGIN", soFile.absolutePath)
             }
@@ -618,7 +665,7 @@ tasks.register("clonePrivmxSources") {
             workingDir = buildDirFile
             commandLine(
                 "sh", "-c",
-                "git clone --depth 1 -b v$nativeEndpointVersion https://github.com/simplito/privmx-endpoint.git"
+                "git clone --depth 1 -b $nativeEndpointVersion https://github.com/simplito/privmx-endpoint.git"
             )
         }
         val conanfile = File(repoDir, "conanfile.txt")
@@ -725,9 +772,9 @@ private fun Project.copyFilesFromDeploy(
         } else {
             include(
                 "**/libPoco*$extension",
-                "**/libcrypto*$extension",
+                "**/libcrypto*$extension*",
                 "**/libPson*$extension",
-                "**/libssl*$extension",
+                "**/libssl*$extension*",
                 "**/libprivmx*$extension"
             )
         }
