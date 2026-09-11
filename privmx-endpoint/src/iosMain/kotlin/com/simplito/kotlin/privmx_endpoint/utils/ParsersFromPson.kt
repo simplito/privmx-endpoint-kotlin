@@ -17,20 +17,25 @@ import com.simplito.kotlin.privmx_endpoint.model.CollectionItemChange
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.Context
+import com.simplito.kotlin.privmx_endpoint.model.Document
 import com.simplito.kotlin.privmx_endpoint.model.Event
 import com.simplito.kotlin.privmx_endpoint.model.File
 import com.simplito.kotlin.privmx_endpoint.model.FileChange
 import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
 import com.simplito.kotlin.privmx_endpoint.model.Inbox
+import com.simplito.kotlin.privmx_endpoint.model.IndexMode
 import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
 import com.simplito.kotlin.privmx_endpoint.model.InboxPublicView
 import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
 import com.simplito.kotlin.privmx_endpoint.model.Kvdb
 import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
+import com.simplito.kotlin.privmx_endpoint.model.LockLevel
+import com.simplito.kotlin.privmx_endpoint.model.LockOperationResult
 import com.simplito.kotlin.privmx_endpoint.model.Message
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.ServerFileInfo
 import com.simplito.kotlin.privmx_endpoint.model.ServerKvdbEntryInfo
+import com.simplito.kotlin.privmx_endpoint.model.SearchIndex
 import com.simplito.kotlin.privmx_endpoint.model.ServerMessageInfo
 import com.simplito.kotlin.privmx_endpoint.model.Store
 import com.simplito.kotlin.privmx_endpoint.model.Thread
@@ -188,7 +193,7 @@ internal fun PsonObject.toContainerPolicyWithoutItem(): ContainerPolicyWithoutIt
     ContainerPolicyWithoutItem(
         this["get"]?.typedValue(),
         this["update"]?.typedValue(),
-        this["delete_"]?.typedValue(),
+        this["delete"]?.typedValue(),
         this["updatePolicy"]?.typedValue(),
         this["updaterCanBeRemovedFromManagers"]?.typedValue(),
         this["ownerCanBeRemovedFromManagers"]?.typedValue()
@@ -277,7 +282,7 @@ internal fun PsonObject.toEvent(): Event<*> = Event(
     this["channel"]!!.typedValue(),
     this["connectionId"]?.typedValue(),
     this["subscriptions"]!!.typedList().map { it.typedValue() },
-    this["timestamp"]!!.typedValue(),
+    this["timestamp"]?.typedValue(),
     (this["data"] as PsonObject?)?.let {
         EventDataMappers[it.type]?.invoke(it)
     } ?: Unit
@@ -437,6 +442,7 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "kvdb\$KvdbEntry" to PsonObject::toKvdbEntry,
     "kvdb\$KvdbDeletedEntryEventData" to PsonObject::toKvdbDeletedEntryEventData,
     "stream\$StreamRoom" to PsonObject::toStreamRoom,
+    "stream\$StreamRoomCreatedEvent" to PsonObject::toStreamRoom,
     "stream\$StreamRoomDeletedEventData" to PsonObject::toStreamRoomDeletedEventData,
     "stream\$StreamPublishedEventData" to PsonObject::toStreamPublishedEventData,
     "stream\$StreamUpdatedEventData" to PsonObject::toStreamUpdatedEventData,
@@ -504,6 +510,39 @@ internal fun PsonObject.toServerKvdbEntryInfo(): ServerKvdbEntryInfo = ServerKvd
     this["author"]!!.typedValue()
 )
 
+internal fun PsonObject.toSearchIndex(): SearchIndex = SearchIndex(
+    this["contextId"]!!.typedValue(),
+    this["indexId"]!!.typedValue(),
+    this["createDate"]?.typedValue(),
+    this["creator"]!!.typedValue(),
+    this["lastModificationDate"]?.typedValue(),
+    this["lastModifier"]!!.typedValue(),
+    this["users"]!!.typedList().map { it.typedValue() },
+    this["managers"]!!.typedList().map { it.typedValue() },
+    this["version"]?.typedValue(),
+    this["publicMeta"]!!.typedValue(),
+    this["privateMeta"]!!.typedValue(),
+    (this["policy"] as PsonObject?)?.toContainerPolicy(),
+    this["mode"]?.typedValue<Long>()?.toIndexMode(),
+    this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue(),
+)
+
+internal fun PsonObject.toDocument(): Document = Document(
+    this["documentId"]!!.typedValue(),
+    this["name"]!!.typedValue(),
+    this["content"]!!.typedValue(),
+)
+
+internal fun PsonObject.toLockOperationResult(): LockOperationResult = LockOperationResult(
+    this["success"]!!.typedValue(),
+    this["currentLevel"]?.typedValue<Long>()?.toLockLevel(),
+)
+
+private fun Long.toIndexMode(): IndexMode? = IndexMode.entries.getOrNull(toInt())
+
+private fun Long.toLockLevel(): LockLevel? = LockLevel.entries.getOrNull(toInt())
+
 @Throws(ClassCastException::class)
 internal inline fun <reified T : Any> PsonObject.toMap(): Map<String,T> {
     return mapOf(*(getValue().map { it.key to it.value.typedValue<T>() }.toTypedArray()))
@@ -520,27 +559,27 @@ internal inline fun <reified T : Any> PsonValue<Any>.typedValue(): T {
 internal fun PsonValue<Any>.typedList() = getValue() as List<PsonValue<Any>>
 
 internal fun PsonObject.toTurnCredentials(): TurnCredentials = TurnCredentials(
-    this["urls"]!!.typedValue(),
+    this["url"]!!.typedValue(),
     this["username"]!!.typedValue(),
     this["password"]!!.typedValue(),
-    this["expirationTime"]!!.typedValue()
+    this["expirationTime"]?.typedValue()
 )
 
 internal fun PsonObject.toStreamRoom(): StreamRoom = StreamRoom(
     this["contextId"]!!.typedValue(),
     this["streamRoomId"]!!.typedValue(),
-    this["createDate"]!!.typedValue(),
+    this["createDate"]?.typedValue(),
     this["creator"]!!.typedValue(),
-    this["lastModificationDate"]!!.typedValue(),
+    this["lastModificationDate"]?.typedValue(),
     this["lastModifier"]!!.typedValue(),
     this["users"]!!.typedList().map { it.typedValue() },
     this["managers"]!!.typedList().map { it.typedValue() },
-    this["version"]!!.typedValue(),
+    this["version"]?.typedValue(),
     this["publicMeta"]!!.typedValue(),
     this["privateMeta"]!!.typedValue(),
     (this["policy"] as PsonObject).toContainerPolicyWithoutItem(),
-    this["statusCode"]!!.typedValue(),
-    this["schemaVersion"]!!.typedValue(),
+    this["statusCode"]?.typedValue(),
+    this["schemaVersion"]?.typedValue(),
     this["state"]!!.typedValue(),       // "created" | "open" | "closed"
     this["emptyRoomTtl"]?.typedValue(),
 )
@@ -575,25 +614,27 @@ internal fun PsonObject.toDataChannelMessage(): DataChannelMessage = DataChannel
     this["seq"]!!.typedValue()
 )
 
-internal fun PsonObject.toStreamTrackModificationPair(): StreamTrackModificationPair = StreamTrackModificationPair(
-    (this["before"] as PsonObject).toStreamTrackInfo(),
-    (this["after"] as PsonObject).toStreamTrackInfo(),
-)
+internal fun PsonObject.toStreamTrackModificationPair(): StreamTrackModificationPair =
+    StreamTrackModificationPair(
+        (this["before"] as? PsonObject)?.toStreamTrackInfo(),
+        (this["after"] as? PsonObject)?.toStreamTrackInfo(),
+    )
 
 internal fun PsonObject.toStreamSubscription(): StreamSubscription = StreamSubscription(
-    this["streamId"]!!.typedValue(),
+    this["streamId"]?.typedValue(),
     this["streamTrackId"]?.typedValue()
 )
 
 internal fun PsonObject.toStreamSubscriber(): StreamSubscriber = StreamSubscriber(
     this["userId"]!!.typedValue(),
     this["subscriptions"]!!.typedList().map { (it as PsonObject).toStreamSubscription() },
-    (this["publishedStream"] as PsonObject).toStreamInfo(),
+    (this["publishedStream"] as? PsonObject)?.toStreamInfo(),
 )
 
 
-internal fun PsonValue.PsonLong.toStreamHandle(): StreamHandle = this.typedValue()
-internal fun PsonValue.PsonLong.toSubscriberStreamHandle(): SubscriberStreamHandle = this.typedValue()
+internal fun PsonValue.PsonLong.toStreamHandle(): StreamHandle = StreamHandle(this.typedValue<Long>())
+
+internal fun PsonValue.PsonLong.toSubscriberStreamHandle(): SubscriberStreamHandle = SubscriberStreamHandle(this.typedValue<Long>())
 
 internal fun PsonObject.toPublishedStream(): PublishedStreamData = PublishedStreamData(
     this["streamRoomId"]!!.typedValue(),
