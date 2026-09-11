@@ -21,6 +21,7 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.*
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.utils.KPSON_NULL
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
 import com.simplito.kotlin.privmx_endpoint.utils.asResponse
 import com.simplito.kotlin.privmx_endpoint.utils.makeArgs
@@ -34,6 +35,7 @@ import com.simplito.kotlin.privmx_endpoint.utils.toStreamPublishResult
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamRoom
 import com.simplito.kotlin.privmx_endpoint.utils.toStreamSubscriber
 import com.simplito.kotlin.privmx_endpoint.utils.toSubscriberStreamHandle
+import com.simplito.kotlin.privmx_endpoint.utils.toTurnCredentials
 import com.simplito.kotlin.privmx_endpoint.utils.typedList
 import com.simplito.kotlin.privmx_endpoint.utils.typedValue
 import kotlinx.cinterop.*
@@ -92,7 +94,10 @@ actual constructor(
         val args = pson_new_array()
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 1, args, pson_result.ptr)
-            pson_result.value?.asResponse?.getResultOrThrow()?.typedValue()!!
+            val psonObject =
+                pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonArray<*>
+            psonObject.getValue().map { (it as PsonValue.PsonObject).toTurnCredentials() }
+
         } finally {
             pson_free_result(pson_result.value)
             pson_free_value(args)
@@ -120,7 +125,8 @@ actual constructor(
         managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        policies: ContainerPolicyWithoutItem?
+        policies: ContainerPolicyWithoutItem?,
+        emptyRoomTtl: Long?
     ): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -129,7 +135,8 @@ actual constructor(
             managers.map { it.pson }.pson,
             publicMeta.pson,
             privateMeta.pson,
-            policies?.pson
+            policies?.pson ?: KPSON_NULL,
+            emptyRoomTtl?.pson ?: KPSON_NULL
         )
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 2, args, pson_result.ptr)
@@ -178,7 +185,7 @@ actual constructor(
             version.pson,
             force.pson,
             forceGenerateNewKey.pson,
-            policies?.pson
+            policies?.pson ?: KPSON_NULL
         )
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 3, args, pson_result.ptr)
@@ -306,19 +313,25 @@ actual constructor(
     }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun listStreamRoomParticipants(streamRoomId: String): List<StreamSubscriber> = memScoped{
-        val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(streamRoomId.pson)
-        try {
-            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 26, args, pson_result.ptr)
-            val psonObject =
-                pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonArray<*>
-            psonObject.getValue().map { (it as PsonValue.PsonObject).toStreamSubscriber() }
-        } finally {
-            pson_free_result(pson_result.value)
-            pson_free_value(args)
+    actual fun listStreamRoomParticipants(streamRoomId: String): List<StreamSubscriber> =
+        memScoped {
+            val pson_result = allocPointerTo<pson_value>()
+            val args = makeArgs(streamRoomId.pson)
+            try {
+                privmx_endpoint_execStreamApiLow(
+                    nativeStreamApiLow.value,
+                    22,
+                    args,
+                    pson_result.ptr
+                )
+                val psonObject =
+                    pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonArray<*>
+                psonObject.getValue().map { (it as PsonValue.PsonObject).toStreamSubscriber() }
+            } finally {
+                pson_free_result(pson_result.value)
+                pson_free_value(args)
+            }
         }
-    }
 
     /**
      * Joins a stream room.
@@ -339,7 +352,7 @@ actual constructor(
             proxyWebrtcList.new(webRtcInterface).proxy.toLong().pson
         )
         try {
-            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 25, args, pson_result.ptr)
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 21, args, pson_result.ptr)
             pson_result.value?.asResponse?.getResultOrThrow()
             Unit
         } finally {
@@ -429,7 +442,7 @@ actual constructor(
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(streamHandle.value!!.pson)
         try {
-            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 22, args, pson_result.ptr)
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 20, args, pson_result.ptr)
             val psonObject = pson_result.value?.asResponse?.getResultOrThrow() as PsonValue.PsonObject
             psonObject.toStreamPublishResult()
         } finally {
@@ -572,7 +585,7 @@ actual constructor(
     }
 
     /**
-     * Accepts offer on reconfigure.
+     * Sets new offer on reconfigure.
      *
      * @param sessionId session ID
      * @param sdp SDP with type
@@ -581,11 +594,11 @@ actual constructor(
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun acceptOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) = memScoped {
+    actual fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(sessionId.pson, sdp.pson)
         try {
-            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 20, args, pson_result.ptr)
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 25, args, pson_result.ptr)
             pson_result.value?.asResponse?.getResultOrThrow()
             Unit
         } finally {
@@ -674,7 +687,7 @@ actual constructor(
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(streamRoomId.pson, plainMessage.pson)
         try {
-            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 28, args, pson_result.ptr)
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 23, args, pson_result.ptr)
             pson_result.value?.asResponse?.getResultOrThrow()?.typedValue()!!
         } finally {
             pson_free_result(pson_result.value)
@@ -682,22 +695,6 @@ actual constructor(
         }
     }
 
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun registerRemoteDataChannel(
-        streamRoomId: String,
-        remoteStreamId: String
-    ) = memScoped {
-        val pson_result = allocPointerTo<pson_value>()
-        val args = makeArgs(streamRoomId.pson, remoteStreamId.pson)
-        try {
-            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 27, args, pson_result.ptr)
-            pson_result.value?.asResponse?.getResultOrThrow()
-            Unit
-        } finally {
-            pson_free_result(pson_result.value)
-            pson_free_value(args)
-        }
-    }
 
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     actual fun decryptDataChannelMessage(
@@ -708,8 +705,9 @@ actual constructor(
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(streamRoomId.pson, remoteStreamId.pson, encryptedData.pson)
         try {
-            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 29, args, pson_result.ptr)
-            val psonObject = pson_result.value?.asResponse?.getResultOrThrow() as? PsonValue.PsonObject
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 24, args, pson_result.ptr)
+            val psonObject =
+                pson_result.value?.asResponse?.getResultOrThrow() as? PsonValue.PsonObject
             psonObject?.toDecryptedDataChannelMessage()!!
         } finally {
             pson_free_result(pson_result.value)
@@ -726,10 +724,7 @@ actual constructor(
         proxyWebrtcList.close()
     }
 
-    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun setNewOfferOnReconfigure(sessionId: Long, sdp: SdpWithTypeModel) {
-        TODO("Not yet implemented") // there is no method code/number
-    }
+
 }
 
 private class ProxyWebrtcList : AutoCloseable {

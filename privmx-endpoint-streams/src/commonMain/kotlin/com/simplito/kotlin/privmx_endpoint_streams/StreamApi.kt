@@ -68,8 +68,8 @@ class StreamApi(
             onTrickle = { sessionId, rtcConfiguration ->
                 this.api.trickle(sessionId, rtcConfiguration)
             },
-            acceptOfferOnReconfigure = { sessionId, sdp ->
-                this.api.acceptOfferOnReconfigure(sessionId, sdp)
+            setNewOfferOnReconfigure = { sessionId, sdp ->
+                this.api.setNewOfferOnReconfigure(sessionId, sdp)
             }
         )
         trackFactory = TrackFactory(pcManager)
@@ -85,6 +85,7 @@ class StreamApi(
      * @param publicMeta  public (unencrypted) metadata
      * @param privateMeta private (encrypted) metadata
      * @param policies    additional container access policies, or `null` to use default settings
+     * @param emptyRoomTtl   // todo
      *
      * @return Created StreamRoom ID
      * @throws IllegalStateException thrown when instance is closed
@@ -102,7 +103,8 @@ class StreamApi(
         managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        policies: ContainerPolicyWithoutItem?
+        policies: ContainerPolicyWithoutItem? = null,
+        emptyRoomTtl: Long? = null
     ): String {
         return api.createStreamRoom(
             contextId,
@@ -110,7 +112,8 @@ class StreamApi(
             managers,
             publicMeta,
             privateMeta,
-            policies
+            policies,
+            emptyRoomTtl
         )
     }
 
@@ -187,9 +190,10 @@ class StreamApi(
         limit: Long,
         sortOrder: String = "desc",
         lastId: String? = null,
+        queryAsJson: String? = null,
         sortBy: String? = null
     ): PagingList<StreamRoom> {
-        return api.listStreamRooms(contextId, skip, limit, sortOrder, lastId, sortBy)
+        return api.listStreamRooms(contextId, skip, limit, sortOrder, lastId, queryAsJson, sortBy)
     }
 
 
@@ -702,7 +706,6 @@ internal class InternalDataChannelMessageCryptoProvider(
     private val streamApiLow: StreamApiLow
 ){
     fun registerDataChannel(streamRoomId: String, remoteStreamId: String){
-        streamApiLow.registerRemoteDataChannel(streamRoomId,remoteStreamId)
     }
 
     fun encryptMessage(streamRoomId: String, message: DataChannelMessage): ByteArray{

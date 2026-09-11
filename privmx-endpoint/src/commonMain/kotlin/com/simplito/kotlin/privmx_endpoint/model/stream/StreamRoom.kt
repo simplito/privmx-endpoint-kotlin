@@ -25,20 +25,20 @@ import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 data class StreamRoom(
     val contextId: String,
     val streamRoomId: String,
-    val createDate: Long?,
+    val createDate: Long,
     val creator: String,
-    val lastModificationDate: Long?,
+    val lastModificationDate: Long,
     val lastModifier: String,
     val users: List<String>,
     val managers: List<String>,
-    val version: Long?,
+    val version: Long,
     val publicMeta: ByteArray,
     val privateMeta: ByteArray,
     val policy: ContainerPolicyWithoutItem,
-    val statusCode: Long?,
-    val schemaVersion: Long?,
+    val statusCode: Long,
+    val schemaVersion: Long,
     val state: String,   // "created" | "open" | "closed",
-    val emptyRoomTtl: Long?
+    val emptyRoomTtl: Long
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -67,12 +67,12 @@ data class StreamRoom(
     }
 
     override fun hashCode(): Int {
-        var result = createDate?.hashCode() ?: 0
-        result = 31 * result + (lastModificationDate?.hashCode() ?: 0)
-        result = 31 * result + (version?.hashCode() ?: 0)
-        result = 31 * result + (statusCode?.hashCode() ?: 0)
-        result = 31 * result + (schemaVersion?.hashCode() ?: 0)
-        result = 31 * result + (emptyRoomTtl?.hashCode() ?: 0)
+        var result = createDate.hashCode()
+        result = 31 * result + lastModificationDate.hashCode()
+        result = 31 * result + version.hashCode()
+        result = 31 * result + statusCode.hashCode()
+        result = 31 * result + schemaVersion.hashCode()
+        result = 31 * result + emptyRoomTtl.hashCode()
         result = 31 * result + contextId.hashCode()
         result = 31 * result + streamRoomId.hashCode()
         result = 31 * result + creator.hashCode()
