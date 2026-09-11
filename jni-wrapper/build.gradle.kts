@@ -1,11 +1,13 @@
 import org.gradle.internal.jvm.Jvm
 import org.gradle.kotlin.dsl.support.zipTo
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.util.Properties
 import kotlin.text.replace
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidKMPLibrary)
+    alias(libs.plugins.android.library)
 }
 
 enum class BuildTypes {
@@ -14,45 +16,62 @@ enum class BuildTypes {
     MinSizeRel
 }
 
-kotlin {
-    android {
-        namespace = "com.simplito.privmx_endpoint_jni"
-        compileSdk = 36
-//        ndkVersion = "29.0.13599879"
-//        defaultConfig {
-//            minSdk = 24
-//            externalNativeBuild {
-//                cmake {
-//                    cppFlags("-std=c++17")
-//                    this.arguments.addAll(
-//                        listOf(
-//                            "-DBUILD_ENDPOINT=ON",
-//                            "-DBUILD_ANDROID_STREAM=ON",
-//                            "-DCMAKE_TOOLCHAIN_FILE=conan_android_toolchain.cmake"
-//                        )
-//                    )
-//                }
-//            }
-//        }
-//
-//        externalNativeBuild {
-//            cmake {
-//                path = file("CMakeLists.txt")
-//                version = "3.22.1"
-//            }
-//        }
-    }
-}
 val localProperties = Properties().apply {
     load(file(rootDir.absolutePath + "/local.properties").inputStream())
 }
+private val privmxEndpointJavaVersion get() = project(":privmx-endpoint").version
 
 val androidArchs = listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
 val darwinArchs = listOf("arm64")
 val nativeEndpointVersion = libs.versions.nativePrivmxEndpoint.get()
 val nativeAdditionalReleaseConanSuffix = ""
 val buildType = BuildTypes.Debug
-private val privmxEndpointJavaVersion get() = project(":privmx-endpoint").version
+
+kotlin {
+    androidTarget()
+}
+
+android {
+    namespace = "com.simplito.privmx_endpoint_jni"
+    compileSdk = 36
+    ndkVersion = "29.0.13599879"
+    defaultConfig {
+        minSdk = 24
+        externalNativeBuild {
+            val usePrebuild = !(buildType == BuildTypes.MinSizeRel || buildType == BuildTypes.Release)
+            val sdkDir = localProperties.getProperty("sdk.dir")
+            val ndkVersion = localProperties.getProperty("ndk.version")
+            val androidNdkPath = "$sdkDir/ndk/$ndkVersion"
+            val prebuildEndpointDir = layout.buildDirectory.dir("endpoint-prebuild/install").get()
+            cmake {
+                cppFlags("-std=c++17")
+                this.arguments.addAll(
+                    buildList {
+                        listOf(
+                            "-DBUILD_ENDPOINT=ON",
+                            "-DBUILD_ANDROID_STREAM=ON",
+                        )
+                        if(usePrebuild) {
+                            add("-DPRIVMX_USE_PREBUILT=ON")
+                            add("-DPREBUILD_VERSION=${libs.versions.publishPrivmxEndpoint.get()}")
+                            add("-DPRIVMX_PREBUILT_DIR=${prebuildEndpointDir.file("Android/${libs.versions.publishPrivmxEndpoint.get()}").asFile.absolutePath}")
+                            add("-DCMAKE_TOOLCHAIN_FILE=$androidNdkPath/build/cmake/android.toolchain.cmake")
+                        }else{
+                            add("-DCMAKE_TOOLCHAIN_FILE=conan_android_toolchain.cmake")
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
+}
 
 object AndroidProfileConfig {
     val Properties.sdkPath: String? get() = this["sdk.dir"] as? String
@@ -94,7 +113,7 @@ val compileAndroid = tasks.create("compileAndroid") {
             }
             val endpointArgs = if (usePrebuiltEndpoint) {
                 " -DPRIVMX_USE_PREBUILT=ON" +
-                        " -DPRIVMX_PREBUILT_DIR=\"${prebuildEndpointDir.file("$os/$privmxEndpointJavaVersion/$ARCH").asFile.absolutePath}\"" +
+                        " -DPRIVMX_PREBUILT_DIR=\"${prebuildEndpointDir.file("$os/$privmxEndpointJavaVersion").asFile.absolutePath}\"" +
                         " -DCMAKE_TOOLCHAIN_FILE=\"$androidNdkPath/build/cmake/android.toolchain.cmake\""
             } else {
                 " -DCMAKE_TOOLCHAIN_FILE=\"conan_android_toolchain.cmake\""
@@ -394,7 +413,7 @@ tasks.register("buildAndroidFromSources") {
                     clonedEndpointDir,
                     profile,
                     "../conan",
-                    "../native/install/Android/$privmxEndpointJavaVersion/$arch",
+                    INSTALL_DIR.absolutePath,
                     additionalParams = listOf(
                         " -s arch=${conanArch}",
                         " -c \"tools.android:ndk_path=$ndkPath\""
@@ -406,7 +425,23 @@ tasks.register("buildAndroidFromSources") {
                     "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/android-$conanArch/${buildType.name}/generators/conan_toolchain.cmake",
                 )
                 copyFilesFromDeploy(INSTALL_DIR,".so")
+                removeLibVersionSuffix(File(INSTALL_DIR,"lib"))
             }
+        }
+    }
+}
+
+tasks.register("removeAndroidLibVersionSuffix") {
+    group = "privmx native"
+    description = "Strips the *.<version> suffix from lib* files produced by the Android from-sources build."
+    doFirst {
+        androidArchs.forEach { arch ->
+            project.removeLibVersionSuffix(
+                layout.buildDirectory.dir("endpoint-prebuild/install/Android/$privmxEndpointJavaVersion/$arch").get().asFile
+            )
+            project.removeLibVersionSuffix(
+                layout.buildDirectory.dir("native/install/Android/$privmxEndpointJavaVersion/$arch").get().asFile
+            )
         }
     }
 }
@@ -755,6 +790,48 @@ private fun Project.conanInstall(
                     " -c \"tools.cmake.cmake_layout:build_folder_vars=['settings.os'${if (additionalSdkFolderVar) ", 'settings.os.sdk'" else ""}, 'settings.arch']\"" +
                     additionalParams.joinToString(" ")
         )
+    }
+}
+
+private val versionedLibNameRegex = Regex("""^(lib.+\.so)(?:\.\d+)+$""")
+
+/**
+ * Android's linker and the APK packager accept `lib*.so` names only, so shared libraries carrying an ELF
+ * version suffix (`libcrypto.so.3`) have to be renamed. Their `SONAME` and the `NEEDED` entries of every
+ * library in [root] that references them are rewritten as well, otherwise the linker keeps looking for the
+ * versioned name at load time.
+ */
+private fun Project.removeLibVersionSuffix(root: File) {
+    if (!root.exists()) return
+    val versionedLibs = root.walkTopDown()
+        .filter { it.isFile && !Files.isSymbolicLink(it.toPath()) && versionedLibNameRegex.matches(it.name) }
+        .toList()
+    if (versionedLibs.isEmpty()) return
+
+    val unversionedNames = versionedLibs.associate { it.name to versionedLibNameRegex.replace(it.name, "$1") }
+    versionedLibs.forEach { lib ->
+        val unversionedLib = File(lib.parentFile, unversionedNames.getValue(lib.name))
+        // drops the `lib*.so -> lib*.so.<version>` symlink conan deploys next to the real file
+        Files.deleteIfExists(unversionedLib.toPath())
+        Files.move(lib.toPath(), unversionedLib.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        logger.lifecycle("Removed version suffix: ${lib.name} -> ${unversionedLib.name}")
+    }
+
+    fileTree(root) { include("**/lib*.so") }.forEach { lib ->
+        exec {
+            commandLine(
+                buildList {
+                    add("patchelf")
+                    unversionedNames.forEach { (versionedName, unversionedName) ->
+                        addAll(listOf("--replace-needed", versionedName, unversionedName))
+                    }
+                    if (lib.name in unversionedNames.values) {
+                        addAll(listOf("--set-soname", lib.name))
+                    }
+                    add(lib.absolutePath)
+                }
+            )
+        }
     }
 }
 
