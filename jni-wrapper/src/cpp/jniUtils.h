@@ -21,6 +21,8 @@ namespace privmx {
         namespace jni {
             inline std::string getPrivmxCallbackThreadName() { return "privmx-callbacks"; }
 
+            inline std::string getWebRTCCallbackThreadName() { return "WebRTCInterfaceJNI - "; }
+
             /**
              * Attach current native thread to JVM if it is not attached.
              *
