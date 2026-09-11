@@ -96,6 +96,10 @@ kotlin {
         }
     }
 
+    compilerOptions {
+        freeCompilerArgs.add("-Xexplicit-backing-fields")
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {

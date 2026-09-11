@@ -85,7 +85,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
         jobject managers,
         jbyteArray public_meta,
         jbyteArray private_meta,
-        jobject policies
+        jobject policies,
+        jobject emptyRoomTtl
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(context_id, "Context ID") ||
@@ -107,7 +108,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
                     &managers,
                     &public_meta,
                     &private_meta,
-                    &policies
+                    &policies,
+                    &emptyRoomTtl
             ]() {
                 std::vector<core::UserWithPubKey> users_c = usersToVector(
                         ctx,
@@ -117,6 +119,12 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
                         ctx.jObject2jArray(managers));
                 auto container_policies_c = std::optional<core::ContainerPolicyWithoutItem>(
                         parseContainerPolicyWithoutItem(ctx, policies));
+
+                std::optional<int64_t> emptyRoomTtl_c = std::nullopt;
+                if (emptyRoomTtl != nullptr) {
+                    emptyRoomTtl_c = ctx.getObject(emptyRoomTtl).getLongValue();
+                }
+
                 return ctx->NewStringUTF(
                         getStreamApi(ctx, thiz)->createStreamRoom(
                                 ctx.jString2string(context_id),
@@ -124,7 +132,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
                                 managers_c,
                                 core::Buffer::from(ctx.jByteArray2String(public_meta)),
                                 core::Buffer::from(ctx.jByteArray2String(private_meta)),
-                                container_policies_c
+                                container_policies_c,
+                                emptyRoomTtl_c
                         ).c_str());
             });
     if (ctx->ExceptionCheck()) {
@@ -203,8 +212,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_listStream
         jlong limit,
         jstring sort_order,
         jstring last_id,
-        jstring sort_by,
-        jstring query_as_json
+        jstring query_as_json,
+        jstring sort_by
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(context_id, "Context ID") ||
@@ -224,8 +233,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_listStream
                     &limit,
                     &sort_order,
                     &last_id,
-                    &sort_by,
-                    &query_as_json
+                    &query_as_json,
+                    &sort_by
             ]() {
                 auto query = core::PagingQuery();
                 query.skip = skip;
@@ -705,7 +714,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createSubs
                         false
                 );
 
-                return getStreamApi(ctx, thiz)->createSubscriberStream(
+                return (jlong)  getStreamApi(ctx, thiz)->createSubscriberStream(
                         ctx.jString2string(stream_room_id),
                         subscriptions_c
                 );
@@ -747,27 +756,6 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_updateStre
         return nullptr;
     }
     return result;
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_acceptOfferOnReconfigure(
-        JNIEnv *env,
-        jobject thiz,
-        jlong session_id,
-        jobject sdp
-) {
-    JniContextUtils ctx(env);
-    if (ctx.nullCheck(sdp, "SDP")) {
-        return;
-    }
-
-    ctx.callVoidEndpointApi([&ctx, &thiz, &session_id, &sdp]() {
-        getStreamApi(ctx, thiz)->acceptOfferOnReconfigure(
-                session_id,
-                parseSdpWithTypeModel(ctx, sdp)
-        );
-    });
 }
 
 extern "C"
@@ -833,28 +821,6 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_encryptDat
         return nullptr;
     }
     return result;
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_registerRemoteDataChannel(
-        JNIEnv *env,
-        jobject thiz,
-        jstring stream_room_id,
-        jstring remote_stream_id
-) {
-    JniContextUtils ctx(env);
-    if (ctx.nullCheck(stream_room_id, "Stream room ID") ||
-            ctx.nullCheck(remote_stream_id, "Remote stream ID")) {
-        return;
-    }
-
-    ctx.callVoidEndpointApi([&ctx, &thiz, &stream_room_id, &remote_stream_id]() {
-        getStreamApi(ctx, thiz)->registerRemoteDataChannel(
-                ctx.jString2string(stream_room_id),
-                ctx.jString2string(remote_stream_id)
-        );
-    });
 }
 
 extern "C"

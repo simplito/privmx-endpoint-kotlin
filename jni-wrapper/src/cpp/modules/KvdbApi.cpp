@@ -12,6 +12,7 @@
 #include "../utils.hpp"
 #include "../parser.h"
 #include "Connection.h"
+#include "KvdbApi.h"
 #include <privmx/endpoint/kvdb/KvdbApi.hpp>
 #include <jni.h>
 #include "../model_native_initializers.h"

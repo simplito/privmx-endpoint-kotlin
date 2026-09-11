@@ -13,7 +13,10 @@ import com.simplito.kotlin.privmx_endpoint_streams.webrtc.disposeConnection
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.getStats
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.peerConnectionState
 import kotlinx.coroutines.sync.Mutex
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
+@OptIn(ExperimentalAtomicApi::class)
 internal open class JanusConnection(
     protected val peerConnectionFactory: PeerConnectionFactory,
     protected val keyStore: KeyStore,
@@ -25,6 +28,8 @@ internal open class JanusConnection(
 ) : AutoCloseable {
 
     var sessionId: Long = -1L
+    private val closed = AtomicBoolean(false)
+
     protected val pcObserver: PcObserver = PcObserver(
         peerConnectionFactory = peerConnectionFactory,
         keyStore = keyStore,
@@ -39,13 +44,14 @@ internal open class JanusConnection(
         onIceConnectionChangeCallback = onConnectionChange
     )
 
-    protected val peerConnection: PeerConnection =
+    private val _peerConnection: PeerConnection =
         peerConnectionFactory.createPeerConnection(pcObserver)
+    protected val peerConnection: PeerConnection get() = if (isClosed) error("Janus connection is closed. Cannot get access to PeerConnection.") else _peerConnection
 
     protected val configurationMutex = Mutex()
 
-    val connectionState: PeerConnectionState
-        get() = peerConnection.peerConnectionState
+    val isClosed: Boolean get() = closed.load()
+    val connectionState: PeerConnectionState get() = if (isClosed) PeerConnectionState.CLOSED else _peerConnection.peerConnectionState
 
     val isEnded: Boolean
         get() = connectionState in setOf(
@@ -67,9 +73,9 @@ internal open class JanusConnection(
     suspend fun getStats() = peerConnection.getStats()
 
     override fun close() {
-        if (connectionState != PeerConnectionState.CLOSED) {
-            peerConnection.disposeConnection()
-            pcObserver.dispose()
-        }
+        if (!closed.compareAndSet(expectedValue = false, newValue = true)) return
+
+        _peerConnection.disposeConnection()
+        pcObserver.dispose()
     }
 }
