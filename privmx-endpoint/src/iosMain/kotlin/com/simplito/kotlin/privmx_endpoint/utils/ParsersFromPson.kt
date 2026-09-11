@@ -17,10 +17,15 @@ import com.simplito.kotlin.privmx_endpoint.model.CollectionItemChange
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.Context
+import com.simplito.kotlin.privmx_endpoint.model.DecryptedEnvelope
+import com.simplito.kotlin.privmx_endpoint.model.DecryptedFileInfo
+import com.simplito.kotlin.privmx_endpoint.model.EnvelopeType
 import com.simplito.kotlin.privmx_endpoint.model.Event
 import com.simplito.kotlin.privmx_endpoint.model.File
 import com.simplito.kotlin.privmx_endpoint.model.FileChange
 import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
+import com.simplito.kotlin.privmx_endpoint.model.Group
+import com.simplito.kotlin.privmx_endpoint.model.GroupSummary
 import com.simplito.kotlin.privmx_endpoint.model.Inbox
 import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
 import com.simplito.kotlin.privmx_endpoint.model.InboxPublicView
@@ -43,6 +48,9 @@ import com.simplito.kotlin.privmx_endpoint.model.events.CollectionChangedEventDa
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextCustomEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextUserEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.ContextUsersStatusChangedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.GroupChangedEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.GroupCustomEventData
+import com.simplito.kotlin.privmx_endpoint.model.events.GroupDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.InboxEntryDeletedEventData
 import com.simplito.kotlin.privmx_endpoint.model.events.KvdbDeletedEntryEventData
@@ -355,6 +363,30 @@ internal fun PsonObject.toContextUsersStatusChangedEventData() = ContextUsersSta
     this["users"]!!.typedList().map { (it as PsonObject).toUserWithAction() }
 )
 
+internal fun PsonObject.toGroupChangedEventData() = GroupChangedEventData(
+    this["groupId"]!!.typedValue(),
+    this["contextId"]!!.typedValue(),
+    this["publicMetaVersion"]!!.typedValue(),
+    this["privateMetaVersion"]!!.typedValue(),
+    this["rosterVersion"]!!.typedValue(),
+    this["keyVersion"]!!.typedValue(),
+    this["changeKind"]!!.typedValue()
+)
+
+internal fun PsonObject.toGroupDeletedEventData() = GroupDeletedEventData(
+    this["groupId"]!!.typedValue(),
+    this["contextId"]!!.typedValue()
+)
+
+internal fun PsonObject.toGroupCustomEventData() = GroupCustomEventData(
+    this["groupId"]!!.typedValue(),
+    this["channelName"]!!.typedValue(),
+    this["userId"]!!.typedValue(),
+    this["authorPubKey"]!!.typedValue(),
+    this["payload"]!!.typedValue(),
+    this["statusCode"]!!.typedValue()
+)
+
 internal fun PsonObject.toKvdbDeletedEventData() = KvdbDeletedEventData(
     this["kvdbId"]!!.typedValue()
 )
@@ -436,6 +468,9 @@ private val EventDataMappers: Map<String, PsonObject.() -> Any> = mapOf(
     "kvdb\$KvdbStatsEventData" to PsonObject::toKvdbStatsEventData,
     "kvdb\$KvdbEntry" to PsonObject::toKvdbEntry,
     "kvdb\$KvdbDeletedEntryEventData" to PsonObject::toKvdbDeletedEntryEventData,
+    "group\$GroupChangedEventData" to PsonObject::toGroupChangedEventData,
+    "group\$GroupDeletedEventData" to PsonObject::toGroupDeletedEventData,
+    "group\$GroupCustomEventData" to PsonObject::toGroupCustomEventData,
     "stream\$StreamRoom" to PsonObject::toStreamRoom,
     "stream\$StreamRoomDeletedEventData" to PsonObject::toStreamRoomDeletedEventData,
     "stream\$StreamPublishedEventData" to PsonObject::toStreamPublishedEventData,
@@ -610,4 +645,65 @@ internal fun PsonObject.toStreamPublishResult(): StreamPublishResult = StreamPub
 internal fun PsonObject.toRecordingEncKey(): RecordingEncKey = RecordingEncKey(
     this["keyId"]!!.typedValue(),
     this["key"]!!.typedValue()
+)
+
+internal fun PsonObject.toGroup(): Group = Group(
+    this["contextId"]!!.typedValue(),
+    this["groupId"]!!.typedValue(),
+    this["groupPubKey"]!!.typedValue(),
+    this["createDate"]!!.typedValue(),
+    this["creator"]!!.typedValue(),
+    this["lastModificationDate"]!!.typedValue(),
+    this["lastModifier"]!!.typedValue(),
+    this["users"]!!.typedList().map { it.typedValue() },
+    this["managers"]!!.typedList().map { it.typedValue() },
+    this["publicMetaVersion"]!!.typedValue(),
+    this["privateMetaVersion"]!!.typedValue(),
+    this["rosterVersion"]!!.typedValue(),
+    this["publicMeta"]!!.typedValue(),
+    this["privateMeta"]!!.typedValue(),
+    (this["policy"] as PsonObject).toContainerPolicy(),
+    this["statusCode"]!!.typedValue(),
+    this["schemaVersion"]!!.typedValue(),
+    this["keyVersion"]!!.typedValue(),
+    this["type"]?.typedValue()
+)
+
+internal fun PsonObject.toGroupSummary(): GroupSummary = GroupSummary(
+    this["contextId"]!!.typedValue(),
+    this["groupId"]!!.typedValue(),
+    this["groupPubKey"]!!.typedValue(),
+    this["createDate"]!!.typedValue(),
+    this["creator"]!!.typedValue(),
+    this["lastModificationDate"]!!.typedValue(),
+    this["lastModifier"]!!.typedValue(),
+    this["users"]!!.typedList().map { it.typedValue() },
+    this["managers"]!!.typedList().map { it.typedValue() },
+    this["publicMetaVersion"]!!.typedValue(),
+    this["privateMetaVersion"]!!.typedValue(),
+    this["rosterVersion"]!!.typedValue(),
+    (this["policy"] as PsonObject).toContainerPolicy(),
+    this["keyVersion"]!!.typedValue(),
+    this["type"]?.typedValue()
+)
+
+internal fun PsonValue<Any>.toEnvelopeType(): EnvelopeType =
+    when (val type = typedValue<Long>()) {
+        1L -> EnvelopeType.ENVELOPE_FROM_MEMBER
+        2L -> EnvelopeType.ENVELOPE_ANONYMOUS
+        else -> throw IllegalStateException("Unknown EnvelopeType: $type")
+    }
+
+internal fun PsonObject.toDecryptedEnvelope(): DecryptedEnvelope = DecryptedEnvelope(
+    this["data"]!!.typedValue(),
+    this["groupId"]!!.typedValue(),
+    this["authorPubKey"]!!.typedValue(),
+    this["type"]!!.toEnvelopeType()
+)
+
+internal fun PsonObject.toDecryptedFileInfo(): DecryptedFileInfo = DecryptedFileInfo(
+    this["groupId"]!!.typedValue(),
+    this["authorPubKey"]!!.typedValue(),
+    this["type"]!!.toEnvelopeType(),
+    this["complete"]!!.typedValue()
 )
