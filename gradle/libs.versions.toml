@@ -1,6 +1,6 @@
 [versions]
 publishPrivmxEndpoint = "2.8.0"
-nativePrivmxEndpoint = "2.8.0"
+nativePrivmxEndpoint = "feat/group-api"
 pson = "1.0.7"
 apple-endpoint-frameworks="2.7.3"
 webrtc="125.0.0"

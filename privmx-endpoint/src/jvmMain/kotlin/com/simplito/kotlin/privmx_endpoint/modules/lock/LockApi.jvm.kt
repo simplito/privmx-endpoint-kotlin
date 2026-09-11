@@ -32,6 +32,8 @@ actual constructor(connection: Connection) : AutoCloseable {
         }
     }
 
+    private val api: Long?
+
     /**
      * Creates an instance of `LockApi`.
      *
@@ -39,8 +41,14 @@ actual constructor(connection: Connection) : AutoCloseable {
      * @throws IllegalStateException when given [Connection] is not connected
      */
     init {
-        // TODO(Not implemented yet)
+        this.api = init(connection)
     }
+
+    @Throws(IllegalStateException::class)
+    private external fun init(connection: Connection): Long?
+
+    @Throws(IllegalStateException::class)
+    private external fun deinit()
 
     /**
      * Attempts to acquire a lock on a resource at the requested level.
@@ -58,7 +66,18 @@ actual constructor(connection: Connection) : AutoCloseable {
         resourceId: String,
         uuid: String,
         lockLevel: LockLevel
-    ): LockOperationResult = TODO("Not implemented yet")
+    ): LockOperationResult = lock(
+        resourceId,
+        uuid,
+        lockLevel.ordinal.toLong()
+    )
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    private external fun lock(
+        resourceId: String,
+        uuid: String,
+        lockLevel: Long
+    ): LockOperationResult
 
     /**
      * Releases or downgrades a lock held on a resource.
@@ -76,7 +95,18 @@ actual constructor(connection: Connection) : AutoCloseable {
         resourceId: String,
         uuid: String,
         lockLevel: LockLevel
-    ): LockOperationResult = TODO("Not implemented yet")
+    ): LockOperationResult = unlock(
+        resourceId,
+        uuid,
+        lockLevel.ordinal.toLong()
+    )
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    private external fun unlock(
+        resourceId: String,
+        uuid: String,
+        lockLevel: Long
+    ): LockOperationResult
 
     /**
      * Checks whether any connection (including the caller) holds a [LockLevel.RESERVED] or higher lock on the resource.
@@ -89,10 +119,10 @@ actual constructor(connection: Connection) : AutoCloseable {
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun checkReservedLock(
+    actual external fun checkReservedLock(
         resourceId: String,
         uuid: String
-    ): Boolean = TODO("Not implemented yet")
+    ): Boolean
 
     /**
      * Frees memory.
@@ -100,6 +130,6 @@ actual constructor(connection: Connection) : AutoCloseable {
      * @throws Exception when instance is currently closed.
      */
     actual override fun close() {
-        // TODO(Not implemented yet)
+        deinit()
     }
 }

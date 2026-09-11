@@ -44,6 +44,8 @@ actual constructor(
         }
     }
 
+    private val api: Long?
+
     /**
      * Creates an instance of `SearchApi`.
      *
@@ -54,8 +56,19 @@ actual constructor(
      * @throws IllegalStateException when one of the passed parameters is closed
      */
     init {
-        // TODO(Not implemented yet)
+        this.api = init(connection, storeApi, kvdbApi, lockApi)
     }
+
+    @Throws(IllegalStateException::class)
+    private external fun init(
+        connection: Connection,
+        storeApi: StoreApi,
+        kvdbApi: KvdbApi,
+        lockApi: LockApi
+    ): Long?
+
+    @Throws(IllegalStateException::class)
+    private external fun deinit()
 
     /**
      * Creates a new Search Index in a given Context.
@@ -82,7 +95,26 @@ actual constructor(
         privateMeta: ByteArray,
         mode: IndexMode,
         policies: ContainerPolicy?
-    ): String = TODO("Not implemented yet")
+    ): String = createSearchIndex(
+        contextId,
+        users,
+        managers,
+        publicMeta,
+        privateMeta,
+        mode.ordinal.toLong(),
+        policies
+    )
+
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    private external fun createSearchIndex(
+        contextId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
+        mode: Long,
+        policies: ContainerPolicy?
+    ): String
 
     /**
      * Updates an existing Search Index.
@@ -102,7 +134,7 @@ actual constructor(
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     @JvmOverloads
-    actual fun updateSearchIndex(
+    actual external fun updateSearchIndex(
         indexId: String,
         users: List<UserWithPubKey>,
         managers: List<UserWithPubKey>,
@@ -112,7 +144,7 @@ actual constructor(
         force: Boolean,
         forceGenerateNewKey: Boolean,
         policies: ContainerPolicy?
-    ): Unit = TODO("Not implemented yet")
+    )
 
     /**
      * Deletes a Search Index by given Search Index ID.
@@ -123,7 +155,7 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun deleteSearchIndex(indexId: String): Unit = TODO("Not implemented yet")
+    actual external fun deleteSearchIndex(indexId: String)
 
     /**
      * Gets a Search Index by given Search Index ID.
@@ -135,7 +167,7 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun getSearchIndex(indexId: String): SearchIndex = TODO("Not implemented yet")
+    actual external fun getSearchIndex(indexId: String): SearchIndex
 
     /**
      * Gets a list of Search Indexes in given Context.
@@ -154,7 +186,7 @@ actual constructor(
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     @JvmOverloads
-    actual fun listSearchIndexes(
+    actual external fun listSearchIndexes(
         contextId: String,
         skip: Long,
         limit: Long,
@@ -162,7 +194,7 @@ actual constructor(
         lastId: String?,
         queryAsJson: String?,
         sortBy: String?
-    ): PagingList<SearchIndex> = TODO("Not implemented yet")
+    ): PagingList<SearchIndex>
 
     /**
      * Opens a Search Index for use and returns a handle.
@@ -174,7 +206,7 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun openSearchIndex(indexId: String): Long = TODO("Not implemented yet")
+    actual external fun openSearchIndex(indexId: String): Long
 
     /**
      * Closes the Search Index associated with the given handle.
@@ -185,7 +217,7 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun closeSearchIndex(indexHandle: Long): Unit = TODO("Not implemented yet")
+    actual external fun closeSearchIndex(indexHandle: Long)
 
     /**
      * Begins a SQLite transaction on the Search Index.
@@ -196,7 +228,7 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun beginTransaction(indexHandle: Long): Unit = TODO("Not implemented yet")
+    actual external fun beginTransaction(indexHandle: Long)
 
     /**
      * Commits the active transaction on the Search Index.
@@ -207,7 +239,7 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun commit(indexHandle: Long): Unit = TODO("Not implemented yet")
+    actual external fun commit(indexHandle: Long)
 
     /**
      * Rolls back the active transaction on the Search Index.
@@ -218,7 +250,7 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun rollback(indexHandle: Long): Unit = TODO("Not implemented yet")
+    actual external fun rollback(indexHandle: Long)
 
     /**
      * Adds a new document to the Search Index.
@@ -232,11 +264,11 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun addDocument(
+    actual external fun addDocument(
         indexHandle: Long,
         name: String,
         content: String
-    ): Long = TODO("Not implemented yet")
+    ): Long
 
     /**
      * Updates an existing document in the Search Index.
@@ -248,10 +280,10 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun updateDocument(
+    actual external fun updateDocument(
         indexHandle: Long,
         document: Document
-    ): Unit = TODO("Not implemented yet")
+    )
 
     /**
      * Deletes a document by given document ID from the Search Index.
@@ -263,10 +295,10 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun deleteDocument(
+    actual external fun deleteDocument(
         indexHandle: Long,
         documentId: Long
-    ): Unit = TODO("Not implemented yet")
+    )
 
     /**
      * Gets a document by given document ID from the Search Index.
@@ -279,10 +311,10 @@ actual constructor(
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun getDocument(
+    actual external fun getDocument(
         indexHandle: Long,
         documentId: Long
-    ): Document = TODO("Not implemented yet")
+    ): Document
 
     /**
      * Gets a list of documents (e.g. messages, threads or custom documents) from a Search Index.
@@ -301,7 +333,7 @@ actual constructor(
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     @JvmOverloads
-    actual fun listDocuments(
+    actual external fun listDocuments(
         indexHandle: Long,
         skip: Long,
         limit: Long,
@@ -309,7 +341,7 @@ actual constructor(
         lastId: String?,
         queryAsJson: String?,
         sortBy: String?
-    ): PagingList<Document> = TODO("Not implemented yet")
+    ): PagingList<Document>
 
     /**
      * Searches for documents in the Search Index.
@@ -329,7 +361,7 @@ actual constructor(
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
     @JvmOverloads
-    actual fun searchDocuments(
+    actual external fun searchDocuments(
         indexHandle: Long,
         searchQuery: String,
         skip: Long,
@@ -338,7 +370,7 @@ actual constructor(
         lastId: String?,
         queryAsJson: String?,
         sortBy: String?
-    ): PagingList<Document> = TODO("Not implemented yet")
+    ): PagingList<Document>
 
     /**
      * Frees memory.
@@ -346,6 +378,6 @@ actual constructor(
      * @throws Exception when instance is currently closed.
      */
     actual override fun close() {
-        // TODO(Not implemented yet)
+        deinit()
     }
 }
