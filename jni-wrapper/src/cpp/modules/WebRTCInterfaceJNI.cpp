@@ -7,33 +7,6 @@
 #include "../utils.hpp"
 #include "../model_native_initializers.h"
 
-#include <thread>
-
-JNIEnv *WebRTCInterfaceJNI::AttachCurrentThreadIfNeeded() {
-    JNIEnv *jni = nullptr;
-    jint status = javaVM->GetEnv((void **) &jni, JNI_VERSION_1_6);
-    //return if current thread is attached
-    if (jni != nullptr && status == JNI_OK) return jni;
-
-    std::string name(
-            "WebRTCInterfaceJNI - " + std::to_string(
-                    std::hash<std::thread::id>{}(std::this_thread::get_id())));
-    JavaVMAttachArgs args;
-    args.version = JNI_VERSION_1_6;
-    args.name = &name[0];
-    args.group = nullptr;
-#ifdef _JAVASOFT_JNI_H_  // Oracle's jni.h violates the JNI spec!
-    void* env = nullptr;
-#else
-    JNIEnv *env = nullptr;
-#endif
-    //TODO: Attached thread should be also detached
-    if (javaVM->AttachCurrentThread(&env, &args) == JNI_OK) {
-        return reinterpret_cast<JNIEnv *>(env);
-    }
-    return nullptr;
-}
-
 WebRTCInterfaceJNI::WebRTCInterfaceJNI(JNIEnv *env, jobject jwebRTCInterface) {
     jclass jwebRTCInterfaceClass = env->FindClass(
             "com/simplito/kotlin/privmx_endpoint/modules/stream/WebRTCInterface");
@@ -53,7 +26,9 @@ std::string WebRTCInterfaceJNI::createOfferAndSetLocalDescription(
         const std::string &streamRoomId,
         const std::string &connectionType
 ) {
-    JNIEnv *env = AttachCurrentThreadIfNeeded();
+    JNIEnv *env = privmx::wrapper::jni::AttachCurrentThreadIfNeeded(
+            javaVM,
+            privmx::wrapper::jni::getWebRTCCallbackThreadName());
     JniContextUtils ctx(env);
 //    env->ThrowNew(
 //            env->FindClass("java/lang/NullPointerException"),
@@ -94,7 +69,9 @@ std::string WebRTCInterfaceJNI::createAnswerAndSetDescriptions(
         const std::string &type,
         const std::string &connectionType
 ) {
-    JNIEnv *env = AttachCurrentThreadIfNeeded();
+    JNIEnv *env = privmx::wrapper::jni::AttachCurrentThreadIfNeeded(
+            javaVM,
+            privmx::wrapper::jni::getWebRTCCallbackThreadName());
     JniContextUtils ctx(env);
     jclass jwebRTCInterfaceClass = env->GetObjectClass(jwebRTCInterface);
     jmethodID jmethodId = env->GetMethodID(
@@ -131,7 +108,9 @@ void WebRTCInterfaceJNI::setAnswerAndSetRemoteDescription(
         const std::string &type,
         const std::string &connectionType
 ) {
-    JNIEnv *env = AttachCurrentThreadIfNeeded();
+    JNIEnv *env = privmx::wrapper::jni::AttachCurrentThreadIfNeeded(
+            javaVM,
+            privmx::wrapper::jni::getWebRTCCallbackThreadName());
     JniContextUtils ctx(env);
 //    env->ThrowNew(
 //            env->FindClass("java/lang/NullPointerException"),
@@ -165,7 +144,9 @@ void WebRTCInterfaceJNI::updateSessionId(
         const int64_t sessionId,
         const std::string &connectionType
 ) {
-    JNIEnv *env = AttachCurrentThreadIfNeeded();
+    JNIEnv *env = privmx::wrapper::jni::AttachCurrentThreadIfNeeded(
+            javaVM,
+            privmx::wrapper::jni::getWebRTCCallbackThreadName());
     JniContextUtils ctx(env);
     jclass jwebRTCInterfaceClass = env->GetObjectClass(jwebRTCInterface);
     jmethodID jmethodId = env->GetMethodID(
@@ -190,7 +171,9 @@ void WebRTCInterfaceJNI::close(
         const std::string &streamRoomId,
         const std::string& connectionType
         ) {
-    JNIEnv *env = AttachCurrentThreadIfNeeded();
+    JNIEnv *env = privmx::wrapper::jni::AttachCurrentThreadIfNeeded(
+            javaVM,
+            privmx::wrapper::jni::getWebRTCCallbackThreadName());
     jclass jwebRTCInterfaceClass = env->GetObjectClass(jwebRTCInterface);
     jmethodID jmethodId = env->GetMethodID(
             jwebRTCInterfaceClass,
@@ -209,7 +192,9 @@ void WebRTCInterfaceJNI::close(
 }
 
 void WebRTCInterfaceJNI::closeAll(const std::string &streamRoomId) {
-    JNIEnv *env = AttachCurrentThreadIfNeeded();
+    JNIEnv *env = privmx::wrapper::jni::AttachCurrentThreadIfNeeded(
+            javaVM,
+            privmx::wrapper::jni::getWebRTCCallbackThreadName());
     jclass jwebRTCInterfaceClass = env->GetObjectClass(jwebRTCInterface);
     jmethodID jmethodId = env->GetMethodID(
             jwebRTCInterfaceClass,
@@ -229,7 +214,9 @@ void WebRTCInterfaceJNI::updateKeys(
         const std::string &streamRoomId,
         const std::vector<Key> &keys
 ) {
-    JNIEnv *env = AttachCurrentThreadIfNeeded();
+    JNIEnv *env = privmx::wrapper::jni::AttachCurrentThreadIfNeeded(
+            javaVM,
+            privmx::wrapper::jni::getWebRTCCallbackThreadName());
     JniContextUtils ctx(env);
     jclass jwebRTCInterfaceClass = env->GetObjectClass(jwebRTCInterface);
     jmethodID jmethodId = env->GetMethodID(
