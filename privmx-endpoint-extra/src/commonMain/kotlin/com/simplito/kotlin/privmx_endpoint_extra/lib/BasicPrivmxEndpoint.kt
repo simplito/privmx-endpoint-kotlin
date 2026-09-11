@@ -18,6 +18,7 @@ import com.simplito.kotlin.privmx_endpoint.modules.crypto.CryptoApi
 import com.simplito.kotlin.privmx_endpoint.modules.event.EventApi
 import com.simplito.kotlin.privmx_endpoint.modules.inbox.InboxApi
 import com.simplito.kotlin.privmx_endpoint.modules.kvdb.KvdbApi
+import com.simplito.kotlin.privmx_endpoint.modules.search.SearchApi
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
 import com.simplito.kotlin.privmx_endpoint.modules.stream.StreamApiLow
 import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
@@ -91,6 +92,19 @@ constructor(
     val kvdbApi: KvdbApi? =
         if (enableModule.contains(Modules.KVDB)) KvdbApi(connection) else null
 
+    /**
+     * Reference to Search module.
+     */
+    val searchApi: SearchApi? =
+        if (enableModule.contains(Modules.SEARCH)) {
+            checkNotNull(storeApi) { "storeApi required for SEARCH module" }
+            checkNotNull(kvdbApi) { "kvdbApi required for SEARCH module" }
+            SearchApi(
+                connection,
+                storeApi,
+                kvdbApi
+            )
+        } else null
 
     protected var streamApiLow: StreamApiLow? = null
 
@@ -107,6 +121,7 @@ constructor(
         inboxApi?.close()
         eventApi?.close()
         kvdbApi?.close()
+        searchApi?.close()
         connection.close()
         streamApiLow?.close()
     }
