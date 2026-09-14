@@ -30,6 +30,13 @@ group::GroupApi *getGroupApi(JniContextUtils &ctx, jobject groupApiInstance) {
     return (group::GroupApi *) ctx.getObject(apiLong).getLongValue();
 }
 
+std::optional<group::GroupApi> getOptionalGroupApi(JniContextUtils &ctx, jobject groupApiInstance) {
+    if (groupApiInstance == nullptr) {
+        return std::nullopt;
+    }
+    return *getGroupApi(ctx, groupApiInstance);
+}
+
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_group_GroupApi_init(
