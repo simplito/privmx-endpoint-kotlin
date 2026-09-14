@@ -12,6 +12,7 @@
 package com.simplito.kotlin.privmx_endpoint.modules.kvdb
 
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
+import com.simplito.kotlin.privmx_endpoint.model.GroupGrantWithKey
 import com.simplito.kotlin.privmx_endpoint.model.Kvdb
 import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
@@ -21,11 +22,16 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.modules.group.GroupApi
 
 /**
  * Manages PrivMX Bridge KVDBs and their entries.
+ * @param connection active connection to PrivMX Bridge
+ * @param groupApi instance of [GroupApi], required to read and write KVDBs granted to Groups. Passing `null`
+ * creates a Group-unaware `KvdbApi`.
+ * @throws IllegalStateException when given [Connection] is not connected
  */
-expect class KvdbApi(connection: Connection) : AutoCloseable {
+expect class KvdbApi(connection: Connection, groupApi: GroupApi? = null) : AutoCloseable {
 
     /**
      * Creates a new KVDB in given Context.
@@ -36,6 +42,7 @@ expect class KvdbApi(connection: Connection) : AutoCloseable {
      * @param publicMeta  public (unencrypted) metadata
      * @param privateMeta private (encrypted) metadata
      * @param policies    KVDB's policies
+     * @param groups      Groups granted access to the created KVDB, with their verified epoch public keys
      * @return ID of the created KVDB
      * @throws IllegalStateException thrown when instance is closed.
      * @throws PrivmxException       thrown when method encounters an exception.
@@ -48,7 +55,8 @@ expect class KvdbApi(connection: Connection) : AutoCloseable {
         managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        policies: ContainerPolicy? = null
+        policies: ContainerPolicy? = null,
+        groups: List<GroupGrantWithKey> = emptyList()
     ): String
 
 
@@ -64,6 +72,8 @@ expect class KvdbApi(connection: Connection) : AutoCloseable {
      * @param force               force update (without checking version)
      * @param forceGenerateNewKey force to regenerate a key for the KVDB
      * @param policies            KVDB's policies
+     * @param groups              Groups granted access to the KVDB, with their verified epoch public keys.
+     * The list is authoritative — an empty list revokes every Group grant the KVDB had.
      * @throws IllegalStateException thrown when instance is closed.
      * @throws PrivmxException       thrown when method encounters an exception.
      * @throws NativeException       thrown when method encounters an unknown exception.
@@ -78,7 +88,40 @@ expect class KvdbApi(connection: Connection) : AutoCloseable {
         version: Long,
         force: Boolean,
         forceGenerateNewKey: Boolean = false,
-        policies: ContainerPolicy? = null
+        policies: ContainerPolicy? = null,
+        groups: List<GroupGrantWithKey> = emptyList()
+    )
+
+    /**
+     * Re-encrypts the KVDB key for all current members without changing data, membership, or policy.
+     *
+     * Unlike [updateKvdb] this can be called by any KVDB member (not just managers) when the default
+     * `rotateKeys` policy of `"user"` is in effect.
+     *
+     * The KVDB's key is re-wrapped to every one of its grantee Groups at that Group's current epoch, whether or
+     * not it is named in [groups]: the grantee list comes from the KVDB itself, and any epoch public key missing
+     * from [groups] is read from the Bridge. A caller who belongs to none of the KVDB's grantee Groups, and
+     * cannot supply their epoch keys in [groups] either, gets `UnresolvedGroupGranteeException`.
+     *
+     * @param kvdbId   ID of the KVDB to re-key
+     * @param users    current KVDB users with their public keys
+     * @param managers current KVDB managers with their public keys
+     * @param version  current KVDB version (optimistic lock guard)
+     * @param force    skip the version check when `true`
+     * @param groups   epoch public keys of grantee Groups the caller has verified itself; optional, and Groups the
+     * KVDB does not grant are ignored — a re-key changes no grants
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun rotateKvdbKeys(
+        kvdbId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        version: Long,
+        force: Boolean = false,
+        groups: List<GroupGrantWithKey> = emptyList()
     )
 
 
