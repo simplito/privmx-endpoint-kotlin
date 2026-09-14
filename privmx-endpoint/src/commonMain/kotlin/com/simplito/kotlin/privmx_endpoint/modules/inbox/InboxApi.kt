@@ -11,6 +11,7 @@
 package com.simplito.kotlin.privmx_endpoint.modules.inbox
 
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
+import com.simplito.kotlin.privmx_endpoint.model.GroupGrantWithKey
 import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
 import com.simplito.kotlin.privmx_endpoint.model.Inbox
 import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
@@ -22,6 +23,7 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.InboxEventTyp
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.modules.group.GroupApi
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
 import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
 
@@ -30,6 +32,9 @@ import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
  * @param connection active connection to PrivMX Bridge
  * @param threadApi  instance of [ThreadApi] created on passed Connection
  * @param storeApi   instance of [StoreApi] created on passed Connection
+ * @param groupApi   instance of [GroupApi], required to read and write Inboxes granted to Groups. An Inbox grants
+ * and re-keys its inner Thread and Store alongside itself, so [threadApi] and [storeApi] must have been created
+ * with the same [GroupApi]. Passing `null` creates a Group-unaware `InboxApi`.
  * @throws IllegalStateException when one of the passed parameters is closed
  */
 expect class InboxApi
@@ -37,7 +42,8 @@ expect class InboxApi
 constructor(
     connection: Connection,
     threadApi: ThreadApi? = null,
-    storeApi: StoreApi? = null
+    storeApi: StoreApi? = null,
+    groupApi: GroupApi? = null
 ) :
     AutoCloseable {
     /**
@@ -51,6 +57,9 @@ constructor(
      * @param privateMeta private (encrypted) metadata
      * @param filesConfig overrides default file configuration
      * @param policies    additional container access policies
+     * @param groups      Groups granted access to the created Inbox, with their verified epoch public keys;
+     * the same grants are applied to the Inbox's inner Thread and Store
+     *
      * @return ID of the created Inbox
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -66,7 +75,8 @@ constructor(
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         filesConfig: FilesConfig? = null,
-        policies: ContainerPolicyWithoutItem? = null
+        policies: ContainerPolicyWithoutItem? = null,
+        groups: List<GroupGrantWithKey> = emptyList()
     ): String
 
     /**
@@ -83,6 +93,9 @@ constructor(
      * @param force               force update (without checking version)
      * @param forceGenerateNewKey force to regenerate a key for the Inbox
      * @param policies            additional container access policies
+     * @param groups              Groups granted access to the Inbox, with their verified epoch public keys.
+     * The list is authoritative — an empty list revokes every Group grant the Inbox had. The same grants are
+     * applied to the Inbox's inner Thread and Store.
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
@@ -100,7 +113,41 @@ constructor(
         version: Long,
         force: Boolean = false,
         forceGenerateNewKey: Boolean = false,
-        policies: ContainerPolicyWithoutItem? = null
+        policies: ContainerPolicyWithoutItem? = null,
+        groups: List<GroupGrantWithKey> = emptyList()
+    )
+
+    /**
+     * Re-encrypts the Inbox key for all current members without changing data, membership, or policy.
+     *
+     * Unlike [updateInbox] this can be called by any Inbox member (not just managers) when the default
+     * `rotateKeys` policy of `"user"` is in effect. The Inbox's inner Thread and Store are re-keyed alongside it.
+     *
+     * The Inbox's key is re-wrapped to every one of its grantee Groups at that Group's current epoch, whether or
+     * not it is named in [groups]: the grantee list comes from the Inbox itself, and any epoch public key missing
+     * from [groups] is read from the Bridge. A caller who belongs to none of the Inbox's grantee Groups, and
+     * cannot supply their epoch keys in [groups] either, gets `UnresolvedGroupGranteeException`.
+     *
+     * @param inboxId  ID of the Inbox to re-key
+     * @param users    current Inbox users with their public keys
+     * @param managers current Inbox managers with their public keys
+     * @param version  current Inbox version (optimistic lock guard)
+     * @param force    skip the version check when `true`
+     * @param groups   epoch public keys of grantee Groups the caller has verified itself; optional, and Groups the
+     * Inbox does not grant are ignored — a re-key changes no grants
+     *
+     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun rotateInboxKeys(
+        inboxId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        version: Long,
+        force: Boolean = false,
+        groups: List<GroupGrantWithKey> = emptyList()
     )
 
     /**
