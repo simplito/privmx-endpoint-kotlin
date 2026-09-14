@@ -129,7 +129,9 @@ internal fun PsonObject.toThread(): Thread = Thread(
     (this["policy"] as PsonObject).toContainerPolicy(),
     this["messagesCount"]?.typedValue(),
     this["statusCode"]?.typedValue(),
-    this["schemaVersion"]?.typedValue()
+    this["schemaVersion"]?.typedValue(),
+    this["groups"]?.typedList()?.map { (it as PsonObject).toGroupGrant() }?: emptyList(),
+    this["staleGroups"]?.typedList()?.map { it.typedValue<String>() } ?: emptyList()
 )
 
 internal fun PsonObject.toStore(): Store = Store(
@@ -148,7 +150,9 @@ internal fun PsonObject.toStore(): Store = Store(
     (this["policy"] as PsonObject).toContainerPolicy(),
     this["filesCount"]?.typedValue(),
     this["statusCode"]?.typedValue(),
-    this["schemaVersion"]?.typedValue()
+    this["schemaVersion"]?.typedValue(),
+    this["groups"]?.typedList()?.map { (it as PsonObject).toGroupGrant() }?: emptyList(),
+    this["staleGroups"]?.typedList()?.map { it.typedValue<String>() } ?: emptyList()
 )
 
 internal fun PsonObject.toInbox(): Inbox = Inbox(
@@ -166,7 +170,9 @@ internal fun PsonObject.toInbox(): Inbox = Inbox(
     (this["filesConfig"] as PsonObject?)?.toFilesConfig(),
     (this["policy"] as PsonObject).toContainerPolicyWithoutItem(),
     this["statusCode"]?.typedValue(),
-    this["schemaVersion"]?.typedValue()
+    this["schemaVersion"]?.typedValue(),
+    this["groups"]?.typedList()?.map { (it as PsonObject).toGroupGrant() }?: emptyList(),
+    this["staleGroups"]?.typedList()?.map { it.typedValue<String>() } ?: emptyList()
 )
 
 internal fun PsonObject.toInboxPublicView(): InboxPublicView =
@@ -525,6 +531,8 @@ internal fun PsonObject.toKvdb(): Kvdb = Kvdb(
     (this["policy"] as PsonObject?)?.toContainerPolicy(),
     this["statusCode"]?.typedValue(),
     this["schemaVersion"]?.typedValue(),
+    this["groups"]?.typedList()?.map { (it as PsonObject).toGroupGrant() }?: emptyList(),
+    this["staleGroups"]?.typedList()?.map { it.typedValue<String>() } ?: emptyList()
 )
 
 internal fun PsonObject.toKvdbEntry(): KvdbEntry = KvdbEntry(
