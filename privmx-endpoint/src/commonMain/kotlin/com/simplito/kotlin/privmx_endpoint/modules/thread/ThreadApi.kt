@@ -11,6 +11,7 @@
 package com.simplito.kotlin.privmx_endpoint.modules.thread
 
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
+import com.simplito.kotlin.privmx_endpoint.model.GroupGrantWithKey
 import com.simplito.kotlin.privmx_endpoint.model.Message
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.Thread
@@ -20,16 +21,18 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.ThreadEventTy
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.modules.group.GroupApi
 
 /**
  * Manages Threads and messages.
  * @param connection active connection to PrivMX Bridge
+ * @param groupApi instance of [GroupApi], required to read and write Threads granted to Groups. Passing `null`
+ * creates a Group-unaware `ThreadApi`.
  * @throws IllegalStateException when given [Connection] is not connected
  */
 expect class ThreadApi
 @Throws(IllegalStateException::class)
-constructor(connection: Connection) : AutoCloseable {
-
+constructor(connection: Connection, groupApi: GroupApi? = null) : AutoCloseable {
     /**
      * Creates a new Thread in given Context.
      *
@@ -40,6 +43,7 @@ constructor(connection: Connection) : AutoCloseable {
      * @param publicMeta  public (unencrypted) metadata
      * @param privateMeta private (encrypted) metadata
      * @param policies    additional container access policies
+     * @param groups      Groups granted access to the created Thread, with their verified epoch public keys
      * @return ID of the created Thread
      * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
@@ -52,7 +56,8 @@ constructor(connection: Connection) : AutoCloseable {
         managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        policies: ContainerPolicy? = null
+        policies: ContainerPolicy? = null,
+        groups: List<GroupGrantWithKey> = emptyList()
     ): String
 
     /**
@@ -68,6 +73,8 @@ constructor(connection: Connection) : AutoCloseable {
      * @param force               force update (without checking version)
      * @param forceGenerateNewKey force to regenerate a key for the Thread
      * @param policies            additional container access policies
+     * @param groups              Groups granted access to the Thread, with their verified epoch public keys.
+     * The list is authoritative — an empty list revokes every Group grant the Thread had.
      * @throws IllegalStateException thrown when instance is closed
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -82,7 +89,40 @@ constructor(connection: Connection) : AutoCloseable {
         version: Long,
         force: Boolean = false,
         forceGenerateNewKey: Boolean = false,
-        policies: ContainerPolicy? = null
+        policies: ContainerPolicy? = null,
+        groups: List<GroupGrantWithKey> = emptyList()
+    )
+
+    /**
+     * Re-encrypts the Thread key for all current members without changing data, membership, or policy.
+     *
+     * Unlike [updateThread] this can be called by any Thread member (not just managers) when the default
+     * `rotateKeys` policy of `"user"` is in effect.
+     *
+     * The Thread's key is re-wrapped to every one of its grantee Groups at that Group's current epoch, whether or
+     * not it is named in [groups]: the grantee list comes from the Thread itself, and any epoch public key missing
+     * from [groups] is read from the Bridge. A caller who belongs to none of the Thread's grantee Groups, and
+     * cannot supply their epoch keys in [groups] either, gets `UnresolvedGroupGranteeException`.
+     *
+     * @param threadId ID of the Thread to re-key
+     * @param users    current Thread users with their public keys
+     * @param managers current Thread managers with their public keys
+     * @param version  current Thread version (optimistic lock guard)
+     * @param force    skip the version check when `true`
+     * @param groups   epoch public keys of grantee Groups the caller has verified itself; optional, and Groups the
+     * Thread does not grant are ignored — a re-key changes no grants
+     * @throws IllegalStateException thrown when instance is closed
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    fun rotateThreadKeys(
+        threadId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        version: Long,
+        force: Boolean = false,
+        groups: List<GroupGrantWithKey> = emptyList()
     )
 
     /**
