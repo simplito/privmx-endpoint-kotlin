@@ -10,6 +10,7 @@
 //
 
 #include <jni.h>
+#include <optional>
 #include <privmx/endpoint/group/GroupApi.hpp>
 #include "../utils.hpp"
 
@@ -19,3 +20,10 @@
 #endif //PRIVMXENDPOINT_GROUPAPI_H
 
 privmx::endpoint::group::GroupApi *getGroupApi(JniContextUtils &ctx, jobject groupApiInstance);
+
+/**
+ * Reads an optional `GroupApi` argument. A null `groupApiInstance` yields `std::nullopt`, which is what the
+ * endpoint's `create` functions expect for a Group-unaware API.
+ */
+std::optional<privmx::endpoint::group::GroupApi>
+getOptionalGroupApi(JniContextUtils &ctx, jobject groupApiInstance);
