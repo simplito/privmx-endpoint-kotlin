@@ -14,6 +14,7 @@ package com.simplito.kotlin.privmx_endpoint.utils
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
+import com.simplito.kotlin.privmx_endpoint.model.GroupGrantWithKey
 import com.simplito.kotlin.privmx_endpoint.model.GroupMemberToAdd
 import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
@@ -43,6 +44,14 @@ internal val GroupMemberToAdd.pson: PsonValue.PsonObject
     get() = mapOfWithNulls(
         "user" to user.pson,
         "role" to role.pson,
+    ).pson
+
+internal val GroupGrantWithKey.pson: PsonValue.PsonObject
+    get() = mapOfWithNulls(
+        "groupId" to groupId.pson,
+        "role" to role.pson,
+        "groupPubKey" to groupPubKey.pson,
+        "groupEpoch" to groupEpoch.pson,
     ).pson
 
 internal val ContainerPolicy.pson: PsonValue.PsonObject
