@@ -35,6 +35,7 @@ import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
 import com.simplito.kotlin.privmx_endpoint.model.Message
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.ServerFileInfo
+import com.simplito.kotlin.privmx_endpoint.model.GroupGrant
 import com.simplito.kotlin.privmx_endpoint.model.ServerKvdbEntryInfo
 import com.simplito.kotlin.privmx_endpoint.model.ServerMessageInfo
 import com.simplito.kotlin.privmx_endpoint.model.Store
@@ -105,6 +106,11 @@ internal fun PsonObject.toUserInfo(): UserInfo = UserInfo(
     (this["user"] as PsonObject).toUserWithPubKey(),
     this["isActive"]!!.typedValue(),
     (this["lastStatusChange"] as PsonObject?)?.toUserStatusChange()
+)
+
+internal fun PsonObject.toGroupGrant(): GroupGrant = GroupGrant(
+    this["groupId"]!!.typedValue(),
+    this["role"]!!.typedValue()
 )
 
 internal fun PsonObject.toThread(): Thread = Thread(
