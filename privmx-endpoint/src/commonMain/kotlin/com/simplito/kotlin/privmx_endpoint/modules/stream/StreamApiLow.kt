@@ -77,6 +77,7 @@ constructor(
      * @param emptyRoomTtl grace period (ms) the Stream Room stays open after the last participant leaves;
      * 0 closes it immediately; null use the server default (closes it immediately)
      * @param groups Groups granted access to the created room, with their verified epoch public keys
+     *
      * @return ID of the created room
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
