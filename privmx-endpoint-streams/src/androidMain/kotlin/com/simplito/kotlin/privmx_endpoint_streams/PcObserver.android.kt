@@ -41,9 +41,7 @@ actual class PcObserver internal actual constructor(
         val track = receiver.track() ?: return
         val trackId = track.id() ?: return
 
-        frameCryptorMap[trackId] = PmxFrameCryptorFactory.createPmxFrameCryptorForRtpReceiver(
-            peerConnectionFactory, receiver, keyStore, null
-        )
+        frameCryptorMap[trackId] = PmxFrameCryptorFactory.createPmxFrameCryptorForRtpReceiver(peerConnectionFactory, receiver, keyStore)
         remoteStreamObserver?.onTrack(mediaStreams.firstOrNull()?.id, track)
     }
 
