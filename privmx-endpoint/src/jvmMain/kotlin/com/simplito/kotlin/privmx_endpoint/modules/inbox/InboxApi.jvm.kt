@@ -13,6 +13,7 @@ package com.simplito.kotlin.privmx_endpoint.modules.inbox
 
 import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
+import com.simplito.kotlin.privmx_endpoint.model.GroupGrantWithKey
 import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
 import com.simplito.kotlin.privmx_endpoint.model.Inbox
 import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
@@ -24,6 +25,7 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.InboxEventTyp
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.modules.group.GroupApi
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
 import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
 
@@ -38,7 +40,7 @@ actual class InboxApi
 @Throws(IllegalStateException::class)
 @JvmOverloads
 actual constructor(
-    connection: Connection, threadApi: ThreadApi?, storeApi: StoreApi?
+    connection: Connection, threadApi: ThreadApi?, storeApi: StoreApi?, groupApi: GroupApi?
 ) : AutoCloseable {
     companion object {
         init {
@@ -49,13 +51,14 @@ actual constructor(
     private var api: Long? = null
 
     init {
-        val tmpThreadApi = if (threadApi == null) ThreadApi(connection) else null
-        val tmpStoreApi = if (storeApi == null) StoreApi(connection) else null
+        val tmpThreadApi = if (threadApi == null) ThreadApi(connection, groupApi) else null
+        val tmpStoreApi = if (storeApi == null) StoreApi(connection, groupApi) else null
 
         api = init(
             connection,
             threadApi ?: tmpThreadApi!!,
-            storeApi ?: tmpStoreApi!!
+            storeApi ?: tmpStoreApi!!,
+            groupApi
         )
 
         tmpThreadApi?.close()
@@ -89,7 +92,8 @@ actual constructor(
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         filesConfig: FilesConfig?,
-        policies: ContainerPolicyWithoutItem?
+        policies: ContainerPolicyWithoutItem?,
+        groups: List<GroupGrantWithKey>
     ): String
 
     /**
@@ -124,7 +128,35 @@ actual constructor(
         version: Long,
         force: Boolean,
         forceGenerateNewKey: Boolean,
-        policies: ContainerPolicyWithoutItem?
+        policies: ContainerPolicyWithoutItem?,
+        groups: List<GroupGrantWithKey>
+    )
+
+    /**
+     * Re-encrypts the Inbox key for all current members without changing data, membership, or policy.
+     * The Inbox's inner Thread and Store are re-keyed alongside it.
+     *
+     * @param inboxId  ID of the Inbox to re-key
+     * @param users    current Inbox users with their public keys
+     * @param managers current Inbox managers with their public keys
+     * @param version  current Inbox version (optimistic lock guard)
+     * @param force    skip the version check when `true`
+     * @param groups   epoch public keys of grantee Groups the caller has verified itself
+     * @throws PrivmxException       thrown when method encounters an exception
+     * @throws NativeException       thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
+    @Throws(
+        PrivmxException::class, NativeException::class, IllegalStateException::class
+    )
+    @JvmOverloads
+    actual external fun rotateInboxKeys(
+        inboxId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        version: Long,
+        force: Boolean,
+        groups: List<GroupGrantWithKey>
     )
 
     /**
@@ -453,7 +485,8 @@ actual constructor(
     private external fun init(
         connection: Connection,
         threadApi: ThreadApi,
-        storeApi: StoreApi
+        storeApi: StoreApi,
+        groupApi: GroupApi?
     ): Long?
 
     @Throws(IllegalStateException::class)
