@@ -13,6 +13,7 @@ package com.simplito.kotlin.privmx_endpoint.modules.kvdb
 
 import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
+import com.simplito.kotlin.privmx_endpoint.model.GroupGrantWithKey
 import com.simplito.kotlin.privmx_endpoint.model.Kvdb
 import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
@@ -22,10 +23,13 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.modules.group.GroupApi
 import kotlin.IllegalStateException
 import kotlin.Throws
 
-actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable {
+actual class KvdbApi
+@JvmOverloads
+actual constructor(connection: Connection, groupApi: GroupApi?) : AutoCloseable {
     companion object {
         init {
             LibLoader.loadPrivmxLibraries()
@@ -41,11 +45,11 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
      * @throws IllegalStateException when given [Connection] is not connected
      */
     init {
-        this.api = init(connection)
+        this.api = init(connection, groupApi)
     }
 
     @Throws(IllegalStateException::class)
-    private external fun init(connection: Connection): Long?
+    private external fun init(connection: Connection, groupApi: GroupApi?): Long?
 
     @Throws(IllegalStateException::class)
     private external fun deinit()
@@ -72,7 +76,8 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
         managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        policies: ContainerPolicy?
+        policies: ContainerPolicy?,
+        groups: List<GroupGrantWithKey>
     ): String
 
 
@@ -103,7 +108,32 @@ actual class KvdbApi actual constructor(connection: Connection) : AutoCloseable 
         version: Long,
         force: Boolean,
         forceGenerateNewKey: Boolean,
-        policies: ContainerPolicy?
+        policies: ContainerPolicy?,
+        groups: List<GroupGrantWithKey>
+    )
+
+    /**
+     * Re-encrypts the KVDB key for all current members without changing data, membership, or policy.
+     *
+     * @param kvdbId   ID of the KVDB to re-key
+     * @param users    current KVDB users with their public keys
+     * @param managers current KVDB managers with their public keys
+     * @param version  current KVDB version (optimistic lock guard)
+     * @param force    skip the version check when `true`
+     * @param groups   epoch public keys of grantee Groups the caller has verified itself
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmOverloads
+    actual external fun rotateKvdbKeys(
+        kvdbId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        version: Long,
+        force: Boolean,
+        groups: List<GroupGrantWithKey>
     )
 
 
