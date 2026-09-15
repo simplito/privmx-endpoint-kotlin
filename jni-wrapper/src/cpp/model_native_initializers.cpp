@@ -471,6 +471,8 @@ namespace privmx {
                         "Ljava/lang/Long;"
                         "Ljava/lang/Long;"
                         "Ljava/lang/Long;"
+                        "Ljava/util/List;" //groups
+                        "Ljava/util/List;" //staleGroups
                         ")V"
                 );
                 jclass arrayCls = ctx->FindClass("java/util/ArrayList");
@@ -505,6 +507,19 @@ namespace privmx {
                             addToArrayMID,
                             ctx->NewStringUTF(manager.c_str()));
                 }
+
+                auto groupGrants = vectorTojArray(
+                        ctx,
+                        thread_c.groups,
+                        groupGrant2Java
+                );
+
+                auto staleGroups = vectorTojArray(
+                        ctx,
+                        thread_c.staleGroups,
+                        string2jobject
+                );
+
                 return ctx->NewObject(
                         threadCls,
                         initThreadMID,
@@ -523,7 +538,9 @@ namespace privmx {
                         containerPolicy2Java(ctx, thread_c.policy),
                         ctx.long2jLong(thread_c.messagesCount),
                         ctx.long2jLong(thread_c.statusCode),
-                        ctx.long2jLong(thread_c.schemaVersion)
+                        ctx.long2jLong(thread_c.schemaVersion),
+                        groupGrants,
+                        staleGroups
                 );
             }
 
@@ -623,6 +640,8 @@ namespace privmx {
                         "Ljava/lang/Long;"  //filesCount
                         "Ljava/lang/Long;"  //statusCode
                         "Ljava/lang/Long;"  //schemaVersion
+                        "Ljava/util/List;" //groups
+                        "Ljava/util/List;" //staleGroups
                         ")V"
                 );
 
@@ -645,6 +664,18 @@ namespace privmx {
                             ctx->NewStringUTF(manager.c_str()));
                 }
 
+                auto groupGrants = vectorTojArray(
+                        ctx,
+                        thread_c.groups,
+                        groupGrant2Java
+                );
+
+                auto staleGroups = vectorTojArray(
+                        ctx,
+                        thread_c.staleGroups,
+                        string2jobject
+                );
+
                 return ctx->NewObject(
                         storeCls,
                         initStoreMID,
@@ -663,7 +694,9 @@ namespace privmx {
                         containerPolicy2Java(ctx, store_c.policy),
                         ctx.long2jLong(store_c.filesCount),
                         ctx.long2jLong(store_c.statusCode),
-                        ctx.long2jLong(store_c.schemaVersion)
+                        ctx.long2jLong(store_c.schemaVersion),
+                        groupGrants,
+                        staleGroups
                 );
             }
 
@@ -690,6 +723,8 @@ namespace privmx {
                         "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicyWithoutItem;" //policy
                         "Ljava/lang/Long;" //statusCode
                         "Ljava/lang/Long;" //schemaVersion
+                        "Ljava/util/List;" //groups
+                        "Ljava/util/List;" //staleGroups
                         ")V"
                 );
                 jclass arrayCls = ctx->FindClass("java/util/ArrayList");
@@ -726,6 +761,18 @@ namespace privmx {
                     filesConfig = filesConfig2Java(ctx, inbox_c.filesConfig.value());
                 }
 
+                auto groupGrants = vectorTojArray(
+                        ctx,
+                        inbox_c.groups,
+                        groupGrant2Java
+                );
+
+                auto staleGroups = vectorTojArray(
+                        ctx,
+                        inbox_c.staleGroups,
+                        string2jobject
+                );
+
                 return ctx->NewObject(
                         inboxCls,
                         initInboxMID,
@@ -743,7 +790,9 @@ namespace privmx {
                         filesConfig,
                         containerPolicyWithoutItem2Java(ctx, inbox_c.policy),
                         ctx.long2jLong(inbox_c.statusCode),
-                        ctx.long2jLong(inbox_c.schemaVersion)
+                        ctx.long2jLong(inbox_c.schemaVersion),
+                        groupGrants,
+                        staleGroups
                 );
             }
 
@@ -1359,6 +1408,8 @@ namespace privmx {
                         "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicy;" //policy
                         "Ljava/lang/Long;" //statusCode
                         "Ljava/lang/Long;" //schemaVersion
+                        "Ljava/util/List;" //groups
+                        "Ljava/util/List;" //staleGroups
                         ")V"
                 );
                 jclass arrayCls = ctx->FindClass("java/util/ArrayList");
@@ -1390,6 +1441,18 @@ namespace privmx {
                             ctx->NewStringUTF(manager.c_str()));
                 }
 
+                auto groupGrants = vectorTojArray(
+                        ctx,
+                        kvdb_c.groups,
+                        groupGrant2Java
+                );
+
+                auto staleGroups = vectorTojArray(
+                        ctx,
+                        kvdb_c.staleGroups,
+                        string2jobject
+                );
+
                 return ctx->NewObject(
                         kvdbCls,
                         initKvdbMID,
@@ -1408,7 +1471,9 @@ namespace privmx {
                         ctx.long2jLong(kvdb_c.lastEntryDate),
                         containerPolicy2Java(ctx, kvdb_c.policy),
                         ctx.long2jLong(kvdb_c.statusCode),
-                        ctx.long2jLong(kvdb_c.schemaVersion)
+                        ctx.long2jLong(kvdb_c.schemaVersion),
+                        groupGrants,
+                        staleGroups
                 );
             }
 
