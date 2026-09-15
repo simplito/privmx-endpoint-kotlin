@@ -28,6 +28,10 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property policy               Inbox policies
  * @property statusCode           Status code of retrieval and decryption of the Inbox
  * @property schemaVersion        Version of the Inbox data structure and how it is encoded/encrypted.
+ * @property groups               List of Groups granted access to the Inbox
+ * @property staleGroups          IDs of the grantee Groups that have rotated past the epoch this Inbox's current
+ * key was wrapped to; members of a stale Group cannot read content written under the current key until the Inbox
+ * is re-keyed (see `InboxApi.rotateInboxKeys`)
  */
 data class Inbox(
     val inboxId: String,
@@ -44,7 +48,9 @@ data class Inbox(
     val filesConfig: FilesConfig?,
     val policy: ContainerPolicyWithoutItem,
     val statusCode: Long?,
-    val schemaVersion: Long?
+    val schemaVersion: Long?,
+    val groups: List<GroupGrant>,
+    val staleGroups: List<String>
 ) {
     /**
      * Holds all available information about an Inbox.
@@ -95,7 +101,65 @@ data class Inbox(
         filesConfig,
         policy,
         statusCode,
-        null
+        null,
+        emptyList(),
+        emptyList()
+    )
+
+    /**
+     * Holds all available information about an Inbox.
+     *
+     * @property inboxId              ID of the Inbox
+     * @property contextId            ID of the Context
+     * @property createDate           Inbox creation timestamp
+     * @property creator              ID of the user who created the Inbox
+     * @property lastModificationDate Inbox last modification timestamp
+     * @property lastModifier         ID of the user who last modified the Inbox
+     * @property users                List of users (their IDs) with access to the Inbox
+     * @property managers             List of users (their IDs) with management rights
+     * @property version              Version number (changes on updates)
+     * @property publicMeta           Inbox public metadata
+     * @property privateMeta          Inbox private metadata
+     * @property filesConfig          Inbox files configuration
+     * @property policy               Inbox policies
+     * @property statusCode           Status code of retrieval and decryption of the Inbox
+     * @property schemaVersion        Version of the Inbox data structure and how it is encoded/encrypted.
+     */
+    @Deprecated("Use primary constructor with new parameters.")
+    constructor(
+        inboxId: String,
+        contextId: String,
+        createDate: Long?,
+        creator: String,
+        lastModificationDate: Long?,
+        lastModifier: String,
+        users: List<String>,
+        managers: List<String>,
+        version: Long?,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
+        filesConfig: FilesConfig?,
+        policy: ContainerPolicyWithoutItem,
+        statusCode: Long?,
+        schemaVersion: Long?
+    ) : this(
+        inboxId,
+        contextId,
+        createDate,
+        creator,
+        lastModificationDate,
+        lastModifier,
+        users,
+        managers,
+        version,
+        publicMeta,
+        privateMeta,
+        filesConfig,
+        policy,
+        statusCode,
+        schemaVersion,
+        emptyList(),
+        emptyList()
     )
 
     override fun equals(other: Any?): Boolean {
@@ -119,6 +183,8 @@ data class Inbox(
         if (!privateMeta.contentEquals(other.privateMeta)) return false
         if (filesConfig != other.filesConfig) return false
         if (policy != other.policy) return false
+        if (groups != other.groups) return false
+        if (staleGroups != other.staleGroups) return false
 
         return true
     }
@@ -138,6 +204,8 @@ data class Inbox(
         result = 31 * result + publicMeta.contentHashCode()
         result = 31 * result + privateMeta.contentHashCode()
         result = 31 * result + (filesConfig?.hashCode() ?: 0)
+        result = 31 * result + groups.hashCode()
+        result = 31 * result + staleGroups.hashCode()
         result = 31 * result + policy.hashCode()
         return result
     }

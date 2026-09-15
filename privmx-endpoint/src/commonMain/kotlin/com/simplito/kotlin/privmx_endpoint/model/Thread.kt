@@ -29,6 +29,10 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property messagesCount             Total number of messages in the Thread
  * @property statusCode                Status code of retrieval and decryption of the `Thread`
  * @property schemaVersion                Version of the Thread data structure and how it is encoded/encrypted.
+ * @property groups                    List of Groups granted access to the Thread
+ * @property staleGroups               IDs of the grantee Groups that have rotated past the epoch this Thread's
+ * current key was wrapped to; members of a stale Group cannot read content written under the current key until
+ * the Thread is re-keyed (see `ThreadApi.rotateThreadKeys`)
  */
 data class Thread(
     val contextId: String,
@@ -46,7 +50,9 @@ data class Thread(
     val policy: ContainerPolicy,
     val messagesCount: Long?,
     val statusCode: Long?,
-    val schemaVersion: Long?
+    val schemaVersion: Long?,
+    val groups: List<GroupGrant>,
+    val staleGroups: List<String>
 ) {
     /**
      * Holds all available information about a Thread.
@@ -100,7 +106,68 @@ data class Thread(
         policy,
         messagesCount,
         statusCode,
-        null
+        null,
+        emptyList(),
+        emptyList()
+    )
+
+    /**
+     * Holds all available information about a Thread.
+     *
+     * @property contextId                 ID of the Thread's Context
+     * @property threadId                  ID of the Thread
+     * @property createDate                Thread creation timestamp
+     * @property creator                   ID of the user who created the Thread
+     * @property lastModificationDate      Thread last modification timestamp
+     * @property lastModifier              ID of the user who last modified the Thread
+     * @property users                     List of users (their IDs) with access to the Thread
+     * @property managers                  List of users (their IDs) with management rights
+     * @property version                   Version number (changes on updates)
+     * @property lastMsgDate               Timestamp of the last posted message
+     * @property publicMeta                Thread's public metadata
+     * @property privateMeta               Thread's private metadata
+     * @property policy                    Thread's policies
+     * @property messagesCount             Total number of messages in the Thread
+     * @property statusCode                Status code of retrieval and decryption of the `Thread`
+     * @property schemaVersion             Version of the Thread data structure and how it is encoded/encrypted.
+     */
+    @Deprecated("Use primary constructor with new parameters.")
+    constructor(
+        contextId: String,
+        threadId: String,
+        createDate: Long?,
+        creator: String,
+        lastModificationDate: Long?,
+        lastModifier: String,
+        users: List<String>,
+        managers: List<String>,
+        version: Long?,
+        lastMsgDate: Long?,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
+        policy: ContainerPolicy,
+        messagesCount: Long?,
+        statusCode: Long?,
+        schemaVersion: Long?
+    ) : this(
+        contextId,
+        threadId,
+        createDate,
+        creator,
+        lastModificationDate,
+        lastModifier,
+        users,
+        managers,
+        version,
+        lastMsgDate,
+        publicMeta,
+        privateMeta,
+        policy,
+        messagesCount,
+        statusCode,
+        schemaVersion,
+        emptyList(),
+        emptyList()
     )
 
     override fun equals(other: Any?): Boolean {
@@ -125,6 +192,8 @@ data class Thread(
         if (!publicMeta.contentEquals(other.publicMeta)) return false
         if (!privateMeta.contentEquals(other.privateMeta)) return false
         if (policy != other.policy) return false
+        if (groups != other.groups) return false
+        if (staleGroups != other.staleGroups) return false
 
         return true
     }
@@ -146,6 +215,8 @@ data class Thread(
         result = 31 * result + publicMeta.contentHashCode()
         result = 31 * result + privateMeta.contentHashCode()
         result = 31 * result + policy.hashCode()
+        result = 31 * result + groups.hashCode()
+        result = 31 * result + staleGroups.hashCode()
         return result
     }
 }

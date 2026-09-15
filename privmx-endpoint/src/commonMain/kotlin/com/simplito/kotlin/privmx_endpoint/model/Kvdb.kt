@@ -30,6 +30,10 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property policy KVDB's policies
  * @property statusCode Retrieval and decryption status code
  * @property schemaVersion Version of the KVDB data structure and how it is encoded/encrypted
+ * @property groups List of Groups granted access to the KVDB
+ * @property staleGroups IDs of the grantee Groups that have rotated past the epoch this KVDB's current key was
+ * wrapped to; members of a stale Group cannot read content written under the current key until the KVDB is
+ * re-keyed (see `KvdbApi.rotateKvdbKeys`)
  */
 data class Kvdb(
     val contextId: String,
@@ -47,8 +51,69 @@ data class Kvdb(
     val lastEntryDate: Long?,
     val policy: ContainerPolicy?,
     val statusCode: Long?,
-    val schemaVersion: Long?
+    val schemaVersion: Long?,
+    val groups: List<GroupGrant>,
+    val staleGroups: List<String>
 ) {
+    /**
+     * Holds all available information about a KVDB.
+     *
+     * @property contextId ID of the Context
+     * @property kvdbId ID of the KVDB
+     * @property createDate KVDB creation timestamp
+     * @property creator ID of the user who created the KVDB
+     * @property lastModificationDate KVDB last modification timestamp
+     * @property lastModifier ID of the user who last modified the KVDB
+     * @property users List of users (their IDs) with access to the KVDB
+     * @property managers List of users (their IDs) with management rights
+     * @property version Version number (changes on updates)
+     * @property publicMeta KVDB's public metadata
+     * @property privateMeta KVDB's private metadata
+     * @property entries Total number of entries in the KVDB
+     * @property lastEntryDate Timestamp of the last modified entry
+     * @property policy KVDB's policies
+     * @property statusCode Retrieval and decryption status code
+     * @property schemaVersion Version of the KVDB data structure and how it is encoded/encrypted
+     */
+    @Deprecated("Use primary constructor with new parameters.")
+    constructor(
+        contextId: String,
+        kvdbId: String,
+        createDate: Long?,
+        creator: String,
+        lastModificationDate: Long?,
+        lastModifier: String,
+        users: List<String>,
+        managers: List<String>,
+        version: Long?,
+        publicMeta: ByteArray,
+        privateMeta: ByteArray,
+        entries: Long?,
+        lastEntryDate: Long?,
+        policy: ContainerPolicy?,
+        statusCode: Long?,
+        schemaVersion: Long?
+    ) : this(
+        contextId,
+        kvdbId,
+        createDate,
+        creator,
+        lastModificationDate,
+        lastModifier,
+        users,
+        managers,
+        version,
+        publicMeta,
+        privateMeta,
+        entries,
+        lastEntryDate,
+        policy,
+        statusCode,
+        schemaVersion,
+        emptyList(),
+        emptyList()
+    )
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -71,6 +136,8 @@ data class Kvdb(
         if (!publicMeta.contentEquals(other.publicMeta)) return false
         if (!privateMeta.contentEquals(other.privateMeta)) return false
         if (policy != other.policy) return false
+        if (groups != other.groups) return false
+        if (staleGroups != other.staleGroups) return false
 
         return true
     }
@@ -92,6 +159,8 @@ data class Kvdb(
         result = 31 * result + publicMeta.contentHashCode()
         result = 31 * result + privateMeta.contentHashCode()
         result = 31 * result + (policy?.hashCode() ?: 0)
+        result = 31 * result + groups.hashCode()
+        result = 31 * result + staleGroups.hashCode()
         return result
     }
 }
