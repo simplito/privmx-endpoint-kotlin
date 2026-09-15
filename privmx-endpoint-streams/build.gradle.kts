@@ -19,7 +19,7 @@ group = "com.simplito.kotlin"
 version = libs.versions.publishPrivmxEndpoint.get()
 
 kotlin {
-    val combinedFramework = XCFramework("privmx-endpoint-streams-objc")
+    val combinedFramework = XCFramework("PrivMXEndpointStreamsObjC")
     iosSimulatorArm64().let {
         it.compilations.getByName("main") {
             val webrtcInterop by cinterops.creating {
@@ -33,7 +33,6 @@ kotlin {
                     "-F${project.projectDir.absolutePath}/src/iosMain/cinterop/webrtc/WebRTC.xcframework/ios-arm64-simulator"
                 )
                 linkerOpts(
-                    "-all_load",
                     "-framework",
                     "WebRTC",
                     "-F${project.projectDir.absolutePath}/src/iosMain/cinterop/webrtc/WebRTC.xcframework/ios-arm64-simulator"
@@ -43,14 +42,13 @@ kotlin {
         it.binaries {
             all {
                 linkerOpts(
-                    "-all_load",
                     "-framework",
                     "WebRTC",
                     "-F${project.projectDir.absolutePath}/src/iosMain/cinterop/webrtc/WebRTC.xcframework/ios-arm64-simulator"
                 )
             }
             framework {
-                baseName = "privmx-endpoint-streams-objc"
+                baseName = "PrivMXEndpointStreamsObjC"
                 combinedFramework.add(this)
             }
         }
@@ -84,7 +82,7 @@ kotlin {
             }
 
             framework {
-                baseName = "privmx-endpoint-streams-objc"
+                baseName = "PrivMXEndpointStreamsObjC"
                 combinedFramework.add(this)
             }
         }
