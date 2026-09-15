@@ -42,6 +42,7 @@ version = libs.versions.publishPrivmxEndpoint.get()
 listOf(
     project(":privmx-endpoint"),
     project(":privmx-endpoint-extra"),
+    project(":privmx-endpoint-streams"),
 ).forEach { currentProject: Project ->
     currentProject.apply(plugin = "org.jetbrains.dokka")
     currentProject.tasks.register<DokkaTaskPartial>("privmxEndpointHtmlPartial") {
