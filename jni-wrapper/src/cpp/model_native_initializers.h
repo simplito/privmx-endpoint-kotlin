@@ -35,6 +35,9 @@
 #include "privmx/endpoint/kvdb/KvdbApi.hpp"
 #include "privmx/endpoint/kvdb/Types.hpp"
 #include "privmx/endpoint/kvdb/Events.hpp"
+#include "privmx/endpoint/group/GroupApi.hpp"
+#include "privmx/endpoint/group/Types.hpp"
+#include "privmx/endpoint/group/Events.hpp"
 #include "privmx/endpoint/stream/Types.hpp"
 #include "privmx/endpoint/stream/WebRTCInterface.hpp"
 #include "privmx/endpoint/stream/Events.hpp"
@@ -68,6 +71,10 @@ namespace privmx {
         // UserWithPubKey
         jobject userWithPubKey2Java(JniContextUtils &ctx,
                 privmx::endpoint::core::UserWithPubKey userWithPubKey);
+
+        // GroupGrant
+        jobject groupGrant2Java(JniContextUtils &ctx,
+                privmx::endpoint::core::GroupGrant groupGrant_c);
 
         //UserInfo
         jobject userInfo2Java(JniContextUtils &ctx, privmx::endpoint::core::UserInfo userInfo);
@@ -183,6 +190,30 @@ namespace privmx {
                 privmx::endpoint::kvdb::ServerKvdbEntryInfo serverItemInfo_c);
 
         jobject kvdbEntry2Java(JniContextUtils &ctx, privmx::endpoint::kvdb::KvdbEntry entry_c);
+
+        //Group
+        jobject group2Java(JniContextUtils &ctx, privmx::endpoint::group::Group group_c);
+
+        jobject groupSummary2Java(JniContextUtils &ctx,
+                privmx::endpoint::group::GroupSummary groupSummary_c);
+
+        jobject envelopeType2Java(JniContextUtils &ctx,
+                privmx::endpoint::group::EnvelopeType envelopeType_c);
+
+        jobject decryptedEnvelope2Java(JniContextUtils &ctx,
+                privmx::endpoint::group::DecryptedEnvelope decryptedEnvelope_c);
+
+        jobject decryptedFileInfo2Java(JniContextUtils &ctx,
+                privmx::endpoint::group::DecryptedFileInfo decryptedFileInfo_c);
+
+        jobject groupChangedEventData2Java(JniContextUtils &ctx,
+                privmx::endpoint::group::GroupChangedEventData groupChangedEventData_c);
+
+        jobject groupDeletedEventData2Java(JniContextUtils &ctx,
+                privmx::endpoint::group::GroupDeletedEventData groupDeletedEventData_c);
+
+        jobject groupCustomEventData2Java(JniContextUtils &ctx,
+                privmx::endpoint::group::GroupCustomEventData groupCustomEventData_c);
 
         //Streams
         jobject streamRoom2Java(
