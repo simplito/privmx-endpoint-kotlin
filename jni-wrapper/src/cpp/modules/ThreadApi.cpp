@@ -13,6 +13,7 @@
 #include <privmx/endpoint/thread/ThreadApi.hpp>
 #include <privmx/endpoint/core/Exception.hpp>
 #include "Connection.h"
+#include "GroupApi.h"
 #include "ThreadApi.h"
 #include "../utils.hpp"
 #include "../parser.h"
@@ -36,15 +37,17 @@ JNIEXPORT jobject JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_init(
         JNIEnv *env,
         jobject thiz,
-        jobject connection
+        jobject connection,
+        jobject group_api
 ) {
     JniContextUtils ctx(env);
     jobject result;
     ctx.callResultEndpointApi<jobject>(
             &result,
-            [&ctx, &env, &connection]() {
+            [&ctx, &env, &connection, &group_api]() {
                 auto connection_c = getConnection(env, connection);
-                auto threadApi = thread::ThreadApi::create(*connection_c);
+                auto groupApi_c = getOptionalGroupApi(ctx, group_api);
+                auto threadApi = thread::ThreadApi::create(*connection_c, groupApi_c);
                 auto threadApi_ptr = new thread::ThreadApi();
                 *threadApi_ptr = threadApi;
                 return ctx.long2jLong((jlong) threadApi_ptr);
@@ -86,7 +89,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_createThread(
         jobject managers,
         jbyteArray public_meta,
         jbyteArray private_meta,
-        jobject container_policies
+        jobject container_policies,
+        jobject groups
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(context_id, "Context ID") ||
@@ -99,7 +103,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_createThread(
     jstring result;
     ctx.callResultEndpointApi<jstring>(
             &result,
-            [&ctx, &thiz, &context_id, &users, &managers, &public_meta, &private_meta, &container_policies]() {
+            [&ctx, &thiz, &context_id, &users, &managers, &public_meta, &private_meta, &container_policies, &groups]() {
                 std::vector<core::UserWithPubKey> users_c = usersToVector(
                         ctx,
                         ctx.jObject2jArray(users));
@@ -108,6 +112,9 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_createThread(
                         ctx.jObject2jArray(managers));
                 auto container_policies_opt = std::optional<core::ContainerPolicy>(
                         parseContainerPolicy(ctx, container_policies));
+                std::vector<core::GroupGrantWithKey> groups_c = groupGrantsToVector(
+                        ctx,
+                        groups == nullptr ? nullptr : ctx.jObject2jArray(groups));
                 return ctx->NewStringUTF(
                         getThreadApi(ctx, thiz)->createThread(
                                 ctx.jString2string(context_id),
@@ -115,7 +122,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_createThread(
                                 managers_c,
                                 core::Buffer::from(ctx.jByteArray2String(public_meta)),
                                 core::Buffer::from(ctx.jByteArray2String(private_meta)),
-                                container_policies_opt
+                                container_policies_opt,
+                                groups_c
                         ).c_str());
             });
     if (ctx->ExceptionCheck()) {
@@ -375,7 +383,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_updateThread(
         jlong version,
         jboolean force,
         jboolean force_generate_new_key,
-        jobject container_policies
+        jobject container_policies,
+        jobject groups
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(thread_id, "Thread ID") ||
@@ -397,7 +406,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_updateThread(
                     &version,
                     &force,
                     &force_generate_new_key,
-                    &container_policies]() {
+                    &container_policies,
+                    &groups]() {
                 std::vector<core::UserWithPubKey> users_c = usersToVector(
                         ctx,
                         ctx.jObject2jArray(users));
@@ -406,6 +416,9 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_updateThread(
                         ctx.jObject2jArray(managers));
                 auto container_policies_opt = std::optional<core::ContainerPolicy>(
                         parseContainerPolicy(ctx, container_policies));
+                std::vector<core::GroupGrantWithKey> groups_c = groupGrantsToVector(
+                        ctx,
+                        groups == nullptr ? nullptr : ctx.jObject2jArray(groups));
                 getThreadApi(ctx, thiz)->updateThread(
                         ctx.jString2string(thread_id),
                         users_c,
@@ -415,7 +428,47 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_updateThread(
                         version,
                         force == JNI_TRUE,
                         force_generate_new_key == JNI_TRUE,
-                        container_policies_opt);
+                        container_policies_opt,
+                        groups_c);
+            });
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_thread_ThreadApi_rotateThreadKeys(
+        JNIEnv *env,
+        jobject thiz,
+        jstring thread_id,
+        jobject users,
+        jobject managers,
+        jlong version,
+        jboolean force,
+        jobject groups
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(thread_id, "Thread ID") ||
+        ctx.nullCheck(users, "Users list") ||
+        ctx.nullCheck(managers, "Managers list")) {
+        return;
+    }
+    ctx.callVoidEndpointApi(
+            [&ctx, &thiz, &thread_id, &users, &managers, &version, &force, &groups]() {
+                std::vector<core::UserWithPubKey> users_c = usersToVector(
+                        ctx,
+                        ctx.jObject2jArray(users));
+                std::vector<core::UserWithPubKey> managers_c = usersToVector(
+                        ctx,
+                        ctx.jObject2jArray(managers));
+                std::vector<core::GroupGrantWithKey> groups_c = groupGrantsToVector(
+                        ctx,
+                        groups == nullptr ? nullptr : ctx.jObject2jArray(groups));
+                getThreadApi(ctx, thiz)->rotateThreadKeys(
+                        ctx.jString2string(thread_id),
+                        users_c,
+                        managers_c,
+                        version,
+                        force == JNI_TRUE,
+                        groups_c);
             });
 }
 
