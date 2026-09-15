@@ -249,6 +249,26 @@ namespace privmx {
                 );
             }
 
+            // GroupGrant
+            jobject groupGrant2Java(
+                    JniContextUtils &ctx,
+                    privmx::endpoint::core::GroupGrant groupGrant_c
+            ) {
+                jclass groupGrantCls = ctx->FindClass(
+                        "com/simplito/kotlin/privmx_endpoint/model/GroupGrant");
+                jmethodID initGroupGrantMID = ctx->GetMethodID(
+                        groupGrantCls,
+                        "<init>",
+                        "(Ljava/lang/String;Ljava/lang/String;)V"
+                );
+                return ctx->NewObject(
+                        groupGrantCls,
+                        initGroupGrantMID,
+                        ctx->NewStringUTF(groupGrant_c.groupId.c_str()),
+                        ctx->NewStringUTF(groupGrant_c.role.c_str())
+                );
+            }
+
             // UserWithPubKey
             jobject userStatusChange2Java(
                     JniContextUtils &ctx,
