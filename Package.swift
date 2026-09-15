@@ -41,7 +41,7 @@ let package = Package(
 
         .binaryTarget(
             name: "WebRTC",
-            path: "https://github.com/simplito/privmx-endpoint-xcframeworks/releases/download/2.8.0/WebRTC-m125.1.0.xcframework.zip",
+            url: "https://github.com/simplito/privmx-endpoint-xcframeworks/releases/download/2.8.0/WebRTC-m125.1.0.xcframework.zip",
             checksum: "3ff9b597233c00bae65ae7afb5bac3ef9ae31a348fd351411f98c12cacd37445"
         ),
     ]
