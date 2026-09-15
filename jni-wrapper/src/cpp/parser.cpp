@@ -71,6 +71,37 @@ groupMembersToVector(JniContextUtils &ctx, jobjectArray newMembers) {
     return newMembers_c;
 }
 
+std::vector<privmx::endpoint::core::GroupGrantWithKey>
+groupGrantsToVector(JniContextUtils &ctx, jobjectArray groups) {
+    std::vector<privmx::endpoint::core::GroupGrantWithKey> groups_c;
+    if (groups == nullptr) return groups_c;
+
+    for (int i = 0; i < ctx->GetArrayLength(groups); i++) {
+        jobject arrayElement = ctx->GetObjectArrayElement(groups, i);
+        if (ctx.nullCheck(arrayElement, "Group grant")) {
+            return {};
+        }
+        jclass arrayElementCls = ctx->GetObjectClass(arrayElement);
+
+        jfieldID groupIdFID = ctx->GetFieldID(arrayElementCls, "groupId", "Ljava/lang/String;");
+        jfieldID roleFID = ctx->GetFieldID(arrayElementCls, "role", "Ljava/lang/String;");
+        jfieldID groupPubKeyFID = ctx->GetFieldID(arrayElementCls, "groupPubKey", "Ljava/lang/String;");
+        jfieldID groupEpochFID = ctx->GetFieldID(arrayElementCls, "groupEpoch", "J");
+
+        privmx::endpoint::core::GroupGrantWithKey group = privmx::endpoint::core::GroupGrantWithKey();
+        group.groupId = ctx.jString2string(
+                (jstring) ctx->GetObjectField(arrayElement, groupIdFID));
+        group.role = ctx.jString2string(
+                (jstring) ctx->GetObjectField(arrayElement, roleFID));
+        group.groupPubKey = ctx.jString2string(
+                (jstring) ctx->GetObjectField(arrayElement, groupPubKeyFID));
+        group.groupEpoch = (int64_t) ctx->GetLongField(arrayElement, groupEpochFID);
+
+        groups_c.push_back(group);
+    }
+    return groups_c;
+}
+
 privmx::endpoint::core::PKIVerificationOptions
 parsePKIVerificationOptions(JniContextUtils &ctx, jobject pkiVerificationOptions) {
     auto result = privmx::endpoint::core::PKIVerificationOptions();
