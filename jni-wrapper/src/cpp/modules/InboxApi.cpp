@@ -13,6 +13,7 @@
 #include <privmx/endpoint/inbox/InboxApi.hpp>
 #include <privmx/endpoint/core/Exception.hpp>
 #include "Connection.h"
+#include "GroupApi.h"
 #include "ThreadApi.h"
 #include "StoreApi.h"
 #include "../utils.hpp"
@@ -39,18 +40,21 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_inbox_InboxApi_init(
         JNIEnv *env, jobject thiz,
         jobject connection,
         jobject thread_api,
-        jobject store_api
+        jobject store_api,
+        jobject group_api
 ) {
     JniContextUtils ctx(env);
     jobject result;
-    ctx.callResultEndpointApi<jobject>(&result, [&ctx, &env, &connection, &thread_api, &store_api] {
+    ctx.callResultEndpointApi<jobject>(&result, [&ctx, &env, &connection, &thread_api, &store_api, &group_api] {
         auto connection_c = getConnection(env, connection);
         auto threadApi_c = getThreadApi(ctx, thread_api);
         auto storeApi_c = getStoreApi(ctx, store_api);
+        auto groupApi_c = getOptionalGroupApi(ctx, group_api);
         auto inboxApi = inbox::InboxApi::create(
                 *connection_c,
                 *threadApi_c,
-                *storeApi_c
+                *storeApi_c,
+                groupApi_c
         );
         auto inboxApi_ptr = new inbox::InboxApi();
         *inboxApi_ptr = inboxApi;
@@ -91,7 +95,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_inbox_InboxApi_createInbox(
         jbyteArray public_meta,
         jbyteArray private_meta,
         jobject files_config,
-        jobject container_policies
+        jobject container_policies,
+        jobject groups
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(context_id, "Context ID") ||
@@ -104,7 +109,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_inbox_InboxApi_createInbox(
     jstring result;
     ctx.callResultEndpointApi<jstring>(
             &result,
-            [&ctx, &thiz, &context_id, &users, &managers, &public_meta, &private_meta, &container_policies, &files_config]() {
+            [&ctx, &thiz, &context_id, &users, &managers, &public_meta, &private_meta, &container_policies, &files_config, &groups]() {
                 std::optional<inbox::FilesConfig> files_config_c = std::nullopt;
                 if (files_config != nullptr) {
                     files_config_c = parseFilesConfig(ctx, files_config);
@@ -119,6 +124,9 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_inbox_InboxApi_createInbox(
                 );
                 auto container_policies_n = std::optional<core::ContainerPolicyWithoutItem>(
                         parseContainerPolicyWithoutItem(ctx, container_policies));
+                std::vector<core::GroupGrantWithKey> groups_c = groupGrantsToVector(
+                        ctx,
+                        groups == nullptr ? nullptr : ctx.jObject2jArray(groups));
                 return ctx->NewStringUTF(
                         getInboxApi(ctx, thiz)->createInbox(
                                 ctx.jString2string(context_id),
@@ -127,7 +135,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_inbox_InboxApi_createInbox(
                                 core::Buffer::from(ctx.jByteArray2String(public_meta)),
                                 core::Buffer::from(ctx.jByteArray2String(private_meta)),
                                 files_config_c,
-                                container_policies_n
+                                container_policies_n,
+                                groups_c
                         ).c_str()
                 );
             });
@@ -152,7 +161,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_inbox_InboxApi_updateInbox(
         jlong version,
         jboolean force,
         jboolean force_generate_new_key,
-        jobject container_policies
+        jobject container_policies,
+        jobject groups
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(inbox_id, "Inbox ID") ||
@@ -175,7 +185,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_inbox_InboxApi_updateInbox(
                     &force,
                     &force_generate_new_key,
                     &container_policies,
-                    &files_config]() {
+                    &files_config,
+                    &groups]() {
                 std::optional<inbox::FilesConfig> files_config_c = std::nullopt;
                 if (files_config != nullptr) {
                     files_config_c = parseFilesConfig(ctx, files_config);
@@ -190,6 +201,9 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_inbox_InboxApi_updateInbox(
                 );
                 auto container_policies_n = std::optional<core::ContainerPolicyWithoutItem>(
                         parseContainerPolicyWithoutItem(ctx, container_policies));
+                std::vector<core::GroupGrantWithKey> groups_c = groupGrantsToVector(
+                        ctx,
+                        groups == nullptr ? nullptr : ctx.jObject2jArray(groups));
                 getInboxApi(ctx, thiz)->updateInbox(
                         ctx.jString2string(inbox_id),
                         users_c,
@@ -200,7 +214,51 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_inbox_InboxApi_updateInbox(
                         version,
                         force == JNI_TRUE,
                         force_generate_new_key == JNI_TRUE,
-                        container_policies_n
+                        container_policies_n,
+                        groups_c
+                );
+            });
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_inbox_InboxApi_rotateInboxKeys(
+        JNIEnv *env,
+        jobject thiz,
+        jstring inbox_id,
+        jobject users,
+        jobject managers,
+        jlong version,
+        jboolean force,
+        jobject groups
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(inbox_id, "Inbox ID") ||
+        ctx.nullCheck(users, "Users list") ||
+        ctx.nullCheck(managers, "Managers list")) {
+        return;
+    }
+    ctx.callVoidEndpointApi(
+            [&ctx, &thiz, &inbox_id, &users, &managers, &version, &force, &groups]() {
+                std::vector<core::UserWithPubKey> users_c = usersToVector(
+                        ctx,
+                        ctx.jObject2jArray(users)
+                );
+                std::vector<core::UserWithPubKey> managers_c = usersToVector(
+                        ctx,
+                        ctx.jObject2jArray(managers)
+                );
+                std::vector<core::GroupGrantWithKey> groups_c = groupGrantsToVector(
+                        ctx,
+                        groups == nullptr ? nullptr : ctx.jObject2jArray(groups));
+
+                getInboxApi(ctx, thiz)->rotateInboxKeys(
+                        ctx.jString2string(inbox_id),
+                        users_c,
+                        managers_c,
+                        version,
+                        force == JNI_TRUE,
+                        groups_c
                 );
             });
 }
