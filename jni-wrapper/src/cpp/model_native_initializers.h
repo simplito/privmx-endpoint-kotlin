@@ -72,6 +72,10 @@ namespace privmx {
         jobject userWithPubKey2Java(JniContextUtils &ctx,
                 privmx::endpoint::core::UserWithPubKey userWithPubKey);
 
+        // GroupGrant
+        jobject groupGrant2Java(JniContextUtils &ctx,
+                privmx::endpoint::core::GroupGrant groupGrant_c);
+
         //UserInfo
         jobject userInfo2Java(JniContextUtils &ctx, privmx::endpoint::core::UserInfo userInfo);
 
