@@ -8,6 +8,10 @@ let package = Package(
     ],
     products: [
         .library(
+            name: "WebRTC",
+            targets: ["WebRTC"]
+        ),
+        .library(
             name: "PrivMXEndpoint",
             targets: ["PrivMXEndpointObjC"]
         ),
