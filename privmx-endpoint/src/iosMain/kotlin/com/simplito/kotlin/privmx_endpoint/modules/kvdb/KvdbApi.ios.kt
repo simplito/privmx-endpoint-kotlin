@@ -13,6 +13,7 @@ package com.simplito.kotlin.privmx_endpoint.modules.kvdb
 
 import cnames.structs.pson_value
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
+import com.simplito.kotlin.privmx_endpoint.model.GroupGrantWithKey
 import com.simplito.kotlin.privmx_endpoint.model.Kvdb
 import com.simplito.kotlin.privmx_endpoint.model.KvdbEntry
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
@@ -22,6 +23,7 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.KvdbEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.modules.group.GroupApi
 import com.simplito.kotlin.privmx_endpoint.utils.KPSON_NULL
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
 import com.simplito.kotlin.privmx_endpoint.utils.asResponse
@@ -49,11 +51,15 @@ import libprivmxendpoint.pson_free_value
 import libprivmxendpoint.pson_new_array
 
 /**
- * Manages PrivMX Bridge  KVDBs and their messages.
+ * Manages PrivMX Bridge KVDBs and their entries.
+ * @param connection active connection to PrivMX Bridge
+ * @param groupApi instance of [GroupApi], required to read and write KVDBs granted to Groups. Passing `null`
+ * creates a Group-unaware `KvdbApi`.
+ * @throws IllegalStateException when given [Connection] is not connected
  */
 @OptIn(ExperimentalForeignApi::class)
 actual class KvdbApi
-actual constructor(connection: Connection) : AutoCloseable {
+actual constructor(connection: Connection, groupApi: GroupApi?) : AutoCloseable {
     private val _nativeKvdbApi = nativeHeap.allocPointerTo<cnames.structs.KvdbApi>()
     private val nativeKvdbApi
         get() = _nativeKvdbApi.value?.let { _nativeKvdbApi }
@@ -62,7 +68,7 @@ actual constructor(connection: Connection) : AutoCloseable {
     internal fun getKvdbPtr() = nativeKvdbApi.value
 
     init {
-        privmx_endpoint_newKvdbApi(connection.getConnectionPtr(), _nativeKvdbApi.ptr)
+        privmx_endpoint_newKvdbApi(connection.getConnectionPtr(), groupApi?.getGroupPtr(), _nativeKvdbApi.ptr)
         memScoped {
             val args = pson_new_array()
             val pson_result = allocPointerTo<pson_value>()
@@ -85,6 +91,7 @@ actual constructor(connection: Connection) : AutoCloseable {
      * @param publicMeta  public (unencrypted) metadata
      * @param privateMeta private (encrypted) metadata
      * @param policies    KVDB's policies
+     * @param groups      Groups granted access to the created KVDB, with their verified epoch public keys
      * @return ID of the created KVDB
      * @throws IllegalStateException thrown when instance is closed.
      * @throws PrivmxException       thrown when method encounters an exception.
@@ -97,7 +104,8 @@ actual constructor(connection: Connection) : AutoCloseable {
         managers: List<UserWithPubKey>,
         publicMeta: ByteArray,
         privateMeta: ByteArray,
-        policies: ContainerPolicy?
+        policies: ContainerPolicy?,
+        groups: List<GroupGrantWithKey>
     ): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -106,7 +114,8 @@ actual constructor(connection: Connection) : AutoCloseable {
             managers.map { it.pson }.pson,
             publicMeta.pson,
             privateMeta.pson,
-            policies?.pson ?: KPSON_NULL
+            policies?.pson ?: KPSON_NULL,
+            groups.map { it.pson }.pson
         )
         try {
             privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 1, args, pson_result.ptr)
@@ -130,6 +139,8 @@ actual constructor(connection: Connection) : AutoCloseable {
      * @param force               force update (without checking version)
      * @param forceGenerateNewKey force to regenerate a key for the KVDB
      * @param policies            KVDB's policies
+     * @param groups              Groups granted access to the KVDB, with their verified epoch public keys.
+     * The list is authoritative — an empty list revokes every Group grant the KVDB had.
      * @throws IllegalStateException thrown when instance is closed.
      * @throws PrivmxException       thrown when method encounters an exception.
      * @throws NativeException       thrown when method encounters an unknown exception.
@@ -144,7 +155,8 @@ actual constructor(connection: Connection) : AutoCloseable {
         version: Long,
         force: Boolean,
         forceGenerateNewKey: Boolean,
-        policies: ContainerPolicy?
+        policies: ContainerPolicy?,
+        groups: List<GroupGrantWithKey>
     ) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -156,7 +168,8 @@ actual constructor(connection: Connection) : AutoCloseable {
             version.pson,
             force.pson,
             forceGenerateNewKey.pson,
-            policies?.pson ?: KPSON_NULL
+            policies?.pson ?: KPSON_NULL,
+            groups.map { it.pson }.pson
         )
         try {
             privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 2, args, pson_result.ptr)
@@ -168,6 +181,46 @@ actual constructor(connection: Connection) : AutoCloseable {
         }
     }
 
+    /**
+     * Re-encrypts the KVDB key for all current members without changing data, membership, or policy.
+     *
+     * @param kvdbId   ID of the KVDB to re-key
+     * @param users    current KVDB users with their public keys
+     * @param managers current KVDB managers with their public keys
+     * @param version  current KVDB version (optimistic lock guard)
+     * @param force    skip the version check when `true`
+     * @param groups   epoch public keys of grantee Groups the caller has verified itself
+     * @throws IllegalStateException thrown when instance is closed.
+     * @throws PrivmxException       thrown when method encounters an exception.
+     * @throws NativeException       thrown when method encounters an unknown exception.
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun rotateKvdbKeys(
+        kvdbId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        version: Long,
+        force: Boolean,
+        groups: List<GroupGrantWithKey>
+    ) = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            kvdbId.pson,
+            users.map { it.pson }.pson,
+            managers.map { it.pson }.pson,
+            version.pson,
+            force.pson,
+            groups.map { it.pson }.pson
+        )
+        try {
+            privmx_endpoint_execKvdbApi(nativeKvdbApi.value, 22, args, pson_result.ptr)
+            pson_result.value?.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
 
     /**
      * Deletes a KVDB by given KVDB ID.
