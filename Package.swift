@@ -40,7 +40,7 @@ let package = Package(
         .binaryTarget(
             name: "PrivMXEndpointStreamsObjC",
             url: "https://github.com/simplito/privmx-endpoint-kotlin/releases/download/2.8.0-rc1/PrivMXEndpointStreamsObjC.xcframework.zip",
-            checksum: "dafa97541862b68bc301a604d51197e3da552c82e11f9f4c1450168339241a7f"
+            checksum: "fe2bd2cf701b74a9d360ac8f83d6b40a49e1e022bacc445fa2de97881e784532"
         ),
 
         .binaryTarget(
