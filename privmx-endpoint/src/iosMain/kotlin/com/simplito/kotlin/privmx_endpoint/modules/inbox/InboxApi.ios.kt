@@ -14,6 +14,7 @@ package com.simplito.kotlin.privmx_endpoint.modules.inbox
 import cnames.structs.pson_value
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
+import com.simplito.kotlin.privmx_endpoint.model.GroupGrantWithKey
 import com.simplito.kotlin.privmx_endpoint.model.Inbox
 import com.simplito.kotlin.privmx_endpoint.model.InboxEntry
 import com.simplito.kotlin.privmx_endpoint.model.InboxPublicView
@@ -24,6 +25,7 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.InboxEventTyp
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.modules.group.GroupApi
 import com.simplito.kotlin.privmx_endpoint.modules.store.StoreApi
 import com.simplito.kotlin.privmx_endpoint.modules.thread.ThreadApi
 import com.simplito.kotlin.privmx_endpoint.utils.KPSON_NULL
@@ -57,13 +59,16 @@ import libprivmxendpoint.pson_new_array
  * @param connection active connection to PrivMX Bridge
  * @param threadApi  instance of [ThreadApi] created on passed Connection
  * @param storeApi   instance of [StoreApi] created on passed Connection
+ * @param groupApi   instance of [GroupApi], required to read and write Inboxes granted to Groups. An Inbox grants
+ * and re-keys its inner Thread and Store alongside itself, so [threadApi] and [storeApi] must have been created
+ * with the same [GroupApi]. Passing `null` creates a Group-unaware `InboxApi`.
  * @throws IllegalStateException when one of the passed parameters is closed
  */
 @OptIn(ExperimentalForeignApi::class)
 actual class InboxApi
 @Throws(IllegalStateException::class)
 actual constructor(
-    connection: Connection, threadApi: ThreadApi?, storeApi: StoreApi?
+    connection: Connection, threadApi: ThreadApi?, storeApi: StoreApi?, groupApi: GroupApi?
 ) : AutoCloseable {
     private val _nativeInboxApi = nativeHeap.allocPointerTo<cnames.structs.InboxApi>()
     private val nativeInboxApi
@@ -72,18 +77,19 @@ actual constructor(
 
     init {
         val tmpThreadApi = if (threadApi == null) {
-            ThreadApi(connection)
+            ThreadApi(connection, groupApi)
         } else null
 
         val tmpStoreApi = if (storeApi == null) {
-            StoreApi(connection)
+            StoreApi(connection, groupApi)
         } else null
 
         privmx_endpoint_newInboxApi(
             connection.getConnectionPtr(),
             (threadApi ?: tmpThreadApi)?.getThreadPtr(),
             (storeApi ?: tmpStoreApi)?.getStorePtr(),
-            _nativeInboxApi.ptr
+            _nativeInboxApi.ptr,
+            groupApi,
         )
 
         memScoped {
@@ -112,6 +118,9 @@ actual constructor(
      * @param privateMeta private (encrypted) metadata
      * @param filesConfig overrides default file configuration
      * @param policies    additional container access policies
+     * @param groups      Groups granted access to the created Inbox, with their verified epoch public keys;
+     * the same grants are applied to the Inbox's inner Thread and Store
+     *
      * @return ID of the created Inbox
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
@@ -127,7 +136,8 @@ actual constructor(
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         filesConfig: FilesConfig?,
-        policies: ContainerPolicyWithoutItem?
+        policies: ContainerPolicyWithoutItem?,
+        groups: List<GroupGrantWithKey>
     ): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -137,7 +147,8 @@ actual constructor(
             publicMeta.pson,
             privateMeta.pson,
             filesConfig?.pson ?: KPSON_NULL,
-            policies?.pson ?: KPSON_NULL
+            policies?.pson ?: KPSON_NULL,
+            groups.map { it.pson }.pson,
         )
         try {
             privmx_endpoint_execInboxApi(nativeInboxApi.value, 1, args, pson_result.ptr)
@@ -162,6 +173,8 @@ actual constructor(
      * @param force               force update (without checking version)
      * @param forceGenerateNewKey force to regenerate a key for the Inbox
      * @param policies            additional container access policies
+     * @param groups              Groups granted access to the Inbox, with their verified epoch public keys.
+     *
      * @throws PrivmxException       thrown when method encounters an exception
      * @throws NativeException       thrown when method encounters an unknown exception
      * @throws IllegalStateException thrown when instance is closed
@@ -179,7 +192,8 @@ actual constructor(
         version: Long,
         force: Boolean,
         forceGenerateNewKey: Boolean,
-        policies: ContainerPolicyWithoutItem?
+        policies: ContainerPolicyWithoutItem?,
+        groups: List<GroupGrantWithKey>
     ) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -193,6 +207,7 @@ actual constructor(
             force.pson,
             forceGenerateNewKey.pson,
             policies?.pson ?: KPSON_NULL,
+            groups.map { it.pson }.pson,
         )
         try {
             privmx_endpoint_execInboxApi(nativeInboxApi.value, 2, args, pson_result.ptr)
@@ -656,6 +671,35 @@ actual constructor(
             pson_free_result(pson_result.value)
         }
     }
+
+    @Throws(exceptionClasses = [PrivmxException::class, NativeException::class, IllegalStateException::class])
+    actual fun rotateInboxKeys(
+        inboxId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        version: Long,
+        force: Boolean,
+        groups: List<GroupGrantWithKey>
+    )  = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            inboxId.pson,
+            users.map { it.pson }.pson,
+            managers.map { it.pson }.pson,
+            version.pson,
+            force.pson,
+            groups.map { it.pson }.pson,
+        )
+        try {
+            privmx_endpoint_execInboxApi(nativeInboxApi.value, 25, args, pson_result.ptr)
+            pson_result.value!!.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_value(args)
+            pson_free_result(pson_result.value)
+        }
+    }
+
 
     /**
      * Subscribe for the Inbox events on the given subscription query.
