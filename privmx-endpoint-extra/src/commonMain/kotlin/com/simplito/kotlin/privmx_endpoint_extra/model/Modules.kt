@@ -40,6 +40,11 @@ enum class Modules {
     KVDB,
 
     /**
+     * Search module case.
+     */
+    SEARCH,
+
+    /**
      * Stream module case.
      */
     STREAM
