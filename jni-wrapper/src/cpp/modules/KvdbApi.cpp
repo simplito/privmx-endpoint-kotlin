@@ -12,6 +12,7 @@
 #include "../utils.hpp"
 #include "../parser.h"
 #include "Connection.h"
+#include "GroupApi.h"
 #include <privmx/endpoint/kvdb/KvdbApi.hpp>
 #include <jni.h>
 #include "../model_native_initializers.h"
@@ -32,13 +33,15 @@ extern "C" JNIEXPORT jobject JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_kvdb_KvdbApi_init(
         JNIEnv *env,
         jobject thiz,
-        jobject connection
+        jobject connection,
+        jobject group_api
 ) {
     JniContextUtils ctx(env);
     jobject result;
-    ctx.callResultEndpointApi<jobject>(&result, [&ctx, &env, &connection] {
+    ctx.callResultEndpointApi<jobject>(&result, [&ctx, &env, &connection, &group_api] {
         auto connection_c = getConnection(env, connection);
-        auto kvdbApi = kvdb::KvdbApi::create(*connection_c);
+        auto groupApi_c = getOptionalGroupApi(ctx, group_api);
+        auto kvdbApi = kvdb::KvdbApi::create(*connection_c, groupApi_c);
         auto kvdbApi_ptr = new kvdb::KvdbApi();
         *kvdbApi_ptr = kvdbApi;
 
@@ -74,7 +77,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_kvdb_KvdbApi_createKvdb(
         jobject managers,
         jbyteArray public_meta,
         jbyteArray private_meta,
-        jobject policies
+        jobject policies,
+        jobject groups
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(context_id, "Context ID") || ctx.nullCheck(users, "Users list") ||
@@ -94,7 +98,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_kvdb_KvdbApi_createKvdb(
                     &managers,
                     &public_meta,
                     &private_meta,
-                    &policies]() {
+                    &policies,
+                    &groups]() {
                 auto container_policies_n = std::optional<core::ContainerPolicy>(
                         parseContainerPolicy(ctx, policies));
 
@@ -102,6 +107,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_kvdb_KvdbApi_createKvdb(
                         ctx, ctx.jObject2jArray(users));
                 std::vector<core::UserWithPubKey> managers_c = usersToVector(
                         ctx, ctx.jObject2jArray(managers));
+                std::vector<core::GroupGrantWithKey> groups_c = groupGrantsToVector(
+                        ctx, groups == nullptr ? nullptr : ctx.jObject2jArray(groups));
 
                 return ctx->NewStringUTF(
                         getKvdbApi(ctx, thiz)->createKvdb(
@@ -111,7 +118,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_kvdb_KvdbApi_createKvdb(
                                                 public_meta)),
                                 core::Buffer::from(ctx.jByteArray2String(
                                         private_meta)),
-                                container_policies_n).c_str());
+                                container_policies_n,
+                                groups_c).c_str());
             });
     if (ctx->ExceptionCheck()) {
         return nullptr;
@@ -129,7 +137,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_kvdb_KvdbApi_updateKvdb(
         jlong version,
         jboolean force,
         jboolean force_generate_new_key,
-        jobject policies
+        jobject policies,
+        jobject groups
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(kvdb_id, "Kvdb ID") ||
@@ -151,7 +160,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_kvdb_KvdbApi_updateKvdb(
                                     &version,
                                     &force,
                                     &force_generate_new_key,
-                                    &policies]() {
+                                    &policies,
+                                    &groups]() {
         auto container_policies_n = std::optional<core::ContainerPolicy>(
                 parseContainerPolicy(ctx, policies));
 
@@ -159,6 +169,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_kvdb_KvdbApi_updateKvdb(
                 ctx, ctx.jObject2jArray(users));
         std::vector<core::UserWithPubKey> managers_c = usersToVector(
                 ctx, ctx.jObject2jArray(managers));
+        std::vector<core::GroupGrantWithKey> groups_c = groupGrantsToVector(
+                ctx, groups == nullptr ? nullptr : ctx.jObject2jArray(groups));
 
         getKvdbApi(ctx, thiz)->updateKvdb(
                 ctx.jString2string(kvdb_id),
@@ -169,7 +181,45 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_kvdb_KvdbApi_updateKvdb(
                 version,
                 force == JNI_TRUE,
                 force_generate_new_key == JNI_TRUE,
-                container_policies_n
+                container_policies_n,
+                groups_c
+        );
+    });
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_kvdb_KvdbApi_rotateKvdbKeys(
+        JNIEnv *env, jobject thiz,
+        jstring kvdb_id,
+        jobject users,
+        jobject managers,
+        jlong version,
+        jboolean force,
+        jobject groups
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(kvdb_id, "Kvdb ID") ||
+        ctx.nullCheck(users, "Users list") ||
+        ctx.nullCheck(managers, "Managers list")) {
+        return;
+    }
+
+    ctx.callVoidEndpointApi([&ctx, &thiz, &kvdb_id, &users, &managers, &version, &force, &groups]() {
+        std::vector<core::UserWithPubKey> users_c = usersToVector(
+                ctx, ctx.jObject2jArray(users));
+        std::vector<core::UserWithPubKey> managers_c = usersToVector(
+                ctx, ctx.jObject2jArray(managers));
+        std::vector<core::GroupGrantWithKey> groups_c = groupGrantsToVector(
+                ctx, groups == nullptr ? nullptr : ctx.jObject2jArray(groups));
+
+        getKvdbApi(ctx, thiz)->rotateKvdbKeys(
+                ctx.jString2string(kvdb_id),
+                users_c,
+                managers_c,
+                version,
+                force == JNI_TRUE,
+                groups_c
         );
     });
 }
