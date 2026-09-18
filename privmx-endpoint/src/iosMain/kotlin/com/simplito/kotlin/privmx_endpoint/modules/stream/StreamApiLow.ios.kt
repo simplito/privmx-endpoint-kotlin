@@ -13,6 +13,7 @@ package com.simplito.kotlin.privmx_endpoint.modules.stream
 
 import cnames.structs.pson_value
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
+import com.simplito.kotlin.privmx_endpoint.model.GroupGrantWithKey
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.NativeException
@@ -21,6 +22,7 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.*
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventSelectorTypes.StreamEventSelectorType
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.eventTypes.StreamEventType
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.modules.group.GroupApi
 import com.simplito.kotlin.privmx_endpoint.utils.KPSON_NULL
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue
 import com.simplito.kotlin.privmx_endpoint.utils.asResponse
@@ -47,13 +49,16 @@ import libprivmxendpoint.*
 /**
  * Low-level Stream API for PrivMX Bridge.
  * @param connection active connection to PrivMX Bridge
+ * @param groupApi instance of [GroupApi], required to read and write Stream Rooms granted to Groups. Passing `null`
+ * creates a Group-unaware `StreamApiLow`.
  * @throws IllegalStateException when one of the passed parameters is closed
  */
 @OptIn(ExperimentalForeignApi::class)
 actual class StreamApiLow
 @Throws(IllegalStateException::class)
 actual constructor(
-    connection: Connection
+    connection: Connection,
+    groupApi: GroupApi?
 ) : AutoCloseable {
     private val _nativeStreamApiLow = nativeHeap.allocPointerTo<cnames.structs.StreamApiLow>()
     private val proxyWebrtcList = ProxyWebrtcList()
@@ -64,6 +69,7 @@ actual constructor(
     init {
         privmx_endpoint_newStreamApiLow(
             connection.getConnectionPtr(),
+            groupApi?.getGroupPtr(),
             _nativeStreamApiLow.ptr
         )
 
@@ -120,10 +126,12 @@ actual constructor(
      * @param policies additional container access policies
      * @param emptyRoomTtl grace period (ms) the Stream Room stays open after the last participant leaves;
      * 0 closes it immediately; null use the server default (closes it immediately)
+     * @param groups Groups granted access to the created room, with their verified epoch public keys
      *
      * @return ID of the created room
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
+     *
      * @throws IllegalStateException thrown when instance is closed
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
@@ -134,7 +142,8 @@ actual constructor(
         publicMeta: ByteArray,
         privateMeta: ByteArray,
         policies: ContainerPolicyWithoutItem?,
-        emptyRoomTtl: Long?
+        emptyRoomTtl: Long?,
+        groups: List<GroupGrantWithKey>
     ): String = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -144,7 +153,8 @@ actual constructor(
             publicMeta.pson,
             privateMeta.pson,
             policies?.pson ?: KPSON_NULL,
-            emptyRoomTtl?.pson ?: KPSON_NULL
+            emptyRoomTtl?.pson ?: KPSON_NULL,
+            groups.map { it.pson }.pson
         )
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 2, args, pson_result.ptr)
@@ -167,6 +177,8 @@ actual constructor(
      * @param force force update
      * @param forceGenerateNewKey force to regenerate a key for the room
      * @param policies additional container access policies
+     * @param groups Groups granted access to the room, with their verified epoch public keys.
+     * The list is authoritative — an empty list revokes every Group grant the room had.
      *
      * @throws PrivmxException thrown when method encounters an exception
      * @throws NativeException thrown when method encounters an unknown exception
@@ -182,7 +194,8 @@ actual constructor(
         version: Long,
         force: Boolean,
         forceGenerateNewKey: Boolean,
-        policies: ContainerPolicyWithoutItem?
+        policies: ContainerPolicyWithoutItem?,
+        groups: List<GroupGrantWithKey>
     ) = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
@@ -194,10 +207,55 @@ actual constructor(
             version.pson,
             force.pson,
             forceGenerateNewKey.pson,
-            policies?.pson ?: KPSON_NULL
+            policies?.pson ?: KPSON_NULL,
+            groups.map { it.pson }.pson
         )
         try {
             privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 3, args, pson_result.ptr)
+            pson_result.value?.asResponse?.getResultOrThrow()
+            Unit
+        } finally {
+            pson_free_result(pson_result.value)
+            pson_free_value(args)
+        }
+    }
+
+    /**
+     * Re-encrypts the stream room key for all current members without changing data, membership, or policy.
+     * Unlike [updateStreamRoom], this can be called by any room member (not just managers) when the default
+     * `rotateKeys` policy of `"user"` is in effect.
+     *
+     * @param streamRoomId ID of the room to re-key
+     * @param users current room users with their public keys
+     * @param managers current room managers with their public keys
+     * @param version current room version (optimistic lock guard)
+     * @param force skip the version check when `true`
+     * @param groups epoch public keys of grantee Groups the caller has verified itself; Groups the room does not
+     * grant are ignored — a re-key changes no grants
+     * @throws PrivmxException thrown when method encounters an exception
+     * @throws NativeException thrown when method encounters an unknown exception
+     * @throws IllegalStateException thrown when instance is closed
+     */
+    @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    actual fun rotateStreamRoomKeys(
+        streamRoomId: String,
+        users: List<UserWithPubKey>,
+        managers: List<UserWithPubKey>,
+        version: Long,
+        force: Boolean,
+        groups: List<GroupGrantWithKey>
+    ) = memScoped {
+        val pson_result = allocPointerTo<pson_value>()
+        val args = makeArgs(
+            streamRoomId.pson,
+            users.map { it.pson }.pson,
+            managers.map { it.pson }.pson,
+            version.pson,
+            force.pson,
+            groups.map { it.pson }.pson
+        )
+        try {
+            privmx_endpoint_execStreamApiLow(nativeStreamApiLow.value, 26, args, pson_result.ptr)
             pson_result.value?.asResponse?.getResultOrThrow()
             Unit
         } finally {
