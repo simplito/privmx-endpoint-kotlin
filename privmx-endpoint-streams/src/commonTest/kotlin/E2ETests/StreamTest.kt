@@ -50,27 +50,16 @@ class StreamTest : BaseTest() {
 
     @AfterTest
     fun afterEach() {
-        try {
-            deleteAllRooms(
-                streamApi,
-                contextId!!
-            )
+        try { deleteAllRooms(streamApi, contextId!!) } catch (_: Exception) { }
+        try { deleteAllRooms(streamApi2, contextId!!) } catch (_: Exception) { }
 
-            deleteAllRooms(
-                streamApi2,
-                contextId!!
-            )
+        try { streamApi.close() } catch (_: Exception) { }
+        try { streamApiLow.close() } catch (_: Exception) { }
+        try { connection?.close() } catch (_: Exception) { }
 
-            streamApi.close()
-            streamApiLow.close()
-            connection?.close()
-
-            streamApi2.close()
-            streamApiLow2.close()
-            connection2.close()
-
-        } catch (_: Exception) {
-        }
+        try { streamApi2.close() } catch (_: Exception) { }
+        try { streamApiLow2.close() } catch (_: Exception) { }
+        try { connection2.close() } catch (_: Exception) { }
     }
 
     /** create room - should be same id and metadata */
