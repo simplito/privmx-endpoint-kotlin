@@ -922,6 +922,28 @@ privmx::endpoint::stream::DataChannelMessage parseDataChannelMessage(
     return result;
 }
 
+// Group
+
+std::string parseGroupRole(
+        JniContextUtils &ctx,
+        jobject role
+) {
+    static const std::map<std::string, std::string> roleNames = {
+            {"USER",    "user"},
+            {"MANAGER", "manager"}
+    };
+    jclass roleCls = ctx.findClass("com/simplito/kotlin/privmx_endpoint/model/ContainerRole");
+    jmethodID nameMethodId = ctx->GetMethodID(roleCls, "name", "()Ljava/lang/String;");
+    auto nameJString = (jstring) ctx->CallObjectMethod(role, nameMethodId);
+    std::string caseName = ctx.jString2string(nameJString);
+
+    auto entry = roleNames.find(caseName);
+    if (entry == roleNames.end()) {
+        throw IllegalStateException("Unknown ContainerRole");
+    }
+    return entry->second;
+}
+
 int64_t jobject2long(JniContextUtils &ctx, jobject jLong) {
     jclass longClass = ctx->FindClass("java/lang/Long");
     jmethodID longValueMethod = ctx->GetMethodID(longClass, "longValue", "()J");

@@ -14,9 +14,9 @@ package com.simplito.kotlin.privmx_endpoint.model
  * Represents a Group granted access to a container.
  *
  * @property groupId ID of the Group
- * @property role    Role held by the Group in the container ("user" or "manager")
+ * @property role    Role held by the Group in the container
  */
 data class GroupGrant(
     val groupId: String,
-    val role: String
+    val role: GroupRole
 )
