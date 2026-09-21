@@ -1497,6 +1497,98 @@ namespace privmx {
             return ctx->GetStaticObjectField(groupChangeKindCls, caseFieldId);
         }
 
+        jobject groupChangedEventData2Java(
+                JniContextUtils &ctx,
+                const privmx::endpoint::group::GroupChangedEventData &data
+        ) {
+            jclass groupChangedEventDataCls = ctx.findClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/GroupChangedEventData");
+            jmethodID initGroupChangedEventDataMID = ctx->GetMethodID(
+                    groupChangedEventDataCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"    // groupId
+                    "Ljava/lang/String;"    // contextId
+                    "J"                     // publicMetaVersion
+                    "J"                     // privateMetaVersion
+                    "J"                     // rosterVersion
+                    "J"                     // keyVersion
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/GroupChangeKind;"   // changeKind
+                    ")V"
+            );
+
+            return ctx->NewObject(
+                    groupChangedEventDataCls,
+                    initGroupChangedEventDataMID,
+                    ctx->NewStringUTF(data.groupId.c_str()),
+                    ctx->NewStringUTF(data.contextId.c_str()),
+                    (jlong) data.publicMetaVersion,
+                    (jlong) data.privateMetaVersion,
+                    (jlong) data.rosterVersion,
+                    (jlong) data.keyVersion,
+                    groupChangeKind2Java(ctx, data.changeKind)
+            );
+        }
+
+        jobject groupDeletedEventData2Java(
+                JniContextUtils &ctx,
+                const privmx::endpoint::group::GroupDeletedEventData &data
+        ) {
+            jclass groupDeletedEventDataCls = ctx.findClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/GroupDeletedEventData");
+            jmethodID initGroupDeletedEventDataMID = ctx->GetMethodID(
+                    groupDeletedEventDataCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"    // groupId
+                    "Ljava/lang/String;"    // contextId
+                    ")V"
+            );
+
+            return ctx->NewObject(
+                    groupDeletedEventDataCls,
+                    initGroupDeletedEventDataMID,
+                    ctx->NewStringUTF(data.groupId.c_str()),
+                    ctx->NewStringUTF(data.contextId.c_str())
+            );
+        }
+
+        jobject groupCustomEventData2Java(
+                JniContextUtils &ctx,
+                const privmx::endpoint::group::GroupCustomEventData &data
+        ) {
+            jclass groupCustomEventDataCls = ctx.findClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/GroupCustomEventData");
+            jmethodID initGroupCustomEventDataMID = ctx->GetMethodID(
+                    groupCustomEventDataCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"    // groupId
+                    "Ljava/lang/String;"    // channelName
+                    "Ljava/lang/String;"    // userId
+                    "Ljava/lang/String;"    // authorPubKey
+                    "[B"                    // payload
+                    "J"                     // statusCode
+                    ")V"
+            );
+
+            jbyteArray payload = ctx->NewByteArray(data.payload.size());
+            ctx->SetByteArrayRegion(
+                    payload, 0,
+                    data.payload.size(),
+                    (jbyte *) data.payload.data());
+
+            return ctx->NewObject(
+                    groupCustomEventDataCls,
+                    initGroupCustomEventDataMID,
+                    ctx->NewStringUTF(data.groupId.c_str()),
+                    ctx->NewStringUTF(data.channelName.c_str()),
+                    ctx->NewStringUTF(data.userId.c_str()),
+                    ctx->NewStringUTF(data.authorPubKey.c_str()),
+                    payload,
+                    (jlong) data.statusCode
+            );
+        }
 
         //Streams
         jobject keyType2Java(

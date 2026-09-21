@@ -35,6 +35,9 @@
 #include "privmx/endpoint/kvdb/KvdbApi.hpp"
 #include "privmx/endpoint/kvdb/Types.hpp"
 #include "privmx/endpoint/kvdb/Events.hpp"
+#include "privmx/endpoint/group/GroupApi.hpp"
+#include "privmx/endpoint/group/Types.hpp"
+#include "privmx/endpoint/group/Events.hpp"
 #include "privmx/endpoint/stream/Types.hpp"
 #include "privmx/endpoint/stream/WebRTCInterface.hpp"
 #include "privmx/endpoint/stream/Events.hpp"
@@ -186,6 +189,15 @@ namespace privmx {
 
         //Group
         jobject groupChangeKind2Java(JniContextUtils &ctx, const std::string &changeKind_c);
+
+        jobject groupChangedEventData2Java(JniContextUtils &ctx,
+                const privmx::endpoint::group::GroupChangedEventData &data);
+
+        jobject groupDeletedEventData2Java(JniContextUtils &ctx,
+                const privmx::endpoint::group::GroupDeletedEventData &data);
+
+        jobject groupCustomEventData2Java(JniContextUtils &ctx,
+                const privmx::endpoint::group::GroupCustomEventData &data);
 
         //Streams
         jobject streamRoom2Java(
