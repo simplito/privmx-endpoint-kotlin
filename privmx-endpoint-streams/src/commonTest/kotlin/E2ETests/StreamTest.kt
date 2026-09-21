@@ -907,8 +907,10 @@ class StreamTest : BaseTest() {
         val (roomId, streamId) = publishedStreamWithSecondMemberJoined()
         val subs = getStreamsToSubscribe(streamApi, roomId).filter { it.streamId == streamId }
 
-        assertFailsWith<IllegalStateException> {
+        assertDoesNotFail {
             streamApi2.createSubscriberStream(roomId, subs)
+        }
+        assertFailsWith<IllegalStateException> {
             streamApi2.createSubscriberStream(roomId, subs)
         }
     }
