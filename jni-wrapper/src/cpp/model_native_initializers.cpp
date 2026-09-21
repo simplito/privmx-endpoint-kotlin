@@ -669,13 +669,13 @@ namespace privmx {
 
                 auto groupGrants = vectorTojArray(
                         ctx,
-                        thread_c.groups,
+                        store_c.groups,
                         groupGrant2Java
                 );
 
                 auto staleGroups = vectorTojArray(
                         ctx,
-                        thread_c.staleGroups,
+                        store_c.staleGroups,
                         string2jobject
                 );
 
