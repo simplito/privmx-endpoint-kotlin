@@ -1806,7 +1806,7 @@ namespace privmx {
                 JniContextUtils &ctx,
                 privmx::endpoint::group::EnvelopeType envelopeType_c
         ) {
-            jclass envelopeTypeCls = ctx.findClass(
+            jclass envelopeTypeCls = ctx->FindClass(
                     "com/simplito/kotlin/privmx_endpoint/model/EnvelopeType");
             const char *caseName;
             switch (envelopeType_c) {
