@@ -1867,7 +1867,7 @@ namespace privmx {
                     "Ljava/lang/String;"    // groupId
                     "Ljava/lang/String;"    // authorPubKey
                     "Lcom/simplito/kotlin/privmx_endpoint/model/EnvelopeType;" //type
-                    "Ljava/lang/Boolean;"   // complete
+                    "Z"                     // complete
                     ")V"
             );
 
@@ -1877,7 +1877,7 @@ namespace privmx {
                     ctx->NewStringUTF(decryptedFileInfo_c.groupId.c_str()),
                     ctx->NewStringUTF(decryptedFileInfo_c.authorPubKey.c_str()),
                     envelopeType2Java(ctx, decryptedFileInfo_c.type),
-                    ctx.bool2jBoolean(decryptedFileInfo_c.complete)
+                    (jboolean) decryptedFileInfo_c.complete
             );
         }
 
