@@ -9,8 +9,11 @@
 // limitations under the License.
 //
 
+#include <map>
+
 #include "model_native_initializers.h"
 #include "parser.h"
+#include "exceptions.h"
 
 namespace privmx {
     namespace wrapper {
@@ -1462,6 +1465,37 @@ namespace privmx {
                         ctx.long2jLong(kvdbEntry_c.schemaVersion)
                 );
             }
+
+
+        //Group
+        jobject groupChangeKind2Java(
+                JniContextUtils &ctx,
+                const std::string &changeKind_c
+        ) {
+            static const std::map<std::string, const char *> changeKindNames = {
+                    {"created",            "CREATED"},
+                    {"publicMetaUpdated",  "PUBLIC_META_UPDATED"},
+                    {"privateMetaUpdated", "PRIVATE_META_UPDATED"},
+                    {"policyUpdated",      "POLICY_UPDATED"},
+                    {"keyRotated",         "KEY_ROTATED"},
+                    {"memberAdded",        "MEMBER_ADDED"},
+                    {"memberRemoved",      "MEMBER_REMOVED"},
+                    {"eraCut",             "ERA_CUT"},
+                    {"archivePruned",      "ARCHIVE_PRUNED"}
+            };
+            auto entry = changeKindNames.find(changeKind_c);
+            if (entry == changeKindNames.end()) {
+                throw IllegalStateException("Unknown GroupChangeKind");
+            }
+            jclass groupChangeKindCls = ctx.findClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/GroupChangeKind");
+            jfieldID caseFieldId = ctx->GetStaticFieldID(
+                    groupChangeKindCls,
+                    entry->second,
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/GroupChangeKind;"
+            );
+            return ctx->GetStaticObjectField(groupChangeKindCls, caseFieldId);
+        }
 
 
         //Streams

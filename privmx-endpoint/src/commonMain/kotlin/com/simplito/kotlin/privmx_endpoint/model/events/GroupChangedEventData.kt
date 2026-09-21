@@ -11,12 +11,13 @@
 
 package com.simplito.kotlin.privmx_endpoint.model.events
 
+import com.simplito.kotlin.privmx_endpoint.model.GroupChangeKind
+import com.simplito.kotlin.privmx_endpoint.modules.group.GroupApi
 /**
  * Holds what changed about a Group, and nothing that grows with it.
  *
  * A Group event no longer carries the Group itself: the four counters are enough to decide whether the change
- * matters — and which plane moved. Call
- * [com.simplito.kotlin.privmx_endpoint.modules.group.GroupApi.getGroup] when it does.
+ * matters — and which plane moved. Call [GroupApi.getGroup] when it does.
  *
  * @property groupId Group ID
  * @property contextId Context ID
@@ -24,8 +25,7 @@ package com.simplito.kotlin.privmx_endpoint.model.events
  * @property privateMetaVersion Private-metadata version after the change
  * @property rosterVersion Roster version after the change. Moves only on a membership change
  * @property keyVersion Group key epoch after the change
- * @property changeKind Which operation changed the Group: "created", "publicMetaUpdated", "privateMetaUpdated",
- * "policyUpdated", "keyRotated", "memberAdded", "memberRemoved", "eraCut" or "archivePruned"
+ * @property changeKind Which operation changed the Group
  */
 data class GroupChangedEventData(
     val groupId: String,
@@ -34,5 +34,5 @@ data class GroupChangedEventData(
     val privateMetaVersion: Long,
     val rosterVersion: Long,
     val keyVersion: Long,
-    val changeKind: String
+    val changeKind: GroupChangeKind
 )

@@ -184,6 +184,9 @@ namespace privmx {
 
         jobject kvdbEntry2Java(JniContextUtils &ctx, privmx::endpoint::kvdb::KvdbEntry entry_c);
 
+        //Group
+        jobject groupChangeKind2Java(JniContextUtils &ctx, const std::string &changeKind_c);
+
         //Streams
         jobject streamRoom2Java(
                 JniContextUtils &ctx,
