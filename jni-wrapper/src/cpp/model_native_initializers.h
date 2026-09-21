@@ -217,15 +217,6 @@ namespace privmx {
         jobject decryptedFileInfo2Java(JniContextUtils &ctx,
                 privmx::endpoint::group::DecryptedFileInfo decryptedFileInfo_c);
 
-        jobject groupChangedEventData2Java(JniContextUtils &ctx,
-                privmx::endpoint::group::GroupChangedEventData groupChangedEventData_c);
-
-        jobject groupDeletedEventData2Java(JniContextUtils &ctx,
-                privmx::endpoint::group::GroupDeletedEventData groupDeletedEventData_c);
-
-        jobject groupCustomEventData2Java(JniContextUtils &ctx,
-                privmx::endpoint::group::GroupCustomEventData groupCustomEventData_c);
-
         //Streams
         jobject streamRoom2Java(
                 JniContextUtils &ctx,
