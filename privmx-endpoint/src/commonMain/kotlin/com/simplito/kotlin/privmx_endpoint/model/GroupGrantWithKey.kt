@@ -15,14 +15,14 @@ package com.simplito.kotlin.privmx_endpoint.model
  * used when granting a Group access to a container.
  *
  * @property groupId     ID of the Group
- * @property role        Role held by the Group in the container ("user" or "manager")
+ * @property role        Role held by the Group in the container
  * @property groupPubKey Verified Group identity public key (base58-DER encoded)
  * @property groupEpoch  Epoch at which [groupPubKey] was verified (equals `Group.keyVersion`).
  * Defaults to `0` for compatibility with Bridges that do not enforce per-epoch coverage.
  */
 data class GroupGrantWithKey(
     val groupId: String,
-    val role: String,
+    val role: GroupRole,
     val groupPubKey: String,
     val groupEpoch: Long = 0
 )

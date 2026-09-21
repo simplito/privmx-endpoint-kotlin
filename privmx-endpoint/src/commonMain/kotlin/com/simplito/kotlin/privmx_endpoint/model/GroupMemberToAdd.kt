@@ -18,9 +18,9 @@ package com.simplito.kotlin.privmx_endpoint.model
  * union of their paths.
  *
  * @property user ID of the user and their public key
- * @property role "user" or "manager"
+ * @property role Role held by the Group in the container
  */
 data class GroupMemberToAdd(
     val user: UserWithPubKey,
-    val role: String
+    val role: GroupRole
 )
