@@ -15,6 +15,7 @@ import com.simplito.kotlin.privmx_endpoint.LibLoader
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.DecryptedEnvelope
 import com.simplito.kotlin.privmx_endpoint.model.DecryptedFileInfo
+import com.simplito.kotlin.privmx_endpoint.model.FileHandle
 import com.simplito.kotlin.privmx_endpoint.model.Group
 import com.simplito.kotlin.privmx_endpoint.model.GroupMemberToAdd
 import com.simplito.kotlin.privmx_endpoint.model.GroupSummary
@@ -188,7 +189,7 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun encrypt(groupId: String, content: ByteArray): ByteArray
+    actual external fun encrypt(groupId: String, content: ByteArray): Envelope
 
     /**
      * Seals content for a Group without revealing, or proving, who sent it.
@@ -206,7 +207,7 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
         groupId: String,
         groupPubKey: String,
         content: ByteArray
-    ): ByteArray
+    ): Envelope
 
     /**
      * Opens an envelope sealed by [encrypt] or by [encryptAnonymously].
@@ -218,7 +219,7 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun decrypt(envelope: ByteArray): DecryptedEnvelope
+    actual external fun decrypt(envelope: Envelope): DecryptedEnvelope
 
     /**
      * Begins sealing a file for a Group, as one of its members.
@@ -231,7 +232,8 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun beginFileEncryption(groupId: String, size: Long): Long
+    @JvmName("beginFileEncryption")
+    actual external fun beginFileEncryption(groupId: String, size: Long): FileHandle
 
     /**
      * Begins sealing a file for a Group without revealing, or proving, who sent it.
@@ -245,11 +247,12 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
+    @JvmName("beginFileEncryptionAnonymously")
     actual external fun beginFileEncryptionAnonymously(
         groupId: String,
         groupPubKey: String,
         size: Long
-    ): Long
+    ): FileHandle
 
     /**
      * Seals the next piece of a file: takes plaintext, returns ciphertext.
@@ -262,7 +265,8 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun encryptFileChunk(fileHandle: Long, plainChunk: ByteArray): ByteArray
+    @JvmName("encryptFileChunk")
+    actual external fun encryptFileChunk(fileHandle: FileHandle, plainChunk: ByteArray): ByteArray
 
     /**
      * Finishes sealing a file and releases its handle.
@@ -274,7 +278,8 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun finishFileEncryption(fileHandle: Long): ByteArray
+    @JvmName("finishFileEncryption")
+    actual external fun finishFileEncryption(fileHandle: FileHandle): Envelope
 
     /**
      * Begins opening a sealed file.
@@ -286,7 +291,7 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun beginFileDecryption(envelope: ByteArray): Long
+    actual external fun beginFileDecryption(envelope: Envelope): Long
 
     /**
      * Opens the next piece of a file: takes ciphertext, returns plaintext.
@@ -299,7 +304,8 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun decryptFileChunk(fileHandle: Long, cipherChunk: ByteArray): ByteArray
+    @JvmName("decryptFileChunk")
+    actual external fun decryptFileChunk(fileHandle: FileHandle, cipherChunk: ByteArray): ByteArray
 
     /**
      * Moves the read cursor to [position] in the plaintext, and returns where to resume feeding ciphertext.
@@ -312,7 +318,8 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun seekInEncryptedFile(fileHandle: Long, position: Long): Long
+    @JvmName("seekInEncryptedFile")
+    actual external fun seekInEncryptedFile(fileHandle: FileHandle, position: Long): Long
 
     /**
      * Finishes opening a file, reports where it came from, and releases its handle.
@@ -325,7 +332,8 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun finishFileDecryption(fileHandle: Long): DecryptedFileInfo
+    @JvmName("finishFileDecryption")
+    actual external fun finishFileDecryption(fileHandle: FileHandle): DecryptedFileInfo
 
     /**
      * Subscribe for the Group events on the given subscription query.

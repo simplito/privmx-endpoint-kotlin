@@ -23,6 +23,7 @@ import com.simplito.kotlin.privmx_endpoint.model.EnvelopeType
 import com.simplito.kotlin.privmx_endpoint.model.Event
 import com.simplito.kotlin.privmx_endpoint.model.File
 import com.simplito.kotlin.privmx_endpoint.model.FileChange
+import com.simplito.kotlin.privmx_endpoint.model.FileHandle
 import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
 import com.simplito.kotlin.privmx_endpoint.model.Group
 import com.simplito.kotlin.privmx_endpoint.model.GroupSummary
@@ -724,3 +725,5 @@ internal fun PsonObject.toDecryptedFileInfo(): DecryptedFileInfo = DecryptedFile
     this["type"]!!.toEnvelopeType(),
     this["complete"]!!.typedValue()
 )
+
+internal fun PsonValue.PsonLong.toFileHandle(): FileHandle = FileHandle(this.typedValue<Long>())

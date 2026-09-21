@@ -15,6 +15,7 @@ import cnames.structs.pson_value
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.DecryptedEnvelope
 import com.simplito.kotlin.privmx_endpoint.model.DecryptedFileInfo
+import com.simplito.kotlin.privmx_endpoint.model.FileHandle
 import com.simplito.kotlin.privmx_endpoint.model.Group
 import com.simplito.kotlin.privmx_endpoint.model.GroupMemberToAdd
 import com.simplito.kotlin.privmx_endpoint.model.GroupSummary
@@ -444,7 +445,7 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun encrypt(groupId: String, content: ByteArray): ByteArray = memScoped {
+    actual fun encrypt(groupId: String, content: ByteArray): Envelope = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             groupId.pson,
@@ -485,7 +486,7 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
         groupId: String,
         groupPubKey: String,
         content: ByteArray
-    ): ByteArray = memScoped {
+    ): Envelope = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             groupId.pson,
@@ -521,7 +522,7 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun decrypt(envelope: ByteArray): DecryptedEnvelope = memScoped {
+    actual fun decrypt(envelope: Envelope): DecryptedEnvelope = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(envelope.pson)
         try {
@@ -558,7 +559,7 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun beginFileEncryption(groupId: String, size: Long): Long = memScoped {
+    actual fun beginFileEncryption(groupId: String, size: Long): FileHandle = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             groupId.pson,
@@ -598,7 +599,7 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
         groupId: String,
         groupPubKey: String,
         size: Long
-    ): Long = memScoped {
+    ): FileHandle = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             groupId.pson,
@@ -634,7 +635,7 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun encryptFileChunk(fileHandle: Long, plainChunk: ByteArray): ByteArray = memScoped {
+    actual fun encryptFileChunk(fileHandle: FileHandle, plainChunk: ByteArray): ByteArray = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileHandle.pson,
@@ -668,7 +669,7 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun finishFileEncryption(fileHandle: Long): ByteArray = memScoped {
+    actual fun finishFileEncryption(fileHandle: FileHandle): Envelope = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(fileHandle.pson)
         try {
@@ -698,7 +699,7 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun beginFileDecryption(envelope: ByteArray): Long = memScoped {
+    actual fun beginFileDecryption(envelope: Envelope): Long = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(envelope.pson)
         try {
@@ -729,7 +730,7 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun decryptFileChunk(fileHandle: Long, cipherChunk: ByteArray): ByteArray = memScoped {
+    actual fun decryptFileChunk(fileHandle: FileHandle, cipherChunk: ByteArray): ByteArray = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileHandle.pson,
@@ -767,7 +768,7 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun seekInEncryptedFile(fileHandle: Long, position: Long): Long = memScoped {
+    actual fun seekInEncryptedFile(fileHandle: FileHandle, position: Long): Long = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(
             fileHandle.pson,
@@ -804,7 +805,7 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun finishFileDecryption(fileHandle: Long): DecryptedFileInfo = memScoped {
+    actual fun finishFileDecryption(fileHandle: FileHandle): DecryptedFileInfo = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(fileHandle.pson)
         try {
