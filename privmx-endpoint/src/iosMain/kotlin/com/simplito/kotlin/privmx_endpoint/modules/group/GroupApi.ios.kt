@@ -699,7 +699,7 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual fun beginFileDecryption(envelope: Envelope): Long = memScoped {
+    actual fun beginFileDecryption(envelope: Envelope): FileHandle = memScoped {
         val pson_result = allocPointerTo<pson_value>()
         val args = makeArgs(envelope.pson)
         try {

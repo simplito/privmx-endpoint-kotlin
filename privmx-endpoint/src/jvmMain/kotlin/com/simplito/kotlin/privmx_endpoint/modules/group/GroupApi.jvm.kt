@@ -291,7 +291,8 @@ actual class GroupApi actual constructor(connection: Connection) : AutoCloseable
      * @throws NativeException       thrown when method encounters an unknown exception.
      */
     @Throws(PrivmxException::class, NativeException::class, IllegalStateException::class)
-    actual external fun beginFileDecryption(envelope: Envelope): Long
+    @JvmName("beginFileDecryption")
+    actual external fun beginFileDecryption(envelope: Envelope): FileHandle
 
     /**
      * Opens the next piece of a file: takes ciphertext, returns plaintext.
