@@ -9,8 +9,12 @@ plugins {
     alias(libs.plugins.androidKMPLibrary)
 }
 
-group = "com.simplito.kotlin"
-version = libs.versions.publishPrivmxEndpoint.get()
+// Test-only module (E2E fixtures for :privmx-endpoint* `commonTest`), deliberately unpublished.
+// Sources are in `commonMain` because a `project(...)` dependency exposes only the main
+// compilation — otherwise other modules' tests couldn't see them.
+plugins.withId("maven-publish") {
+    tasks.withType<AbstractPublishToMaven>().configureEach { enabled = false }
+}
 
 kotlin {
     jvm {
