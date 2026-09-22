@@ -4,6 +4,7 @@ import E2ETests.addFakeVideoTrackToStream
 import E2ETests.createStreamApi
 import E2ETests.deleteAllRooms
 import E2ETests.getStreamsToSubscribe
+import E2ETests.releaseFakeTracks
 import E2ETests.waitForServerSync
 
 import com.simplito.kotlin.privmx_endpoint.model.Event
@@ -66,6 +67,8 @@ class StreamEventsTests : BaseTest() {
 
     @AfterTest
     fun afterEach() {
+        try { releaseFakeTracks() } catch (_: Exception) { }
+
         try {
             streamApi2?.close()
         } catch (_: Exception) {

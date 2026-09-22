@@ -50,6 +50,8 @@ class StreamTest : BaseTest() {
 
     @AfterTest
     fun afterEach() {
+        try { releaseFakeTracks() } catch (_: Exception) { }
+
         try { deleteAllRooms(streamApi, contextId!!) } catch (_: Exception) { }
         try { deleteAllRooms(streamApi2, contextId!!) } catch (_: Exception) { }
 

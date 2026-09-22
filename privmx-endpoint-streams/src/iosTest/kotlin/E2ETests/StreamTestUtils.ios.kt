@@ -40,3 +40,7 @@ actual fun addFakeAudioTrackToStream(
     streamApi.addTrack(streamHandle, audioTrack)
     return audioTrack
 }
+
+// On iOS the capture sources are plain ObjC objects released by ARC together with the tracks,
+// so there is nothing to release explicitly.
+actual fun releaseFakeTracks() = Unit

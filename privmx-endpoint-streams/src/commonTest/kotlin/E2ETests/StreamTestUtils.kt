@@ -114,3 +114,9 @@ expect fun addFakeVideoTrackToStream(
 ): VideoTrack
 
 expect fun addFakeAudioTrackToStream(streamApi: StreamApi, streamHandle: StreamHandle): AudioTrack
+
+/**
+ * Releases platform resources (camera capturer, texture helper, media sources)
+ * acquired by [addFakeVideoTrackToStream]/[addFakeAudioTrackToStream].
+ */
+expect fun releaseFakeTracks()
