@@ -1806,7 +1806,9 @@ class StreamTest : BaseTest() {
             delay(1500)
         }
 
-        streamApi.publishStream(handle)
+        assertDoesNotFail {
+            streamApi.publishStream(handle)
+        }
     }
 
     /** sendMessage before createDataChannel */
