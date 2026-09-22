@@ -1192,6 +1192,9 @@ class StreamTest : BaseTest() {
                 null
             )
         }
+
+        val room = streamApi.getStreamRoom(roomId)
+        assertEquals(2, room.version)
     }
 
     /** update with correct version, force=true */
