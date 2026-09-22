@@ -155,8 +155,8 @@ class StreamEventsTests : BaseTest() {
         )
         assertDoesNotFail {
             streamApi.createStreamRoom(contextId!!, users, users, pubMeta, privMeta, null)
-            event = expectAndVerifyEvent("streamRoomCreated")
         }
+        event = expectAndVerifyEvent("streamRoomCreated")
         assertEquals(1, event.subscriptions.size)
         assertEquals(subscriptionIds[0], event.subscriptions[0])
         assertNotNull(event.timestamp)
@@ -192,8 +192,8 @@ class StreamEventsTests : BaseTest() {
                 id, users, users.subList(0, 1), newPublic, newPrivate,
                 room.version!!, false, false, null
             )
-            event = expectAndVerifyEvent("streamRoomUpdated")
         }
+        event = expectAndVerifyEvent("streamRoomUpdated")
         assertEquals(1, event.subscriptions.size)
         assertEquals(subscriptionIds[0], event.subscriptions[0])
         assertNotNull(event.timestamp)
@@ -230,8 +230,8 @@ class StreamEventsTests : BaseTest() {
                 id, users, users, newPublic, newPrivate,
                 room.version!!, false, false, null
             )
-            event = expectAndVerifyEvent("streamRoomUpdated")
         }
+        event = expectAndVerifyEvent("streamRoomUpdated")
         assertEquals(1, event.subscriptions.size)
         assertEquals(subscriptionIds[0], event.subscriptions[0])
         assertNotNull(event.timestamp)
@@ -262,8 +262,8 @@ class StreamEventsTests : BaseTest() {
 
         assertDoesNotFail {
             streamApi.deleteStreamRoom(id)
-            event = expectAndVerifyEvent("streamRoomDeleted")
         }
+        event = expectAndVerifyEvent("streamRoomDeleted")
         assertEquals(1, event.subscriptions.size)
         assertEquals(subscriptionIds[0], event.subscriptions[0])
         assertNotNull(event.timestamp)
@@ -291,8 +291,8 @@ class StreamEventsTests : BaseTest() {
 
         assertDoesNotFail {
             streamApi.deleteStreamRoom(id)
-            event = expectAndVerifyEvent("streamRoomDeleted")
         }
+        event = expectAndVerifyEvent("streamRoomDeleted")
         assertEquals(1, event.subscriptions.size)
         assertEquals(subscriptionIds[0], event.subscriptions[0])
         assertNotNull(event.timestamp)
@@ -353,8 +353,8 @@ class StreamEventsTests : BaseTest() {
 
         assertDoesNotFail {
             streamApi.joinStreamRoom(id)
-            event = expectAndVerifyEvent("streamRoomJoined")
         }
+        event = expectAndVerifyEvent("streamRoomJoined")
         assertEquals(1, event.subscriptions.size)
         assertEquals(subscriptionIds[0], event.subscriptions[0])
         assertNotNull(event.timestamp)
@@ -385,8 +385,8 @@ class StreamEventsTests : BaseTest() {
 
         assertDoesNotFail {
             streamApi.leaveStreamRoom(id)
-            event = expectAndVerifyEvent("streamRoomLeft")
         }
+        event = expectAndVerifyEvent("streamRoomLeft")
         assertEquals(1, event.subscriptions.size)
         assertEquals(subscriptionIds[0], event.subscriptions[0])
         assertNotNull(event.timestamp)
@@ -417,7 +417,6 @@ class StreamEventsTests : BaseTest() {
         assertDoesNotFail {
             streamApi.leaveStreamRoom(id)
         }
-
         event = expectAndVerifyEvent("streamRoomLeft")
 
         assertEquals(1, event.subscriptions.size)
@@ -450,8 +449,8 @@ class StreamEventsTests : BaseTest() {
 
         assertDoesNotFail {
             streamApi.publishStream(handle)
-            event = expectAndVerifyEvent("streamPublished")
         }
+        event = expectAndVerifyEvent("streamPublished")
         assertEquals(1, event.subscriptions.size)
         assertEquals(subscriptionIds[0], event.subscriptions[0])
         assertNotNull(event.timestamp)
@@ -488,8 +487,8 @@ class StreamEventsTests : BaseTest() {
 
         assertDoesNotFail {
             streamApi.publishStream(handle)
-            event = expectAndVerifyEvent("streamPublished")
         }
+        event = expectAndVerifyEvent("streamPublished")
         assertEquals(1, event.subscriptions.size)
         assertEquals(subscriptionIds[0], event.subscriptions[0])
         assertNotNull(event.timestamp)
@@ -530,8 +529,8 @@ class StreamEventsTests : BaseTest() {
 
         assertDoesNotFail {
             streamApi.removeStream(handle)
-            event = expectAndVerifyEvent("streamUnpublished")
         }
+        event = expectAndVerifyEvent("streamUnpublished")
         assertEquals(1, event.subscriptions.size)
         assertEquals(subscriptionIds[0], event.subscriptions[0])
         assertNotNull(event.timestamp)
@@ -565,8 +564,8 @@ class StreamEventsTests : BaseTest() {
 
         assertDoesNotFail {
             streamApi.removeStream(handle)
-            event = expectAndVerifyEvent("streamUnpublished")
         }
+        event = expectAndVerifyEvent("streamUnpublished")
         assertEquals(1, event.subscriptions.size)
         assertEquals(subscriptionIds[0], event.subscriptions[0])
         assertNotNull(event.timestamp)
@@ -628,8 +627,8 @@ class StreamEventsTests : BaseTest() {
         // user1 publishes - the event must be attributed to user2's connection
         assertDoesNotFail {
             streamApi.publishStream(handle)
-            event = expectAndVerifyEvent(connection2!!.getConnectionId()!!, "streamPublished")
         }
+        event = expectAndVerifyEvent(connection2!!.getConnectionId()!!, "streamPublished")
         assertEquals(1, event.subscriptions.size)
         assertEquals(subscriptionIds[0], event.subscriptions[0])
 
@@ -677,8 +676,8 @@ class StreamEventsTests : BaseTest() {
         val subs = getStreamsToSubscribe(streamApi, id)
         assertDoesNotFail {
             streamApi2!!.createSubscriberStream(id, subs)
-            event = expectAndVerifyEvent(connection2!!.getConnectionId()!!, "streamSubscribed")
         }
+        event = expectAndVerifyEvent(connection2!!.getConnectionId()!!, "streamSubscribed")
         assertEquals(1, event.subscriptions.size)
         assertEquals(subscriptionIds[0], event.subscriptions[0])
         assertNotNull(event.timestamp)
@@ -723,8 +722,8 @@ class StreamEventsTests : BaseTest() {
 
         assertDoesNotFail {
             streamApi2!!.removeSubscriberStream(subscriberHandle)
-            event = expectAndVerifyEvent(connection!!.getConnectionId()!!, "streamUnsubscribed")
         }
+        event = expectAndVerifyEvent(connection!!.getConnectionId()!!, "streamUnsubscribed")
         assertEquals(1, event.subscriptions.size)
         assertEquals(subscriptionIds[0], event.subscriptions[0])
         assertNotNull(event.timestamp)
@@ -765,8 +764,8 @@ class StreamEventsTests : BaseTest() {
         assertDoesNotFail {
             addFakeVideoTrackToStream(streamApi, handle)
             streamApi.updateStream(handle)
-            event = expectAndVerifyEvent("streamUpdated")
         }
+        event = expectAndVerifyEvent("streamUpdated")
         assertEquals(1, event.subscriptions.size)
         assertEquals(subscriptionIds[0], event.subscriptions[0])
         assertNotNull(event.timestamp)
@@ -808,8 +807,8 @@ class StreamEventsTests : BaseTest() {
         assertDoesNotFail {
             addFakeVideoTrackToStream(streamApi, handle)
             streamApi.updateStream(handle)
-            event = expectAndVerifyEvent("streamUpdated")
         }
+        event = expectAndVerifyEvent("streamUpdated")
         assertEquals(1, event.subscriptions.size)
         assertEquals(subscriptionIds[0], event.subscriptions[0])
         assertNotNull(event.timestamp)
