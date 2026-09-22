@@ -5,12 +5,9 @@ package E2ETests
 import com.simplito.kotlin.privmx_endpoint.model.stream.StreamHandle
 import com.simplito.kotlin.privmx_endpoint_streams.StreamApi
 import com.simplito.kotlin.privmx_endpoint_streams.StreamApiInit
-import com.simplito.kotlin.privmx_endpoint_streams.createAudioSource
-import com.simplito.kotlin.privmx_endpoint_streams.createAudioTrack
-import com.simplito.kotlin.privmx_endpoint_streams.createVideoSource
-import com.simplito.kotlin.privmx_endpoint_streams.createVideoTrack
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.AudioTrack
 import com.simplito.kotlin.privmx_endpoint_streams.webrtc.VideoTrack
+import com.simplito.kotlin.privmx_endpoint_streams.webrtc.makeAudioSource
 import kotlinx.cinterop.ExperimentalForeignApi
 
 actual fun createStreamApiInit(): StreamApiInit = StreamApiInit()
@@ -33,7 +30,7 @@ actual fun addFakeAudioTrackToStream(
     streamHandle: StreamHandle
 ): AudioTrack {
     val trackFactory = streamApi.trackFactory
-    val audioSource = trackFactory.createAudioSource()
+    val audioSource = trackFactory.factory.makeAudioSource()
     val audioTrack = trackFactory.createAudioTrack("fake_audio_track", audioSource)
     audioTrack.isEnabled = true
 
