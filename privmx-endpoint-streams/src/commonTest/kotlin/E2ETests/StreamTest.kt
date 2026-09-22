@@ -555,6 +555,13 @@ class StreamTest : BaseTest() {
 
         // removed user2 cannot resume activity in the room
         assertFailsWith<PrivmxException> { streamApi2.joinStreamRoom(roomId) }
+
+        // room stays valid for user1
+        assertDoesNotFail {
+            val handle = streamApi.createStream(roomId)
+            addFakeAudioTrackToStream(streamApi, handle)
+            streamApi.publishStream(handle)
+        }
     }
 
     /** non-force update removing user2 (correct version, no key rotation) - user2 loses access */
