@@ -729,8 +729,8 @@ class StreamEventsTests : BaseTest() {
         assertEquals(user2Id, data.userId)
         assertEquals(1, data.subscriptions.size)
 
-        runBlocking {  delay(5000)}
-        streamApi2!!.unsubscribeFrom(subscriptionIds)
+        runBlocking { delay(5000) }
+        streamApi.unsubscribeFrom(subscriptionIds)
     }
 
 
