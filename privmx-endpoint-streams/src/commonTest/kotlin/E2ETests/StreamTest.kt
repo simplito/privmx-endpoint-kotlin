@@ -1034,7 +1034,7 @@ class StreamTest : BaseTest() {
         val subscriberHandle = streamApi2.createSubscriberStream(roomId, subs)
 
         streamApi2.removeSubscriberStream(subscriberHandle)
-        assertFails { streamApi2.removeSubscriberStream(subscriberHandle) }
+        assertFailsWith<IllegalStateException> { streamApi2.removeSubscriberStream(subscriberHandle) }
     }
 
     /** delete room by manager (non-creator)  */
@@ -1044,6 +1044,7 @@ class StreamTest : BaseTest() {
         val roomId = createStreamRoom(contextId, users.subList(0, 1), users)
 
         assertDoesNotFail { streamApi2.deleteStreamRoom(roomId) }
+        assertFailsWith<PrivmxException> { streamApi.getStreamRoom(roomId) }
     }
 
     /** delete room by plain user (not manager)  */
@@ -1226,7 +1227,7 @@ class StreamTest : BaseTest() {
         streamApi.publishStream(handle)
         waitForServerSync()
 
-        assertFails { streamApi.publishStream(handle) }
+        assertFailsWith<IllegalStateException>  { streamApi.publishStream(handle) }
     }
 
     /** publish old handle after being removed from room */
