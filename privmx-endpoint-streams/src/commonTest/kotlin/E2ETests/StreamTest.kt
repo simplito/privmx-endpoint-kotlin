@@ -806,7 +806,9 @@ class StreamTest : BaseTest() {
 
         val streams = streamApi.listStreams(roomId)
         assertEquals(1, streams.size)
-        assertTrue(streams[0].tracks.isNotEmpty())
+        assertEquals(2, streams[0].tracks.size)
+        assertTrue (streams[0].tracks[0].disabled)
+        assertFalse(streams[0].tracks[1].disabled)
     }
 
     /** add track after leave */
