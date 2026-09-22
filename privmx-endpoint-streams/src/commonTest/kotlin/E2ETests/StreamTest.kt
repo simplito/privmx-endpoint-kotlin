@@ -175,14 +175,16 @@ class StreamTest : BaseTest() {
         waitForServerSync()
 
         // rejoin before ttl ends
-        streamApi.joinStreamRoom(roomId)
+        assertDoesNotFail { streamApi.joinStreamRoom(roomId) }
         waitForServerSync()
         streamApi.leaveStreamRoom(roomId)
         waitForServerSync()
 
         // try join after ttl ends
         waitForServerSync(2500)
-        streamApi.joinStreamRoom(roomId)
+        assertFailsWith<PrivmxException> {
+            streamApi.joinStreamRoom(roomId)
+        }
     }
 
     /** add user2 - should get read access */
