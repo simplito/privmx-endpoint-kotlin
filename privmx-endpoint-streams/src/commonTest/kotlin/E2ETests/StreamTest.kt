@@ -985,6 +985,9 @@ class StreamTest : BaseTest() {
         assertDoesNotFail {
             streamApi2.updateSubscriberStream(subscriberHandle, emptyList(), subs)
         }
+
+        val current = streamApi2.listStreamRoomParticipants(roomId)
+         assertTrue(current.first{it.userId==user2Id}.subscriptions.none { it.streamId == streamId })
     }
 
     /** modify (empty add + empty remove) */
