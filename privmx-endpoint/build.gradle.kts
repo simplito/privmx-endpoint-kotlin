@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalEncodingApi::class)
+@file:OptIn(ExperimentalEncodingApi::class, KotlinNativeCacheApi::class)
 
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
@@ -16,6 +16,8 @@ import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.HttpClients
 import org.bson.Document
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.plugin.mpp.DisableCacheInKotlinVersion
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCacheApi
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest
@@ -60,7 +62,7 @@ kotlin {
         }
     }
 
-    val combinedFramework = XCFramework("privmx-endpoint-objc")
+    val combinedFramework = XCFramework("PrivMXEndpointObjC")
 
     listOf(
         iosSimulatorArm64(),
@@ -91,8 +93,9 @@ kotlin {
         }
         it.binaries {
             framework {
-                baseName = "privmx-endpoint-objc"
+                baseName = "PrivMXEndpointObjC"
                 combinedFramework.add(this)
+                disableNativeCache(DisableCacheInKotlinVersion.`2_4_0`,"")
             }
         }
     }
@@ -130,6 +133,7 @@ kotlin {
         iosTest {
             dependsOn(commonTest.get())
         }
+
         jvmTest {}
     }
 }
