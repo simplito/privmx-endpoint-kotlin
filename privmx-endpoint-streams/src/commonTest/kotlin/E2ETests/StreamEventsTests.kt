@@ -120,11 +120,6 @@ class StreamEventsTests : BaseTest() {
             "Expected event '$eventType', but none arrived within the timeout"
         )
 
-        println("EVENT!!")
-        println("type   " + event.type)
-        println("connectionId:   " + event.connectionId)
-        println("channel  " + event.channel)
-
         if (connectionId != event.connectionId)   throw AssertionError(
             "Wrong connectionId for event '${event.type}': expected $connectionId, but got ${event.connectionId} (channel '${event.channel}')"
         )
