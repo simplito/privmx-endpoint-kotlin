@@ -69,7 +69,8 @@ object AndroidProfileConfig {
 val compileAndroid = tasks.create("compileAndroid") {
     group = "privmx native"
     var usePrebuiltEndpoint: Boolean = false
-    if(buildType == BuildTypes.MinSizeRel || buildType == BuildTypes.Release) {
+    val isRelease = buildType == BuildTypes.MinSizeRel || buildType == BuildTypes.Release
+    if(isRelease) {
         dependsOn("buildAndroidWithConan")
     }else{
         dependsOn("buildAndroidFromSources")
@@ -81,6 +82,7 @@ val compileAndroid = tasks.create("compileAndroid") {
     val compileDir = layout.buildDirectory.dir("native/compile").get()
     val installDir = layout.buildDirectory.dir("native/install").get()
     val prebuildEndpointDir = layout.buildDirectory.dir("endpoint-prebuild/install").get()
+    val symbolsDir = layout.buildDirectory.dir("native/symbols").get()
     val androidNdkPath = "$sdkDir/ndk/$ndkVersion"
     val os = "Android"
     val APILevel = "24"
@@ -109,7 +111,12 @@ val compileAndroid = tasks.create("compileAndroid") {
                             " -B${platformCompileDir.absolutePath}" +
                             " -DCMAKE_BUILD_TYPE=${buildType.name}" +
                             " -DANDROID_NDK=\"$androidNdkPath\"" +
-                            " -DCMAKE_CXX_FLAGS=-std=c++17" +
+                            if(isRelease) {
+                                " -DCMAKE_CXX_FLAGS=\"-std=c++17 -Os -fvisibility=hidden -fvisibility-inlines-hidden -ffunction-sections -fdata-sections\"" +
+                                        " -DCMAKE_SHARED_LINKER_FLAGS=\"-Wl,--gc-sections -Wl,-z,max-page-size=16384\""
+                            }else{
+                                " -DCMAKE_CXX_FLAGS=\"-std=c++17\""
+                            } +
                             " -DANDROID_PLATFORM=\"android-$APILevel\"" +
                             " -DANDROID_ABI=\"$ARCH\"" +
                             " -DJAVA_HOME=\"${Jvm.current().javaHome}\"" +
@@ -131,6 +138,32 @@ val compileAndroid = tasks.create("compileAndroid") {
             exec {
                 workingDir = platformCompileDir
                 commandLine("sh", "-c", "make -s install")
+            }
+            if(isRelease) {
+                // Everything installed here except libprivmx-endpoint-kotlin.so comes from conan's
+                // `runtime_deploy` unstripped, and debug info dwarfs the code: libprivmxendpointcore.so is
+                // 25 MB with a ~810 KB .text. `--strip-unneeded` keeps .dynsym/.dynstr, so `System.loadLibrary`,
+                // the `Java_*` lookups and the libc++abi interposition the endpoint libraries rely on still work.
+                val llvmStrip = File(androidNdkPath, "toolchains/llvm/prebuilt").listFiles()
+                    ?.filter { it.isDirectory }
+                    ?.singleOrNull()
+                    ?.let { File(it, "bin/llvm-strip") }
+                    ?: throw GradleException(
+                        "Expected exactly one LLVM host toolchain in $androidNdkPath/toolchains/llvm/prebuilt"
+                    )
+                val platformSymbolsDir =
+                    symbolsDir.file("$os/$privmxEndpointJavaVersion/$ARCH").asFile
+                platformSymbolsDir.mkdirs()
+                fileTree(platformInstallDir) { include("**/*.so") }.forEach { soFile ->
+                    Files.copy(
+                        soFile.toPath(),
+                        File(platformSymbolsDir, soFile.name).toPath(),
+                        StandardCopyOption.REPLACE_EXISTING
+                    )
+                    exec {
+                        commandLine(llvmStrip.absolutePath, "--strip-unneeded", soFile.absolutePath)
+                    }
+                }
             }
         }
     }
