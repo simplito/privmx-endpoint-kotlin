@@ -9,6 +9,7 @@
 #include "Connection.h"
 
 #include "WebRTCInterfaceJNI.h"
+#include "GroupApi.h"
 #include "privmx/endpoint/stream/StreamApiLow.hpp"
 
 using namespace privmx::endpoint::stream;
@@ -29,7 +30,8 @@ JNIEXPORT jobject JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_init(
         JNIEnv *env,
         jobject thiz,
-        jobject connection
+        jobject connection,
+        jobject group_api
 ) {
     JniContextUtils ctx(env);
     jobject result;
@@ -38,10 +40,12 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_init(
         return nullptr;
     }
 
-    ctx.callResultEndpointApi<jobject>(&result, [&ctx, &env, &connection] {
+    ctx.callResultEndpointApi<jobject>(&result, [&ctx, &env, &connection, &group_api] {
         auto connection_c = getConnection(env, connection);
+        auto groupApi_c = getOptionalGroupApi(ctx, group_api);
         auto streamApiLow = stream::StreamApiLow::create(
-                *connection_c
+                *connection_c,
+                groupApi_c
         );
         auto streamApiLow_ptr = new stream::StreamApiLow();
         *streamApiLow_ptr = streamApiLow;
@@ -86,7 +90,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
         jbyteArray public_meta,
         jbyteArray private_meta,
         jobject policies,
-        jobject emptyRoomTtl
+        jobject emptyRoomTtl,
+        jobject groups
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(context_id, "Context ID") ||
@@ -109,7 +114,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
                     &public_meta,
                     &private_meta,
                     &policies,
-                    &emptyRoomTtl
+                    &emptyRoomTtl,
+                    &groups
             ]() {
                 std::vector<core::UserWithPubKey> users_c = usersToVector(
                         ctx,
@@ -125,6 +131,10 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
                     emptyRoomTtl_c = ctx.getObject(emptyRoomTtl).getLongValue();
                 }
 
+                std::vector<core::GroupGrantWithKey> groups_c = groupGrantsToVector(
+                        ctx,
+                        groups == nullptr ? nullptr : ctx.jObject2jArray(groups));
+
                 return ctx->NewStringUTF(
                         getStreamApi(ctx, thiz)->createStreamRoom(
                                 ctx.jString2string(context_id),
@@ -133,7 +143,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_createStre
                                 core::Buffer::from(ctx.jByteArray2String(public_meta)),
                                 core::Buffer::from(ctx.jByteArray2String(private_meta)),
                                 container_policies_c,
-                                emptyRoomTtl_c
+                                emptyRoomTtl_c,
+                                groups_c
                         ).c_str());
             });
     if (ctx->ExceptionCheck()) {
@@ -155,7 +166,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_updateStre
         jlong version,
         jboolean force,
         jboolean force_generate_new_key,
-        jobject policies
+        jobject policies,
+        jobject groups
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(stream_room_id, "Stream room ID") ||
@@ -177,7 +189,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_updateStre
                     &version,
                     force,
                     &force_generate_new_key,
-                    &policies
+                    &policies,
+                    &groups
             ]() {
                 std::vector<core::UserWithPubKey> users_c = usersToVector(
                         ctx,
@@ -187,6 +200,9 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_updateStre
                         ctx.jObject2jArray(managers));
                 auto container_policies_c = std::optional<core::ContainerPolicyWithoutItem>(
                         parseContainerPolicyWithoutItem(ctx, policies));
+                std::vector<core::GroupGrantWithKey> groups_c = groupGrantsToVector(
+                        ctx,
+                        groups == nullptr ? nullptr : ctx.jObject2jArray(groups));
                 getStreamApi(ctx, thiz)->updateStreamRoom(
                         ctx.jString2string(stream_room_id),
                         users_c,
@@ -196,10 +212,50 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_updateStre
                         version,
                         force == JNI_TRUE,
                         force_generate_new_key == JNI_TRUE,
-                        container_policies_c
+                        container_policies_c,
+                        groups_c
                 );
             }
     );
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_stream_StreamApiLow_rotateStreamRoomKeys(
+        JNIEnv *env,
+        jobject thiz,
+        jstring stream_room_id,
+        jobject users,
+        jobject managers,
+        jlong version,
+        jboolean force,
+        jobject groups
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(stream_room_id, "Stream room ID") ||
+        ctx.nullCheck(users, "Users list") ||
+        ctx.nullCheck(managers, "Managers list")) {
+        return;
+    }
+    ctx.callVoidEndpointApi(
+            [&ctx, &thiz, &stream_room_id, &users, &managers, &version, &force, &groups]() {
+                std::vector<core::UserWithPubKey> users_c = usersToVector(
+                        ctx,
+                        ctx.jObject2jArray(users));
+                std::vector<core::UserWithPubKey> managers_c = usersToVector(
+                        ctx,
+                        ctx.jObject2jArray(managers));
+                std::vector<core::GroupGrantWithKey> groups_c = groupGrantsToVector(
+                        ctx,
+                        groups == nullptr ? nullptr : ctx.jObject2jArray(groups));
+                getStreamApi(ctx, thiz)->rotateStreamRoomKeys(
+                        ctx.jString2string(stream_room_id),
+                        users_c,
+                        managers_c,
+                        version,
+                        force == JNI_TRUE,
+                        groups_c);
+            });
 }
 
 extern "C"

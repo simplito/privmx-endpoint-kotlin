@@ -72,6 +72,10 @@ namespace privmx {
         jobject userWithPubKey2Java(JniContextUtils &ctx,
                 privmx::endpoint::core::UserWithPubKey userWithPubKey);
 
+        // GroupGrant
+        jobject groupGrant2Java(JniContextUtils &ctx,
+                privmx::endpoint::core::GroupGrant groupGrant_c);
+
         //UserInfo
         jobject userInfo2Java(JniContextUtils &ctx, privmx::endpoint::core::UserInfo userInfo);
 
@@ -198,6 +202,20 @@ namespace privmx {
 
         jobject groupCustomEventData2Java(JniContextUtils &ctx,
                 const privmx::endpoint::group::GroupCustomEventData &data);
+
+        jobject group2Java(JniContextUtils &ctx, privmx::endpoint::group::Group group_c);
+
+        jobject groupSummary2Java(JniContextUtils &ctx,
+                privmx::endpoint::group::GroupSummary groupSummary_c);
+
+        jobject envelopeType2Java(JniContextUtils &ctx,
+                privmx::endpoint::group::EnvelopeType envelopeType_c);
+
+        jobject decryptedEnvelope2Java(JniContextUtils &ctx,
+                privmx::endpoint::group::DecryptedEnvelope decryptedEnvelope_c);
+
+        jobject decryptedFileInfo2Java(JniContextUtils &ctx,
+                privmx::endpoint::group::DecryptedFileInfo decryptedFileInfo_c);
 
         //Streams
         jobject streamRoom2Java(
