@@ -46,8 +46,9 @@ actual class PcObserver internal actual constructor(
     }
 
     override fun onRemoveTrack(receiver: RtpReceiver) {
-        receiver.track()?.id()?.let { frameCryptorMap.remove(it)?.dispose() }
-        receiver.dispose()
+        runCatching {
+            receiver.track()?.id()?.let { frameCryptorMap.remove(it)?.dispose() }
+        }
     }
 
     actual fun dispose() {
