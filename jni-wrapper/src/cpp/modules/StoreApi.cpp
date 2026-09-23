@@ -13,6 +13,7 @@
 #include <privmx/endpoint/store/StoreApi.hpp>
 #include <privmx/endpoint/core/Exception.hpp>
 #include "Connection.h"
+#include "GroupApi.h"
 #include "StoreApi.h"
 #include "../utils.hpp"
 #include "../parser.h"
@@ -35,15 +36,17 @@ JNIEXPORT jobject JNICALL
 Java_com_simplito_kotlin_privmx_1endpoint_modules_store_StoreApi_init(
         JNIEnv *env,
         jobject thiz,
-        jobject connection
+        jobject connection,
+        jobject group_api
 ) {
     JniContextUtils ctx(env);
     jobject result;
     ctx.callResultEndpointApi<jobject>(
             &result,
-            [&ctx, &env, &connection]() {
+            [&ctx, &env, &connection, &group_api]() {
                 auto connection_c = getConnection(env, connection);
-                auto storeApi = store::StoreApi::create(*connection_c);
+                auto groupApi_c = getOptionalGroupApi(ctx, group_api);
+                auto storeApi = store::StoreApi::create(*connection_c, groupApi_c);
                 auto storeApi_ptr = new store::StoreApi();
                 *storeApi_ptr = storeApi;
                 return ctx.long2jLong((jlong) storeApi_ptr);
@@ -185,7 +188,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_store_StoreApi_createStore(
         jobject managers,
         jbyteArray public_meta,
         jbyteArray private_meta,
-        jobject container_policies
+        jobject container_policies,
+        jobject groups
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(context_id, "Context ID") ||
@@ -198,7 +202,7 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_store_StoreApi_createStore(
     jstring result;
     ctx.callResultEndpointApi<jstring>(
             &result,
-            [&ctx, &thiz, &context_id, &users, &managers, &public_meta, &private_meta, &container_policies]() {
+            [&ctx, &thiz, &context_id, &users, &managers, &public_meta, &private_meta, &container_policies, &groups]() {
                 std::vector<core::UserWithPubKey> managers_c = usersToVector(
                         ctx,
                         ctx.jObject2jArray(managers));
@@ -207,6 +211,9 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_store_StoreApi_createStore(
                         ctx.jObject2jArray(users));
                 auto container_policies_n = std::optional<core::ContainerPolicy>(
                         parseContainerPolicy(ctx, container_policies));
+                std::vector<core::GroupGrantWithKey> groups_c = groupGrantsToVector(
+                        ctx,
+                        groups == nullptr ? nullptr : ctx.jObject2jArray(groups));
                 return ctx->NewStringUTF(
                         getStoreApi(ctx, thiz)->createStore(
                                 ctx.jString2string(context_id),
@@ -214,7 +221,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_store_StoreApi_createStore(
                                 managers_c,
                                 core::Buffer::from(ctx.jByteArray2String(public_meta)),
                                 core::Buffer::from(ctx.jByteArray2String(private_meta)),
-                                container_policies_n
+                                container_policies_n,
+                                groups_c
                         ).c_str());
             });
     if (ctx->ExceptionCheck()) {
@@ -485,7 +493,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_store_StoreApi_updateStore(
         jlong version,
         jboolean force,
         jboolean force_generate_new_key,
-        jobject container_policies
+        jobject container_policies,
+        jobject groups
 ) {
     JniContextUtils ctx(env);
     if (ctx.nullCheck(store_id, "Store ID") ||
@@ -507,7 +516,8 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_store_StoreApi_updateStore(
                     &version,
                     &force,
                     &force_generate_new_key,
-                    &container_policies]() {
+                    &container_policies,
+                    &groups]() {
                 std::vector<core::UserWithPubKey> users_c = usersToVector(
                         ctx,
                         ctx.jObject2jArray(users));
@@ -516,6 +526,9 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_store_StoreApi_updateStore(
                         ctx.jObject2jArray(managers));
                 auto container_policies_n = std::optional<core::ContainerPolicy>(
                         parseContainerPolicy(ctx, container_policies));
+                std::vector<core::GroupGrantWithKey> groups_c = groupGrantsToVector(
+                        ctx,
+                        groups == nullptr ? nullptr : ctx.jObject2jArray(groups));
                 getStoreApi(ctx, thiz)->updateStore(
                         ctx.jString2string(store_id),
                         users_c,
@@ -525,7 +538,47 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_store_StoreApi_updateStore(
                         version,
                         force == JNI_TRUE,
                         force_generate_new_key == JNI_TRUE,
-                        container_policies_n);
+                        container_policies_n,
+                        groups_c);
+            });
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_simplito_kotlin_privmx_1endpoint_modules_store_StoreApi_rotateStoreKeys(
+        JNIEnv *env,
+        jobject thiz,
+        jstring store_id,
+        jobject users,
+        jobject managers,
+        jlong version,
+        jboolean force,
+        jobject groups
+) {
+    JniContextUtils ctx(env);
+    if (ctx.nullCheck(store_id, "Store ID") ||
+        ctx.nullCheck(users, "Users list") ||
+        ctx.nullCheck(managers, "Managers list")) {
+        return;
+    }
+    ctx.callVoidEndpointApi(
+            [&ctx, &thiz, &store_id, &users, &managers, &version, &force, &groups]() {
+                std::vector<core::UserWithPubKey> users_c = usersToVector(
+                        ctx,
+                        ctx.jObject2jArray(users));
+                std::vector<core::UserWithPubKey> managers_c = usersToVector(
+                        ctx,
+                        ctx.jObject2jArray(managers));
+                std::vector<core::GroupGrantWithKey> groups_c = groupGrantsToVector(
+                        ctx,
+                        groups == nullptr ? nullptr : ctx.jObject2jArray(groups));
+                getStoreApi(ctx, thiz)->rotateStoreKeys(
+                        ctx.jString2string(store_id),
+                        users_c,
+                        managers_c,
+                        version,
+                        force == JNI_TRUE,
+                        groups_c);
             });
 }
 

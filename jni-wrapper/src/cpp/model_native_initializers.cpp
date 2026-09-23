@@ -9,8 +9,11 @@
 // limitations under the License.
 //
 
+#include <map>
+
 #include "model_native_initializers.h"
 #include "parser.h"
+#include "exceptions.h"
 
 namespace privmx {
     namespace wrapper {
@@ -246,6 +249,26 @@ namespace privmx {
                 );
             }
 
+            // GroupGrant
+            jobject groupGrant2Java(
+                    JniContextUtils &ctx,
+                    privmx::endpoint::core::GroupGrant groupGrant_c
+            ) {
+                jclass groupGrantCls = ctx->FindClass(
+                        "com/simplito/kotlin/privmx_endpoint/model/GroupGrant");
+                jmethodID initGroupGrantMID = ctx->GetMethodID(
+                        groupGrantCls,
+                        "<init>",
+                        "(Ljava/lang/String;Ljava/lang/String;)V"
+                );
+                return ctx->NewObject(
+                        groupGrantCls,
+                        initGroupGrantMID,
+                        ctx->NewStringUTF(groupGrant_c.groupId.c_str()),
+                        ctx->NewStringUTF(groupGrant_c.role.c_str())
+                );
+            }
+
             // UserWithPubKey
             jobject userStatusChange2Java(
                     JniContextUtils &ctx,
@@ -451,6 +474,8 @@ namespace privmx {
                         "Ljava/lang/Long;"
                         "Ljava/lang/Long;"
                         "Ljava/lang/Long;"
+                        "Ljava/util/List;" //groups
+                        "Ljava/util/List;" //staleGroups
                         ")V"
                 );
                 jclass arrayCls = ctx->FindClass("java/util/ArrayList");
@@ -485,6 +510,19 @@ namespace privmx {
                             addToArrayMID,
                             ctx->NewStringUTF(manager.c_str()));
                 }
+
+                auto groupGrants = vectorTojArray(
+                        ctx,
+                        thread_c.groups,
+                        groupGrant2Java
+                );
+
+                auto staleGroups = vectorTojArray(
+                        ctx,
+                        thread_c.staleGroups,
+                        string2jobject
+                );
+
                 return ctx->NewObject(
                         threadCls,
                         initThreadMID,
@@ -503,7 +541,9 @@ namespace privmx {
                         containerPolicy2Java(ctx, thread_c.policy),
                         ctx.long2jLong(thread_c.messagesCount),
                         ctx.long2jLong(thread_c.statusCode),
-                        ctx.long2jLong(thread_c.schemaVersion)
+                        ctx.long2jLong(thread_c.schemaVersion),
+                        groupGrants,
+                        staleGroups
                 );
             }
 
@@ -603,6 +643,8 @@ namespace privmx {
                         "Ljava/lang/Long;"  //filesCount
                         "Ljava/lang/Long;"  //statusCode
                         "Ljava/lang/Long;"  //schemaVersion
+                        "Ljava/util/List;" //groups
+                        "Ljava/util/List;" //staleGroups
                         ")V"
                 );
 
@@ -625,6 +667,18 @@ namespace privmx {
                             ctx->NewStringUTF(manager.c_str()));
                 }
 
+                auto groupGrants = vectorTojArray(
+                        ctx,
+                        store_c.groups,
+                        groupGrant2Java
+                );
+
+                auto staleGroups = vectorTojArray(
+                        ctx,
+                        store_c.staleGroups,
+                        string2jobject
+                );
+
                 return ctx->NewObject(
                         storeCls,
                         initStoreMID,
@@ -643,7 +697,9 @@ namespace privmx {
                         containerPolicy2Java(ctx, store_c.policy),
                         ctx.long2jLong(store_c.filesCount),
                         ctx.long2jLong(store_c.statusCode),
-                        ctx.long2jLong(store_c.schemaVersion)
+                        ctx.long2jLong(store_c.schemaVersion),
+                        groupGrants,
+                        staleGroups
                 );
             }
 
@@ -670,6 +726,8 @@ namespace privmx {
                         "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicyWithoutItem;" //policy
                         "Ljava/lang/Long;" //statusCode
                         "Ljava/lang/Long;" //schemaVersion
+                        "Ljava/util/List;" //groups
+                        "Ljava/util/List;" //staleGroups
                         ")V"
                 );
                 jclass arrayCls = ctx->FindClass("java/util/ArrayList");
@@ -706,6 +764,18 @@ namespace privmx {
                     filesConfig = filesConfig2Java(ctx, inbox_c.filesConfig.value());
                 }
 
+                auto groupGrants = vectorTojArray(
+                        ctx,
+                        inbox_c.groups,
+                        groupGrant2Java
+                );
+
+                auto staleGroups = vectorTojArray(
+                        ctx,
+                        inbox_c.staleGroups,
+                        string2jobject
+                );
+
                 return ctx->NewObject(
                         inboxCls,
                         initInboxMID,
@@ -723,7 +793,9 @@ namespace privmx {
                         filesConfig,
                         containerPolicyWithoutItem2Java(ctx, inbox_c.policy),
                         ctx.long2jLong(inbox_c.statusCode),
-                        ctx.long2jLong(inbox_c.schemaVersion)
+                        ctx.long2jLong(inbox_c.schemaVersion),
+                        groupGrants,
+                        staleGroups
                 );
             }
 
@@ -1339,6 +1411,8 @@ namespace privmx {
                         "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicy;" //policy
                         "Ljava/lang/Long;" //statusCode
                         "Ljava/lang/Long;" //schemaVersion
+                        "Ljava/util/List;" //groups
+                        "Ljava/util/List;" //staleGroups
                         ")V"
                 );
                 jclass arrayCls = ctx->FindClass("java/util/ArrayList");
@@ -1370,6 +1444,18 @@ namespace privmx {
                             ctx->NewStringUTF(manager.c_str()));
                 }
 
+                auto groupGrants = vectorTojArray(
+                        ctx,
+                        kvdb_c.groups,
+                        groupGrant2Java
+                );
+
+                auto staleGroups = vectorTojArray(
+                        ctx,
+                        kvdb_c.staleGroups,
+                        string2jobject
+                );
+
                 return ctx->NewObject(
                         kvdbCls,
                         initKvdbMID,
@@ -1388,7 +1474,9 @@ namespace privmx {
                         ctx.long2jLong(kvdb_c.lastEntryDate),
                         containerPolicy2Java(ctx, kvdb_c.policy),
                         ctx.long2jLong(kvdb_c.statusCode),
-                        ctx.long2jLong(kvdb_c.schemaVersion)
+                        ctx.long2jLong(kvdb_c.schemaVersion),
+                        groupGrants,
+                        staleGroups
                 );
             }
 
@@ -1463,6 +1551,426 @@ namespace privmx {
                 );
             }
 
+
+        //Group
+        jobject groupChangeKind2Java(
+                JniContextUtils &ctx,
+                const std::string &changeKind_c
+        ) {
+            static const std::map<std::string, const char *> changeKindNames = {
+                    {"created",            "CREATED"},
+                    {"publicMetaUpdated",  "PUBLIC_META_UPDATED"},
+                    {"privateMetaUpdated", "PRIVATE_META_UPDATED"},
+                    {"policyUpdated",      "POLICY_UPDATED"},
+                    {"keyRotated",         "KEY_ROTATED"},
+                    {"memberAdded",        "MEMBER_ADDED"},
+                    {"memberRemoved",      "MEMBER_REMOVED"},
+                    {"eraCut",             "ERA_CUT"},
+                    {"archivePruned",      "ARCHIVE_PRUNED"}
+            };
+            auto entry = changeKindNames.find(changeKind_c);
+            if (entry == changeKindNames.end()) {
+                throw IllegalStateException("Unknown GroupChangeKind");
+            }
+            jclass groupChangeKindCls = ctx.findClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/GroupChangeKind");
+            jfieldID caseFieldId = ctx->GetStaticFieldID(
+                    groupChangeKindCls,
+                    entry->second,
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/GroupChangeKind;"
+            );
+            return ctx->GetStaticObjectField(groupChangeKindCls, caseFieldId);
+        }
+
+        jobject groupChangedEventData2Java(
+                JniContextUtils &ctx,
+                const privmx::endpoint::group::GroupChangedEventData &data
+        ) {
+            jclass groupChangedEventDataCls = ctx.findClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/GroupChangedEventData");
+            jmethodID initGroupChangedEventDataMID = ctx->GetMethodID(
+                    groupChangedEventDataCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"    // groupId
+                    "Ljava/lang/String;"    // contextId
+                    "J"                     // publicMetaVersion
+                    "J"                     // privateMetaVersion
+                    "J"                     // rosterVersion
+                    "J"                     // keyVersion
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/GroupChangeKind;"   // changeKind
+                    ")V"
+            );
+
+            return ctx->NewObject(
+                    groupChangedEventDataCls,
+                    initGroupChangedEventDataMID,
+                    ctx->NewStringUTF(data.groupId.c_str()),
+                    ctx->NewStringUTF(data.contextId.c_str()),
+                    (jlong) data.publicMetaVersion,
+                    (jlong) data.privateMetaVersion,
+                    (jlong) data.rosterVersion,
+                    (jlong) data.keyVersion,
+                    groupChangeKind2Java(ctx, data.changeKind)
+            );
+        }
+
+        jobject groupDeletedEventData2Java(
+                JniContextUtils &ctx,
+                const privmx::endpoint::group::GroupDeletedEventData &data
+        ) {
+            jclass groupDeletedEventDataCls = ctx.findClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/GroupDeletedEventData");
+            jmethodID initGroupDeletedEventDataMID = ctx->GetMethodID(
+                    groupDeletedEventDataCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"    // groupId
+                    "Ljava/lang/String;"    // contextId
+                    ")V"
+            );
+
+            return ctx->NewObject(
+                    groupDeletedEventDataCls,
+                    initGroupDeletedEventDataMID,
+                    ctx->NewStringUTF(data.groupId.c_str()),
+                    ctx->NewStringUTF(data.contextId.c_str())
+            );
+        }
+
+        jobject groupCustomEventData2Java(
+                JniContextUtils &ctx,
+                const privmx::endpoint::group::GroupCustomEventData &data
+        ) {
+            jclass groupCustomEventDataCls = ctx.findClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/GroupCustomEventData");
+            jmethodID initGroupCustomEventDataMID = ctx->GetMethodID(
+                    groupCustomEventDataCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"    // groupId
+                    "Ljava/lang/String;"    // channelName
+                    "Ljava/lang/String;"    // userId
+                    "Ljava/lang/String;"    // authorPubKey
+                    "[B"                    // payload
+                    "J"                     // statusCode
+                    ")V"
+            );
+
+            jbyteArray payload = ctx->NewByteArray(data.payload.size());
+            ctx->SetByteArrayRegion(
+                    payload, 0,
+                    data.payload.size(),
+                    (jbyte *) data.payload.data());
+
+            return ctx->NewObject(
+                    groupCustomEventDataCls,
+                    initGroupCustomEventDataMID,
+                    ctx->NewStringUTF(data.groupId.c_str()),
+                    ctx->NewStringUTF(data.channelName.c_str()),
+                    ctx->NewStringUTF(data.userId.c_str()),
+                    ctx->NewStringUTF(data.authorPubKey.c_str()),
+                    payload,
+                    (jlong) data.statusCode
+            );
+        }
+
+        //Group
+        jobject group2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::group::Group group_c
+        ) {
+            jclass groupCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/Group");
+            jmethodID initGroupMID = ctx->GetMethodID(
+                    groupCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"    // contextId
+                    "Ljava/lang/String;"    // groupId
+                    "Ljava/lang/String;"    // groupPubKey
+                    "J"                     // createDate
+                    "Ljava/lang/String;"    // creator
+                    "J"                     // lastModificationDate
+                    "Ljava/lang/String;"    // lastModifier
+                    "Ljava/util/List;"      // users
+                    "Ljava/util/List;"      // managers
+                    "J"                     // publicMetaVersion
+                    "J"                     // privateMetaVersion
+                    "J"                     // rosterVersion
+                    "[B"                    // publicMeta
+                    "[B"                    // privateMeta
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicy;" //policy
+                    "J"                     // statusCode
+                    "J"                     // schemaVersion
+                    "J"                     // keyVersion
+                    "Ljava/lang/String;"    // type
+                    ")V"
+            );
+            jobject users = vectorTojArray(ctx, group_c.users, string2jobject);
+            jobject managers = vectorTojArray(ctx, group_c.managers, string2jobject);
+
+            jbyteArray publicMeta = ctx->NewByteArray(group_c.publicMeta.size());
+            jbyteArray privateMeta = ctx->NewByteArray(group_c.privateMeta.size());
+            ctx->SetByteArrayRegion(publicMeta, 0, group_c.publicMeta.size(),
+                    (jbyte *) group_c.publicMeta.data());
+            ctx->SetByteArrayRegion(privateMeta, 0, group_c.privateMeta.size(),
+                    (jbyte *) group_c.privateMeta.data());
+            jstring type = nullptr;
+            if (group_c.type.has_value()) {
+                type = ctx->NewStringUTF(group_c.type->c_str());
+            }
+
+            return ctx->NewObject(
+                    groupCls,
+                    initGroupMID,
+                    ctx->NewStringUTF(group_c.contextId.c_str()),
+                    ctx->NewStringUTF(group_c.groupId.c_str()),
+                    ctx->NewStringUTF(group_c.groupPubKey.c_str()),
+                    (jlong) group_c.createDate,
+                    ctx->NewStringUTF(group_c.creator.c_str()),
+                    (jlong) group_c.lastModificationDate,
+                    ctx->NewStringUTF(group_c.lastModifier.c_str()),
+                    users,
+                    managers,
+                    (jlong) group_c.publicMetaVersion,
+                    (jlong) group_c.privateMetaVersion,
+                    (jlong) group_c.rosterVersion,
+                    publicMeta,
+                    privateMeta,
+                    containerPolicy2Java(ctx, group_c.policy),
+                    (jlong) group_c.statusCode,
+                    (jlong) group_c.schemaVersion,
+                    (jlong) group_c.keyVersion,
+                    type
+            );
+        }
+
+        jobject groupSummary2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::group::GroupSummary groupSummary_c
+        ) {
+            jclass groupSummaryCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/GroupSummary");
+            jmethodID initGroupSummaryMID = ctx->GetMethodID(
+                    groupSummaryCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"    // contextId
+                    "Ljava/lang/String;"    // groupId
+                    "Ljava/lang/String;"    // groupPubKey
+                    "J"                     // createDate
+                    "Ljava/lang/String;"    // creator
+                    "J"                     // lastModificationDate
+                    "Ljava/lang/String;"    // lastModifier
+                    "Ljava/util/List;"      // users
+                    "Ljava/util/List;"      // managers
+                    "J"                     // publicMetaVersion
+                    "J"                     // privateMetaVersion
+                    "J"                     // rosterVersion
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/ContainerPolicy;" //policy
+                    "J"                     // keyVersion
+                    "Ljava/lang/String;"    // type
+                    ")V"
+            );
+            jobject users = vectorTojArray(ctx, groupSummary_c.users, string2jobject);
+            jobject managers = vectorTojArray(ctx, groupSummary_c.managers, string2jobject);
+
+            jstring type = nullptr;
+            if (groupSummary_c.type.has_value()) {
+                type = ctx->NewStringUTF(groupSummary_c.type->c_str());
+            }
+
+            return ctx->NewObject(
+                    groupSummaryCls,
+                    initGroupSummaryMID,
+                    ctx->NewStringUTF(groupSummary_c.contextId.c_str()),
+                    ctx->NewStringUTF(groupSummary_c.groupId.c_str()),
+                    ctx->NewStringUTF(groupSummary_c.groupPubKey.c_str()),
+                    (jlong) groupSummary_c.createDate,
+                    ctx->NewStringUTF(groupSummary_c.creator.c_str()),
+                    (jlong) groupSummary_c.lastModificationDate,
+                    ctx->NewStringUTF(groupSummary_c.lastModifier.c_str()),
+                    users,
+                    managers,
+                    (jlong) groupSummary_c.publicMetaVersion,
+                    (jlong) groupSummary_c.privateMetaVersion,
+                    (jlong) groupSummary_c.rosterVersion,
+                    containerPolicy2Java(ctx, groupSummary_c.policy),
+                    (jlong) groupSummary_c.keyVersion,
+                    type
+            );
+        }
+
+        jobject envelopeType2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::group::EnvelopeType envelopeType_c
+        ) {
+            jclass envelopeTypeCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/EnvelopeType");
+            const char *caseName;
+            switch (envelopeType_c) {
+                case privmx::endpoint::group::EnvelopeType::ENVELOPE_ANONYMOUS:
+                    caseName = "ENVELOPE_ANONYMOUS";
+                    break;
+                default:
+                    caseName = "ENVELOPE_FROM_MEMBER";
+                    break;
+            }
+            jfieldID caseFieldId = ctx->GetStaticFieldID(
+                    envelopeTypeCls,
+                    caseName,
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/EnvelopeType;");
+            return ctx->GetStaticObjectField(envelopeTypeCls, caseFieldId);
+        }
+
+        jobject decryptedEnvelope2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::group::DecryptedEnvelope decryptedEnvelope_c
+        ) {
+            jclass decryptedEnvelopeCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/DecryptedEnvelope");
+            jmethodID initDecryptedEnvelopeMID = ctx->GetMethodID(
+                    decryptedEnvelopeCls,
+                    "<init>",
+                    "("
+                    "[B"                    // data
+                    "Ljava/lang/String;"    // groupId
+                    "Ljava/lang/String;"    // authorPubKey
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/EnvelopeType;" //type
+                    ")V"
+            );
+            jbyteArray data = ctx->NewByteArray(decryptedEnvelope_c.data.size());
+            ctx->SetByteArrayRegion(data, 0, decryptedEnvelope_c.data.size(),
+                    (jbyte *) decryptedEnvelope_c.data.data());
+
+            return ctx->NewObject(
+                    decryptedEnvelopeCls,
+                    initDecryptedEnvelopeMID,
+                    data,
+                    ctx->NewStringUTF(decryptedEnvelope_c.groupId.c_str()),
+                    ctx->NewStringUTF(decryptedEnvelope_c.authorPubKey.c_str()),
+                    envelopeType2Java(ctx, decryptedEnvelope_c.type)
+            );
+        }
+
+        jobject decryptedFileInfo2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::group::DecryptedFileInfo decryptedFileInfo_c
+        ) {
+            jclass decryptedFileInfoCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/DecryptedFileInfo");
+            jmethodID initDecryptedFileInfoMID = ctx->GetMethodID(
+                    decryptedFileInfoCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"    // groupId
+                    "Ljava/lang/String;"    // authorPubKey
+                    "Lcom/simplito/kotlin/privmx_endpoint/model/EnvelopeType;" //type
+                    "Z"                     // complete
+                    ")V"
+            );
+
+            return ctx->NewObject(
+                    decryptedFileInfoCls,
+                    initDecryptedFileInfoMID,
+                    ctx->NewStringUTF(decryptedFileInfo_c.groupId.c_str()),
+                    ctx->NewStringUTF(decryptedFileInfo_c.authorPubKey.c_str()),
+                    envelopeType2Java(ctx, decryptedFileInfo_c.type),
+                    (jboolean) decryptedFileInfo_c.complete
+            );
+        }
+
+        jobject groupChangedEventData2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::group::GroupChangedEventData groupChangedEventData_c
+        ) {
+            jclass groupChangedEventDataCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/GroupChangedEventData");
+            jmethodID initGroupChangedEventDataMID = ctx->GetMethodID(
+                    groupChangedEventDataCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;"    // groupId
+                    "Ljava/lang/String;"    // contextId
+                    "J"                     // publicMetaVersion
+                    "J"                     // privateMetaVersion
+                    "J"                     // rosterVersion
+                    "J"                     // keyVersion
+                    "Ljava/lang/String;"    // changeKind
+                    ")V"
+            );
+
+            return ctx->NewObject(
+                    groupChangedEventDataCls,
+                    initGroupChangedEventDataMID,
+                    ctx->NewStringUTF(groupChangedEventData_c.groupId.c_str()),
+                    ctx->NewStringUTF(groupChangedEventData_c.contextId.c_str()),
+                    (jlong) groupChangedEventData_c.publicMetaVersion,
+                    (jlong) groupChangedEventData_c.privateMetaVersion,
+                    (jlong) groupChangedEventData_c.rosterVersion,
+                    (jlong) groupChangedEventData_c.keyVersion,
+                    ctx->NewStringUTF(groupChangedEventData_c.changeKind.c_str())
+            );
+        }
+
+        jobject groupDeletedEventData2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::group::GroupDeletedEventData groupDeletedEventData_c
+        ) {
+            jclass groupDeletedEventDataCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/GroupDeletedEventData");
+            jmethodID initGroupDeletedEventDataMID = ctx->GetMethodID(
+                    groupDeletedEventDataCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;" // groupId
+                    "Ljava/lang/String;" // contextId
+                    ")V"
+            );
+
+            return ctx->NewObject(
+                    groupDeletedEventDataCls,
+                    initGroupDeletedEventDataMID,
+                    ctx->NewStringUTF(groupDeletedEventData_c.groupId.c_str()),
+                    ctx->NewStringUTF(groupDeletedEventData_c.contextId.c_str())
+            );
+        }
+
+        jobject groupCustomEventData2Java(
+                JniContextUtils &ctx,
+                privmx::endpoint::group::GroupCustomEventData groupCustomEventData_c
+        ) {
+            jclass groupCustomEventDataCls = ctx->FindClass(
+                    "com/simplito/kotlin/privmx_endpoint/model/events/GroupCustomEventData");
+            jmethodID initGroupCustomEventDataMID = ctx->GetMethodID(
+                    groupCustomEventDataCls,
+                    "<init>",
+                    "("
+                    "Ljava/lang/String;" // groupId
+                    "Ljava/lang/String;" // channelName
+                    "Ljava/lang/String;" // userId
+                    "Ljava/lang/String;" // authorPubKey
+                    "[B"                 // payload
+                    "J"                  // statusCode
+                    ")V"
+            );
+
+            jbyteArray payload = ctx->NewByteArray(groupCustomEventData_c.payload.size());
+            ctx->SetByteArrayRegion(payload, 0, groupCustomEventData_c.payload.size(),
+                    (jbyte *) groupCustomEventData_c.payload.data());
+
+            return ctx->NewObject(
+                    groupCustomEventDataCls,
+                    initGroupCustomEventDataMID,
+                    ctx->NewStringUTF(groupCustomEventData_c.groupId.c_str()),
+                    ctx->NewStringUTF(groupCustomEventData_c.channelName.c_str()),
+                    ctx->NewStringUTF(groupCustomEventData_c.userId.c_str()),
+                    ctx->NewStringUTF(groupCustomEventData_c.authorPubKey.c_str()),
+                    payload,
+                    (jlong) groupCustomEventData_c.statusCode
+            );
+        }
 
         //Streams
         jobject keyType2Java(
