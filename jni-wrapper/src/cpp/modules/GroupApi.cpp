@@ -168,18 +168,19 @@ Java_com_simplito_kotlin_privmx_1endpoint_modules_group_GroupApi_removeGroupMemb
         return;
     }
 
-    auto user_ids_c = jArrayToVector<std::string>(
-            ctx,
-            ctx.jObject2jArray(user_ids),
-            jobject2string,
-            true
-    );
-    if (ctx->ExceptionCheck()) return;
-
-    getGroupApi(ctx, thiz)->removeGroupMembers(
-            ctx.jString2string(group_id),
-            user_ids_c
-    );
+    ctx.callVoidEndpointApi([&ctx, &thiz, &group_id, &user_ids]() {
+        auto user_ids_c = jArrayToVector<std::string>(
+                ctx,
+                ctx.jObject2jArray(user_ids),
+                jobject2string,
+                true
+        );
+        if (ctx->ExceptionCheck()) return;
+        getGroupApi(ctx, thiz)->removeGroupMembers(
+                ctx.jString2string(group_id),
+                user_ids_c
+        );
+    });
 }
 
 extern "C"
