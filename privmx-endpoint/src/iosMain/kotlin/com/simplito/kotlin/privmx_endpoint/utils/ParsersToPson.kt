@@ -69,6 +69,8 @@ internal val ContainerPolicy.pson: PsonValue.PsonObject
         "updatePolicy" to updatePolicy.nullablePson,
         "updaterCanBeRemovedFromManagers" to updaterCanBeRemovedFromManagers.nullablePson,
         "ownerCanBeRemovedFromManagers" to ownerCanBeRemovedFromManagers.nullablePson,
+        "rotateKeys" to rotateKeys.nullablePson,
+        "forwardSecrecy" to forwardSecrecy.nullablePson,
         "item" to (item?.pson ?: KPSON_NULL)
     ).pson
 
@@ -80,6 +82,8 @@ internal val ContainerPolicyWithoutItem.pson: PsonValue.PsonObject
         "updatePolicy" to updatePolicy.nullablePson,
         "updaterCanBeRemovedFromManagers" to updaterCanBeRemovedFromManagers.nullablePson,
         "ownerCanBeRemovedFromManagers" to ownerCanBeRemovedFromManagers.nullablePson,
+        "rotateKeys" to rotateKeys.nullablePson,
+        "forwardSecrecy" to forwardSecrecy.nullablePson,
     ).pson
 
 internal val FilesConfig.pson: PsonValue.PsonObject

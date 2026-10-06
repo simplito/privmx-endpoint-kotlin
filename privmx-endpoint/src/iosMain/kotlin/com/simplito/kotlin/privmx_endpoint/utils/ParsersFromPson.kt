@@ -210,6 +210,8 @@ internal fun PsonObject.toContainerPolicy(): ContainerPolicy =
         this["updatePolicy"]?.typedValue(),
         this["updaterCanBeRemovedFromManagers"]?.typedValue(),
         this["ownerCanBeRemovedFromManagers"]?.typedValue(),
+        this["rotateKeys"]?.typedValue(),
+        this["forwardSecrecy"]?.typedValue(),
         (this["item"] as PsonObject?)?.toItemPolicy()
     )
 
@@ -220,7 +222,9 @@ internal fun PsonObject.toContainerPolicyWithoutItem(): ContainerPolicyWithoutIt
         this["delete"]?.typedValue(),
         this["updatePolicy"]?.typedValue(),
         this["updaterCanBeRemovedFromManagers"]?.typedValue(),
-        this["ownerCanBeRemovedFromManagers"]?.typedValue()
+        this["ownerCanBeRemovedFromManagers"]?.typedValue(),
+        this["rotateKeys"]?.typedValue(),
+        this["forwardSecrecy"]?.typedValue()
     )
 
 internal fun PsonObject.toFilesConfig(): FilesConfig =

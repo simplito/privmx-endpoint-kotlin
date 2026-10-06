@@ -143,6 +143,8 @@ parseContainerPolicyWithoutItem(JniContextUtils &ctx, jobject containerPolicyWit
     jfieldID ownerCanBeRemovedFromManagers = ctx->GetFieldID(policyClass,
             "ownerCanBeRemovedFromManagers",
             "Ljava/lang/String;");
+    jfieldID rotateKeys = ctx->GetFieldID(policyClass, "rotateKeys", "Ljava/lang/String;");
+    jfieldID forwardSecrecy = ctx->GetFieldID(policyClass, "forwardSecrecy", "Ljava/lang/String;");
     jstring value;
     if ((value = (jstring) ctx->GetObjectField(containerPolicyWithoutItem, get)) != NULL) {
         result.get = ctx.jString2string(value);
@@ -164,6 +166,12 @@ parseContainerPolicyWithoutItem(JniContextUtils &ctx, jobject containerPolicyWit
             ownerCanBeRemovedFromManagers)) != NULL) {
         result.ownerCanBeRemovedFromManagers = ctx.jString2string(value);
     }
+    if ((value = (jstring) ctx->GetObjectField(containerPolicyWithoutItem, rotateKeys)) != NULL) {
+        result.rotateKeys = ctx.jString2string(value);
+    }
+    if ((value = (jstring) ctx->GetObjectField(containerPolicyWithoutItem, forwardSecrecy)) != NULL) {
+        result.forwardSecrecy = ctx.jString2string(value);
+    }
     return result;
 }
 
@@ -183,6 +191,8 @@ parseContainerPolicy(JniContextUtils &ctx, jobject containerPolicy) {
     jfieldID ownerCanBeRemovedFromManagers = ctx->GetFieldID(policyClass,
             "ownerCanBeRemovedFromManagers",
             "Ljava/lang/String;");
+    jfieldID rotateKeys = ctx->GetFieldID(policyClass, "rotateKeys", "Ljava/lang/String;");
+    jfieldID forwardSecrecy = ctx->GetFieldID(policyClass, "forwardSecrecy", "Ljava/lang/String;");
 
     jfieldID item = ctx->GetFieldID(policyClass,
             "item",
@@ -207,6 +217,12 @@ parseContainerPolicy(JniContextUtils &ctx, jobject containerPolicy) {
     if ((value = (jstring) ctx->GetObjectField(containerPolicy,
             ownerCanBeRemovedFromManagers)) != NULL) {
         result.ownerCanBeRemovedFromManagers = ctx.jString2string(value);
+    }
+    if ((value = (jstring) ctx->GetObjectField(containerPolicy, rotateKeys)) != NULL) {
+        result.rotateKeys = ctx.jString2string(value);
+    }
+    if ((value = (jstring) ctx->GetObjectField(containerPolicy, forwardSecrecy)) != NULL) {
+        result.forwardSecrecy = ctx.jString2string(value);
     }
     result.item = parseItemPolicy(ctx, ctx->GetObjectField(containerPolicy, item));
     return result;
