@@ -22,7 +22,7 @@ package com.simplito.kotlin.privmx_endpoint.model
  */
 data class GroupGrantWithKey(
     val groupId: String,
-    val role: GroupRole,
+    val role: String,
     val groupPubKey: String,
     val groupEpoch: Long = 0
 )

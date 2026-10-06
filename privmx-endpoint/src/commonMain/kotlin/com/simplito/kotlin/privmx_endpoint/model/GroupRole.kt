@@ -1,6 +1,8 @@
 package com.simplito.kotlin.privmx_endpoint.model
 
-enum class GroupRole {
-    USER,
-    MANAGER
+import kotlin.jvm.JvmInline
+
+object GroupRole {
+    const val USER = "user"
+    const val MANAGER = "manager"
 }

@@ -37,7 +37,6 @@ import com.simplito.kotlin.privmx_endpoint.model.Message
 import com.simplito.kotlin.privmx_endpoint.model.PagingList
 import com.simplito.kotlin.privmx_endpoint.model.ServerFileInfo
 import com.simplito.kotlin.privmx_endpoint.model.GroupGrant
-import com.simplito.kotlin.privmx_endpoint.model.GroupRole
 import com.simplito.kotlin.privmx_endpoint.model.ServerKvdbEntryInfo
 import com.simplito.kotlin.privmx_endpoint.model.ServerMessageInfo
 import com.simplito.kotlin.privmx_endpoint.model.Store
@@ -110,16 +109,9 @@ internal fun PsonObject.toUserInfo(): UserInfo = UserInfo(
     (this["lastStatusChange"] as PsonObject?)?.toUserStatusChange()
 )
 
-internal fun PsonValue<Any>.toGroupRole(): GroupRole =
-    when (val role = typedValue<String>()) {
-        "user" -> GroupRole.USER
-        "manager" -> GroupRole.MANAGER
-        else -> throw IllegalStateException("Unknown GroupRole: $role")
-    }
-
 internal fun PsonObject.toGroupGrant(): GroupGrant = GroupGrant(
     this["groupId"]!!.typedValue(),
-    this["role"]!!.toGroupRole()
+    this["role"]!!.typedValue()
 )
 
 internal fun PsonObject.toThread(): Thread = Thread(
@@ -210,6 +202,8 @@ internal fun PsonObject.toContainerPolicy(): ContainerPolicy =
         this["updatePolicy"]?.typedValue(),
         this["updaterCanBeRemovedFromManagers"]?.typedValue(),
         this["ownerCanBeRemovedFromManagers"]?.typedValue(),
+        this["rotateKeys"]?.typedValue(),
+        this["forwardSecrecy"]?.typedValue(),
         (this["item"] as PsonObject?)?.toItemPolicy()
     )
 
@@ -220,7 +214,9 @@ internal fun PsonObject.toContainerPolicyWithoutItem(): ContainerPolicyWithoutIt
         this["delete"]?.typedValue(),
         this["updatePolicy"]?.typedValue(),
         this["updaterCanBeRemovedFromManagers"]?.typedValue(),
-        this["ownerCanBeRemovedFromManagers"]?.typedValue()
+        this["ownerCanBeRemovedFromManagers"]?.typedValue(),
+        this["rotateKeys"]?.typedValue(),
+        this["forwardSecrecy"]?.typedValue()
     )
 
 internal fun PsonObject.toFilesConfig(): FilesConfig =

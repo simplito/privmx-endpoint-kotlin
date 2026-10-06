@@ -16,7 +16,6 @@ import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicyWithoutItem
 import com.simplito.kotlin.privmx_endpoint.model.FilesConfig
 import com.simplito.kotlin.privmx_endpoint.model.GroupGrantWithKey
 import com.simplito.kotlin.privmx_endpoint.model.GroupMemberToAdd
-import com.simplito.kotlin.privmx_endpoint.model.GroupRole
 import com.simplito.kotlin.privmx_endpoint.model.ItemPolicy
 import com.simplito.kotlin.privmx_endpoint.model.PKIVerificationOptions
 import com.simplito.kotlin.privmx_endpoint.model.UserWithPubKey
@@ -41,12 +40,6 @@ internal val UserWithPubKey.pson: PsonValue.PsonObject
         "pubKey" to pubKey!!.pson,
     ).pson
 
-internal val GroupRole.pson: PsonValue.PsonString
-    get() = when (this) {
-        GroupRole.USER -> "user"
-        GroupRole.MANAGER -> "manager"
-    }.pson
-
 internal val GroupMemberToAdd.pson: PsonValue.PsonObject
     get() = mapOfWithNulls(
         "user" to user.pson,
@@ -69,6 +62,8 @@ internal val ContainerPolicy.pson: PsonValue.PsonObject
         "updatePolicy" to updatePolicy.nullablePson,
         "updaterCanBeRemovedFromManagers" to updaterCanBeRemovedFromManagers.nullablePson,
         "ownerCanBeRemovedFromManagers" to ownerCanBeRemovedFromManagers.nullablePson,
+        "rotateKeys" to rotateKeys.nullablePson,
+        "forwardSecrecy" to forwardSecrecy.nullablePson,
         "item" to (item?.pson ?: KPSON_NULL)
     ).pson
 
@@ -80,6 +75,8 @@ internal val ContainerPolicyWithoutItem.pson: PsonValue.PsonObject
         "updatePolicy" to updatePolicy.nullablePson,
         "updaterCanBeRemovedFromManagers" to updaterCanBeRemovedFromManagers.nullablePson,
         "ownerCanBeRemovedFromManagers" to ownerCanBeRemovedFromManagers.nullablePson,
+        "rotateKeys" to rotateKeys.nullablePson,
+        "forwardSecrecy" to forwardSecrecy.nullablePson,
     ).pson
 
 internal val FilesConfig.pson: PsonValue.PsonObject

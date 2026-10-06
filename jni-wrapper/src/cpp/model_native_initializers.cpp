@@ -82,6 +82,8 @@ namespace privmx {
                         "Ljava/lang/String;" // updatePolicy
                         "Ljava/lang/String;" // updaterCanBeRemovedFromManagers
                         "Ljava/lang/String;" // ownerCanBeRemovedFromManagers
+                        "Ljava/lang/String;" // rotateKeys
+                        "Ljava/lang/String;" // forwardSecrecy
                         ")V"
                 );
                 jstring get = nullptr;
@@ -90,6 +92,8 @@ namespace privmx {
                 jstring updatePolicy = nullptr;
                 jstring updaterCanBeRemovedFromManagers = nullptr;
                 jstring ownerCanBeRemovedFromManagers = nullptr;
+                jstring rotateKeys = nullptr;
+                jstring forwardSecrecy = nullptr;
                 if (containerPolicyWithoutItem.get.has_value()) {
                     get = ctx->NewStringUTF(containerPolicyWithoutItem.get->c_str());
                 }
@@ -110,6 +114,12 @@ namespace privmx {
                     ownerCanBeRemovedFromManagers = ctx->NewStringUTF(
                             containerPolicyWithoutItem.ownerCanBeRemovedFromManagers->c_str());
                 }
+                if (containerPolicyWithoutItem.rotateKeys.has_value()) {
+                    rotateKeys = ctx->NewStringUTF(containerPolicyWithoutItem.rotateKeys->c_str());
+                }
+                if (containerPolicyWithoutItem.forwardSecrecy.has_value()) {
+                    forwardSecrecy = ctx->NewStringUTF(containerPolicyWithoutItem.forwardSecrecy->c_str());
+                }
 
                 return ctx->NewObject(
                         containerPolicyWithoutItemCls,
@@ -119,7 +129,9 @@ namespace privmx {
                         delete_,
                         updatePolicy,
                         updaterCanBeRemovedFromManagers,
-                        ownerCanBeRemovedFromManagers
+                        ownerCanBeRemovedFromManagers,
+                        rotateKeys,
+                        forwardSecrecy
                 );
             }
 
@@ -139,6 +151,8 @@ namespace privmx {
                         "Ljava/lang/String;" // updatePolicy
                         "Ljava/lang/String;" // updaterCanBeRemovedFromManagers
                         "Ljava/lang/String;" // ownerCanBeRemovedFromManagers
+                        "Ljava/lang/String;" // rotateKeys
+                        "Ljava/lang/String;" // forwardSecrecy
                         "Lcom/simplito/kotlin/privmx_endpoint/model/ItemPolicy;" // item
                         ")V"
                 );
@@ -148,6 +162,8 @@ namespace privmx {
                 jstring updatePolicy = nullptr;
                 jstring updaterCanBeRemovedFromManagers = nullptr;
                 jstring ownerCanBeRemovedFromManagers = nullptr;
+                jstring rotateKeys = nullptr;
+                jstring forwardSecrecy = nullptr;
                 jobject itemPolicy = nullptr;
                 if (containerPolicy.get.has_value()) {
                     get = ctx->NewStringUTF(containerPolicy.get->c_str());
@@ -169,6 +185,12 @@ namespace privmx {
                     ownerCanBeRemovedFromManagers = ctx->NewStringUTF(
                             containerPolicy.ownerCanBeRemovedFromManagers->c_str());
                 }
+                if (containerPolicy.rotateKeys.has_value()) {
+                    rotateKeys = ctx->NewStringUTF(containerPolicy.rotateKeys->c_str());
+                }
+                if (containerPolicy.forwardSecrecy.has_value()) {
+                    forwardSecrecy = ctx->NewStringUTF(containerPolicy.forwardSecrecy->c_str());
+                }
                 if (containerPolicy.item.has_value()) {
                     itemPolicy = itemPolicy2Java(ctx, containerPolicy.item.value());
                 }
@@ -182,6 +204,8 @@ namespace privmx {
                         updatePolicy,
                         updaterCanBeRemovedFromManagers,
                         ownerCanBeRemovedFromManagers,
+                        rotateKeys,
+                        forwardSecrecy,
                         itemPolicy
                 );
             }

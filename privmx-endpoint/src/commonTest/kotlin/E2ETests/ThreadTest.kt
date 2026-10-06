@@ -263,7 +263,7 @@ class ThreadTest : BaseTest() {
     fun createThreadWithPolicy() {
         val itemPolicy = ItemPolicy("owner", "owner", "owner", "owner", "owner", "owner")
         val containerPolicy =
-            ContainerPolicy("owner", "owner", "owner", "owner", "no", "no", itemPolicy)
+            ContainerPolicy("owner", "owner", "owner", "owner", "no", "no", null, null, itemPolicy)
         lateinit var id: String
 
         assertDoesNotFail {

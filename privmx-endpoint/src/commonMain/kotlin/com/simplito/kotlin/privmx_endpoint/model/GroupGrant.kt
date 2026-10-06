@@ -18,5 +18,5 @@ package com.simplito.kotlin.privmx_endpoint.model
  */
 data class GroupGrant(
     val groupId: String,
-    val role: GroupRole
+    val role: String
 )

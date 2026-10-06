@@ -19,6 +19,10 @@ package com.simplito.kotlin.privmx_endpoint.model
  * @property updatePolicy                    Determines who can update policy
  * @property updaterCanBeRemovedFromManagers Determines whether the updater can be removed from the list of managers
  * @property ownerCanBeRemovedFromManagers   Determines whether the owner can be removed from the list of managers
+ * @property rotateKeys                      Determines who can rotate container keys (re-encrypt for current members
+ *                                           without changing data or membership)
+ * @property forwardSecrecy                  Enforces forward secrecy: blocks writes when group grants are stale
+ *                                           after a group key rotation
  */
 open class ContainerPolicyWithoutItem(
     val get: String?,
@@ -26,5 +30,7 @@ open class ContainerPolicyWithoutItem(
     val delete: String?,
     val updatePolicy: String?,
     val updaterCanBeRemovedFromManagers: String?,
-    val ownerCanBeRemovedFromManagers: String?
+    val ownerCanBeRemovedFromManagers: String?,
+    val rotateKeys: String?,
+    val forwardSecrecy: String?
 )
