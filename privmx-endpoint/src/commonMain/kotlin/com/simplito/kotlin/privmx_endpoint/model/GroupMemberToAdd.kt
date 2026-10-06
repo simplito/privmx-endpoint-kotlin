@@ -22,5 +22,5 @@ package com.simplito.kotlin.privmx_endpoint.model
  */
 data class GroupMemberToAdd(
     val user: UserWithPubKey,
-    val role: GroupRole
+    val role: String
 )
