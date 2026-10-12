@@ -141,5 +141,13 @@ open class BaseTest {
             }
         }
 
+        fun assertDoesNotFail(message: String, body: () -> Unit) {
+            try {
+                body()
+            } catch (e: Throwable) {
+                fail("$message: expected no exception to be thrown, but got: $e")
+            }
+        }
+
     }
 }
