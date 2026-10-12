@@ -4,16 +4,23 @@ import Utils.Queries.json
 import Utils.Queries.json1
 import Utils.Queries.json2
 import Utils.Queries.json3
+import Utils.Queries.json4
 import Utils.Queries.json5
+import Utils.Queries.json6
+import Utils.Queries.json7
 import Utils.Queries.json8
 import Utils.Queries.json9
 import Utils.Queries.query10
 import Utils.Queries.query11
+import Utils.Queries.query12
+import Utils.Queries.query13
+import Utils.Queries.query14
 import Utils.Queries.query15
 import com.simplito.kotlin.privmx_endpoint.model.ContainerPolicy
 import com.simplito.kotlin.privmx_endpoint.model.DecryptedEnvelope
 import com.simplito.kotlin.privmx_endpoint.model.DecryptedFileInfo
 import com.simplito.kotlin.privmx_endpoint.model.EnvelopeType
+import com.simplito.kotlin.privmx_endpoint.model.FileHandle
 import com.simplito.kotlin.privmx_endpoint.model.Group
 import com.simplito.kotlin.privmx_endpoint.model.GroupMemberToAdd
 import com.simplito.kotlin.privmx_endpoint.model.GroupSummary
@@ -24,6 +31,7 @@ import com.simplito.kotlin.privmx_endpoint.model.events.eventSelectorTypes.Group
 import com.simplito.kotlin.privmx_endpoint.model.events.eventTypes.GroupEventType
 import com.simplito.kotlin.privmx_endpoint.model.exceptions.PrivmxException
 import com.simplito.kotlin.privmx_endpoint.modules.core.Connection
+import com.simplito.kotlin.privmx_endpoint.modules.group.Envelope
 import com.simplito.kotlin.privmx_endpoint.modules.group.GroupApi
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -38,13 +46,8 @@ import kotlin.test.assertTrue
 
 class GroupTest : BaseTest() {
 
-    // groupId  - users: [user1],         managers: [user1]
-    // group2Id - users: [user1, user2],  managers: [user1, user2]
-    // group3Id - users: [user1, user2],  managers: [user1]
-    private lateinit var groupId: String
-    private lateinit var group2Id: String
-    private lateinit var group3Id: String
     private lateinit var groupApi: GroupApi
+    private val createdGroups = mutableListOf<String>()
 
     private val roleUser = "user"
     private val roleManager = "manager"
@@ -52,28 +55,24 @@ class GroupTest : BaseTest() {
     private val nonexistentId = "f977e533-3524-4579-error-215368c4b2a4"
 
     @BeforeTest
-    fun createConnection() {
+    fun beforeTest() {
         if (connection == null) {
             connection = connectAsUser(ConnectionType.User1, bridgeAddress)
         }
         groupApi = GroupApi(connection!!)
-        groupId = newGroup(contextId!!, users.subList(0, 1), users.subList(0, 1))
-        group2Id = newGroup(contextId!!, users, users)
-        group3Id = newGroup(contextId!!, users, users.subList(0, 1))
     }
 
     @AfterTest
     @Throws(Exception::class)
-    fun closeConnection() {
+    fun afterTest() {
         if (::groupApi.isInitialized) {
-            if (::group3Id.isInitialized) deleteQuietly(group3Id)
-            if (::group2Id.isInitialized) deleteQuietly(group2Id)
-            if (::groupId.isInitialized) deleteQuietly(groupId)
+            createdGroups.asReversed().forEach { deleteGroupQuietly(it) }
             try {
                 groupApi.close()
             } catch (_: Exception) {
             }
         }
+        createdGroups.clear()
         connection?.close()?.also {
             connection = null
         }
@@ -84,7 +83,6 @@ class GroupTest : BaseTest() {
         }
     }
 
-    // region helpers
 
     private fun newGroup(
         ctxId: String,
@@ -93,9 +91,16 @@ class GroupTest : BaseTest() {
         pubMeta: ByteArray = publicMeta.encodeToByteArray(),
         privMeta: ByteArray = privateMeta.encodeToByteArray(),
         policies: ContainerPolicy? = null
-    ): String = groupApi.createGroup(ctxId, groupUsers, groupManagers, pubMeta, privMeta, policies)
+    ): String = groupApi.createGroup(
+        ctxId,
+        groupUsers,
+        groupManagers,
+        pubMeta,
+        privMeta,
+        policies
+    ).also { createdGroups.add(it) }
 
-    private fun deleteQuietly(id: String, api: GroupApi = groupApi) {
+    private fun deleteGroupQuietly(id: String, api: GroupApi = groupApi) {
         try {
             api.deleteGroup(id)
         } catch (_: Exception) {
@@ -107,77 +112,57 @@ class GroupTest : BaseTest() {
         return GroupApi(connection2!!)
     }
 
-    private fun member(user: UserWithPubKey, role: String) = GroupMemberToAdd(user, role)
-
-    private fun concat(parts: List<ByteArray>): ByteArray {
-        val result = ByteArray(parts.sumOf { it.size })
-        var offset = 0
-        parts.forEach {
-            it.copyInto(result, offset)
-            offset += it.size
-        }
-        return result
-    }
-
-    /**
-     * Pushes the whole [content] through an already opened encryption [handle].
-     *
-     * @return the envelope and the ciphertext, both of which are needed to read the file back
-     */
-    private fun sealFile(
+    private fun encryptFile(
         api: GroupApi,
-        handle: Long,
+        handle: FileHandle,
         content: ByteArray,
         chunkSize: Int = 64 * 1024
-    ): Pair<ByteArray, ByteArray> {
-        val cipherParts = mutableListOf<ByteArray>()
+    ): Pair<Envelope, ByteArray> {
+        var cipherText = byteArrayOf()
         var offset = 0
         while (offset < content.size) {
             val end = minOf(offset + chunkSize, content.size)
-            cipherParts.add(api.encryptFileChunk(handle, content.copyOfRange(offset, end)))
+            cipherText += (api.encryptFileChunk(handle, content.copyOfRange(offset, end)))
             offset = end
         }
-        return api.finishFileEncryption(handle) to concat(cipherParts)
+        return api.finishFileEncryption(handle) to cipherText
     }
 
-    private fun sealFile(
+    private fun encryptFile(
         api: GroupApi,
-        groupIdToSealFor: String,
+        groupIdToEncryptFor: String,
         content: ByteArray
-    ): Pair<ByteArray, ByteArray> = sealFile(
+    ): Pair<Envelope, ByteArray> = encryptFile(
         api,
-        api.beginFileEncryption(groupIdToSealFor, content.size.toLong()),
+        api.beginFileEncryption(groupIdToEncryptFor, content.size.toLong()),
         content
     )
 
-    /**
-     * Feeds the whole [cipher] into a new decryption handle, from the beginning of the file.
-     *
-     * @return the plaintext and the info reported when the file was closed
-     */
-    private fun openSealedFile(
+    private fun decryptFile(
         api: GroupApi,
         envelope: ByteArray,
         cipher: ByteArray,
         chunkSize: Int = 64 * 1024
     ): Pair<ByteArray, DecryptedFileInfo> {
         val handle = api.beginFileDecryption(envelope)
-        val plainParts = mutableListOf<ByteArray>()
+        var plainParts = byteArrayOf()
         var offset = 0
         while (offset < cipher.size) {
             val end = minOf(offset + chunkSize, cipher.size)
-            plainParts.add(api.decryptFileChunk(handle, cipher.copyOfRange(offset, end)))
+            plainParts += (api.decryptFileChunk(handle, cipher.copyOfRange(offset, end)))
             offset = end
         }
-        return concat(plainParts) to api.finishFileDecryption(handle)
+        return plainParts to api.finishFileDecryption(handle)
     }
 
-    private fun fileContent(size: Int): ByteArray = ByteArray(size) { (it % 251).toByte() }
+    private fun generateFileContent(size: Int): ByteArray = ByteArray(size) { (it % 251).toByte() }
 
-    // endregion
 
     @Test
     fun createGroupIncorrectInputData() {
+        // users: [user1], managers: [user1]
+        val groupId = newGroup(contextId!!, users.subList(0, 1), users.subList(0, 1))
+
         // incorrect contextId
         assertFailsWith(PrivmxException::class) {
             newGroup(groupId, users, users)
@@ -248,14 +233,14 @@ class GroupTest : BaseTest() {
         assertEquals(id, group.groupId)
         assertTrue(group.groupPubKey.isNotEmpty())
 
-        createdIds.forEach { deleteQuietly(it) }
+        createdIds.forEach { deleteGroupQuietly(it) }
     }
 
     @Test
     fun createGroupWithPolicy() {
         val itemPolicy = ItemPolicy("owner", "owner", "owner", "owner", "owner", "owner")
         val containerPolicy =
-            ContainerPolicy("owner", "owner", "owner", "owner", "no", "no", itemPolicy)
+            ContainerPolicy("owner", "owner", "owner", "owner", "no", "no", "manager", "yes", itemPolicy)
         lateinit var id: String
 
         assertDoesNotFail {
@@ -275,12 +260,19 @@ class GroupTest : BaseTest() {
             containerPolicy.ownerCanBeRemovedFromManagers,
             group.policy.ownerCanBeRemovedFromManagers
         )
+        assertEquals(containerPolicy.rotateKeys, group.policy.rotateKeys)
+        assertEquals(containerPolicy.forwardSecrecy, group.policy.forwardSecrecy)
 
-        deleteQuietly(id)
+        deleteGroupQuietly(id)
     }
 
     @Test
     fun getGroup() {
+        // users: [user1], managers: [user1]
+        val groupId = newGroup(contextId!!, users.subList(0, 1), users.subList(0, 1))
+        // users: [user1, user2], managers: [user1]
+        val group3Id = newGroup(contextId!!, users, users.subList(0, 1))
+
         lateinit var group: Group
 
         // incorrect Id
@@ -333,31 +325,31 @@ class GroupTest : BaseTest() {
 
         // incorrect groupId
         assertFailsWith(PrivmxException::class) {
-            groupApi.addGroupMembers(context2Id!!, listOf(member(users[1], roleUser)))
+            groupApi.addGroupMembers(context2Id!!, listOf(GroupMemberToAdd(users[1], roleUser)))
         }
 
         // a public key that does not belong to the added user is NOT rejected here, unlike in
         // createGroup, where the same mismatch throws - the member is seated with the key given
         val idWrongKey = newGroup(context2Id!!, users.subList(0, 1), users.subList(0, 1))
         assertDoesNotFail {
-            groupApi.addGroupMembers(idWrongKey, listOf(member(incorrectUsers[1], roleUser)))
+            groupApi.addGroupMembers(idWrongKey, listOf(GroupMemberToAdd(incorrectUsers[1], roleUser)))
         }
         assertEquals(2, groupApi.getGroup(idWrongKey).users.size)
-        deleteQuietly(idWrongKey)
+        deleteGroupQuietly(idWrongKey)
 
         // incorrect role
         assertFailsWith(PrivmxException::class) {
-            groupApi.addGroupMembers(id, listOf(member(users[1], "admin")))
+            groupApi.addGroupMembers(id, listOf(GroupMemberToAdd(users[1], "admin")))
         }
 
         // user who is not a member cannot add members
         assertFailsWith(PrivmxException::class) {
-            groupApi2.addGroupMembers(id, listOf(member(users[1], roleUser)))
+            groupApi2.addGroupMembers(id, listOf(GroupMemberToAdd(users[1], roleUser)))
         }
 
         // correct - add user2 as a plain user
         assertDoesNotFail {
-            groupApi.addGroupMembers(id, listOf(member(users[1], roleUser)))
+            groupApi.addGroupMembers(id, listOf(GroupMemberToAdd(users[1], roleUser)))
         }
         var group = groupApi.getGroup(id)
         assertEquals(2, group.users.size)
@@ -378,20 +370,18 @@ class GroupTest : BaseTest() {
 
         // a plain user cannot add members
         assertFailsWith(PrivmxException::class) {
-            groupApi2.addGroupMembers(id, listOf(member(users[0], roleUser)))
+            groupApi2.addGroupMembers(id, listOf(GroupMemberToAdd(users[0], roleUser)))
         }
 
         // adding somebody who is already a member
         assertFailsWith(PrivmxException::class) {
-            groupApi.addGroupMembers(id, listOf(member(users[1], roleUser)))
+            groupApi.addGroupMembers(id, listOf(GroupMemberToAdd(users[1], roleUser)))
         }
-
-        // TODO: test adding an empty list of members - unclear whether it is a no-op or an error
 
         // correct - promote by adding as a manager in another Group
         val id2 = newGroup(context2Id!!, users.subList(0, 1), users.subList(0, 1))
         assertDoesNotFail {
-            groupApi.addGroupMembers(id2, listOf(member(users[1], roleManager)))
+            groupApi.addGroupMembers(id2, listOf(GroupMemberToAdd(users[1], roleManager)))
         }
         group = groupApi.getGroup(id2)
         // a member added with the "manager" role is seated in managers ONLY - the two lists are
@@ -404,9 +394,30 @@ class GroupTest : BaseTest() {
         // the new manager can add and remove members
         assertDoesNotFail { groupApi2.removeGroupMembers(id2, listOf(user1Id!!)) }
 
-        deleteQuietly(id2, groupApi2)
-        deleteQuietly(id)
+        // user1 is no longer in the Group, so only user2 can delete it
+        deleteGroupQuietly(id2, groupApi2)
         groupApi2.close()
+    }
+
+    @Test
+    fun addEmptyListOfGroupMembers() {
+        // users: [user1], managers: [user1]
+        val id = newGroup(context2Id!!, users.subList(0, 1), users.subList(0, 1))
+        val before = groupApi.getGroup(id)
+
+        // the endpoint rejects an addition that names no members,
+        // and the rejected call must not change the Group
+        assertFailsWith(PrivmxException::class) {
+            groupApi.addGroupMembers(id, emptyList())
+        }
+
+        val after = groupApi.getGroup(id)
+        assertEquals(before.keyVersion, after.keyVersion, "an empty addition must not rotate the key")
+        assertEquals(before.rosterVersion, after.rosterVersion, "an empty addition must not touch the roster")
+        assertEquals(before.publicMetaVersion, after.publicMetaVersion)
+        assertEquals(before.privateMetaVersion, after.privateMetaVersion)
+        assertEquals(before.users.size, after.users.size)
+        assertEquals(before.managers.size, after.managers.size)
     }
 
     @Test
@@ -452,18 +463,36 @@ class GroupTest : BaseTest() {
             groupApi.removeGroupMembers(id, listOf(user2Id!!))
         }
 
-        // TODO: test removing an empty list of members, and a manager removing themselves as the
-        //  last manager of the Group
-
         // a batch of removals costs one epoch, however many members leave
         val id2 = newGroup(context2Id!!, users, users)
         val before2 = groupApi.getGroup(id2)
         assertDoesNotFail { groupApi.removeGroupMembers(id2, listOf(user2Id!!)) }
         assertEquals(before2.keyVersion + 1, groupApi.getGroup(id2).keyVersion)
 
-        deleteQuietly(id2)
-        deleteQuietly(id)
+        deleteGroupQuietly(id2)
+        deleteGroupQuietly(id)
         groupApi2.close()
+    }
+
+    @Test
+    fun removeEmptyListOfGroupMembers() {
+        val id = newGroup(context2Id!!, users, users.subList(0, 1))
+        val before = groupApi.getGroup(id)
+
+        // the endpoint rejects a removal that names no members,
+        // and the rejected call must not advance the key epoch
+        assertFailsWith(PrivmxException::class) {
+            groupApi.removeGroupMembers(id, emptyList())
+        }
+
+        val after = groupApi.getGroup(id)
+        assertEquals(before.keyVersion, after.keyVersion, "an empty removal must not rotate the key")
+        assertEquals(before.rosterVersion, after.rosterVersion)
+        assertEquals(before.publicMetaVersion, after.publicMetaVersion)
+        assertEquals(before.privateMetaVersion, after.privateMetaVersion)
+        assertEquals(before.users.size, after.users.size)
+
+        deleteGroupQuietly(id)
     }
 
     @Test
@@ -512,7 +541,7 @@ class GroupTest : BaseTest() {
         }
         assertEquals(0, groupApi.getGroup(id).publicMeta.size)
 
-        deleteQuietly(id)
+        deleteGroupQuietly(id)
         groupApi2.close()
     }
 
@@ -572,7 +601,7 @@ class GroupTest : BaseTest() {
             )
         }
 
-        deleteQuietly(id)
+        deleteGroupQuietly(id)
         groupApi2.close()
     }
 
@@ -583,7 +612,7 @@ class GroupTest : BaseTest() {
         val group = groupApi.getGroup(id)
         val itemPolicy = ItemPolicy("owner", "owner", "owner", "owner", "owner", "owner")
         val containerPolicy =
-            ContainerPolicy("all", "owner", "owner", "owner", "no", "no", itemPolicy)
+            ContainerPolicy("all", "owner", "owner", "owner", "no", "no", "user", "no", itemPolicy)
 
         // incorrect groupId
         assertFailsWith(PrivmxException::class) {
@@ -602,6 +631,8 @@ class GroupTest : BaseTest() {
         assertEquals(containerPolicy.update, updated.policy.update)
         assertEquals(containerPolicy.delete, updated.policy.delete)
         assertEquals(containerPolicy.updatePolicy, updated.policy.updatePolicy)
+        assertEquals(containerPolicy.rotateKeys, updated.policy.rotateKeys)
+        assertEquals(containerPolicy.forwardSecrecy, updated.policy.forwardSecrecy)
 
         // the policies live outside the encrypted metadata - no version moves
         assertEquals(group.publicMetaVersion, updated.publicMetaVersion)
@@ -611,7 +642,7 @@ class GroupTest : BaseTest() {
         // no version check here, so the same call can be repeated - the last write wins
         assertDoesNotFail { groupApi.updateGroupPolicy(id, containerPolicy) }
 
-        deleteQuietly(id)
+        deleteGroupQuietly(id)
         groupApi2.close()
     }
 
@@ -646,13 +677,16 @@ class GroupTest : BaseTest() {
         // a deleted Group cannot be read anymore
         assertFailsWith(PrivmxException::class) { groupApi.getGroup(id3) }
 
-        deleteQuietly(id5)
-        deleteQuietly(id4)
+        deleteGroupQuietly(id5)
+        deleteGroupQuietly(id4)
         groupApi2.close()
     }
 
     @Test
     fun listGroupsIncorrectInputData() {
+        // users: [user1], managers: [user1]
+        val groupId = newGroup(contextId!!, users.subList(0, 1), users.subList(0, 1))
+
         // incorrect contextId
         assertFailsWith(PrivmxException::class) {
             groupApi.listGroups(groupId, 0, 1, "desc")
@@ -691,6 +725,13 @@ class GroupTest : BaseTest() {
 
     @Test
     fun listGroupsCorrectInputData() {
+        // users: [user1], managers: [user1]
+        val groupId = newGroup(contextId!!, users.subList(0, 1), users.subList(0, 1))
+        // users: [user1, user2], managers: [user1, user2]
+        val group2Id = newGroup(contextId!!, users, users)
+        // users: [user1, user2], managers: [user1]
+        val group3Id = newGroup(contextId!!, users, users.subList(0, 1))
+
         val contextId: String = contextId!!
         lateinit var groups: PagingList<GroupSummary>
 
@@ -737,79 +778,127 @@ class GroupTest : BaseTest() {
 
         // as a member who is not a manager
         val groupApi2 = connectAsUser2()
-        assertDoesNotFail { groups = groupApi2.listGroups(contextId, 0, 10, "desc") }
-        assertEquals(2, groups.readItems.size)
-        assertFalse(groups.readItems.any { it.groupId == groupId })
+        assertDoesNotFail { groups = groupApi2.listGroups(contextId, 0, 100, "desc") }
+        // only this test's Groups - the Context may still hold Groups other tests could not delete
+        val ownGroups = groups.readItems.map { it.groupId }
+            .filter { it in setOf(groupId, group2Id, group3Id) }
+        assertEquals(setOf(group2Id, group3Id), ownGroups.toSet())
 
         groupApi2.close()
     }
 
     @Test
-    @Ignore // queryAsJson is validated but matches nothing for Groups: a listing filtered by a
-    // publicMeta the Group demonstrably has comes back empty. Un-ignore once the Bridge indexes
-    // Group publicMeta the way it does for Kvdbs and Stores.
+    @Ignore
+    // Bridge bug: groupList with any query returns an empty list - even {"creator": <id>} or
+    // {"id": <groupId>} - and {} failsfil with "Internal server error". The same publicMeta query on a Kvdb works.
+    // The endpoint does send the query and publicMetaObject. Un-ignore once the Bridge is fixed.
     fun filteringListGroupsWithQueryAsJson() {
-        val created = mutableListOf<String>()
+        lateinit var groupsList: PagingList<GroupSummary>
+        val created = listOf(
+            json, json1, json2, json3, json4, json5, json6, json7, json8, json9, publicMeta
+        ).map { meta -> newGroup(context2Id!!, users, users, meta.encodeToByteArray()) }
 
-        val idJson = newGroup(context2Id!!, users, users, json.encodeToByteArray())
-        val idJson1 = newGroup(context2Id!!, users, users, json1.encodeToByteArray())
-        val idJson2 = newGroup(context2Id!!, users, users, json2.encodeToByteArray())
-        val idJson3 = newGroup(context2Id!!, users, users, json3.encodeToByteArray())
-        val idJson5 = newGroup(context2Id!!, users, users, json5.encodeToByteArray())
-        val idJson8 = newGroup(context2Id!!, users, users, json8.encodeToByteArray())
-        val idJson9 = newGroup(context2Id!!, users, users, json9.encodeToByteArray())
-        created.addAll(listOf(idJson, idJson1, idJson2, idJson3, idJson5, idJson8, idJson9))
+        // the Context may still hold Groups from other tests - count only the ones created here
+        fun matchingCount() = groupsList.readItems.count { it.groupId in created }
 
-        fun matching(query: String): List<String> = groupApi.listGroups(
-            context2Id!!, 0, 100, "desc", null, query
-        ).readItems.map { it.groupId }.filter { it in created }
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc")
+//        println("ILE LIST? :" + groupsList.readItems.size)
+//        groupsList.readItems.forEach {
+//            println(groupApi.getGroup(it.groupId).publicMeta.decodeToString() )
+//        }
 
-        // {"first_field": "abc"} -> json, json1, json8
-        assertEquals(
-            setOf(idJson, idJson1, idJson8),
-            matching(json).toSet()
-        )
+        // json -> json & json1 & json8
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc", null, json)
+        println("ILEE" +groupsList.readItems.size)
 
-        // {"first_field": "abc", "second_field": "custom"} -> json1
-        assertEquals(setOf(idJson1), matching(json1).toSet())
+        assertEquals(3, matchingCount())
 
-        // {"first_field": "custom"} -> json2, json9
-        assertEquals(setOf(idJson2, idJson9), matching(json2).toSet())
+        // json1 -> json1
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc", null, json1)
+        assertEquals(1, matchingCount())
 
-        // {"second_field": "xyz"} -> json3, json9
-        assertEquals(setOf(idJson3, idJson9), matching(json3).toSet())
+        // json2 -> json2 & json9
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc", null, json2)
+        assertEquals(2, matchingCount())
 
-        // $eq -> json, json1, json8
-        assertEquals(setOf(idJson, idJson1, idJson8), matching(query10).toSet())
+        // json3 -> json3 & json9
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc", null, json3)
+        assertEquals(2, matchingCount())
 
-        // third_field $gt 20 -> json8, json9
-        assertEquals(setOf(idJson8, idJson9), matching(query11).toSet())
+        // json4
+        assertFailsWith(PrivmxException::class) {
+            groupApi.listGroups(context2Id!!, 0, 100, "desc", null, json4)
+        }
 
-        // first_field $ne "abc" -> json2, json3, json5, json9
-        assertEquals(
-            setOf(idJson2, idJson3, idJson5, idJson9),
-            matching(query15).toSet()
-        )
+        // json5 -> json5
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc", null, json5)
+        assertEquals(1, matchingCount())
 
-        created.forEach { deleteQuietly(it) }
+        // json6 -> json6
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc", null, json6)
+        assertEquals(1, matchingCount())
+
+        // json7 -> json7 & json8
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc", null, json7)
+        assertEquals(2, matchingCount())
+
+        // json8 -> json8
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc", null, json8)
+        assertEquals(1, matchingCount())
+
+        // json9 -> json9
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc", null, json9)
+        assertEquals(1, matchingCount())
+
+        // query10 -> json & json1 & json8
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc", null, query10)
+        assertEquals(3, matchingCount())
+
+        // query11 -> json7 & json8 & json9
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc", null, query11)
+        assertEquals(3, matchingCount())
+
+        // query12 -> json8
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc", null, query12)
+        assertEquals(1, matchingCount())
+
+        // query13 -> json8
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc", null, query13)
+        assertEquals(1, matchingCount())
+
+        // query14 -> json & json1 & json7 & json8 & json9
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc", null, query14)
+        assertEquals(5, matchingCount())
+
+        // query15 -> json2 & json3 & json4 & json5 & json6 & json7 & json9 & publicMeta
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc", null, query15)
+        assertEquals(8, matchingCount())
+
+        groupsList = groupApi.listGroups(context2Id!!, 0, 100, "desc")
+        assertEquals(11, matchingCount())
     }
 
     @Test
     fun encryptAndDecrypt() {
+        // users: [user1], managers: [user1]
+        val groupId = newGroup(contextId!!, users.subList(0, 1), users.subList(0, 1))
+        // users: [user1, user2], managers: [user1, user2]
+        val group2Id = newGroup(contextId!!, users, users)
+
         val groupApi2 = connectAsUser2()
-        val content = "Sealed for the Group".encodeToByteArray()
+        val content = "Encrypted for the Group".encodeToByteArray()
 
         // incorrect groupId
         assertFailsWith(PrivmxException::class) {
             groupApi.encrypt(context2Id!!, content)
         }
 
-        // a user who is not a member cannot seal for the Group
+        // a user who is not a member cannot encrypt for the Group
         assertFailsWith(PrivmxException::class) {
             groupApi2.encrypt(groupId, content)
         }
 
-        // correct - seal and open as the same member
+        // correct - encrypt and decrypt as the same member
         lateinit var envelope: ByteArray
         assertDoesNotFail { envelope = groupApi.encrypt(groupId, content) }
         lateinit var decrypted: DecryptedEnvelope
@@ -819,7 +908,7 @@ class GroupTest : BaseTest() {
         assertEquals(EnvelopeType.ENVELOPE_FROM_MEMBER, decrypted.type)
         assertEquals(user1PubKey, decrypted.authorPubKey)
 
-        // correct - open as another member of the Group
+        // correct - decrypt as another member of the Group
         val envelope2 = groupApi.encrypt(group2Id, content)
         assertDoesNotFail { decrypted = groupApi2.decrypt(envelope2) }
         assertContentEquals(content, decrypted.data)
@@ -827,7 +916,7 @@ class GroupTest : BaseTest() {
         assertEquals(EnvelopeType.ENVELOPE_FROM_MEMBER, decrypted.type)
         assertEquals(user1PubKey, decrypted.authorPubKey)
 
-        // a user who is not a member cannot open the envelope
+        // a user who is not a member cannot decrypt the envelope
         assertFailsWith(PrivmxException::class) { groupApi2.decrypt(envelope) }
 
         // incorrect envelope
@@ -848,7 +937,7 @@ class GroupTest : BaseTest() {
 
     @Test
     fun decryptAfterKeyRotation() {
-        val content = "Sealed before the key rotated".encodeToByteArray()
+        val content = "Encrypted before the key rotated".encodeToByteArray()
         val id = newGroup(context2Id!!, users, users.subList(0, 1))
         val envelope = groupApi.encrypt(id, content)
         val keyVersion = groupApi.getGroup(id).keyVersion
@@ -857,26 +946,78 @@ class GroupTest : BaseTest() {
         groupApi.removeGroupMembers(id, listOf(user2Id!!))
         assertEquals(keyVersion + 1, groupApi.getGroup(id).keyVersion)
 
-        // the envelope names the key version it was sealed under, so it still opens
+        // the envelope names the key version it was encrypted with, so it can still be decrypted
         lateinit var decrypted: DecryptedEnvelope
         assertDoesNotFail { decrypted = groupApi.decrypt(envelope) }
         assertContentEquals(content, decrypted.data)
         assertEquals(id, decrypted.groupId)
 
-        // and so does content sealed under the new epoch
+        // and so does content encrypted under the new epoch
         assertDoesNotFail {
             assertContentEquals(content, groupApi.decrypt(groupApi.encrypt(id, content)).data)
         }
 
-        deleteQuietly(id)
+        deleteGroupQuietly(id)
+    }
+
+    @Test
+    fun removedMemberCannotDecryptEnvelopesCreatedBeforeRemoval() {
+        val content = "Encrypted while user2 was a member".encodeToByteArray()
+        val fileContent = generateFileContent(1024)
+        var groupApi2 = connectAsUser2()
+        // users: [user1, user2], managers: [user1]
+        val id = newGroup(context2Id!!, users, users.subList(0, 1))
+        val envelope = groupApi.encrypt(id, content)
+        val (fileEnvelope, fileCipher) = encryptFile(groupApi, id, fileContent)
+
+        // while still a member, user2 decrypts both
+        assertDoesNotFail("user2 is a member") {
+            assertContentEquals(content, groupApi2.decrypt(envelope).data)
+            assertContentEquals(fileContent, decryptFile(groupApi2, fileEnvelope, fileCipher).first)
+        }
+
+        groupApi.removeGroupMembers(id, listOf(user2Id!!))
+
+        // A session that already fetched the Group key keeps it in its cache, so user2 signs in
+        // again - the Bridge then refuses to hand out the key ("Access denied").
+        groupApi2.close()
+        connection2?.close()
+        groupApi2 = connectAsUser2()
+
+        // once removed, the envelopes created before the removal can't be decrypted anymore
+        assertFailsWith(
+            PrivmxException::class,
+            "a removed member must not decrypt an envelope created before the removal"
+        ) {
+            groupApi2.decrypt(envelope)
+        }
+        assertFailsWith(
+            PrivmxException::class,
+            "a removed member must not decrypt a file created before the removal"
+        ) {
+            decryptFile(groupApi2, fileEnvelope, fileCipher)
+        }
+
+        // the remaining member still can
+        assertDoesNotFail("user1 is still a member") {
+            assertContentEquals(content, groupApi.decrypt(envelope).data)
+            assertContentEquals(fileContent, decryptFile(groupApi, fileEnvelope, fileCipher).first)
+        }
+
+        deleteGroupQuietly(id)
+        groupApi2.close()
     }
 
     @Test
     fun encryptAnonymouslyAndDecrypt() {
+        // users: [user1], managers: [user1]
+        val groupId = newGroup(contextId!!, users.subList(0, 1), users.subList(0, 1))
+
         val groupApi2 = connectAsUser2()
-        val content = "Sealed by a stranger".encodeToByteArray()
+        val content = "Encrypted by a stranger".encodeToByteArray()
         val group = groupApi.getGroup(groupId)
-        val otherGroupPubKey = groupApi.getGroup(group2Id).groupPubKey
+        // a valid public key that is not this Group's
+        val otherPubKey = users[1].pubKey
 
         // incorrect groupPubKey
         assertFailsWith(PrivmxException::class) {
@@ -889,7 +1030,7 @@ class GroupTest : BaseTest() {
             envelope = groupApi2.encryptAnonymously(groupId, group.groupPubKey, content)
         }
 
-        // the Group opens it, and learns nothing about the author
+        // the Group decrypts it, and learns nothing about the author
         lateinit var decrypted: DecryptedEnvelope
         assertDoesNotFail { decrypted = groupApi.decrypt(envelope) }
         assertContentEquals(content, decrypted.data)
@@ -897,14 +1038,14 @@ class GroupTest : BaseTest() {
         assertEquals(EnvelopeType.ENVELOPE_ANONYMOUS, decrypted.type)
         assertTrue(decrypted.authorPubKey.isEmpty())
 
-        // the author cannot read back what they sealed
+        // the author cannot decrypt what they encrypted
         assertFailsWith(PrivmxException::class) { groupApi2.decrypt(envelope) }
 
-        // sealed with the public key of another Group - nobody can open it
-        val mismatched = groupApi2.encryptAnonymously(groupId, otherGroupPubKey, content)
+        // encrypted with a public key that is not the Group's - nobody can decrypt it
+        val mismatched = groupApi2.encryptAnonymously(groupId, otherPubKey, content)
         assertFailsWith(PrivmxException::class) { groupApi.decrypt(mismatched) }
 
-        // a member may seal anonymously as well
+        // a member may encrypt anonymously as well
         assertDoesNotFail {
             decrypted = groupApi.decrypt(
                 groupApi.encryptAnonymously(groupId, group.groupPubKey, content)
@@ -916,43 +1057,85 @@ class GroupTest : BaseTest() {
     }
 
     @Test
-    fun encryptAndDecryptFile() {
+    fun decryptAnonymousEnvelopeEncryptedWithOlderPublicKey() {
+        val content = "Encrypted with the public key from before the rotation".encodeToByteArray()
+        // users: [user1, user2], managers: [user1]
+        val id = newGroup(context2Id!!, users, users.subList(0, 1))
+        val oldGroup = groupApi.getGroup(id)
+
+        // removing a member rotates the Group key, so the public key changes
+        groupApi.removeGroupMembers(id, listOf(user2Id!!))
+        val newGroup = groupApi.getGroup(id)
+        assertEquals(oldGroup.keyVersion + 1, newGroup.keyVersion)
+        assertNotEquals(oldGroup.groupPubKey, newGroup.groupPubKey)
+
+        // a sender still holding the old public key can encrypt, and the members can decrypt it
         val groupApi2 = connectAsUser2()
-        val content = fileContent(300_000)
+        lateinit var envelope: ByteArray
+        assertDoesNotFail {
+            envelope = groupApi2.encryptAnonymously(id, oldGroup.groupPubKey, content)
+        }
+        lateinit var decrypted: DecryptedEnvelope
+        assertDoesNotFail { decrypted = groupApi.decrypt(envelope) }
+        assertContentEquals(content, decrypted.data)
+        assertEquals(id, decrypted.groupId)
+        assertEquals(EnvelopeType.ENVELOPE_ANONYMOUS, decrypted.type)
+
+        // and the new public key works as well
+        assertDoesNotFail {
+            assertContentEquals(
+                content,
+                groupApi.decrypt(groupApi2.encryptAnonymously(id, newGroup.groupPubKey, content)).data
+            )
+        }
+
+        deleteGroupQuietly(id)
+        groupApi2.close()
+    }
+
+    @Test
+    fun encryptAndDecryptFile() {
+        // users: [user1], managers: [user1]
+        val groupId = newGroup(contextId!!, users.subList(0, 1), users.subList(0, 1))
+        // users: [user1, user2], managers: [user1, user2]
+        val group2Id = newGroup(contextId!!, users, users)
+
+        val groupApi2 = connectAsUser2()
+        val content = generateFileContent(300_000)
 
         // incorrect groupId
         assertFailsWith(PrivmxException::class) {
             groupApi.beginFileEncryption(context2Id!!, content.size.toLong())
         }
 
-        // a user who is not a member cannot seal a file for the Group
+        // a user who is not a member cannot encrypt a file for the Group
         assertFailsWith(PrivmxException::class) {
             groupApi2.beginFileEncryption(groupId, content.size.toLong())
         }
 
         // correct
-        lateinit var sealed: Pair<ByteArray, ByteArray>
-        assertDoesNotFail { sealed = sealFile(groupApi, groupId, content) }
-        val (envelope, cipher) = sealed
+        lateinit var encrypted: Pair<ByteArray, ByteArray>
+        assertDoesNotFail { encrypted = encryptFile(groupApi, groupId, content) }
+        val (envelope, cipher) = encrypted
         assertTrue(envelope.isNotEmpty())
 
-        lateinit var opened: Pair<ByteArray, DecryptedFileInfo>
-        assertDoesNotFail { opened = openSealedFile(groupApi, envelope, cipher) }
-        assertContentEquals(content, opened.first)
-        assertEquals(groupId, opened.second.groupId)
-        assertEquals(EnvelopeType.ENVELOPE_FROM_MEMBER, opened.second.type)
-        assertEquals(user1PubKey, opened.second.authorPubKey)
-        assertTrue(opened.second.complete)
+        lateinit var decryptedFile: Pair<ByteArray, DecryptedFileInfo>
+        assertDoesNotFail { decryptedFile = decryptFile(groupApi, envelope, cipher) }
+        assertContentEquals(content, decryptedFile.first)
+        assertEquals(groupId, decryptedFile.second.groupId)
+        assertEquals(EnvelopeType.ENVELOPE_FROM_MEMBER, decryptedFile.second.type)
+        assertEquals(user1PubKey, decryptedFile.second.authorPubKey)
+        assertTrue(decryptedFile.second.complete)
 
-        // another member of the Group opens the same file
-        val sealedFor2 = sealFile(groupApi, group2Id, content)
+        // another member of the Group decrypts the same file
+        val encryptedFor2 = encryptFile(groupApi, group2Id, content)
         assertDoesNotFail {
-            opened = openSealedFile(groupApi2, sealedFor2.first, sealedFor2.second)
+            decryptedFile = decryptFile(groupApi2, encryptedFor2.first, encryptedFor2.second)
         }
-        assertContentEquals(content, opened.first)
-        assertEquals(group2Id, opened.second.groupId)
+        assertContentEquals(content, decryptedFile.first)
+        assertEquals(group2Id, decryptedFile.second.groupId)
 
-        // a user who is not a member cannot open it
+        // a user who is not a member cannot decrypt it
         assertFailsWith(PrivmxException::class) { groupApi2.beginFileDecryption(envelope) }
 
         // a file envelope is not accepted by decrypt()
@@ -965,12 +1148,12 @@ class GroupTest : BaseTest() {
 
         // small file - shorter than a single internal chunk
         val small = "small file".encodeToByteArray()
-        val sealedSmall = sealFile(groupApi, groupId, small)
+        val encryptedSmall = encryptFile(groupApi, groupId, small)
         assertDoesNotFail {
-            opened = openSealedFile(groupApi, sealedSmall.first, sealedSmall.second)
+            decryptedFile = decryptFile(groupApi, encryptedSmall.first, encryptedSmall.second)
         }
-        assertContentEquals(small, opened.first)
-        assertTrue(opened.second.complete)
+        assertContentEquals(small, decryptedFile.first)
+        assertTrue(decryptedFile.second.complete)
 
         // less plaintext than declared - the file cannot be finished
         val shortHandle = groupApi.beginFileEncryption(groupId, content.size.toLong())
@@ -1000,8 +1183,11 @@ class GroupTest : BaseTest() {
 
     @Test
     fun encryptAndDecryptFileAnonymously() {
+        // users: [user1], managers: [user1]
+        val groupId = newGroup(contextId!!, users.subList(0, 1), users.subList(0, 1))
+
         val groupApi2 = connectAsUser2()
-        val content = fileContent(300_000)
+        val content = generateFileContent(300_000)
         val groupPubKey = groupApi.getGroup(groupId).groupPubKey
 
         // incorrect groupPubKey
@@ -1009,10 +1195,10 @@ class GroupTest : BaseTest() {
             groupApi2.beginFileEncryptionAnonymously(groupId, "wrong", content.size.toLong())
         }
 
-        // correct - a non-member seals a file using public information only
-        lateinit var sealed: Pair<ByteArray, ByteArray>
+        // correct - a non-member encrypts a file using public information only
+        lateinit var encrypted: Pair<ByteArray, ByteArray>
         assertDoesNotFail {
-            sealed = sealFile(
+            encrypted = encryptFile(
                 groupApi2,
                 groupApi2.beginFileEncryptionAnonymously(
                     groupId,
@@ -1023,25 +1209,28 @@ class GroupTest : BaseTest() {
             )
         }
 
-        // the Group opens it, and learns nothing about the author
-        lateinit var opened: Pair<ByteArray, DecryptedFileInfo>
-        assertDoesNotFail { opened = openSealedFile(groupApi, sealed.first, sealed.second) }
-        assertContentEquals(content, opened.first)
-        assertEquals(groupId, opened.second.groupId)
-        assertEquals(EnvelopeType.ENVELOPE_ANONYMOUS, opened.second.type)
-        assertTrue(opened.second.authorPubKey.isEmpty())
-        assertTrue(opened.second.complete)
+        // the Group decrypts it, and learns nothing about the author
+        lateinit var decryptedFile: Pair<ByteArray, DecryptedFileInfo>
+        assertDoesNotFail { decryptedFile = decryptFile(groupApi, encrypted.first, encrypted.second) }
+        assertContentEquals(content, decryptedFile.first)
+        assertEquals(groupId, decryptedFile.second.groupId)
+        assertEquals(EnvelopeType.ENVELOPE_ANONYMOUS, decryptedFile.second.type)
+        assertTrue(decryptedFile.second.authorPubKey.isEmpty())
+        assertTrue(decryptedFile.second.complete)
 
-        // the author cannot read back what they sealed
-        assertFailsWith(PrivmxException::class) { groupApi2.beginFileDecryption(sealed.first) }
+        // the author cannot decrypt what they encrypted
+        assertFailsWith(PrivmxException::class) { groupApi2.beginFileDecryption(encrypted.first) }
 
         groupApi2.close()
     }
 
     @Test
     fun seekInEncryptedFile() {
-        val content = fileContent(300_000)
-        val (envelope, cipher) = sealFile(groupApi, groupId, content)
+        // users: [user1], managers: [user1]
+        val groupId = newGroup(contextId!!, users.subList(0, 1), users.subList(0, 1))
+
+        val content = generateFileContent(300_000)
+        val (envelope, cipher) = encryptFile(groupApi, groupId, content)
         val handle = groupApi.beginFileDecryption(envelope)
 
         // position < 0
@@ -1059,7 +1248,7 @@ class GroupTest : BaseTest() {
         assertDoesNotFail { groupApi.seekInEncryptedFile(handle, 0) }
 
         // incorrect handle
-        assertFailsWith(PrivmxException::class) { groupApi.seekInEncryptedFile(-404, 2) }
+        assertFailsWith(PrivmxException::class) { groupApi.seekInEncryptedFile(FileHandle(-404), 2) }
 
         // read a range: the plaintext starts exactly where asked, and may overshoot at the tail
         val from = 100_000
@@ -1068,14 +1257,14 @@ class GroupTest : BaseTest() {
         assertTrue(cipherOffset >= 0)
         assertTrue(cipherOffset <= cipher.size)
 
-        val plainParts = mutableListOf<ByteArray>()
+        var plainParts = byteArrayOf()
         var offset = cipherOffset.toInt()
         while (offset < cipher.size) {
             val end = minOf(offset + 64 * 1024, cipher.size)
-            plainParts.add(groupApi.decryptFileChunk(handle, cipher.copyOfRange(offset, end)))
+            plainParts += (groupApi.decryptFileChunk(handle, cipher.copyOfRange(offset, end)))
             offset = end
         }
-        val plain = concat(plainParts)
+        val plain = plainParts
         assertTrue(plain.size >= content.size - from)
         assertContentEquals(
             content.copyOfRange(from, content.size),
@@ -1089,38 +1278,87 @@ class GroupTest : BaseTest() {
         assertFalse(info.complete)
 
         // read start to finish on a fresh handle to get the guarantee back
-        assertTrue(openSealedFile(groupApi, envelope, cipher).second.complete)
+        assertTrue(decryptFile(groupApi, envelope, cipher).second.complete)
+    }
+
+    @Test
+    fun seekRepeatedlyForwardsAndBackwardsOnOneHandle() {
+        // users: [user1], managers: [user1]
+        val groupId = newGroup(contextId!!, users.subList(0, 1), users.subList(0, 1))
+
+        val content = generateFileContent(300_000)
+        val (envelope, cipher) = encryptFile(groupApi, groupId, content)
+        val handle = groupApi.beginFileDecryption(envelope)
+
+        // seeks to [from], then feeds ciphertext until [length] plaintext bytes come out
+        fun readRange(from: Int, length: Int): ByteArray {
+            var offset = groupApi.seekInEncryptedFile(handle, from.toLong()).toInt()
+            var plain = byteArrayOf()
+            while (plain.size < length && offset < cipher.size) {
+                val end = minOf(offset + 16 * 1024, cipher.size)
+                plain += groupApi.decryptFileChunk(handle, cipher.copyOfRange(offset, end))
+                offset = end
+            }
+            return plain.copyOfRange(0, minOf(length, plain.size))
+        }
+
+        // forwards, backwards, the same range twice, back to the start, then up to the very end
+        listOf(
+            200_000 to 1_000,
+            50_000 to 1_000,
+            250_000 to 30_000,
+            50_000 to 1_000,
+            0 to 100,
+            123_457 to 70_000,
+            1 to 10,
+            content.size - 10 to 10
+        ).forEach { (from, length) ->
+            assertContentEquals(
+                content.copyOfRange(from, from + length),
+                readRange(from, length),
+                "wrong plaintext after seeking to $from"
+            )
+        }
+
+        // after all those seeks the handle still finishes normally, without the truncation guarantee
+        lateinit var info: DecryptedFileInfo
+        assertDoesNotFail { info = groupApi.finishFileDecryption(handle) }
+        assertEquals(groupId, info.groupId)
+        assertFalse(info.complete)
     }
 
     @Test
     fun fileOperationsIncorrectHandle() {
-        val content = fileContent(300_000)
-        val (envelope, cipher) = sealFile(groupApi, groupId, content)
+        // users: [user1], managers: [user1]
+        val groupId = newGroup(contextId!!, users.subList(0, 1), users.subList(0, 1))
+
+        val content = generateFileContent(300_000)
+        val (envelope, cipher) = encryptFile(groupApi, groupId, content)
 
         // nonexistent handles
         assertFailsWith(PrivmxException::class) {
-            groupApi.encryptFileChunk(-404, content.copyOfRange(0, 10))
+            groupApi.encryptFileChunk(FileHandle(-404), content.copyOfRange(0, 10))
         }
         assertFailsWith(PrivmxException::class) {
-            groupApi.decryptFileChunk(-404, cipher.copyOfRange(0, 10))
+            groupApi.decryptFileChunk(FileHandle(-404), cipher.copyOfRange(0, 10))
         }
-        assertFailsWith(PrivmxException::class) { groupApi.finishFileEncryption(-404) }
-        assertFailsWith(PrivmxException::class) { groupApi.finishFileDecryption(-404) }
+        assertFailsWith(PrivmxException::class) { groupApi.finishFileEncryption(FileHandle(-404)) }
+        assertFailsWith(PrivmxException::class) { groupApi.finishFileDecryption(FileHandle(-404)) }
 
         val writeHandle = groupApi.beginFileEncryption(groupId, content.size.toLong())
         val readHandle = groupApi.beginFileDecryption(envelope)
 
-        // open with a sealing handle
+        // decrypt with an encryption handle
         assertFailsWith(PrivmxException::class) {
             groupApi.decryptFileChunk(writeHandle, cipher.copyOfRange(0, 10))
         }
 
-        // seal with an opening handle
+        // encrypt with a decryption handle
         assertFailsWith(PrivmxException::class) {
             groupApi.encryptFileChunk(readHandle, content.copyOfRange(0, 10))
         }
 
-        // seek with a sealing handle
+        // seek with an encryption handle
         assertFailsWith(PrivmxException::class) { groupApi.seekInEncryptedFile(writeHandle, 2) }
 
         // finish with a handle of the other kind
@@ -1143,6 +1381,9 @@ class GroupTest : BaseTest() {
 
     @Test
     fun subscribeForGroupEvents() {
+        // users: [user1, user2], managers: [user1]
+        val group3Id = newGroup(contextId!!, users, users.subList(0, 1))
+
         val subscriptionIds = mutableListOf<String>()
 
         // subscribe for GroupEvents
@@ -1271,6 +1512,11 @@ class GroupTest : BaseTest() {
 
     @Test
     fun sendCustomEvent() {
+        // users: [user1], managers: [user1]
+        val groupId = newGroup(contextId!!, users.subList(0, 1), users.subList(0, 1))
+        // users: [user1, user2], managers: [user1]
+        val group3Id = newGroup(contextId!!, users, users.subList(0, 1))
+
         val groupApi2 = connectAsUser2()
         val channelName = "typing"
         val eventData = "user is typing".encodeToByteArray()
@@ -1305,12 +1551,12 @@ class GroupTest : BaseTest() {
 
         // correct - every member
         assertDoesNotFail {
-            groupApi.sendCustomEvent(group2Id, channelName, eventData)
+            groupApi.sendCustomEvent(group3Id, channelName, eventData)
         }
 
         // correct - selected members only
         assertDoesNotFail {
-            groupApi.sendCustomEvent(group2Id, channelName, eventData, listOf(user2Id!!))
+            groupApi.sendCustomEvent(group3Id, channelName, eventData, listOf(user2Id!!))
         }
 
         // correct - a plain member may notify the Group as well
@@ -1326,7 +1572,7 @@ class GroupTest : BaseTest() {
                 groupApi.buildCustomEventSubscriptionQuery(
                     channelName,
                     GroupEventSelectorType.GROUP_ID,
-                    group2Id
+                    group3Id
                 )
             )
             queries.add(
@@ -1348,6 +1594,9 @@ class GroupTest : BaseTest() {
     @Test
     @Throws(Exception::class)
     fun accessAsPublicUser() {
+        // users: [user1, user2], managers: [user1]
+        val group3Id = newGroup(contextId!!, users, users.subList(0, 1))
+
         val connectionPublic: Connection = connectAsUser(ConnectionType.Public, bridgeAddress)
         val groupApiPublic = GroupApi(connectionPublic)
         val updateMeta = "meta".encodeToByteArray()
@@ -1364,7 +1613,7 @@ class GroupTest : BaseTest() {
         }
 
         // get group
-        assertFailsWith(PrivmxException::class) { groupApiPublic.getGroup(groupId) }
+        assertFailsWith(PrivmxException::class) { groupApiPublic.getGroup(group3Id) }
 
         // list groups
         assertFailsWith(PrivmxException::class) {
@@ -1373,7 +1622,7 @@ class GroupTest : BaseTest() {
 
         // add members
         assertFailsWith(PrivmxException::class) {
-            groupApiPublic.addGroupMembers(group3Id, listOf(member(users[1], roleUser)))
+            groupApiPublic.addGroupMembers(group3Id, listOf(GroupMemberToAdd(users[1], roleUser)))
         }
 
         // remove members
@@ -1397,7 +1646,7 @@ class GroupTest : BaseTest() {
         // encrypt
         assertFailsWith(PrivmxException::class) { groupApiPublic.encrypt(group3Id, updateMeta) }
 
-        // seal a file
+        // encrypt a file
         assertFailsWith(PrivmxException::class) {
             groupApiPublic.beginFileEncryption(group3Id, updateMeta.size.toLong())
         }
@@ -1407,7 +1656,7 @@ class GroupTest : BaseTest() {
             groupApiPublic.sendCustomEvent(group3Id, "typing", updateMeta)
         }
 
-        // sealing anonymously needs public information only, so it works without an account
+        // encrypting anonymously needs public information only, so it works without an account
         val groupPubKey = groupApi.getGroup(group3Id).groupPubKey
         assertDoesNotFail {
             groupApiPublic.encryptAnonymously(group3Id, groupPubKey, updateMeta)
