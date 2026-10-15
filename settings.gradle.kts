@@ -14,6 +14,9 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "privmx-endpoint-kotlin"
+include(":drivers:net:jvm")
+include(":drivers:net:jni")
+include(":drivers:net:apple")
 include(":privmx-endpoint-extra")
 include(":privmx-endpoint-streams")
 include(":privmx-endpoint")
