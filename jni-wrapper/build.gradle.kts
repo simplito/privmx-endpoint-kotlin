@@ -857,11 +857,11 @@ private fun Project.netDriverIncludesDir(): File {
 
 private fun Project.netDriverJni(os: String, arch: String, extension: String): File =
     project(":drivers:net:jni").layout.buildDirectory
-        .file("native/install/$os/$arch/libnet_drv_cpp.$extension").get().asFile
+        .file("native/install/$os/$arch/libprivmxdrvnet.$extension").get().asFile
 
 private fun Project.netDriverApple(platformDir: String): File =
     project(":drivers:net:apple").layout.buildDirectory
-        .file("native/install/$platformDir/arm64/libprivmx_net_drv.a").get().asFile
+        .file("native/install/$platformDir/arm64/libprivmxdrvnet.a").get().asFile
 
     }
 }

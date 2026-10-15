@@ -5,7 +5,7 @@ val localProperties = Properties().apply {
     rootDir.resolve("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
 }
 
-val netDrvLibName = "net_drv_cpp"
+val netDrvLibName = "privmxdrvnet"
 val netDrvBuildType = "MinSizeRel"
 val netDrvAndroidAbis = listOf("arm64-v8a")
 val netDrvAndroidApiLevel = 24

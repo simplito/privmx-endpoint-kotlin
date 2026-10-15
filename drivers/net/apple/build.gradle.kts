@@ -1,4 +1,4 @@
-val netDrvLibName = "privmx_net_drv"
+val netDrvLibName = "privmxdrvnet"
 val netDrvModuleName = "PrivmxNetDrv"
 
 data class NetDrvApplePlatform(val dirName: String, val sdk: String, val target: String)
