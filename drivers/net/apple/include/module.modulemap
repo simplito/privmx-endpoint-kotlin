@@ -1,5 +1,5 @@
 // Ten sam net.h co w net-drv-native - jedno zrodlo prawdy dla ABI.
 module PrivmxNetC {
-    header "../../include/net.h"
+    header "../../include/privmx/drv/net.h"
     export *
 }

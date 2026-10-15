@@ -14,7 +14,7 @@ netDrvApplePlatforms.forEach { (taskSuffix, platform) ->
         description = "Builds lib$netDrvLibName.a (Swift net driver) for ${platform.dirName} arm64."
         inputs.dir("Sources")
         inputs.dir("include")
-        inputs.file("../include/net.h")
+        inputs.file("../include/privmx/drv/net.h")
         val outputLib = layout.buildDirectory.file("native/install/${platform.dirName}/arm64/lib$netDrvLibName.a")
         outputs.file(outputLib)
         doLast {

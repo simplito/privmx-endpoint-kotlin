@@ -10,7 +10,7 @@ endif()
 add_library(net_drv_cpp SHARED src/net.cpp)
 
 target_include_directories(net_drv_cpp PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR}../include)
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 if(NOT ANDROID)
     if(DEFINED ENV{JAVA_HOME})

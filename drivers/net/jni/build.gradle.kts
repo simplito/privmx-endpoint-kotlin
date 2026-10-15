@@ -19,7 +19,7 @@ tasks.register("buildNetDrvJniAndroid") {
     description = "Builds lib$netDrvLibName.so (JNI net driver) for Android ${netDrvAndroidAbis.joinToString()}."
     inputs.dir("src")
     inputs.file("CMakeLists.txt")
-    inputs.file("../include/net.h")
+    inputs.file("../include/privmx/drv/net.h")
     outputs.dir(installRoot.map { it.dir("Android") })
     doLast {
         val sdkDir = localProperties.getProperty("sdk.dir")
@@ -60,7 +60,7 @@ tasks.register("buildNetDrvJniDarwin") {
     description = "Builds lib$netDrvLibName.dylib (JNI net driver) for macOS ${netDrvDarwinArchs.joinToString()}."
     inputs.dir("src")
     inputs.file("CMakeLists.txt")
-    inputs.file("../include/net.h")
+    inputs.file("../include/privmx/drv/net.h")
     outputs.dir(installRoot.map { it.dir("Darwin") })
     doLast {
         netDrvDarwinArchs.forEach { arch ->
