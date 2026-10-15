@@ -373,6 +373,7 @@ tasks.register("buildAndroidWithConan") {
 
 tasks.register("buildAndroidFromSources") {
     dependsOn("clonePrivmxSources")
+    dependsOn(":drivers:net:jni:buildNetDrvJniAndroid")
     val conanArchsMap = mapOf(
         "armeabi-v7a" to "armv7",
         "arm64-v8a" to "armv8",
@@ -406,9 +407,15 @@ tasks.register("buildAndroidFromSources") {
                     INSTALL_DIR,
                     COMPILED_DIR,
                     "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/android-$conanArch/${buildType.name}/generators/conan_toolchain.cmake",
+                    additionalArgs = " -DPRIVMX_DRVNET_INCLUDES=\"${netDriverIncludesDir().absolutePath}\"" +
+                            " -DPRIVMX_DRVNET=\"${netDriverJni("Android", arch, "so").absolutePath}\""
                 )
-                copyFilesFromDeploy(INSTALL_DIR,".so")
+                copyFilesFromDeploy(INSTALL_DIR,".so",true)
                 removeLibVersionSuffix(File(INSTALL_DIR,"lib"))
+                copy {
+                    from(netDriverJni("Android", arch, "so"))
+                    into(INSTALL_DIR.resolve("lib"))
+                }
             }
         }
     }
@@ -454,6 +461,7 @@ tasks.register("buildMacosWithConan") {
 
 tasks.register("buildMacosFromSources") {
     dependsOn("clonePrivmxSources")
+    dependsOn(":drivers:net:jni:buildNetDrvJniDarwin")
 //    onlyIf { !layout.buildDirectory.get().dir("endpoint-prebuild/install/Darwin/$privmxEndpointJavaVersion/arm64").asFile.exists() }
     doFirst {
         val conanArch = "armv8"
@@ -475,9 +483,15 @@ tasks.register("buildMacosFromSources") {
             INSTALL_DIR,
             COMPILED_DIR,
             "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/macos-$conanArch/${buildType.name}/generators/conan_toolchain.cmake",
-            true
+            true,
+            additionalArgs = " -DPRIVMX_DRVNET_INCLUDES=\"${netDriverIncludesDir().absolutePath}\"" +
+                    " -DPRIVMX_DRVNET=\"${netDriverJni("Darwin", arch, "dylib").absolutePath}\""
         )
-        copyFilesFromDeploy(INSTALL_DIR,".dylib")
+        copyFilesFromDeploy(INSTALL_DIR,".dylib",true)
+        copy {
+            from(netDriverJni("Darwin", arch, "dylib"))
+            into(INSTALL_DIR.resolve("lib"))
+        }
     }
 }
 
@@ -552,6 +566,7 @@ tasks.register("buildIosSimulatorWithConan") {
 
 tasks.register("buildIOSSimulatorStaticFromSources") {
     dependsOn("clonePrivmxSources")
+    dependsOn(":drivers:net:apple:buildNetDrvIOSSimulator")
 //    onlyIf { layout.buildDirectory.dir("native/install/iOSSimulator/$privmxEndpointJavaVersion/arm64").orNull?.asFile?.exists() != true }
     doFirst {
         val clonedEndpointDir = layout.buildDirectory.dir("privmx-endpoint").get().asFile
@@ -574,9 +589,15 @@ tasks.register("buildIOSSimulatorStaticFromSources") {
             INSTALL_DIR,
             COMPILED_DIR,
             "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/ios-iphonesimulator-armv8/${buildType.name}/generators/conan_toolchain.cmake",
-            false
+            false,
+            additionalArgs = " -DPRIVMX_DRVNET_INCLUDES=\"${netDriverIncludesDir().absolutePath}\"" +
+                    " -DPRIVMX_DRVNET=\"${netDriverApple("iOSSimulator").absolutePath}\""
         )
         copyFilesFromDeploy(INSTALL_DIR, ".a", true)
+        copy {
+            from(netDriverApple("iOSSimulator"))
+            into(INSTALL_DIR.resolve("lib"))
+        }
         exec {
             workingDir = INSTALL_DIR
             commandLine("sh", "-c", "/usr/bin/libtool -static -o libpmxend.a ./lib/*.a")
@@ -587,6 +608,7 @@ tasks.register("buildIOSSimulatorStaticFromSources") {
 
 tasks.register("buildIOSStaticFromSources") {
     dependsOn("clonePrivmxSources")
+    dependsOn(":drivers:net:apple:buildNetDrvIOS")
     onlyIf { layout.buildDirectory.dir("native/install/iOS/$privmxEndpointJavaVersion/arm64").orNull?.asFile?.exists() != true }
     doFirst {
         val clonedEndpointDir = layout.buildDirectory.dir("privmx-endpoint").get().asFile
@@ -604,13 +626,22 @@ tasks.register("buildIOSStaticFromSources") {
         val INSTALL_DIR = layout.buildDirectory.get().dir("native/install/iOS/$privmxEndpointJavaVersion/arm64").asFile
         val COMPILED_DIR = layout.buildDirectory.get().dir("native/compile/iOS/$privmxEndpointJavaVersion/arm64").asFile
 
+        if(!INSTALL_DIR.exists()) INSTALL_DIR.mkdirs()
+        if(!COMPILED_DIR.exists()) COMPILED_DIR.mkdirs()
+
         buildFromSources(
             INSTALL_DIR,
             COMPILED_DIR,
             "${layout.buildDirectory.asFile.get().absolutePath}/conan/build/ios-iphoneos-armv8/${buildType.name}/generators/conan_toolchain.cmake",
-            false
+            false,
+            additionalArgs = " -DPRIVMX_DRVNET_INCLUDES=\"${netDriverIncludesDir().absolutePath}\"" +
+                    " -DPRIVMX_DRVNET=\"${netDriverApple("iOS").absolutePath}\""
         )
         copyFilesFromDeploy(INSTALL_DIR, ".a",true)
+        copy {
+            from(netDriverApple("iOS"))
+            into(INSTALL_DIR.resolve("lib"))
+        }
         exec {
             workingDir = INSTALL_DIR
             commandLine("sh", "-c", "/usr/bin/libtool -static -o ./libpmxend.a ./lib/*.a")
@@ -711,7 +742,8 @@ private fun Project.buildFromSources(
     installDir: File,
     compileDir: File,
     toolChainPath: String,
-    buildShared: Boolean = true
+    buildShared: Boolean = true,
+    additionalArgs: String = ""
 ) {
     val clonedEndpointDir = layout.buildDirectory.dir("privmx-endpoint").get().asFile
     exec {
@@ -725,11 +757,14 @@ private fun Project.buildFromSources(
                     " -DCMAKE_CXX_FLAGS=-std=c++17" +
                     " -DBUILD_SHARED_LIBS=${if (buildShared) "ON" else "OFF"}" +
                     " -DPRIVMX_BUILD_ENDPOINT_ENDPOINT=ON" +
+//                    " -DPRIVMX_CONAN=ON" +
                     " -DPRIVMX_CONAN=ON" +
+                    " -DPRIVMX_IMPORTED_LIBRARIES=ON" +
                     " -DPRIVMX_DRIVER_CRYPTO=ON" +
-                    " -DPRIVMX_DRIVER_NET=ON" +
+                    " -DPRIVMX_DRVNET=ON" +
                     " -DCMAKE_TOOLCHAIN_FILE=\"$toolChainPath\"" +
-                    " -DCMAKE_INSTALL_PREFIX=\"${installDir.absolutePath}\""
+                    " -DCMAKE_INSTALL_PREFIX=\"${installDir.absolutePath}\"" +
+            additionalArgs.also { println("additional args: $it") }
         )
     }
 
@@ -815,6 +850,19 @@ private fun Project.removeLibVersionSuffix(root: File) {
                 }
             )
         }
+
+private fun Project.netDriverIncludesDir(): File {
+    return rootProject.file("drivers/net/include")
+}
+
+private fun Project.netDriverJni(os: String, arch: String, extension: String): File =
+    project(":drivers:net:jni").layout.buildDirectory
+        .file("native/install/$os/$arch/libnet_drv_cpp.$extension").get().asFile
+
+private fun Project.netDriverApple(platformDir: String): File =
+    project(":drivers:net:apple").layout.buildDirectory
+        .file("native/install/$platformDir/arm64/libprivmx_net_drv.a").get().asFile
+
     }
 }
 
