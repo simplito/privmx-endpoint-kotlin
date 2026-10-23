@@ -18,14 +18,14 @@ kotlin {
         }
     }
 
-    val combinedFramework = XCFramework("privmx-endpoint-extra-objc")
+    val combinedFramework = XCFramework("PrivMXEndpointExtraObjC")
     listOf(
         iosSimulatorArm64(),
         iosArm64()
     ).onEach{
         it.binaries {
             framework {
-                baseName = "privmx-endpoint-extra-objc"
+                baseName = "PrivMXEndpointExtraObjC"
                 combinedFramework.add(this)
             }
         }

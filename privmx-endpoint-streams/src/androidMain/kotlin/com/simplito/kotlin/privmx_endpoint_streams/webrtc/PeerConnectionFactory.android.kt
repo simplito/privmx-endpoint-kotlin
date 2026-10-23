@@ -20,8 +20,7 @@ internal actual fun PeerConnectionFactory.createSenderFrameCryptor(
     PmxFrameCryptorFactory.createPmxFrameCryptorFromRtpSender(
         this,
         sender,
-        keyStore,
-        null
+        keyStore
     )
 
 // AUDIO

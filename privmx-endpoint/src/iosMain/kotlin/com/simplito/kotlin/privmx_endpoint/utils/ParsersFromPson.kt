@@ -77,6 +77,7 @@ import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamUnpublished
 import com.simplito.kotlin.privmx_endpoint.model.stream.events.StreamUpdatedEventData
 import com.simplito.kotlin.privmx_endpoint.modules.crypto.ExtKey
 import com.simplito.kotlin.privmx_endpoint.utils.PsonValue.PsonObject
+import com.simplito.kotlin.privmx_endpoint.utils.typedValue
 
 internal fun PsonObject.toContext(): Context = Context(
     this["userId"]!!.typedValue(),
@@ -530,20 +531,20 @@ internal fun PsonObject.toTurnCredentials(): TurnCredentials = TurnCredentials(
 internal fun PsonObject.toStreamRoom(): StreamRoom = StreamRoom(
     this["contextId"]!!.typedValue(),
     this["streamRoomId"]!!.typedValue(),
-    this["createDate"]?.typedValue(),
+    this["createDate"]!!.typedValue(),
     this["creator"]!!.typedValue(),
-    this["lastModificationDate"]?.typedValue(),
+    this["lastModificationDate"]!!.typedValue(),
     this["lastModifier"]!!.typedValue(),
     this["users"]!!.typedList().map { it.typedValue() },
     this["managers"]!!.typedList().map { it.typedValue() },
-    this["version"]?.typedValue(),
+    this["version"]!!.typedValue(),
     this["publicMeta"]!!.typedValue(),
     this["privateMeta"]!!.typedValue(),
     (this["policy"] as PsonObject).toContainerPolicyWithoutItem(),
-    this["statusCode"]?.typedValue(),
-    this["schemaVersion"]?.typedValue(),
+    this["statusCode"]!!.typedValue(),
+    this["schemaVersion"]!!.typedValue(),
     this["state"]!!.typedValue(),       // "created" | "open" | "closed"
-    this["emptyRoomTtl"]?.typedValue(),
+    this["emptyRoomTtl"]!!.typedValue(),
 )
 
 internal fun PsonObject.toStreamInfo(): StreamInfo = StreamInfo(

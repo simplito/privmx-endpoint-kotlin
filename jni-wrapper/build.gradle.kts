@@ -53,7 +53,7 @@ val androidArchs = listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
 val darwinArchs = listOf("arm64")
 val nativeEndpointVersion = libs.versions.nativePrivmxEndpoint.get()
 val nativeAdditionalReleaseConanSuffix = ""
-val buildType = BuildTypes.Debug
+val buildType = BuildTypes.MinSizeRel
 private val privmxEndpointJavaVersion get() = project(":privmx-endpoint").version
 
 object AndroidProfileConfig {
