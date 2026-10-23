@@ -777,10 +777,15 @@ class StreamTest : BaseTest() {
         // a track created but never added to this stream
         val neverAdded = streamApi.trackFactory.createAudioTrack("audioNeverAdded")
 
-//        assertFailsWith<IllegalStateException> {
-        // todo - should the user be notified?
         streamApi.removeTrack(handle, neverAdded)
-//        }
+        streamApi.updateStream(handle)
+        waitForServerSync()
+
+        // the track wasn't on the list, so it is still absent - only the video track remains
+        val streams = streamApi.listStreams(roomId)
+        assertEquals(1, streams.size)
+        assertEquals(1, streams[0].tracks.size)
+        assertFalse(streams[0].tracks[0].disabled)
     }
 
     /** remove then add track back */
